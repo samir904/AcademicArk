@@ -1,6 +1,6 @@
 // src/PAGES/Note/CardRenderer.jsx
 import React from 'react';
-import NoteCard from './Notecard';
+import NoteCard from './NoteCard';
 import PyqCard from './PyqCard';
 import ImportantCard from './ImportantCard';
 
