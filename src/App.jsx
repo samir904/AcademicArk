@@ -40,7 +40,7 @@ function App() {
         <Route path='/edit-profile' element={<Updateprofile/>}></Route>
         <Route path='/change-password' element={<Changepassword/>} ></Route>
         <Route path='/notes' element={<Note/>} ></Route>
-      <Route path='/notes' element={<Browse/>} ></Route>
+      {/* <Route path='/notes' element={<Browse/>} ></Route> */}
       {/* Note Detail */}
       <Route path="/notes/:id" element={<NoteDetail />} />
       <Route path='/update-note/:id' element={<UpdateNote/>} ></Route>
