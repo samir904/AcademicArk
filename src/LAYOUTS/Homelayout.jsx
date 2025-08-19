@@ -7,16 +7,58 @@ import { getProfile, logout } from '../REDUX/Slices/authslice';
 import LogoutIcon from '@mui/icons-material/Logout';
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
-  <svg className={className} fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 0 : 2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+  <svg className={className} viewBox="0 0 24 24">
+    {active ? (
+      // Filled version - solid house
+      <path 
+        fill="currentColor" 
+        d="M12.5 2.134a1 1 0 00-1 0L4 7.577V19a1 1 0 001 1h4v-7h6v7h4a1 1 0 001-1V7.577l-7.5-5.443z"
+      />
+    ) : (
+      // Outline version
+      <path 
+        fill="none"
+        stroke="currentColor" 
+        strokeWidth="2"
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+        d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+      />
+    )}
+    {!active && (
+      <polyline 
+        fill="none"
+        stroke="currentColor" 
+        strokeWidth="2"
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+        points="9,22 9,12 15,12 15,22"
+      />
+    )}
   </svg>
 );
 
+
 const SearchIcon = ({ className, active }) => (
-  <svg className={className} fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 0 : 2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  <svg className={className} viewBox="0 0 24 24">
+    {active ? (
+      <path 
+        fill="currentColor" 
+        d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+      />
+    ) : (
+      <path 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      />
+    )}
   </svg>
 );
+
 
 const LibraryIcon = ({ className, active }) => (
   <svg className={className} fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -380,9 +422,11 @@ const HomeLayout = ({ children }) => {
               )}
             </button>
           ) : (
+            <>
             <Link to="/login">
               <UserIcon className="w-8 h-8 text-gray-400" />
             </Link>
+            </>
           )}
 
           {/* Logo */}
@@ -452,7 +496,7 @@ const HomeLayout = ({ children }) => {
                   onClick={handleLogout}
                   className="flex items-center space-x-3 p-3 text-red-400 hover:text-red-300 hover:bg-white/10 rounded-xl transition-colors w-full text-left"
                 >
-                  <span>🚪</span>
+                  <span><LogoutIcon/></span>
                   <span>Sign Out</span>
                 </button>
               </div>
@@ -467,7 +511,7 @@ const HomeLayout = ({ children }) => {
       </main>
 
       {/* Spotify-Style Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-black/98 backdrop-blur-2xl border-t border-white/5 z-40">
+      <div className="md:hidden fixed bottom-0  left-0 right-0 bg-black/98 backdrop-blur-2xl border-t border-white/5 z-40">
         <div className="flex items-center justify-around py-2 px-2">
           {getMobileNavItems().map((item) => {
             const IconComponent = item.icon;

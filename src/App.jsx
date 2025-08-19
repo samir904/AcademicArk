@@ -42,12 +42,12 @@ function App() {
         <Route path='/notes' element={<Note/>} ></Route>
       {/* <Route path='/notes' element={<Browse/>} ></Route> */}
       {/* Note Detail */}
-      <Route path="/notes/:id" element={<NoteDetail />} />
-      <Route path='/update-note/:id' element={<UpdateNote/>} ></Route>
-      <Route path='/upload' element={<UploadNote/>} ></Route>
+        <Route path="/notes/:id" element={<NoteDetail />} />
+        <Route path='/update-note/:id' element={<UpdateNote/>} ></Route>
+        <Route path='/upload' element={<UploadNote/>} ></Route>
 
         
-        <Route 
+<Route 
     path="/admin" 
     element={
         <AuthGuard fallback={<Navigate to="/login" />}>
@@ -74,8 +74,7 @@ function App() {
 <Route path='/contact' element={<Contact/>}  ></Route>
 <Route path='/privacy' element={<Privacy/>} ></Route>
 <Route path='/terms' element={<Terms/>}  ></Route>
-<Route path="*" element={<PageNotFound />} />
-      </Routes>
+<Route path="*" element={<PageNotFound />} /></Routes>
 
     </>
   )
