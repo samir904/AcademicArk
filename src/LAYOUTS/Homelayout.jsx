@@ -172,6 +172,15 @@ const TravelingDotButton = () => (
 //         dispatch(getProfile());
 //     }
 // }, [dispatch, isLoggedIn, userData?._id]);
+// Smooth scroll version
+useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'smooth'
+  });
+}, [location.pathname]);
+
 
   useEffect(() => {
     const handleScroll = () => {
