@@ -5,6 +5,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { showToast } from '../HELPERS/Toaster';
 import { getProfile, logout } from '../REDUX/Slices/authslice';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LoginRoundedIcon from '@mui/icons-material/LoginRounded';
+
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -35,6 +37,11 @@ const HomeIcon = ({ className, active }) => (
         points="9,22 9,12 15,12 15,22"
       />
     )}
+  </svg>
+);
+const LoginIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
   </svg>
 );
 
@@ -97,6 +104,55 @@ const BellIcon = ({ className }) => (
 );
 
 const HomeLayout = ({ children }) => {
+
+
+
+const TravelingDotButton = () => (
+  <Link 
+    to="/login" 
+    className="relative inline-flex items-center space-x-2 bg-black text-white px-6 py-3  font-semibold group overflow-hidden transition-all duration-300 hover:scale-105"
+  >
+    {/* Border Container */}
+    <div className="absolute inset-0 rounded-xl">
+      {/* Top line */}
+      <div className="absolute top-0 left-0 w-full h-0.5 bg-gray-800 rounded-full">
+        <div className="absolute top-0 left-0 w-6 h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full animate-travel-top"></div>
+      </div>
+      
+      {/* Right line */}
+      <div className="absolute top-0 right-0 w-0.5 h-full bg-gray-800 rounded-full">
+        <div className="absolute top-0 right-0 w-0.5 h-6 bg-gradient-to-b from-transparent via-purple-500 to-transparent rounded-full animate-travel-right"></div>
+      </div>
+      
+      {/* Bottom line */}
+      <div className="absolute bottom-0 right-0 w-full h-0.5 bg-gray-800 ">
+        <div className="absolute bottom-0 right-0 w-6 h-0.5 bg-gradient-to-l from-transparent via-pink-500 to-transparent rounded-full animate-travel-bottom"></div>
+      </div>
+      
+      {/* Left line */}
+      <div className="absolute bottom-0 left-0 w-0.5 h-full bg-gray-800 ">
+        <div className="absolute bottom-0 left-0 w-0.5 h-6 bg-gradient-to-t from-transparent via-cyan-500 to-transparent rounded-full animate-travel-left"></div>
+      </div>
+    </div>
+    
+    {/* Content */}
+    <div className="relative z-10 flex items-center space-x-2">
+      {/* <div className="p-1.5  rounded-lg group-hover:animate-spin">
+        <LoginIcon className="w-4 h-4" />
+      </div> */}
+      <span className=" bg-clip-text  text-white font-bold tracking-wide">
+        Sign In
+      </span>
+    </div>
+    
+    {/* Corner Dots */}
+    <div className="absolute top-1 left-1 w-1 h-1 bg-blue-500 rounded-full animate-pulse"></div>
+    <div className="absolute top-1 right-1 w-1 h-1 bg-purple-500 rounded-full animate-pulse delay-500"></div>
+    <div className="absolute bottom-1 right-1 w-1 h-1 bg-pink-500 rounded-full animate-pulse delay-1000"></div>
+    <div className="absolute bottom-1 left-1 w-1 h-1 bg-cyan-500 rounded-full animate-pulse delay-1500"></div>
+  </Link>
+);
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -438,9 +494,16 @@ const HomeLayout = ({ children }) => {
           </Link>
 
           {/* Notifications */}
-          <button className="p-2">
+          {isLoggedIn?(
+            <button className="p-2">
             {/* <BellIcon className="w-6 h-6 text-gray-400" /> */}
           </button>
+          ):(
+            <TravelingDotButton/>
+
+
+          )}
+          
         </div>
 
         {/* Mobile Menu Dropdown */}

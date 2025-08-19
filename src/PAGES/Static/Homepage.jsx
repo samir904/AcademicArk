@@ -60,6 +60,8 @@ const Homepage = () => {
     { number: 'AKTU', label: 'University' }
   ];
 
+  
+
   return (
     <HomeLayout>
       {/* Hero Section - Apple Style */}
@@ -87,12 +89,16 @@ const Homepage = () => {
               Get Started
             </Link>
 }
+
             <Link 
               to="/notes" 
               className="text-white border border-gray-700 hover:border-gray-600 px-8 py-3 rounded-lg font-medium transition-colors"
             >
               Browse Notes
             </Link>
+
+
+
           </div>
         </div>
       </section>

@@ -1,5 +1,63 @@
 @import "tailwindcss";
 
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+.bg-gradient-conic {
+  background: conic-gradient(from 0deg, #3b82f6 0deg, transparent 90deg, transparent 270deg, #3b82f6 360deg);
+}
+
+@keyframes travel-top {
+  0% { transform: translateX(-100%); }
+  25% { transform: translateX(calc(100vw - 24px)); }
+  25.1% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes travel-right {
+  0%, 25% { opacity: 0; }
+  25.1% { opacity: 1; transform: translateY(-100%); }
+  50% { transform: translateY(calc(100vh - 24px)); }
+  50.1% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes travel-bottom {
+  0%, 50% { opacity: 0; }
+  50.1% { opacity: 1; transform: translateX(0); }
+  75% { transform: translateX(calc(-100vw + 24px)); }
+  75.1% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes travel-left {
+  0%, 75% { opacity: 0; }
+  75.1% { opacity: 1; transform: translateY(0); }
+  100% { transform: translateY(calc(-100vh + 24px)); }
+}
+
+.animate-travel-top {
+  animation: travel-top 4s linear infinite;
+}
+
+.animate-travel-right {
+  animation: travel-right 4s linear infinite;
+}
+
+.animate-travel-bottom {
+  animation: travel-bottom 4s linear infinite;
+}
+
+.animate-travel-left {
+  animation: travel-left 4s linear infinite;
+}
 /* Define your fonts in Tailwind's base layer */
 @layer base {
   :root {
@@ -227,3 +285,4 @@ a, button, input, select, textarea {
     min-width: unset;
   }
 }
+
