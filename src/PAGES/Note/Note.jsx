@@ -39,13 +39,45 @@ export default function Note() {
 
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Common subjects for BTECH
-  const subjects = [
-    'Mathematics', 'Physics', 'Chemistry', 'Engineering Graphics', 
-    'Computer Programming', 'Data Structures', 'operating System',
-    'Database Management', 'Computer Networks', 'Software Engineering',
-    'Web Technology', 'Machine Learning', 'Artificial Intelligence'
-  ];
+  // Subject mapping by semester
+const subjectsBySemester = {
+  1: [
+    'Mathematics-I', 'Physics', 'PPS', 'Engineering Graphics', 
+    'Electrical Engineering', 'EVS'
+  ],
+  2: [
+    'Mathematics-II', 'Chemistry', 'FME', 
+    'Electronics', 'Soft Skill'
+  ],
+  3: [
+    'Data Structures', 'Digital Electronics', 
+    'Computer Organization and Architecture ', 'Python Programming', 'Discrete Mathematics'
+  ],
+  4: [
+    'Mathematics-IV', 'TAFL', 'Operating System', 
+    'Oops-Java', 'Cyber Security', 'UHV'
+  ],
+  5: [
+    'Computer Graphics', 'Web Technology', 'Compiler Design', 
+    'Analysis of Algorithms', 'System Programming', 'Microprocessors'
+  ],
+  6: [
+    'Machine Learning', 'Artificial Intelligence', 'Mobile Computing', 
+    'Network Security', 'Advanced Database', 'Human Computer Interaction'
+  ],
+  7: [
+    'Advanced Machine Learning', 'Distributed Systems', 'Cloud Computing', 
+    'Data Mining', 'Blockchain Technology', 'Project Management'
+  ],
+  8: [
+    'Advanced AI', 'IoT Systems', 'Big Data Analytics', 
+    'Cyber Security', 'Industry Training', 'Major Project'
+  ]
+};
+
+// Get all unique subjects for "All Subjects" option
+const allSubjects = Object.values(subjectsBySemester).flat().sort();
+
 
   // Fetch notes when filters change
   useEffect(() => {
@@ -149,32 +181,67 @@ export default function Note() {
               {/* Category */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+                
                 <select
                   value={localFilters.category}
                   onChange={(e) => handleFilterChange('category', e.target.value)}
                   className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">All Categories</option>
+                  <option value="">Show All Materials</option>
                   <option value="Notes">Notes</option>
                   <option value="PYQ">Previous Year Questions</option>
                   <option value="Important Question">Important Questions</option>
                 </select>
+                <div className="mt-1 text-xs text-gray-400 text-center">
+    Choose <span className="text-green-400">PYQ</span> for exam prep, <span className="text-blue-400">Notes</span> for learning
+  </div>
+                
               </div>
 
-              {/* Subject */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Subject</label>
-                <select
-                  value={localFilters.subject}
-                  onChange={(e) => handleFilterChange('subject', e.target.value)}
-                  className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">All Subjects</option>
-                  {subjects.map(subject => (
-                    <option key={subject} value={subject}>{subject}</option>
-                  ))}
-                </select>
-              </div>
+             {/* Subject */}
+<div>
+  <label className="block text-sm font-medium text-gray-300 mb-2">
+    Subject
+    {localFilters.semester && (
+      <span className="ml-2 text-xs text-blue-400">
+        (Semester {localFilters.semester} subjects)
+      </span>
+    )}
+  </label>
+  
+  <select
+    value={localFilters.subject}
+    onChange={(e) => handleFilterChange('subject', e.target.value)}
+    className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+  >
+    <option value="">
+      {localFilters.semester 
+        ? ` All Semester ${localFilters.semester} Subjects` 
+        : ' All Subjects'
+      }
+    </option>
+    
+    {/* Show filtered subjects based on semester */}
+    {(localFilters.semester 
+      ? subjectsBySemester[localFilters.semester] || []
+      : allSubjects
+    ).map(subject => (
+      <option key={subject} value={subject}>
+        {subject}
+      </option>
+    ))}
+  </select>
+  
+  {/* Helper text */}
+  <div className="mt-1 text-xs text-gray-400 text-center">
+    {localFilters.semester ? (
+      <>Showing subjects for <span className="text-blue-400">Semester {localFilters.semester}</span></>
+    ) : (
+      <>Select a <span className="text-green-400">semester</span> to filter subjects</>
+    )}
+  </div>
+</div>
+
 
               {/* University */}
               <div>
@@ -188,7 +255,20 @@ export default function Note() {
                 </select>
               </div>
             </div>
-
+          {/* Spotify-style OR divider */}
+<div className="flex items-center my-8">
+  <div className="flex-1">
+    <div className="h-px bg-gradient-to-r from-white/5 via-white/20 to-white/5"></div>
+  </div>
+  <div className="mx-4">
+    <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full border border-white/10 backdrop-blur-sm">
+      <span className="text-white font-bold text-sm">OR</span>
+    </div>
+  </div>
+  <div className="flex-1">
+    <div className="h-px bg-gradient-to-l from-white/5 via-white/20 to-white/5"></div>
+  </div>
+</div>
             {/* Search Bar */}
             <div className="relative">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
