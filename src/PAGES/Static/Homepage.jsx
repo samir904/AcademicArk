@@ -210,7 +210,7 @@ const Homepage = () => {
           </p>
           {!isLoggedIn&&
           <Link 
-            to="/register" 
+            to="/signup" 
             className="inline-block bg-white text-black px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
           >
             Create Account

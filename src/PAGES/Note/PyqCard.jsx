@@ -131,7 +131,7 @@ export default function PyqCard({ note }) {
           </div>
           <div className="text-center p-2 bg-red-500/10 rounded-lg border border-red-500/20">
             <AwardIcon className="w-4 h-4 text-red-300 mx-auto mb-1" />
-            <div className="text-xs text-red-200 font-medium">100 Marks</div>
+            <div className="text-xs text-red-200 font-medium">70 Marks</div>
             <div className="text-xs text-red-400">Total</div>
           </div>
           <div className="text-center p-2 bg-red-500/10 rounded-lg border border-red-500/20">
