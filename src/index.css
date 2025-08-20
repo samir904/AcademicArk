@@ -597,3 +597,40 @@ a, button, input, select, textarea {
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 .delay-600 { animation-delay: 600ms; }
+/* Essential animations for AppLoader */
+.delay-300 { animation-delay: 300ms; }
+.delay-600 { animation-delay: 600ms; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-glow {
+  0%, 100% {
+    opacity: 0.05;
+    text-shadow: 0 0 20px rgba(59,130,246,0.4), 0 0 40px rgba(147,51,234,0.3), 0 0 60px rgba(236,72,153,0.2);
+  }
+  50% {
+    opacity: 0.12;
+    text-shadow: 0 0 40px rgba(59,130,246,0.6), 0 0 60px rgba(147,51,234,0.5), 0 0 80px rgba(236,72,153,0.4);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
+
+.animate-fade-glow {
+  animation: fade-glow 4s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin 6s linear infinite;
+}

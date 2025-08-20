@@ -23,7 +23,7 @@ loading: false,
     bookmarksPagination: null
 }
 
-export const createAccount=createAsyncThunk("/auth/signup",async(data)=>{
+export const createAccount=createAsyncThunk("/auth/signup",async(data, { rejectWithValue })=>{
     try{
         const res=axiosInstance.post("user/register",data);
         toast.promise(res,{
@@ -39,10 +39,11 @@ export const createAccount=createAsyncThunk("/auth/signup",async(data)=>{
 
     }catch(e){
         toast.error(e?.response?.data?.message)
+        return rejectWithValue(e?.response?.data || { message: "Signup failed" }); // ✅
     }
 })
 
-export const login=createAsyncThunk("/auth/login",async(data)=>{
+export const login=createAsyncThunk("/auth/login",async(data,{rejectWithValue})=>{
     try{
         const res=axiosInstance.post("/user/login",data);
         showToast.promise(res,{
@@ -57,6 +58,7 @@ export const login=createAsyncThunk("/auth/login",async(data)=>{
         return (await res).data;
     }catch(error){
         toast.error(error?.response?.data?.message)
+        return rejectWithValue(e?.response?.data || { message: "Login failed" }); // ✅
     }
 })
 
@@ -199,6 +201,10 @@ const authSlice=createSlice({
     initialState,
     reducers:{},
     extraReducers:(builder)=>{
+        builder.addCase(createAccount.pending,(state,action)=>{
+            state.loading=true;
+            state.error=null;
+        })
         builder.addCase(createAccount.fulfilled,(state,action)=>{
             const user=action?.payload?.data|| action.payload;
             localStorage.setItem("isLoggedIn",true);
@@ -207,16 +213,31 @@ const authSlice=createSlice({
             state.isLoggedIn=true;
             state.data=user;
             state.role=user?.role||"USER";
+            state.loading=false;
         })
-    builder.addCase(login.fulfilled,(state,action)=>{
-        const user=action?.payload?.data||action?.payload;
-        localStorage.setItem("data",JSON.stringify(user));
-        localStorage.setItem("isLoggedIn",true);
-        localStorage.setItem("role",user?.role||"USER");
-        state.isLoggedIn=true;
-        state.role=user?.role||"USER"
-        state.data=user;
-    })
+        builder.addCase(createAccount.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action?.payload?.message || "Failed to create account. Please try again!";
+        });
+
+        builder.addCase(login.pending,(state,action)=>{
+            state.loading=true;
+            state.error=null;
+        })
+        builder.addCase(login.fulfilled,(state,action)=>{
+            const user=action?.payload?.data||action?.payload;
+            localStorage.setItem("data",JSON.stringify(user));
+            localStorage.setItem("isLoggedIn",true);
+            localStorage.setItem("role",user?.role||"USER");
+            state.isLoggedIn=true;
+            state.role=user?.role||"USER"
+            state.data=user;
+            state.loading=false;
+        })
+        builder.addCase(login.rejected,(state,action)=>{
+            state.loading=false;
+            state.error=action?.payload?.message||"Failed to login please try again!"
+        })
 
     
     builder.addCase(getProfile.fulfilled,(state,action)=>{

@@ -107,9 +107,9 @@ export default function Profile() {
                 </div>
                 
                 {/* Edit Profile Photo Button */}
-                <button className="absolute bottom-2 right-2 bg-white text-black p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors group-hover:scale-110 transform duration-200">
+                <Link to={"/edit-profile"} className="absolute bottom-2 right-2 bg-white text-black p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors group-hover:scale-110 transform duration-200">
                   <EditIcon className="w-4 h-4" />
-                </button>
+                </Link>
               </div>
 
               {/* User Info */}
@@ -269,7 +269,7 @@ export default function Profile() {
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link
-                to="/my-notes"
+                to="/bookmarks"
                 className="group p-4 rounded-xl border border-white/10 hover:border-white/30 transition-all duration-300 hover:bg-white/5 text-center"
               >
                 <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📚</div>
