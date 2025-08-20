@@ -1,41 +1,68 @@
 @import "tailwindcss";
 
+/* 🛡️ Base Layer Fixes */
 @layer base {
   a, button {
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent; /* Prevent iOS/Chrome tap ripple */
     @apply focus:outline-none focus:ring-0;
+  }
+
+  :root {
+    --font-primary: 'Poppins', sans-serif;
+    --font-secondary: 'Open Sans', sans-serif;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-secondary);
+    font-weight: 400;
+    line-height: 1.6;
+    color: #fff;
+    background-color: black;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary);
+    font-weight: 600;
+    color: #1e3a8a;
+    line-height: 1.2;
+  }
+
+  button, .nav-link, .btn {
+    font-family: var(--font-primary);
+    font-weight: 700;
+  }
+
+  p, li, span, label {
+    font-family: var(--font-secondary);
+    font-weight: 300;
   }
 }
 
-/* 🚫 Remove white/grey tap highlight on mobile Safari & Chrome */
-* {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-tap-highlight-color: rgba(0,0,0,0); /* extra safe */
-}
-/* Remove white/grey highlight flash on mobile Safari/Chrome */
-a, button, input, textarea, select, div {
-  -webkit-tap-highlight-color: transparent; /* Prevent iOS/Chrome tap flash */
-  -webkit-focus-ring-color: transparent;
-  outline: none; /* Remove default outline */
-}
-/* Reset tap/active highlights globally */
+/* ✅ Fix: Kill tap flash but NOT break white buttons */
 a, button {
-  -webkit-tap-highlight-color: transparent;
-  outline: none;
-  background: transparent;
+  -webkit-tap-highlight-color: transparent; /* Removes white highlight flash */
+  -webkit-focus-ring-color: transparent;
 }
 
-/* For inputs as well if needed */
-input, select, textarea {
-  -webkit-tap-highlight-color: transparent;
-  outline: none;
-}
-/* Remove ugly focus outline after click/tap */
-a:focus, a:focus-visible,
-button:focus, button:focus-visible {
-  outline: none !important;
+a:focus,
+a:focus-visible,
+button:focus,
+button:focus-visible {
+  outline: none !important;   /* Prevent ugly default outlines */
   box-shadow: none !important;
 }
+
+/* 🟢 Your button components must provide their own active state */
+.btn-white, .bg-white {
+  @apply text-black hover:bg-gray-100 active:bg-gray-200 transition duration-200;
+}
+
 
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
