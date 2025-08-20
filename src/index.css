@@ -1,5 +1,41 @@
 @import "tailwindcss";
 
+@layer base {
+  a, button {
+    -webkit-tap-highlight-color: transparent;
+    @apply focus:outline-none focus:ring-0;
+  }
+}
+
+/* 🚫 Remove white/grey tap highlight on mobile Safari & Chrome */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0,0,0,0); /* extra safe */
+}
+/* Remove white/grey highlight flash on mobile Safari/Chrome */
+a, button, input, textarea, select, div {
+  -webkit-tap-highlight-color: transparent; /* Prevent iOS/Chrome tap flash */
+  -webkit-focus-ring-color: transparent;
+  outline: none; /* Remove default outline */
+}
+/* Reset tap/active highlights globally */
+a, button {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  background: transparent;
+}
+
+/* For inputs as well if needed */
+input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+/* Remove ugly focus outline after click/tap */
+a:focus, a:focus-visible,
+button:focus, button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
 
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
@@ -633,4 +669,8 @@ a, button, input, select, textarea {
 
 .animate-spin-slow {
   animation: spin 6s linear infinite;
+}
+/* App.css or global.css */
+a, button {
+  -webkit-tap-highlight-color: transparent; /* iOS Safari */
 }
