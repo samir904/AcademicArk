@@ -97,15 +97,31 @@ export default function AboutDeveloper() {
     // Projects data
     const projects = [
         {
-            title: 'Academic Ark',
-            description: 'A comprehensive note-sharing platform for students to upload, download, and manage academic materials with advanced search, user roles, and analytics.',
-            technologies: ['React.js', 'Node.js', 'MongoDB', 'Express.js', 'Cloudinary', 'JWT', 'Redux'],
-            features: ['User Authentication', 'File Upload/Download', 'Advanced Search', 'Admin Dashboard', 'User Analytics', 'Rating System'],
-            status: 'In Development',
-            github: 'https://github.com/samirsumanm/academic-ark',
-            live: 'https://academic-ark.netlify.app',
-            color: 'blue'
-        },
+    title: 'Academic Ark',
+    description:
+      'A comprehensive note-sharing platform for students to upload, download, and manage academic materials with advanced search, user roles, and analytics.',
+    technologies: [
+      'React.js',
+      'Node.js',
+      'MongoDB',
+      'Express.js',
+      'Cloudinary',
+      'JWT',
+      'Redux',
+    ],
+    features: [
+      'User Authentication',
+      'File Upload/Download',
+      'Advanced Search',
+      'Admin Dashboard',
+      'User Analytics',
+      'Rating System',
+    ],
+    status: 'Completed', // ✅ updated
+    github: 'https://github.com/samir904/AcademicArk', // ✅ frontend/backend both share repo link
+    live: 'https://academicark-mvp8.onrender.com',      // ✅ updated production live site
+    color: 'blue',
+  },
         {
             title: 'LMS',
             description: 'Learning Management System with course creation, enrollment, video streaming, and progress tracking for educators and students.',
@@ -311,7 +327,7 @@ export default function AboutDeveloper() {
                 {/* Navigation Tabs */}
                 <div className="bg-gray-900/50 border-b border-white/10 sticky top-0 z-40 backdrop-blur-xl">
                     <div className="max-w-6xl mx-auto px-4">
-                        <div className="flex space-x-8">
+                        <div className="flex space-x-6 overflow-x-auto no-scrollbar">
                             {[
                                 { id: 'about', label: 'About Me', icon: UserIcon },
                                 { id: 'skills', label: 'Skills', icon: CodeIcon },

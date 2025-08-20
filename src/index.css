@@ -63,6 +63,15 @@ button:focus-visible {
   @apply text-black hover:bg-gray-100 active:bg-gray-200 transition duration-200;
 }
 
+/* Hide scrollbar but keep scroll functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE & Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
 
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
