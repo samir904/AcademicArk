@@ -261,7 +261,7 @@ useEffect(() => {
         name: 'Library', 
         path: '/notes', 
         icon: LibraryIcon,
-        label: 'Your Library'
+        label: 'Library'
       }
     ];
 
@@ -584,7 +584,7 @@ useEffect(() => {
 
       {/* Spotify-Style Bottom Navigation */}
       <div className="md:hidden fixed bottom-0  left-0 right-0 bg-black/98 backdrop-blur-2xl border-t border-white/5 z-40">
-        <div className="flex items-center justify-around py-2 px-2">
+        <div className="flex items-center justify-evenly py-2 w-full">
           {getMobileNavItems().map((item) => {
             const IconComponent = item.icon;
             const isActive = isActiveLink(item.path);
