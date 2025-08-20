@@ -641,7 +641,6 @@ useEffect(() => {
                   { name: 'Browse Notes', path: '/notes' },
                   { name: 'search', path: '/search' },
                   { name: 'AKTU', path: 'https://aktu.ac.in/' },
-                  { name: 'About Developer', path: '/about-developer' },
                   { name: 'Coming Soon', path: '/coming-soon' }
                 ].map((link) => (
                   <li key={link.name}>
@@ -663,7 +662,8 @@ useEffect(() => {
                   { name: 'Help Center', path: '/help' },
                   { name: 'Contact', path: '/contact' },
                   { name: 'Privacy', path: '/privacy' },
-                  { name: 'Terms', path: '/terms' }
+                  { name: 'Terms', path: '/terms' },
+                  { name: 'About Developer', path: '/about-developer' },
                 ].map((link) => (
                   <li key={link.name}>
                     <Link to={link.path} className="text-gray-400 hover:text-white transition-all duration-300 hover:translate-x-1 inline-block">

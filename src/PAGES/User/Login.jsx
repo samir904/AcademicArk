@@ -33,6 +33,10 @@ const LockIcon = ({ className }) => (
 );
 
 export default function Login() {
+  // Add this state to your Login component
+const [showSignupSuggestion, setShowSignupSuggestion] = useState(false);
+const [attemptedEmail, setAttemptedEmail] = useState('');
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading } = useSelector((state) => state?.auth);
@@ -99,15 +103,27 @@ export default function Login() {
     const res = await dispatch(login(logindata));
     
     if (res?.payload?.success) {
-     // showToast.success("Welcome back! Login successful 🎉");
-      navigate("/");
-      setLogindata({
-        email: "",
-        password: ""
-      });
-    }
-  }
-
+    navigate("/");
+    setLogindata({
+      email: "",
+      password: ""
+    });
+   } 
+   //else {
+  //   // Check if it's a rejected action (login failed)
+  //   if (res.type?.endsWith('/rejected')) {
+  //     // The error message will be in res.error.message
+  //     const errorMessage = res.error?.message || '';
+      
+  //     console.log('🔍 Error message:', errorMessage); // Debug log
+      
+  //     if (errorMessage.includes('email id is not registered')) {
+  //       setAttemptedEmail(logindata.email);
+  //       setShowSignupSuggestion(true);
+  //     }
+  //   }
+  // }
+}
   // const handleGoogleSignIn = () => {
   //   window.location.href = `http://localhost:5014/api/v1/oauth/google`;
   // };
@@ -231,6 +247,31 @@ export default function Login() {
             </Link>
           </p>
         </form>
+        {/* // Add this JSX after your form */}
+{/* {showSignupSuggestion && (
+  <div className="mt-3 text-center">
+    <p className="text-gray-400 text-sm">
+      <span className="text-white">{attemptedEmail}</span> not registered. 
+      <Link
+        to="/signup"
+        state={{ email: attemptedEmail }}
+        className="text-blue-400 hover:text-blue-300 ml-1"
+      >
+        Create account?
+      </Link>
+    </p>
+    <button
+      onClick={() => setShowSignupSuggestion(false)}
+      className="text-xs text-gray-500 hover:text-gray-400 mt-1"
+    >
+      ✕
+    </button>
+  </div>
+)} */}
+
+
+
+
       </div>
     </div>
   );
