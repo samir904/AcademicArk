@@ -17,6 +17,7 @@ const Updateprofile = React.lazy(() => import('./PAGES/User/Updateprofile'));
 const Changepassword = React.lazy(() => import('./PAGES/User/Changepassword'));
 const Note = React.lazy(() => import('./PAGES/Note/Note'));
 const NoteDetail = React.lazy(() => import('./PAGES/Note/NoteDetail'));
+const ReadNote =React.lazy(()=>import("./PAGES/Note/ReadNote"))
 const UploadNote = React.lazy(() => import('./PAGES/Note/UploadNote'));
 const UpdateNote = React.lazy(() => import('./PAGES/Note/UpdateNote'));
 const AdvancedSearch = React.lazy(() => import('./PAGES/Search/AdvancedSearch'));
@@ -134,6 +135,13 @@ function App() {
             <NoteDetail/>
           </Suspense>
         }/>
+        // Add this route in your App.jsx
+<Route path="/notes/:id/read" element={
+  <Suspense fallback={<AppLoader />}>
+    <ReadNote/>
+  </Suspense>
+}/>
+
         <Route path="/update-note/:id" element={
           <AuthGuard requiredRole={["TEACHER","ADMIN"]} >
           <Suspense fallback={<AppLoader />}>

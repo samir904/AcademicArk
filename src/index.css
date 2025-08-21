@@ -72,6 +72,91 @@ button:focus-visible {
   scrollbar-width: none;     /* Firefox */
 }
 
+/* Add to your App.css */
+@keyframes float-random {
+  0%, 100% { 
+    transform: translateY(0px) translateX(0px); 
+    opacity: 0.2; 
+  }
+  33% { 
+    transform: translateY(-20px) translateX(10px); 
+    opacity: 0.6; 
+  }
+  66% { 
+    transform: translateY(-10px) translateX(-15px); 
+    opacity: 0.4; 
+  }
+}
+
+.animate-float-random {
+  animation: float-random 8s ease-in-out infinite;
+}
+/* Float animation for particles */
+@keyframes float-random {
+  0%, 100% { 
+    transform: translateY(0px) translateX(0px); 
+    opacity: 0.3; 
+  }
+  50% { 
+    transform: translateY(-15px) translateX(10px); 
+    opacity: 0.6; 
+  }
+}
+
+.animate-float-random {
+  animation: float-random 8s ease-in-out infinite;
+}
+
+/* Fade in up animation for speed dial items */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out forwards;
+}
+
+/* Slide up animation for mobile bottom sheet */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+/* React-PDF styling */
+.react-pdf__Page {
+  margin: 0 auto;
+}
+
+.react-pdf__Page__canvas {
+  display: block;
+  margin: 0 auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+}
+
+.react-pdf__Page__textContent {
+  user-select: text;
+}
+
+.react-pdf__Page__annotations {
+  pointer-events: auto;
+}
+
 
 @keyframes spin-slow {
   from { transform: rotate(0deg); }

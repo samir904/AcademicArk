@@ -260,6 +260,11 @@ const noteSlice = createSlice({
                 state.loading = false;
                 state.currentNote = action?.payload?.data;
             })
+            .addCase(getNote.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action?.payload || "Failed to fetch note!";
+                state.currentNote = null; // Clear current note on error
+            })
 
             // In your noteSlice.js - fix the updateNote extraReducer
             .addCase(updateNote.fulfilled, (state, action) => {
