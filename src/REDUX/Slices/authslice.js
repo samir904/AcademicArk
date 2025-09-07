@@ -58,27 +58,39 @@ export const login=createAsyncThunk("/auth/login",async(data,{rejectWithValue})=
         return (await res).data;
     }catch(error){
         toast.error(error?.response?.data?.message)
-        return rejectWithValue(e?.response?.data || { message: "Login failed" }); // ✅
+        return rejectWithValue(error?.response?.data || { message: "Login failed" }); // ✅
     }
 })
 
-export const logout=createAsyncThunk("/auth/logout",async()=>{
-    try{
-        const res=axiosInstance.get("/user/logout");
-        showToast.promise(res,{
-            loading:"Wait logout in process!",
-            success:(data)=>{
-               return data?.data?.message ||"Loggedout successfully"
-            },
-            error:(error)=>{
-              return  error?.response?.data?.message || "Failed to loggedout"
-            }
-        })
-        return (await res).data;
-    }catch(e){
-        toast.error(e?.response?.data?.message||"Failed try again!")
+export const logout = createAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      // 1. Fire the request
+      const resPromise = axiosInstance.get('/user/logout');
+
+      // 2. Wrap it in your toast and await it
+      const res = await showToast.promise(
+        resPromise,
+        {
+          loading: 'Logging out…',
+          success: (data) => data?.data?.message || 'Logged out successfully',
+          error: (error) =>
+            error?.response?.data?.message || 'Failed to log out',
+        }
+      );
+
+      // 3. Return the data
+      return res.data;
+    } catch (err) {
+      // Return a rejected value so your thunk goes to .rejected
+      return rejectWithValue(
+        err?.response?.data?.message || 'Logout failed, please try again'
+      );
     }
-})
+  }
+);
+
 
 export const getProfile=createAsyncThunk("/auth/profile",async()=>{
     try{

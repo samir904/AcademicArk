@@ -214,8 +214,16 @@ useEffect(() => {
 
   const handleLogout = async () => {
     const result = await dispatch(logout());
+    if(logout.fulfilled.match(result)){
+      //manually remove client side cokkie before navigation
+      document.cookie= 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure';
+
+      //also clear any localstorage/sessionstorage flags
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('data');
+      localStorage.removeItem('role');
+    }
     if (result?.payload?.success) {
-      showToast.success("Logged out successfully!");
       navigate("/");
     }
   };
