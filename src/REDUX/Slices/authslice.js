@@ -25,8 +25,8 @@ loading: false,
 
 export const createAccount=createAsyncThunk("/auth/signup",async(data, { rejectWithValue })=>{
     try{
-        const res=axiosInstance.post("user/register",data);
-        toast.promise(res,{
+        const httpPromise=axiosInstance.post("user/register",data);
+        const res=await showToast.promise(httpPromise,{
             loading:'Wait creating your account!',
             success:(data)=>{
                 return data?.data?.message || "Account created successfully"
@@ -35,7 +35,7 @@ export const createAccount=createAsyncThunk("/auth/signup",async(data, { rejectW
                 return error?.response?.data?.message || "Failed to create account"
             }
         })
-        return (await res).data;
+        return  res.data;
 
     }catch(e){
         toast.error(e?.response?.data?.message)
@@ -45,8 +45,8 @@ export const createAccount=createAsyncThunk("/auth/signup",async(data, { rejectW
 
 export const login=createAsyncThunk("/auth/login",async(data,{rejectWithValue})=>{
     try{
-        const res=axiosInstance.post("/user/login",data);
-        showToast.promise(res,{
+        const httpPromise=axiosInstance.post("/user/login",data);
+        const res= await showToast.promise(httpPromise,{
             loading:"Signing you in...",
             success:(data)=>{
                return data?.data?.message || "Welcome back! 🎉"
@@ -55,7 +55,7 @@ export const login=createAsyncThunk("/auth/login",async(data,{rejectWithValue})=
               return  error?.response?.data?.message || "Login failed. Please try again."
             }
         })
-        return (await res).data;
+        return  res.data;
     }catch(error){
         toast.error(error?.response?.data?.message)
         return rejectWithValue(error?.response?.data || { message: "Login failed" }); // ✅
@@ -103,8 +103,8 @@ export const getProfile=createAsyncThunk("/auth/profile",async()=>{
 
 export const updateProfile=createAsyncThunk("/auth/updateprofile",async(data)=>{
     try{
-        const res=axiosInstance.put("/user/update",data);
-        showToast.promise(res,{
+        const httpPromise=axiosInstance.put("/user/update",data);
+        const res=await showToast.promise(httpPromise,{
             loading:"Updating profile.",
             success:(data)=>{
                  return data?.data?.message ||"Profile updated."
@@ -113,7 +113,7 @@ export const updateProfile=createAsyncThunk("/auth/updateprofile",async(data)=>{
                return error?.response?.data?.message || "Update failed please try again"
             }
         })
-        return (await res).data;
+        return  res.data;
     }catch(e){
         showToast.error(e?.response?.data?.message||"Update failed. please try again!")
     }
@@ -121,8 +121,8 @@ export const updateProfile=createAsyncThunk("/auth/updateprofile",async(data)=>{
 
 export const changePassword=createAsyncThunk("/auth/changepassword",async(data)=>{
     try{
-        const res=axiosInstance.post("/user/change-password",data);
-        showToast.promise(res,{
+        const httpPromise=axiosInstance.post("/user/change-password",data);
+        const res=await showToast.promise(httpPromise,{
             loading:"Password changing...",
             success:(data)=>{
                return data?.data?.message || "Password changed."
@@ -131,7 +131,7 @@ export const changePassword=createAsyncThunk("/auth/changepassword",async(data)=
               return  error?.response?.data?.message || "Failed please try again!"
             }
         })
-        return (await res).data;
+        return  res.data;
     }catch(error){
         showToast.error(e?.response?.data?.message||"Failed please try again")
     }
@@ -139,8 +139,8 @@ export const changePassword=createAsyncThunk("/auth/changepassword",async(data)=
 
 export const forgotPassword=createAsyncThunk("/auth/forgotpassword",async(data)=>{
     try{
-        const res=axiosInstance.post("/user/reset",data);
-        showToast.promise(res,{
+        const httpPromise=axiosInstance.post("/user/reset",data);
+        const res=await showToast.promise(httpPromise,{
             loading:"Wait sending you email...",
             success:(data)=>{
                return data?.data?.message||"Email sended. please check your email!"
@@ -158,8 +158,8 @@ export const forgotPassword=createAsyncThunk("/auth/forgotpassword",async(data)=
 
 export const resetPassword=createAsyncThunk("/auth/resetpassword",async({resetToken,password})=>{
     try{
-        const res=axiosInstance.post(`/user/reset-password/${resetToken}`,{password});
-        showToast.promise(res,{
+        const httpPromise=axiosInstance.post(`/user/reset-password/${resetToken}`,{password});
+        const res=await showToast.promise(httpPromise,{
             loading:"Updating password..",
             success:(data)=>{
                  return data?.data?.message||"Password updated!"
@@ -168,7 +168,7 @@ export const resetPassword=createAsyncThunk("/auth/resetpassword",async({resetTo
                return error?.response?.data?.message || "Failed to update, please try again!"
             }
         })
-        return (await res).data;
+        return  res.data;
     }catch(error){
         showToast.error(error?.response?.data?.message||"Failed to update please try again!")
     }
