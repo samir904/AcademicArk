@@ -4,7 +4,10 @@ export function isEmail(string){
       )
 }
 
-export function isValidPassword(string){
-    return string.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-    )
+export function isValidPassword(password) {
+  // Require at least one lowercase letter, one uppercase letter,
+  // one digit, one non-alphanumeric character, and minimum length of 8
+  const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$/;
+  return pattern.test(password);
 }
+
