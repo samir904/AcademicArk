@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { getProfile } from '../../REDUX/Slices/authslice';
 import HomeLayout from '../../LAYOUTS/Homelayout';
+import {  getBackgroundTheme, useImageColors } from '../../hooks/useImageColors';
 
 // Icon components
 const EditIcon = ({ className }) => (
@@ -36,7 +37,11 @@ export default function Profile() {
   const userData = useSelector((state) => state?.auth?.data);
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
   
-  useEffect(() => {
+ const { colors,isLoading } = useImageColors(userData.avatar.secure_url);
+// Try different lightness: 0.2 (very light) → 0.6 (darker)
+const theme = getBackgroundTheme(colors, { lightness: 0.35 });
+
+useEffect(() => {
     if (!isLoggedIn) {
       navigate('/login');
       return;
@@ -81,16 +86,32 @@ export default function Profile() {
     <HomeLayout>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Header Section */}
-          <div className="relative bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-3xl p-8 mb-8 overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 to-purple-900/10"></div>
-            
+          {/* Dynamic Header Section */}
+          <div 
+            className="relative backdrop-blur-xl border rounded-3xl p-8 mb-8 overflow-hidden transition-all duration-500"
+            style={{
+              background: theme.headerGradient,
+              borderColor: theme.accentBorder,
+              boxShadow: `0 25px 50px -12px ${theme.cardShadow}`
+            }}
+          >
+            {/* Dynamic Background Pattern */}
+            <div 
+              className="absolute inset-0 opacity-30 transition-opacity duration-500"
+              style={{
+                backgroundImage: theme.backgroundPattern
+              }}
+            />         
             <div className="relative flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
               {/* Profile Photo */}
               <div className="relative group">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 group-hover:border-white/40 transition-all duration-300 shadow-2xl">
-                  {userData.avatar?.secure_url ? (
+                <div 
+                  className="w-32 h-32 rounded-full overflow-hidden border-4 group-hover:border-opacity-60 transition-all duration-300 shadow-2xl"
+                  style={{
+                    borderColor: `${colors.primary}40`,
+                    boxShadow: `0 20px 40px ${theme.cardShadow}`
+                  }}
+                > {userData.avatar?.secure_url ? (
                     <img
                       src={userData.avatar.secure_url}
                       alt={userData.fullName || 'Profile'}
