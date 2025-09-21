@@ -43,6 +43,12 @@ const LockIcon = ({ className }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
   </svg>
 );
+const CameraIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
 
 export default function Signup() {
   const dispatch = useDispatch();
@@ -212,7 +218,7 @@ export default function Signup() {
                       alt="Profile preview" 
                     />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full flex items-center justify-center">
-                      <UploadIcon className="w-8 h-8 text-white" />
+                      <CameraIcon className="w-8 h-8 text-white" />
                     </div>
                   </>
                 ) : (
@@ -220,7 +226,7 @@ export default function Signup() {
                     {isUploading ? (
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                     ) : (
-                      <UploadIcon className="w-8 h-8 text-gray-400 group-hover:text-gray-300" />
+                      <CameraIcon className="w-8 h-8 text-gray-400 group-hover:text-gray-300" />
                     )}
                   </div>
                 )}
