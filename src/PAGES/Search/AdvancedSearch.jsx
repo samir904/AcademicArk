@@ -7,6 +7,11 @@ import HomeLayout from '../../LAYOUTS/Homelayout';
 import CardRenderer from '../Note/CardRenderer';
 
 // Icons
+const BookIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+  </svg>
+);
 const SearchIcon = ({ className }) => (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -360,11 +365,17 @@ export default function AdvancedSearch() {
 
                 <div className="max-w-7xl mx-auto px-4 py-8">
                     {/* Loading State */}
-                    {loading && (
-                        <div className="flex justify-center items-center py-20">
-                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-                        </div>
-                    )}
+                    {/* Loading State */}
+          {loading && (
+            <div className="flex justify-center items-center py-20">
+              <div className="relative">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-blue-500"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <BookIcon className="w-6 h-6 text-blue-500" />
+                </div>
+              </div>
+            </div>
+          )}
 
                     {/* Search Results Tab */}
                     {activeTab === 'search' && !loading && (
