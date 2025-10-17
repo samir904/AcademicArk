@@ -7,11 +7,15 @@ import { Toaster } from 'react-hot-toast'
 import { Provider } from 'react-redux'
 import store from './REDUX/store.js'
 import CustomToaster from './HELPERS/Toaster.jsx'
+import { GoogleOAuthProvider } from '@react-oauth/google'
+
 createRoot(document.getElementById('root')).render(
   <Provider store={store} >
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
   <BrowserRouter>
     <App />
     <CustomToaster/>
   </BrowserRouter>
+  </GoogleOAuthProvider>
   </Provider>
 )

@@ -8,6 +8,7 @@ import Homepage from './PAGES/Static/Homepage';
 import Login from './PAGES/User/Login';
 import Signup from './PAGES/User/Signup';
 import PageNotFound from './PAGES/Static/PageNotFound';
+import AuthChecker from './COMPONENTS/AuthChecker';
 
 // 🟡 LAZY LOAD THESE (Medium priority)
 const ForgotPassword = React.lazy(() => import('./PAGES/User/Forgotpassword'));
@@ -87,6 +88,7 @@ const AppLoader = () => (
 function App() {
   return (
     <div className="App">
+      <AuthChecker /> {/* ✅ Add this at the top */}
       <Routes>
         {/* 🟢 Core Routes */}
         <Route path="/" element={<Homepage />} />

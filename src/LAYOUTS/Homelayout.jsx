@@ -685,7 +685,7 @@ useEffect(() => {
 
           <div className="mt-16 pt-8 border-t border-white/10">
             <p className="text-gray-500 text-sm text-center">
-              © 2025 AcademicArk. All rights reserved. Built with ❤️ by Samir Suman.
+              © 2025 AcademicArk. All rights reserved. Built with <span className='animate-pulse' >❤️</span> by Samir Suman.
             </p>
           </div>
         </div>
