@@ -73,37 +73,59 @@ export const login = createAsyncThunk("/auth/login", async (data, { rejectWithVa
     }
 })
 
-// Add this new thunk for Google login
+// authslice.js - Fixed Google Login
 export const googleLogin = createAsyncThunk(
     '/auth/google',
     async (_, { rejectWithValue }) => {
         try {
-            // This will redirect to backend OAuth route
-            //window.location.href = `http://localhost:5014/api/v1/oauth/google`;
-            window.location.href = `https://academicark.onrender.com/api/v1/oauth/google`;
-
-            // Return null since we're redirecting
+            // Show toast for better UX
+            showToast.loading('Redirecting to Google...', { id: 'google-auth' });
+            
+            // Small delay to show the loading state
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Store timestamp to track Google auth flow
+            sessionStorage.setItem('googleAuthStarted', Date.now().toString());
+            
+            // ✅ Use production URL directly (since you can't use env vars)
+            const apiUrl = 'https://academicark.onrender.com';
+            
+            // Redirect to backend OAuth route
+            window.location.href = `${apiUrl}/api/v1/oauth/google`;
+            
             return null;
         } catch (error) {
+            toast.dismiss('google-auth');
             const message = error?.response?.data?.message || 'Google login failed';
             showToast.error(message);
+            sessionStorage.removeItem('googleAuthStarted');
             return rejectWithValue(message);
         }
     }
 );
 
-// Add this thunk to check authentication after Google redirect
+// ✅ Enhanced checkAuth
 export const checkAuth = createAsyncThunk(
     '/auth/checkAuth',
     async (_, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.get('/user/getprofile');
+            
+            // Check if this was a Google auth callback
+            const googleAuthStarted = sessionStorage.getItem('googleAuthStarted');
+            if (googleAuthStarted) {
+                sessionStorage.removeItem('googleAuthStarted');
+                showToast.success('Successfully signed in with Google! 🎉');
+            }
+            
             return res.data;
         } catch (error) {
+            sessionStorage.removeItem('googleAuthStarted');
             return rejectWithValue(error?.response?.data?.message || 'Not authenticated');
         }
     }
 );
+
 
 export const logout = createAsyncThunk(
     'auth/logout',
