@@ -79,6 +79,7 @@ export const googleLogin = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             // This will redirect to backend OAuth route
+            //window.location.href = `http://localhost:5014/api/v1/oauth/google`;
             window.location.href = `https://academicark.onrender.com/api/v1/oauth/google`;
 
             // Return null since we're redirecting
