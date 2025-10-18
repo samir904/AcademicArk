@@ -298,12 +298,12 @@ const Homepage = () => {
         <button
           onClick={async () => {
             const url = window.location.origin;
-            const message = `📚 Hey! I found AcademicArk - an amazing platform for exam preparation!
+            const message = `📚 Hey! I found AcademicArk - an amazing platform for AKTU exam preparation!
 
 🎯 What you get:
-✅ Comprehensive Study Notes
-✅ Important Questions  
-✅ Previous Year Papers (PYQ)
+📚 Detailed AKTU Notes
+⭐ Important Questions  
+📄 AKTU Previous Year Papers (PYQ) 
 ✅ All subjects covered
 
 Perfect for acing your university exams! 🚀
@@ -354,7 +354,7 @@ Try it now and boost your exam scores! 📈`;
           <div className="inline-flex items-center space-x-4 px-6 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full">
             <div className="flex items-center space-x-2 text-blue-400">
               <span className="text-sm">📚</span>
-              <span className="text-xs font-medium">Notes</span>
+              <span className="text-xs font-medium">AKTU Notes</span>
             </div>
             <div className="w-px h-4 bg-white/20"></div>
             <div className="flex items-center space-x-2 text-green-400">
@@ -364,7 +364,7 @@ Try it now and boost your exam scores! 📈`;
             <div className="w-px h-4 bg-white/20"></div>
             <div className="flex items-center space-x-2 text-purple-400">
               <span className="text-sm">📄</span>
-              <span className="text-xs font-medium">PYQ</span>
+              <span className="text-xs font-medium">AKTU(PYQ) </span>
             </div>
           </div>
         </div>
@@ -375,15 +375,15 @@ Try it now and boost your exam scores! 📈`;
            */}
           {/* WhatsApp - Fixed emoji encoding */}
           <a
-            href={`https://wa.me/?text=${encodeURIComponent(`📚 Hey! I found AcademicArk - an amazing platform for exam preparation!
+            href={`https://wa.me/?text=${encodeURIComponent(`📚 Hey! I found AcademicArk - an amazing platform for AKTU exam preparation!
 
 🎯 What you get:
-• Comprehensive Study Notes
-• Important Questions  
-• Previous Year Papers (PYQ)
-• All subjects covered
+📚 Detailed AKTU Notes
+⭐ Important Questions  
+📄 AKTU Previous Year Papers (PYQ) 
+✅ All subjects covered
 
-Perfect for acing your university exams! 🚀
+Perfect for acing your AKTU university exams! 🚀
 
 🔗 Check it out: ${window.location.origin}
 
@@ -401,14 +401,15 @@ Try it now and boost your exam scores! 📈`)}`}
           {/* Instagram - Copy for Stories/Posts */}
           <button
             onClick={async () => {
-              const instagramMessage = `📚 Found AcademicArk - perfect for exam prep!
+              const instagramMessage = `📚 Found AcademicArk - perfect for AKTU exam prep!
 
-🎯 Get:
-• Study Notes
-• Important Questions
-• Previous Year Papers (PYQ)
+🎯 What you get:
+📚 Detailed AKTU Notes
+⭐ Important Questions  
+📄 AKTU Previous Year Papers (PYQ) 
+✅ All subjects covered
 
-🚀 Ace your university exams!
+🚀 Ace your AKTU university exams!
 
 🔗 ${window.location.origin}
 
@@ -452,7 +453,7 @@ Try it now and boost your exam scores! 📈`)}`}
 
           {/* X (formerly Twitter) */}
           <a
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("📚 Found an amazing platform for exam prep! AcademicArk has study notes, important questions & PYQ. Perfect for university exams! 🚀")}&url=${encodeURIComponent(window.location.origin)}`}
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("📚 Found an amazing platform for AKTU exam prep! AcademicArk has study notes, important questions & PYQ. Perfect for university exams! 🚀")}&url=${encodeURIComponent(window.location.origin)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="p-3 bg-gray-800/20 border border-gray-600/30 rounded-full hover:bg-gray-800/30 transition-all duration-200 group transform hover:scale-110"
@@ -465,7 +466,7 @@ Try it now and boost your exam scores! 📈`)}`}
 
           {/* LinkedIn */}
           <a
-            href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin)}&summary=${encodeURIComponent("Found an amazing platform for exam preparation! AcademicArk provides comprehensive study notes, important questions, and previous year papers for university students.")}`}
+            href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin)}&summary=${encodeURIComponent("Found an amazing platform for AKTU exam preparation! AcademicArk provides comprehensive study notes, important questions, and previous year papers for university students.")}`}
             target="_blank"
             rel="noopener noreferrer"
             className="p-3 bg-blue-600/20 border border-blue-600/30 rounded-full hover:bg-blue-600/30 transition-all duration-200 group transform hover:scale-110"
