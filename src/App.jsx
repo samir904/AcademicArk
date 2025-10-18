@@ -10,6 +10,7 @@ import Signup from './PAGES/User/Signup';
 import PageNotFound from './PAGES/Static/PageNotFound';
 import AuthChecker from './COMPONENTS/AuthChecker';
 import { useDispatch } from 'react-redux';
+import { showToast } from './HELPERS/Toaster';
 
 // 🟡 LAZY LOAD THESE (Medium priority)
 const ForgotPassword = React.lazy(() => import('./PAGES/User/Forgotpassword'));
