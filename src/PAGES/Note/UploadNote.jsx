@@ -94,7 +94,7 @@ export default function UploadNote() {
     if (!selectedFile) newErrors.file = 'File is required';
 
     if (selectedFile) {
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      const maxSize = 12 * 1024 * 1024; // 10MB
       const allowedTypes = [
         'application/pdf',
         'application/msword',
