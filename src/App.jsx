@@ -11,6 +11,7 @@ import PageNotFound from './PAGES/Static/PageNotFound';
 import AuthChecker from './COMPONENTS/AuthChecker';
 import { useDispatch } from 'react-redux';
 import { showToast } from './HELPERS/Toaster';
+import { checkAuth } from './REDUX/Slices/authslice';
 
 // 🟡 LAZY LOAD THESE (Medium priority)
 const ForgotPassword = React.lazy(() => import('./PAGES/User/Forgotpassword'));
