@@ -73,24 +73,19 @@ export const login = createAsyncThunk("/auth/login", async (data, { rejectWithVa
     }
 })
 
-// authslice.js - Fixed Google Login
+/// ✅ FIX #3: Enhanced googleLogin with better callback handling
 export const googleLogin = createAsyncThunk(
     '/auth/google',
     async (_, { rejectWithValue }) => {
         try {
-            // Show toast for better UX
             showToast.loading('Redirecting to Google...', { id: 'google-auth' });
-            
-            // Small delay to show the loading state
             await new Promise(resolve => setTimeout(resolve, 300));
             
-            // Store timestamp to track Google auth flow
-            sessionStorage.setItem('googleAuthStarted', Date.now().toString());
+            // Mark that Google auth was initiated
+            sessionStorage.setItem('googleAuthInitiated', Date.now().toString());
             
-            // ✅ Use production URL directly (since you can't use env vars)
             const apiUrl = 'https://academicark.onrender.com';
-            
-            // Redirect to backend OAuth route
+            //const apiUrl = 'https://localhost:5014';
             window.location.href = `${apiUrl}/api/v1/oauth/google`;
             
             return null;
@@ -98,25 +93,25 @@ export const googleLogin = createAsyncThunk(
             toast.dismiss('google-auth');
             const message = error?.response?.data?.message || 'Google login failed';
             showToast.error(message);
-            sessionStorage.removeItem('googleAuthStarted');
+            sessionStorage.removeItem('googleAuthInitiated');
             return rejectWithValue(message);
         }
     }
 );
 
-// ✅ Enhanced checkAuth
+// ✅ FIX #2: Modified checkAuth to NOT show Google toast
 export const checkAuth = createAsyncThunk(
     '/auth/checkAuth',
     async (_, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.get('/user/getprofile');
             
-            // Check if this was a Google auth callback
-            const googleAuthStarted = sessionStorage.getItem('googleAuthStarted');
-            if (googleAuthStarted) {
-                sessionStorage.removeItem('googleAuthStarted');
-                showToast.success('Successfully signed in with Google! 🎉');
-            }
+            // ❌ REMOVED - Don't show toast here
+            // const googleAuthStarted = sessionStorage.getItem('googleAuthStarted');
+            // if (googleAuthStarted) {
+            //     sessionStorage.removeItem('googleAuthStarted');
+            //     showToast.success('Successfully signed in with Google! 🎉');
+            // }
             
             return res.data;
         } catch (error) {
@@ -284,7 +279,7 @@ const authSlice = createSlice({
         })
         builder.addCase(createAccount.fulfilled, (state, action) => {
             const user = action?.payload?.data || action.payload;
-            localStorage.setItem("isLoggedIn", true);
+            localStorage.setItem("isLoggedIn", "true");
             localStorage.setItem("data", JSON.stringify(user));
             localStorage.setItem("role", user?.role || "USER");
             state.isLoggedIn = true;
@@ -304,7 +299,7 @@ const authSlice = createSlice({
         builder.addCase(login.fulfilled, (state, action) => {
             const user = action?.payload?.data || action?.payload;
             localStorage.setItem("data", JSON.stringify(user));
-            localStorage.setItem("isLoggedIn", true);
+            localStorage.setItem("isLoggedIn", "true");
             localStorage.setItem("role", user?.role || "USER");
             state.isLoggedIn = true;
             state.role = user?.role || "USER"
@@ -321,7 +316,7 @@ const authSlice = createSlice({
             })
             .addCase(checkAuth.fulfilled, (state, action) => {
                 const user = action?.payload?.data || action?.payload;
-                localStorage.setItem("isLoggedIn", true);
+                localStorage.setItem("isLoggedIn", "true");
                 localStorage.setItem("data", JSON.stringify(user));
                 localStorage.setItem("role", user?.role || "USER");
                 state.isLoggedIn = true;
@@ -335,7 +330,7 @@ const authSlice = createSlice({
 
         builder.addCase(getProfile.fulfilled, (state, action) => {
             const user = action?.payload?.data || action?.payload;
-            localStorage.setItem("isLoggedIn", true);
+            localStorage.setItem("isLoggedIn", "true");
             localStorage.setItem("data", JSON.stringify(user));
             localStorage.setItem("role", user?.role || "USER");
             state.isLoggedIn = true;
@@ -346,6 +341,8 @@ const authSlice = createSlice({
             localStorage.removeItem("isLoggedIn");
             localStorage.removeItem("data");
             localStorage.removeItem("role");
+            sessionStorage.removeItem('googleAuthStarted');
+                sessionStorage.removeItem('googleAuthInitiated');
             state.isLoggedIn = false;
             state.data = {};
             state.role = "";

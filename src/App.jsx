@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import AuthGuard from './COMPONENTS/AuthGuard';
 import './App.css';
@@ -9,6 +9,7 @@ import Login from './PAGES/User/Login';
 import Signup from './PAGES/User/Signup';
 import PageNotFound from './PAGES/Static/PageNotFound';
 import AuthChecker from './COMPONENTS/AuthChecker';
+import { useDispatch } from 'react-redux';
 
 // 🟡 LAZY LOAD THESE (Medium priority)
 const ForgotPassword = React.lazy(() => import('./PAGES/User/Forgotpassword'));
@@ -86,6 +87,24 @@ const AppLoader = () => (
 
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // ✅ Detect Google OAuth success from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const googleAuth = urlParams.get('googleAuth');
+
+    if (googleAuth === 'success') {
+      // Show success toast
+      showToast.success('Successfully signed in with Google! 🎉');
+
+      // Clean URL (remove ?googleAuth=success)
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // Fetch user data
+      dispatch(checkAuth());
+    }
+  }, [dispatch]);
   return (
     <div className="App">
       <AuthChecker /> {/* ✅ Add this at the top */}
