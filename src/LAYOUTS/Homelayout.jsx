@@ -360,19 +360,20 @@ useEffect(() => {
                     }}
                     className="flex items-center space-x-3 p-2 rounded-xl hover:bg-white/10 transition-all duration-300"
                   >
-                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20 hover:border-white/40 transition-colors">
-                      {userData?.avatar?.secure_url ? (
-                        <img 
-                          src={userData.avatar.secure_url} 
-                          alt="Profile" 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                          {userData?.fullName?.charAt(0)?.toUpperCase() || 'U'}
-                        </div>
-                      )}
-                    </div>
+                   <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20 hover:border-white/40 transition-colors">
+  {userData?.avatar?.secure_url?.startsWith('http') ? (
+    <img
+      src={userData.avatar.secure_url}
+      alt="Profile"
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+      {userData?.fullName?.charAt(0)?.toUpperCase() || 'U'}
+    </div>
+  )}
+</div>
+
                     <div className="text-left">
                       <div className="text-sm  font-medium text-white">
                         {userData?.fullName || 'User'}
@@ -391,19 +392,19 @@ useEffect(() => {
                     <div className="absolute right-0 mt-2 w-64 bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
                       <div className="p-4 border-b border-white/10">
                         <div className="flex items-center space-x-3">
-                          <div className="w-12 h-12 rounded-full overflow-hidden">
-                            {userData?.avatar?.secure_url ? (
-                              <img 
-                                src={userData?.avatar?.secure_url} 
-                                alt="Profile" 
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                                {userData?.fullName?.charAt(0)?.toUpperCase() || 'U'}
-                              </div>
-                            )}
-                          </div>
+                          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20 hover:border-white/40 transition-colors">
+  {userData?.avatar?.secure_url?.startsWith('http') ? (
+    <img
+      src={userData.avatar.secure_url}
+      alt="Profile"
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+      {userData?.fullName?.charAt(0)?.toUpperCase() || 'U'}
+    </div>
+  )}
+</div>
                           <div>
                             <div className="font-medium text-white">
                               {userData?.fullName || 'User'}
@@ -482,7 +483,7 @@ useEffect(() => {
               }}
               className="w-8 h-8 rounded-full overflow-hidden border border-white/20"
             >
-              {userData?.avatar?.secure_url ? (
+              {userData?.avatar?.secure_url?.startsWith('http')  ? (
                 <img 
                   src={userData.avatar.secure_url} 
                   alt="Profile" 
@@ -529,7 +530,7 @@ useEffect(() => {
             <div className="p-4">
               <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-white/10">
                 <div className="w-12 h-12 rounded-full overflow-hidden">
-                  {userData?.avatar?.secure_url ? (
+                  {userData?.avatar?.secure_url?.startsWith('http')  ? (
                     <img 
                       src={userData.avatar.secure_url} 
                       alt="Profile" 

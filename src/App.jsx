@@ -5,13 +5,17 @@ import './App.css';
 
 // 🟢 KEEP THESE IMMEDIATE (No lazy loading)
 import Homepage from './PAGES/Static/Homepage';
-import Login from './PAGES/User/Login';
-import Signup from './PAGES/User/Signup';
+//import Login from './PAGES/User/Login';
+//import Signup from './PAGES/User/Signup';
 import PageNotFound from './PAGES/Static/PageNotFound';
 import AuthChecker from './COMPONENTS/AuthChecker';
 import { useDispatch } from 'react-redux';
 import { showToast } from './HELPERS/Toaster';
 import { checkAuth } from './REDUX/Slices/authslice';
+import LoginChoice from './PAGES/User/LoginChoice';
+import LoginEmail from './PAGES/User/Login';
+import SignupChoice from './PAGES/User/SignupChoice';
+import SignupEmail from './PAGES/User/Signup';
 
 // 🟡 LAZY LOAD THESE (Medium priority)
 const ForgotPassword = React.lazy(() => import('./PAGES/User/Forgotpassword'));
@@ -113,8 +117,10 @@ function App() {
       <Routes>
         {/* 🟢 Core Routes */}
         <Route path="/" element={<Homepage />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignupChoice />} />
+<Route path="/signup/email" element={<SignupEmail />} />
+        <Route path="/login" element={<LoginChoice />} />
+<Route path="/login/email" element={<LoginEmail />} />
 
         {/* 🟡 Lazy Routes */}
         <Route path="/forgot-password" element={

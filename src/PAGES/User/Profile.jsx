@@ -111,7 +111,7 @@ useEffect(() => {
                     borderColor: `${colors.primary}40`,
                     boxShadow: `0 20px 40px ${theme.cardShadow}`
                   }}
-                > {userData.avatar?.secure_url ? (
+                > {userData?.avatar?.secure_url?.startsWith('http')  ? (
                     <img
                       src={userData.avatar.secure_url}
                       alt={userData.fullName || 'Profile'}
