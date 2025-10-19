@@ -31,7 +31,9 @@ const initialState = {
     myNotes: [],
     myBookmarks: [],
     myNotesPagination: null,
-    bookmarksPagination: null
+    bookmarksPagination: null,
+    publicProfile: null,
+    publicProfileLoading: false,
 }
 
 export const createAccount = createAsyncThunk("/auth/signup", async (data, { rejectWithValue }) => {
@@ -80,14 +82,14 @@ export const googleLogin = createAsyncThunk(
         try {
             showToast.loading('Redirecting to Google...', { id: 'google-auth' });
             await new Promise(resolve => setTimeout(resolve, 300));
-            
+
             // Mark that Google auth was initiated
             sessionStorage.setItem('googleAuthInitiated', Date.now().toString());
-            
+
             const apiUrl = 'https://academicark.onrender.com';
             //const apiUrl = 'https://localhost:5014';
             window.location.href = `${apiUrl}/api/v1/oauth/google`;
-            
+
             return null;
         } catch (error) {
             toast.dismiss('google-auth');
@@ -105,14 +107,14 @@ export const checkAuth = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.get('/user/getprofile');
-            
+
             // ❌ REMOVED - Don't show toast here
             // const googleAuthStarted = sessionStorage.getItem('googleAuthStarted');
             // if (googleAuthStarted) {
             //     sessionStorage.removeItem('googleAuthStarted');
             //     showToast.success('Successfully signed in with Google! 🎉');
             // }
-            
+
             return res.data;
         } catch (error) {
             sessionStorage.removeItem('googleAuthStarted');
@@ -267,6 +269,52 @@ export const getMyBookmarks = createAsyncThunk('/user/getMyBookmarks', async ({ 
     }
 });
 
+export const getPublicProfile = createAsyncThunk(
+    '/user/getPublicProfile',
+    async (userId, { rejectWithValue }) => {
+        try {
+            const res = await axiosInstance.get(`/user/public-profile/${userId}`);
+            return res.data;
+        } catch (error) {
+            const message = error?.response?.data?.message || 'Failed to load profile';
+            showToast.error(message);
+            return rejectWithValue(message);
+        }
+    }
+)
+
+export const updateSocialLinks = createAsyncThunk(
+    '/user/updateSocialLinks',
+    async (data, { rejectWithValue }) => {
+        try {
+            const httpPromise = axiosInstance.put('/user/update-social-links', data);
+            const res = await showToast.promise(httpPromise, {
+                loading: 'Updating social links...',
+                success: (data) => data?.data?.message || 'Social links updated!',
+                error: (error) => error?.response?.data?.message || 'Update failed'
+            });
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error?.response?.data?.message || 'Update failed');
+        }
+    }
+)
+
+export const toggleProfileVisibility = createAsyncThunk(
+    '/user/toggleProfileVisibility',
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await axiosInstance.put('/user/toggle-profile-visibility');
+            showToast.success(res.data.message);
+            return res.data;
+        } catch (error) {
+            const message = error?.response?.data?.message || 'Failed to update visibility';
+            showToast.error(message);
+            return rejectWithValue(message);
+        }
+    }
+)
+
 
 const authSlice = createSlice({
     name: "auth",
@@ -342,7 +390,7 @@ const authSlice = createSlice({
             localStorage.removeItem("data");
             localStorage.removeItem("role");
             sessionStorage.removeItem('googleAuthStarted');
-                sessionStorage.removeItem('googleAuthInitiated');
+            sessionStorage.removeItem('googleAuthInitiated');
             state.isLoggedIn = false;
             state.data = {};
             state.role = "";
@@ -393,6 +441,32 @@ const authSlice = createSlice({
             .addCase(getMyBookmarks.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
+            })
+
+            //public profile extra reducer action 
+            .addCase(getPublicProfile.pending, (state) => {
+  state.publicProfileLoading = true;
+})
+.addCase(getPublicProfile.fulfilled, (state, action) => {
+  state.publicProfileLoading = false;
+  // Only store the inner `data` object:
+  state.publicProfile = action.payload.data;
+})
+.addCase(getPublicProfile.rejected, (state) => {
+  state.publicProfileLoading = false;
+  state.publicProfile = null;
+})
+
+            .addCase(updateSocialLinks.fulfilled, (state, action) => {
+                const user = action.payload.data;
+                localStorage.setItem('data', JSON.stringify(user));
+                state.data = user;
+            })
+            .addCase(toggleProfileVisibility.fulfilled, (state, action) => {
+                if (state.data) {
+                    state.data.isProfilePublic = action.payload.data.isProfilePublic;
+                    localStorage.setItem("data", JSON.stringify(state.data));
+                }
             })
 
         // Add these cases to your existing extraReducers in authSlice

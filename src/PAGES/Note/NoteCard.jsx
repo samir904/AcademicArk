@@ -201,8 +201,12 @@ export default function NoteCard({ note }) {
               <span>{note.downloads || 0} downloads</span>
             </div>
           </div>
+          <Link 
+  to={`/profile/${note.uploadedBy?._id}`}
+  className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+>
           <div className="flex items-center space-x-1">
-            {note.uploadedBy?.avatar?.secure_url ? (
+            {note.uploadedBy?.avatar?.secure_url?.startsWith('http') ? (
               <img 
                 src={note.uploadedBy.avatar.secure_url} 
                 alt={note.uploadedBy.fullName || 'User'}
@@ -215,6 +219,7 @@ export default function NoteCard({ note }) {
             )}
             <span className="text-blue-200">{note.uploadedBy?.fullName || 'Unknown'}</span>
           </div>
+          </Link>
         </div>
       </div>
 

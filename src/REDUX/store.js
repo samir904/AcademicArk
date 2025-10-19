@@ -10,7 +10,7 @@ const store=configureStore({
         admin:adminSliceReducer,
         search: searchReducer,
     },
-    //devTools:true only when you are in dev enviroment ok 
+    //devTools:true //only when you are in dev enviroment ok 
 })
 
 export default store;

@@ -43,19 +43,19 @@ export default function PyqCard({ note }) {
   const dispatch = useDispatch();
   const { bookmarking, downloading } = useSelector(state => state.note);
   const user = useSelector(state => state.auth.data);
-  const isLoggedIn=useSelector((state)=>state?.auth?.isLoggedIn);
+  const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
 
   const isBookmarked = note.bookmarkedBy?.includes(user?._id);
-  
+
   // Calculate average rating
-  const avgRating = note.rating?.length > 0 
+  const avgRating = note.rating?.length > 0
     ? (note.rating.reduce((sum, r) => sum + r.rating, 0) / note.rating.length).toFixed(1)
     : 0;
 
   const handleBookmark = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if(!isLoggedIn){
+    if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
     }
@@ -65,8 +65,8 @@ export default function PyqCard({ note }) {
   const handleDownload = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if(!isLoggedIn){
+
+    if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
     }
@@ -79,11 +79,11 @@ export default function PyqCard({ note }) {
 
   return (
     <div className="group bg-gradient-to-br from-red-900/90 to-pink-900/80 backdrop-blur-xl border border-red-500/30 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-red-500/25 hover:scale-[1.02] transition-all duration-300 hover:border-red-400/50 relative">
-      
+
       {/* Animated background pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-red-800/10 to-pink-800/10 opacity-50"></div>
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-400/10 to-pink-400/10 rounded-full blur-3xl"></div>
-      
+
       {/* Header with PYQ Badge */}
       <div className="relative p-4 border-b border-red-500/20">
         <div className="flex items-start justify-between mb-3">
@@ -101,17 +101,17 @@ export default function PyqCard({ note }) {
             disabled={bookmarking}
             className="p-2 rounded-full hover:bg-red-500/20 transition-colors group/bookmark"
           >
-            <BookmarkIcon 
+            <BookmarkIcon
               className={`w-5 h-5 ${isBookmarked ? 'text-yellow-300' : 'text-red-300'} hover:text-yellow-300 transition-colors group-hover/bookmark:scale-110`}
               filled={isBookmarked}
             />
           </button>
         </div>
-        
+
         <h3 className="text-lg font-bold text-white line-clamp-2 group-hover:text-red-200 transition-colors mb-2">
           {note.title}
         </h3>
-        
+
         <div className="flex items-center space-x-3 text-xs text-red-200">
           <span className="bg-red-500/20 px-2 py-1 rounded border border-red-500/30">{note.subject}</span>
           <span>Sem {note.semester}</span>
@@ -170,20 +170,25 @@ export default function PyqCard({ note }) {
               <span>{note.downloads || 0} downloads</span>
             </div>
           </div>
-          <div className="flex items-center space-x-1">
-            {note.uploadedBy?.avatar?.secure_url ? (
-              <img 
-                src={note.uploadedBy.avatar.secure_url} 
-                alt={note.uploadedBy.fullName}
-                className="w-5 h-5 rounded-full border border-red-500/30"
-              />
-            ) : (
-              <div className="w-5 h-5 bg-gradient-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
-                {note.uploadedBy?.fullName?.charAt(0) || 'U'}
-              </div>
-            )}
-            <span className="text-red-200">{note.uploadedBy?.fullName || 'Unknown'}</span>
-          </div>
+          <Link
+            to={`/profile/${note.uploadedBy?._id}`}
+            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+          >
+            <div className="flex items-center space-x-1">
+              {note.uploadedBy?.avatar?.secure_url?.startsWith('http') ? (
+                <img
+                  src={note.uploadedBy.avatar.secure_url}
+                  alt={note.uploadedBy.fullName}
+                  className="w-5 h-5 rounded-full border border-red-500/30"
+                />
+              ) : (
+                <div className="w-5 h-5 bg-gradient-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
+                  {note.uploadedBy?.fullName?.charAt(0) || 'U'}
+                </div>
+              )}
+              <span className="text-red-200">{note.uploadedBy?.fullName || 'Unknown'}</span>
+            </div>
+          </Link>
         </div>
       </div>
 
@@ -196,7 +201,7 @@ export default function PyqCard({ note }) {
           <TargetIcon className="w-4 h-4" />
           <span>View Details</span>
         </Link>
-        
+
         <button
           onClick={handleDownload}
           disabled={downloading}
@@ -210,19 +215,19 @@ export default function PyqCard({ note }) {
         </button>
       </div>
       {/* Login Modal */}
-                  {showLoginModal && (
-                      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                          <div className="max-w-md w-full mx-4">
-                              <LoginPrompt  />
-                              <button 
-                                  onClick={() => setShowLoginModal(false)}
-                                  className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
-                              >
-                                  Close
-                              </button>
-                          </div>
-                      </div>
-                  )}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="max-w-md w-full mx-4">
+            <LoginPrompt />
+            <button
+              onClick={() => setShowLoginModal(false)}
+              className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,16 +1,17 @@
 // src/PAGES/Admin/AdminDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-    getDashboardStats, 
-    getAllUsers, 
-    getAllNotesAdmin, 
-    deleteUser, 
-    deleteNoteAdmin, 
-    updateUserRole, 
-    getRecentActivity 
+import {
+    getDashboardStats,
+    getAllUsers,
+    getAllNotesAdmin,
+    deleteUser,
+    deleteNoteAdmin,
+    updateUserRole,
+    getRecentActivity
 } from '../../REDUX/Slices/adminSlice';
 import HomeLayout from '../../LAYOUTS/Homelayout';
+import { Link } from 'react-router-dom';
 
 // Icons
 const UsersIcon = ({ className }) => (
@@ -51,14 +52,14 @@ const SearchIcon = ({ className }) => (
 
 export default function AdminDashboard() {
     const dispatch = useDispatch();
-    const { 
-        loading, 
-        dashboardStats, 
-        users, 
-        notes, 
-        usersPagination, 
-        notesPagination, 
-        recentActivity 
+    const {
+        loading,
+        dashboardStats,
+        users,
+        notes,
+        usersPagination,
+        notesPagination,
+        recentActivity
     } = useSelector(state => state.admin);
 
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -135,11 +136,10 @@ export default function AdminDashboard() {
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`py-4 px-2 border-b-2 transition-colors capitalize ${
-                                        activeTab === tab 
-                                            ? 'border-blue-500 text-blue-400' 
+                                    className={`py-4 px-2 border-b-2 transition-colors capitalize ${activeTab === tab
+                                            ? 'border-blue-500 text-blue-400'
                                             : 'border-transparent text-gray-400 hover:text-white'
-                                    }`}
+                                        }`}
                                 >
                                     {tab}
                                 </button>
@@ -278,20 +278,26 @@ export default function AdminDashboard() {
                                             {users.map(user => (
                                                 <tr key={user._id} className="border-b border-white/5 hover:bg-white/5">
                                                     <td className="py-4 px-6">
-                                                        <div className="flex items-center space-x-3">
-                                                            {user.avatar?.secure_url ? (
-                                                                <img 
-                                                                    src={user.avatar.secure_url} 
-                                                                    alt={user.fullName}
-                                                                    className="w-10 h-10 rounded-full"
-                                                                />
-                                                            ) : (
-                                                                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                                                                    {user.fullName.charAt(0).toUpperCase()}
-                                                                </div>
-                                                            )}
-                                                            <span className="text-white font-medium">{user.fullName}</span>
-                                                        </div>
+                                                        <Link
+                                                            to={`/profile/${user?._id}`}
+                                                            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+                                                        >
+                                                            <div className="flex items-center space-x-3">
+                                                                {user?.avatar?.secure_url?.startsWith('http')  ? (
+                                                                    <img
+                                                                        src={user.avatar.secure_url}
+                                                                        alt={user.fullName}
+                                                                        className="w-10 h-10 rounded-full"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                                                        {user.fullName.charAt(0).toUpperCase()}
+                                                                    </div>
+                                                                )}
+                                                                <span className="text-white font-medium">{user.fullName}</span>
+                                                            </div>
+                                                        </Link>
+
                                                     </td>
                                                     <td className="py-4 px-6 text-gray-300">{user.email}</td>
                                                     <td className="py-4 px-6 text-center">
@@ -396,11 +402,10 @@ export default function AdminDashboard() {
                                                     </td>
                                                     <td className="py-4 px-6 text-center text-gray-300">{note.subject}</td>
                                                     <td className="py-4 px-6 text-center">
-                                                        <span className={`px-2 py-1 rounded-full text-xs ${
-                                                            note.category === 'Notes' ? 'bg-blue-500/20 text-blue-400' :
-                                                            note.category === 'PYQ' ? 'bg-red-500/20 text-red-400' :
-                                                            'bg-yellow-500/20 text-yellow-400'
-                                                        }`}>
+                                                        <span className={`px-2 py-1 rounded-full text-xs ${note.category === 'Notes' ? 'bg-blue-500/20 text-blue-400' :
+                                                                note.category === 'PYQ' ? 'bg-red-500/20 text-red-400' :
+                                                                    'bg-yellow-500/20 text-yellow-400'
+                                                            }`}>
                                                             {note.category}
                                                         </span>
                                                     </td>

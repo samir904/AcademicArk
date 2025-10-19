@@ -20,22 +20,24 @@ import SignupEmail from './PAGES/User/Signup';
 // 🟡 LAZY LOAD THESE (Medium priority)
 const ForgotPassword = React.lazy(() => import('./PAGES/User/Forgotpassword'));
 const Resetpassword = React.lazy(() => import('./PAGES/User/Resetpassword'));
-const Profile = React.lazy(() =>import('./PAGES/User/Profile'));
+const Profile = React.lazy(() => import('./PAGES/User/Profile'));
 const Updateprofile = React.lazy(() => import('./PAGES/User/Updateprofile'));
 const Changepassword = React.lazy(() => import('./PAGES/User/Changepassword'));
 const Note = React.lazy(() => import('./PAGES/Note/Note'));
 const NoteDetail = React.lazy(() => import('./PAGES/Note/NoteDetail'));
-const ReadNote =React.lazy(()=>import("./PAGES/Note/ReadNote"))
+const ReadNote = React.lazy(() => import("./PAGES/Note/ReadNote"))
 const UploadNote = React.lazy(() => import('./PAGES/Note/UploadNote'));
 const UpdateNote = React.lazy(() => import('./PAGES/Note/UpdateNote'));
 const AdvancedSearch = React.lazy(() => import('./PAGES/Search/AdvancedSearch'));
 const MyBookmarks = React.lazy(() => import('./PAGES/User/MyBookmarks'));
+const EditSocialLinks=React.lazy(()=>import('./PAGES/User/EditSocialLinks'));
+const PublicProfile=React.lazy(()=>import('./PAGES/User/PublicProfile'))
 
 // 🔴 DEFINITELY LAZY LOAD (Heavy/conditional)
-const AdminDashboard = React.lazy(() =>import('./PAGES/Admin/AdminDashboard'));
-    
-const UserAnalytics = React.lazy(() =>import('./PAGES/User/UserAnalytics'));
-    
+const AdminDashboard = React.lazy(() => import('./PAGES/Admin/AdminDashboard'));
+
+const UserAnalytics = React.lazy(() => import('./PAGES/User/UserAnalytics'));
+
 
 // 🟡 LAZY LOAD STATIC PAGES
 const Privacy = React.lazy(() => import('./PAGES/Static/Privacy'));
@@ -43,7 +45,7 @@ const Contact = React.lazy(() => import('./PAGES/Static/Contact'));
 const Terms = React.lazy(() => import('./PAGES/Static/Terms'));
 const HelpCenter = React.lazy(() => import('./PAGES/Static/HelpCenter'));
 const AboutDeveloper = React.lazy(() => import('./PAGES/Static/AboutDeveloper'));
-const ComingSoon = React.lazy(() =>import('./PAGES/Static/ComingSoon'));
+const ComingSoon = React.lazy(() => import('./PAGES/Static/ComingSoon'));
 const BookIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -118,138 +120,155 @@ function App() {
         {/* 🟢 Core Routes */}
         <Route path="/" element={<Homepage />} />
         <Route path="/signup" element={<SignupChoice />} />
-<Route path="/signup/email" element={<SignupEmail />} />
+        <Route path="/signup/email" element={<SignupEmail />} />
         <Route path="/login" element={<LoginChoice />} />
-<Route path="/login/email" element={<LoginEmail />} />
+        <Route path="/login/email" element={<LoginEmail />} />
 
         {/* 🟡 Lazy Routes */}
         <Route path="/forgot-password" element={
           <Suspense fallback={<AppLoader />}>
-            <ForgotPassword/>
+            <ForgotPassword />
           </Suspense>
-        }/>
+        } />
         <Route path="/reset-password/:resetToken" element={
           <Suspense fallback={<AppLoader />}>
-            <Resetpassword/>
+            <Resetpassword />
           </Suspense>
-        }/>
+        } />
         <Route path="/profile" element={
           <AuthGuard>
-          <Suspense fallback={<AppLoader />}>
-            <Profile/>
-          </Suspense>
+            <Suspense fallback={<AppLoader />}>
+              <Profile />
+            </Suspense>
           </AuthGuard>
-        }/>
+        } />
+                <Route path="/profile/edit-social" element={
+          <AuthGuard>
+            <Suspense fallback={<AppLoader />}>
+              <EditSocialLinks />
+            </Suspense>
+          </AuthGuard>
+        } />
+
+        <Route path="/profile/:userId" element={
+          <Suspense fallback={<AppLoader />}>
+            <PublicProfile />
+          </Suspense>
+        } />
+
+
         <Route path="/edit-profile" element={
           <AuthGuard>
-          <Suspense fallback={<AppLoader />}>
-            <Updateprofile/>
-          </Suspense>
+            <Suspense fallback={<AppLoader />}>
+              <Updateprofile />
+            </Suspense>
           </AuthGuard>
-        }/>
+        } />
         <Route path="/change-password" element={
           <AuthGuard>
-          <Suspense fallback={<AppLoader />}>
-            <Changepassword/>
-          </Suspense>
+            <Suspense fallback={<AppLoader />}>
+              <Changepassword />
+            </Suspense>
           </AuthGuard>
-        }/>
+        } />
+        
+
         <Route path="/notes" element={
           <Suspense fallback={<AppLoader />}>
-            <Note/>
+            <Note />
           </Suspense>
-        }/>
+        } />
         <Route path="/notes/:id" element={
           <Suspense fallback={<AppLoader />}>
-            <NoteDetail/>
+            <NoteDetail />
           </Suspense>
-        }/>
+        } />
         // Add this route in your App.jsx
-<Route path="/notes/:id/read" element={
-  <Suspense fallback={<AppLoader />}>
-    <ReadNote/>
-  </Suspense>
-}/>
+        <Route path="/notes/:id/read" element={
+          <Suspense fallback={<AppLoader />}>
+            <ReadNote />
+          </Suspense>
+        } />
 
         <Route path="/update-note/:id" element={
-          <AuthGuard requiredRole={["TEACHER","ADMIN"]} >
-          <Suspense fallback={<AppLoader />}>
-            <UpdateNote/>
-          </Suspense>
+          <AuthGuard requiredRole={["TEACHER", "ADMIN"]} >
+            <Suspense fallback={<AppLoader />}>
+              <UpdateNote />
+            </Suspense>
           </AuthGuard>
-        }/>
+        } />
         <Route path="/upload" element={
-          <AuthGuard requiredRole={["TEACHER","ADMIN"]} >
-          <Suspense fallback={<AppLoader />}>
-            <UploadNote/>
-          </Suspense>
+          <AuthGuard requiredRole={["TEACHER", "ADMIN"]} >
+            <Suspense fallback={<AppLoader />}>
+              <UploadNote />
+            </Suspense>
           </AuthGuard>
-        }/>
+        } />
         <Route path="/search" element={
           <Suspense fallback={<AppLoader />}>
-            <AdvancedSearch/>
+            <AdvancedSearch />
           </Suspense>
-        }/>
+        } />
         <Route path="/bookmarks" element={
           <AuthGuard>
-          <Suspense fallback={<AppLoader />}>
-            <MyBookmarks/>
-          </Suspense>
+            <Suspense fallback={<AppLoader />}>
+              <MyBookmarks />
+            </Suspense>
           </AuthGuard>
-        }/>
+        } />
 
         {/* 🔴 Protected Routes without extra wrappers */}
         <Route path="/admin" element={
           <AuthGuard requiredRole={"ADMIN"}>
             <Suspense fallback={<AppLoader />}>
-              <AdminDashboard/>
+              <AdminDashboard />
             </Suspense>
           </AuthGuard>
-        }/>
+        } />
         <Route path="/my-analytics" element={
-          <AuthGuard requiredRole={["TEACHER","ADMIN"]}>
+          <AuthGuard requiredRole={["TEACHER", "ADMIN"]}>
             <Suspense fallback={<AppLoader />}>
-              <UserAnalytics/>
+              <UserAnalytics />
             </Suspense>
           </AuthGuard>
-        }/>
+        } />
 
         {/* 🟡 Static Pages */}
         <Route path="/coming-soon" element={
           <Suspense fallback={<AppLoader />}>
-            <ComingSoon/>
+            <ComingSoon />
           </Suspense>
-        }/>
+        } />
         <Route path="/settings" element={
           <Suspense fallback={<AppLoader />}>
-            <ComingSoon/>
+            <ComingSoon />
           </Suspense>
-        }/>
+        } />
         <Route path="/about-developer" element={
           <Suspense fallback={<AppLoader />}>
-            <AboutDeveloper/>
+            <AboutDeveloper />
           </Suspense>
-        }/>
+        } />
         <Route path="/help" element={
           <Suspense fallback={<AppLoader />}>
-            <HelpCenter/>
+            <HelpCenter />
           </Suspense>
-        }/>
+        } />
         <Route path="/contact" element={
           <Suspense fallback={<AppLoader />}>
-            <Contact/>
+            <Contact />
           </Suspense>
-        }/>
+        } />
         <Route path="/privacy" element={
           <Suspense fallback={<AppLoader />}>
-            <Privacy/>
+            <Privacy />
           </Suspense>
-        }/>
+        } />
         <Route path="/terms" element={
           <Suspense fallback={<AppLoader />}>
-            <Terms/>
+            <Terms />
           </Suspense>
-        }/>
+        } />
 
         {/* ❌ Catch-all */}
         <Route path="*" element={<PageNotFound />} />

@@ -458,9 +458,13 @@ export default function NoteDetail() {
             {currentNote.rating.map((review, index) => (
                 <div key={review._id || index} className="p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
                     <div className="flex items-start justify-between mb-3">
+                        <Link 
+                          to={`/profile/${review.user?._id}`}
+                          className="flex items-center space-x-2 hover:opacity-80 hover:underline transition-opacity"
+                        >
                         <div className="flex items-center space-x-3">
                             {/* User Avatar */}
-                            {review.user?.avatar?.secure_url ? (
+                            {review.user?.avatar?.secure_url?.startsWith('http') ? (
                                 <img 
                                     src={review.user.avatar.secure_url} 
                                     alt={review.user.fullName || 'User'}
@@ -487,6 +491,7 @@ export default function NoteDetail() {
                                 )}
                             </div>
                         </div>
+                        </Link>
                         
                         {/* Rating Stars */}
                         <div className="flex items-center space-x-1 bg-yellow-500/20 px-3 py-1 rounded-full">
@@ -538,8 +543,12 @@ export default function NoteDetail() {
                             {/* Uploader Info */}
                             <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
                                 <h3 className="text-lg font-bold text-white mb-4">Uploaded By</h3>
+                                 <Link 
+                                  to={`/profile/${currentNote.uploadedBy?._id}`}
+                                  className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+                                >
                                 <div className="flex items-center space-x-3">
-                                    {currentNote.uploadedBy?.avatar?.secure_url ? (
+                                    {currentNote.uploadedBy?.avatar?.secure_url?.startsWith('http')  ? (
                                         <img
                                             src={currentNote.uploadedBy.avatar.secure_url}
                                             alt={currentNote.uploadedBy.fullName}
@@ -555,6 +564,7 @@ export default function NoteDetail() {
                                         <div className="text-gray-400 text-sm">Contributor</div>
                                     </div>
                                 </div>
+                                </Link>
                             </div>
 
                             {/* Related Notes */}

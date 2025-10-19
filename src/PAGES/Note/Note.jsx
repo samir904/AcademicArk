@@ -679,7 +679,7 @@ const filteredNotes = notes?.filter(note => {
             w-10 h-10 rounded-full overflow-hidden border-2 transition-colors flex-shrink-0
             ${isActive ? 'border-white/30' : 'border-gray-700'}
           `}>
-            {uploader?.avatar?.secure_url ? (
+            {uploader?.avatar?.secure_url?.startsWith('http') ? (
               <img
                 src={uploader?.avatar?.secure_url}
                 alt={uploader.name}
