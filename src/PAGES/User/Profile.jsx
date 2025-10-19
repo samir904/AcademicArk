@@ -247,7 +247,9 @@ useEffect(() => {
 
     {/* Social Links */}
     <div>
-      <h2 className="text-2xl font-bold text-white mb-4">Connect With Me</h2>
+      {userData.socialLinks && Object.values(userData.socialLinks).some(url => url) &&(
+        <h2 className="text-2xl font-bold text-white mb-4">Connect With Me</h2>
+      )}
       <div className="flex flex-wrap gap-4">
         {userData.socialLinks.github && (
           <a
