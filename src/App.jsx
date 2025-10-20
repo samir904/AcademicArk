@@ -16,6 +16,7 @@ import LoginChoice from './PAGES/User/LoginChoice';
 import LoginEmail from './PAGES/User/Login';
 import SignupChoice from './PAGES/User/SignupChoice';
 import SignupEmail from './PAGES/User/Signup';
+import ManageBanners from './PAGES/Admin/ManageBanners';
 
 // 🟡 LAZY LOAD THESE (Medium priority)
 const ForgotPassword = React.lazy(() => import('./PAGES/User/Forgotpassword'));
@@ -123,6 +124,8 @@ function App() {
         <Route path="/signup/email" element={<SignupEmail />} />
         <Route path="/login" element={<LoginChoice />} />
         <Route path="/login/email" element={<LoginEmail />} />
+
+        <Route path="/admin/banners" element={<ManageBanners />} />
 
         {/* 🟡 Lazy Routes */}
         <Route path="/forgot-password" element={

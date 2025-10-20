@@ -170,7 +170,7 @@ export default function AdvancedSearch() {
         {/* AKTU Branding */}
         <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center mb-6 space-x-4">
-                <img src={aktulogo} alt="AKTU Logo" className="w-16 h-16 rounded-full" />
+                <img src={aktulogo} alt="AKTU Logo" loading='lazy' className="w-16 h-16 rounded-full" />
                 <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-bold px-4 py-2 rounded-full">
                     AKTU Global Search
                 </div>

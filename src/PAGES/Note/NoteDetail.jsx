@@ -468,6 +468,7 @@ export default function NoteDetail() {
                                 <img 
                                     src={review.user.avatar.secure_url} 
                                     alt={review.user.fullName || 'User'}
+                                    loading='lazy'
                                     className="w-10 h-10 rounded-full border-2 border-white/20 object-cover shadow-lg"
                                 />
                             ) : (
@@ -552,6 +553,7 @@ export default function NoteDetail() {
                                         <img
                                             src={currentNote.uploadedBy.avatar.secure_url}
                                             alt={currentNote.uploadedBy.fullName}
+                                            loading='lazy'
                                             className="w-12 h-12 rounded-full border-2 border-white/20"
                                         />
                                     ) : (

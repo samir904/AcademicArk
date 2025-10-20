@@ -140,6 +140,7 @@ useEffect(() => {
                       src={userData.avatar.secure_url}
                       alt={userData.fullName || 'Profile'}
                       className="w-full h-full object-cover"
+                      loading='lazy'
                       onError={(e) => {
                         e.target.src = '/default-avatar.png';
                       }}

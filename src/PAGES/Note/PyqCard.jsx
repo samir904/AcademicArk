@@ -179,6 +179,7 @@ export default function PyqCard({ note }) {
                 <img
                   src={note.uploadedBy.avatar.secure_url}
                   alt={note.uploadedBy.fullName}
+                  loading='lazy'
                   className="w-5 h-5 rounded-full border border-red-500/30"
                 />
               ) : (

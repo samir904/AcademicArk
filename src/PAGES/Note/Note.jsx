@@ -220,7 +220,7 @@ const filteredNotes = notes?.filter(note => {
           <div className="relative max-w-5xl mx-auto px-6 py-20 text-center">
             {/* AKTU Logo & Badge */}
             <div className="inline-flex items-center justify-center mb-6 space-x-4">
-              <img src={aktulogo} alt="AKTU Logo" className="w-14 rounded-4xl h-14" />
+              <img src={aktulogo} alt="AKTU Logo" loading='lazy' className="w-14 rounded-4xl h-14" />
               <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-lg font-bold px-3 py-1 rounded-full">
                 AKTU Resources
               </div>

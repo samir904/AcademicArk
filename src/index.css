@@ -795,3 +795,205 @@ a, button, input, select, textarea {
 a, button {
   -webkit-tap-highlight-color: transparent; /* iOS Safari */
 }
+
+
+/*notification banner css*/
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s infinite;
+}
+
+/* Smooth entrance */
+@keyframes slideInDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Smooth exit */
+@keyframes slideOutUp {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+/* Notification Banner Animations */
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Utility classes for applying the animations */
+.animate-slide-in-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.4s ease-out forwards;
+}
+
+/* Glassmorphic card base style */
+.notification-card {
+  position: fixed;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+  overflow: hidden;
+}
+
+/* Desktop (bottom right) */
+.notification-card--desktop {
+  width: 24rem;
+  bottom: 1.5rem;
+  right: 1.5rem;
+}
+
+/* Mobile (centered) */
+.notification-card--mobile {
+  left: 1rem;
+  right: 1rem;
+  bottom: 1.5rem;
+  max-width: 20rem;
+  margin: 0 auto;
+}
+
+/* Accent bar at bottom */
+.notification-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+/* Accent colors by type */
+.notification-card--info::after    { background: linear-gradient(to right, #3b82f6, #2563eb); }
+.notification-card--success::after { background: linear-gradient(to right, #10b981, #059669); }
+.notification-card--warning::after { background: linear-gradient(to right, #f59e0b, #d97706); }
+.notification-card--error::after   { background: linear-gradient(to right, #ef4444, #dc2626); }
+
+/* Icon container */
+.notification-card .icon-box {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+/* Icon colors */
+.notification-card--info .icon-box    { color: #3b82f6; }
+.notification-card--success .icon-box { color: #10b981; }
+.notification-card--warning .icon-box { color: #f59e0b; }
+.notification-card--error .icon-box   { color: #ef4444; }
+
+/* Close button */
+.notification-card .close-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.notification-card .close-btn:hover {
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+
+/* Content layout */
+.notification-card .content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.notification-card .content h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.notification-card .content p {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Optional action link */
+.notification-card .action-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  gap: 0.25rem;
+  transition: text-decoration 0.2s ease;
+}
+
+.notification-card .action-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive display toggles */
+@media (min-width: 768px) {
+  .notification-card--mobile {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .notification-card--desktop {
+    display: none;
+  }
+}

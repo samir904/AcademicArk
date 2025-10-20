@@ -192,6 +192,7 @@ export default function ImportantCard({ note }) {
               <img 
                 src={note.uploadedBy.avatar.secure_url} 
                 alt={note.uploadedBy.fullName}
+                loading='lazy'
                 className="w-5 h-5 rounded-full border border-yellow-500/30"
               />
             ) : (

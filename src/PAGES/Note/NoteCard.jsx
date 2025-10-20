@@ -210,6 +210,7 @@ export default function NoteCard({ note }) {
               <img 
                 src={note.uploadedBy.avatar.secure_url} 
                 alt={note.uploadedBy.fullName || 'User'}
+                loading='lazy'
                 className="w-5 h-5 rounded-full border border-blue-500/30"
               />
             ) : (

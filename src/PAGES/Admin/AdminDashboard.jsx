@@ -8,7 +8,12 @@ import {
     deleteUser,
     deleteNoteAdmin,
     updateUserRole,
-    getRecentActivity
+    getRecentActivity,
+    getServerMetrics,
+    getSessionMetrics,
+    getSessionHistory,
+    getWeeklyComparison,
+    getTrafficPattern
 } from '../../REDUX/Slices/adminSlice';
 import HomeLayout from '../../LAYOUTS/Homelayout';
 import { Link } from 'react-router-dom';
@@ -59,7 +64,12 @@ export default function AdminDashboard() {
         notes,
         usersPagination,
         notesPagination,
-        recentActivity
+        recentActivity,
+        serverMetrics,
+        sessionMetrics,
+        sessionHistory, 
+        weeklyComparison,
+         trafficPattern
     } = useSelector(state => state.admin);
 
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -67,6 +77,47 @@ export default function AdminDashboard() {
     const [noteSearch, setNoteSearch] = useState('');
     const [userPage, setUserPage] = useState(1);
     const [notePage, setNotePage] = useState(1);
+
+    const [autoRefresh,setAutoRefresh]=useState(true);
+
+    
+    // auto-refresh metrics every 5 seconds
+     useEffect(() => {
+    if (activeTab === 'dashboard' && autoRefresh) {
+        const interval = setInterval(() => {
+            dispatch(getServerMetrics());
+        }, 5000);
+        return () => clearInterval(interval);
+    }
+}, [dispatch, activeTab, autoRefresh]);
+
+// Initial fetch
+useEffect(() => {
+    if (activeTab === 'dashboard') {
+        dispatch(getServerMetrics());
+    }
+}, [dispatch, activeTab]);
+
+// Auto-refresh session metrics every 10 seconds
+useEffect(() => {
+    if (activeTab === 'dashboard') {//what is this line meaning exapin me 
+        dispatch(getSessionMetrics());
+        const interval = setInterval(() => {
+            dispatch(getSessionMetrics());
+        }, 10000);
+        return () => clearInterval(interval);
+    }
+}, [dispatch, activeTab]);
+
+// Fetch historical data on mount
+useEffect(() => {
+    if (activeTab === 'dashboard') {
+        dispatch(getSessionHistory(30));
+        dispatch(getWeeklyComparison());
+        dispatch(getTrafficPattern());
+    }
+}, [dispatch, activeTab]);
+
 
     useEffect(() => {
         if (activeTab === 'dashboard') {
@@ -118,6 +169,17 @@ export default function AdminDashboard() {
             </HomeLayout>
         );
     }
+    // Inside AdminDashboard, before returning HomeLayout:
+if (activeTab === 'dashboard' && !serverMetrics) {
+  return (
+    <HomeLayout>
+                <div className="min-h-screen bg-black flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                </div>
+            </HomeLayout>
+  );
+}
+
 
     return (
         <HomeLayout>
@@ -183,6 +245,405 @@ export default function AdminDashboard() {
                                     bgColor="bg-yellow-900/20"
                                 />
                             </div>
+                            
+
+                            {/* Server Health Section */}
+        <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white">Server Health</h3>
+                <div className="flex items-center space-x-2">
+                    <button
+                        onClick={() => setAutoRefresh(!autoRefresh)}
+                        className={`px-3 py-1 rounded-lg text-sm ${autoRefresh ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400'}`}
+                    >
+                        {autoRefresh ? '● Live' : '○ Paused'}
+                    </button>
+                    <button
+                        onClick={() => dispatch(getServerMetrics())}
+                        className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg text-sm hover:bg-blue-500/30"
+                    >
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* CPU Usage */}
+                <div className="bg-gray-800/50 rounded-xl p-4">
+                    <div className="text-gray-400 text-sm mb-2">CPU Usage</div>
+                    <div className="flex items-end space-x-2">
+                        <span className="text-3xl font-bold text-blue-400">{serverMetrics.cpu.usage?? '--'}%</span>
+                        <span className="text-gray-500 text-sm mb-1">{serverMetrics.cpu.cores?? '--'} cores</span>
+                    </div>
+                    <div className="mt-3 h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                            className={`h-full transition-all duration-500 ${
+                                parseFloat(serverMetrics.cpu.usage?? '--') > 80 ? 'bg-red-500' : 
+                                parseFloat(serverMetrics.cpu.usage?? '--') > 50 ? 'bg-yellow-500' : 
+                                'bg-green-500'
+                            }`}
+                            style={{ width: `${serverMetrics.cpu.usage?? '--'}%` }}
+                        />
+                    </div>
+                </div>
+
+                {/* Memory Usage */}
+                <div className="bg-gray-800/50 rounded-xl p-4">
+                    <div className="text-gray-400 text-sm mb-2">Memory Usage</div>
+                    <div className="flex items-end space-x-2">
+                        <span className="text-3xl font-bold text-purple-400">{serverMetrics.memory.percentage?? '--'}%</span>
+                        <span className="text-gray-500 text-sm mb-1">{serverMetrics.memory.used}/{serverMetrics.memory.total?? '--'} GB</span>
+                    </div>
+                    <div className="mt-3 h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                            className={`h-full transition-all duration-500 ${
+                                parseFloat(serverMetrics.memory.percentage?? '--') > 80 ? 'bg-red-500' : 
+                                parseFloat(serverMetrics.memory.percentage?? '--') > 50 ? 'bg-yellow-500' : 
+                                'bg-green-500'
+                            }`}
+                            style={{ width: `${serverMetrics.memory.percentage?? '--'}%` }}
+                        />
+                    </div>
+                </div>
+
+                {/* Avg Response Time */}
+                <div className="bg-gray-800/50 rounded-xl p-4">
+                    <div className="text-gray-400 text-sm mb-2">Avg Response Time</div>
+                    <div className="flex items-end space-x-2">
+                        <span className="text-3xl font-bold text-green-400">{serverMetrics.requests.avgResponseTime?? '--'}</span>
+                        <span className="text-gray-500 text-sm mb-1">ms</span>
+                    </div>
+                    <div className="text-gray-500 text-xs mt-2">
+                        {serverMetrics.requests.total?? '--'} total requests
+                    </div>
+                </div>
+
+                {/* Uptime */}
+                <div className="bg-gray-800/50 rounded-xl p-4">
+                    <div className="text-gray-400 text-sm mb-2">Server Uptime</div>
+                    <div className="text-2xl font-bold text-yellow-400">
+                        {serverMetrics.uptime.hours?? '--'}h {serverMetrics.uptime.minutes?? '--'}m
+                    </div>
+                    <div className="text-gray-500 text-xs mt-2">
+                        {serverMetrics.errors.total?? '--'} errors logged
+                    </div>
+                </div>
+            </div>
+
+            {/* System Info */}
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 border-t border-white/10">
+                <div>
+                    <span className="text-gray-400 text-sm">Platform:</span>
+                    <span className="text-white ml-2 font-medium">{serverMetrics.system.platform?? '--'}</span>
+                </div>
+                <div>
+                    <span className="text-gray-400 text-sm">Node Version:</span>
+                    <span className="text-white ml-2 font-medium">{serverMetrics.system.nodeVersion?? '--'}</span>
+                </div>
+                <div>
+                    <span className="text-gray-400 text-sm">Hostname:</span>
+                    <span className="text-white ml-2 font-medium">{serverMetrics.system.hostname?? '--'}</span>
+                </div>
+            </div>
+        </div>
+
+        {/* Recent Errors */}
+        {serverMetrics.errors.recent.length > 0 && (
+            <div className="bg-gradient-to-br from-red-900/20 to-gray-800/30 backdrop-blur-xl border border-red-500/20 rounded-2xl p-6">
+                <h3 className="text-xl font-bold text-red-400 mb-4">Recent Errors ({serverMetrics.errors.total})</h3>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {serverMetrics.errors.recent.map((error, index) => (
+                        <div key={index} className="bg-gray-800/50 rounded-lg p-4">
+                            <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                    <div className="text-red-400 font-medium">{error.message}</div>
+                                    <div className="text-gray-500 text-xs mt-1">
+                                        {new Date(error.timestamp).toLocaleString()}
+                                    </div>
+                                </div>
+                            </div>
+                            {error.stack && (
+                                <details className="mt-2">
+                                    <summary className="text-gray-400 text-xs cursor-pointer hover:text-white">
+                                        View Stack Trace
+                                    </summary>
+                                    <pre className="mt-2 text-xs text-gray-500 overflow-x-auto">
+                                        {error.stack}
+                                    </pre>
+                                </details>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )}
+
+        {/* // Add to Dashboard UI (after Server Health section) */}
+{activeTab === 'dashboard' && sessionMetrics && (
+    <>
+        {/* Session Metrics */}
+        <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+            <h3 className="text-xl font-bold text-white mb-6">User Sessions</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                {/* Current Concurrent Users */}
+                <div className="bg-gray-800/50 rounded-xl p-6 border-l-4 border-green-500">
+                    <div className="text-gray-400 text-sm mb-2">Active Users Now</div>
+                    <div className="text-4xl font-bold text-green-400 mb-2">
+                        {sessionMetrics.currentConcurrent}
+                    </div>
+                    <div className="text-gray-500 text-xs">
+                        Currently online
+                    </div>
+                </div>
+
+                {/* Max Concurrent Users */}
+                <div className="bg-gray-800/50 rounded-xl p-6 border-l-4 border-blue-500">
+                    <div className="text-gray-400 text-sm mb-2">Peak Users</div>
+                    <div className="text-4xl font-bold text-blue-400 mb-2">
+                        {sessionMetrics.maxConcurrent}
+                    </div>
+                    <div className="text-gray-500 text-xs">
+                        Maximum recorded
+                    </div>
+                </div>
+
+                {/* Session Timeout */}
+                <div className="bg-gray-800/50 rounded-xl p-6 border-l-4 border-purple-500">
+                    <div className="text-gray-400 text-sm mb-2">Session Timeout</div>
+                    <div className="text-4xl font-bold text-purple-400 mb-2">
+                        {sessionMetrics.sessionTimeout}
+                    </div>
+                    <div className="text-gray-500 text-xs">
+                        Minutes of inactivity
+                    </div>
+                </div>
+            </div>
+
+            {/* Active Users List */}
+            {sessionMetrics.activeUserDetails?.length > 0 && (
+                <div className="mt-6">
+                    <h4 className="text-white font-semibold mb-4">Currently Active Users</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                        {sessionMetrics.activeUserDetails.map(user => (
+                            <div key={user._id} className="bg-gray-800/50 rounded-lg p-3 flex items-center space-x-3">
+                                {user.avatar?.secure_url ? (
+                                    <img
+                                        src={user.avatar.secure_url}
+                                        alt={user.fullName}
+                                        className="w-10 h-10 rounded-full"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                        {user.fullName.charAt(0).toUpperCase()}
+                                    </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-white font-medium truncate">{user.fullName}</div>
+                                    <div className="text-gray-400 text-xs truncate">{user.email}</div>
+                                </div>
+                                <div className={`px-2 py-1 rounded text-xs font-medium ${
+                                    user.role === 'ADMIN' ? 'bg-red-500/20 text-red-400' :
+                                    user.role === 'TEACHER' ? 'bg-blue-500/20 text-blue-400' :
+                                    'bg-green-500/20 text-green-400'
+                                }`}>
+                                    {user.role}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    </>
+)}
+{/* // Add this UI after User Sessions section */}
+{activeTab === 'dashboard' && weeklyComparison && (
+    <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+        <h3 className="text-xl font-bold text-white mb-6">Weekly Growth</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-gray-800/50 rounded-xl p-6">
+                <div className="text-gray-400 text-sm mb-2">This Week Avg Peak</div>
+                <div className="text-3xl font-bold text-blue-400">{weeklyComparison.thisWeekAvg}</div>
+                <div className="text-gray-500 text-xs mt-2">users per day</div>
+            </div>
+            
+            <div className="bg-gray-800/50 rounded-xl p-6">
+                <div className="text-gray-400 text-sm mb-2">Last Week Avg Peak</div>
+                <div className="text-3xl font-bold text-purple-400">{weeklyComparison.lastWeekAvg}</div>
+                <div className="text-gray-500 text-xs mt-2">users per day</div>
+            </div>
+            
+            <div className="bg-gray-800/50 rounded-xl p-6">
+                <div className="text-gray-400 text-sm mb-2">Growth</div>
+                <div className={`text-3xl font-bold ${parseFloat(weeklyComparison.growth) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {weeklyComparison.growth > 0 ? '+' : ''}{weeklyComparison.growth}%
+                </div>
+                <div className="text-gray-500 text-xs mt-2">week-over-week</div>
+            </div>
+        </div>
+    </div>
+)}
+
+{activeTab === 'dashboard' && trafficPattern && (
+    <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+        <h3 className="text-xl font-bold text-white mb-6">Traffic Pattern by Day of Week</h3>
+        
+        <div className="space-y-3">
+            {trafficPattern.map((day, index) => {
+                const maxPeak = Math.max(...trafficPattern.map(d => d.avgPeak));
+                const percentage = (day.avgPeak / maxPeak) * 100;
+                
+                return (
+                    <div key={index} className="flex items-center space-x-4">
+                        <div className="w-24 text-gray-400 text-sm">{day.day}</div>
+                        <div className="flex-1">
+                            <div className="h-8 bg-gray-700 rounded-lg overflow-hidden relative">
+                                <div 
+                                    className="h-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center px-3 transition-all duration-500"
+                                    style={{ width: `${percentage}%` }}
+                                >
+                                    <span className="text-white text-sm font-semibold">{day.avgPeak} users</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="text-gray-500 text-xs w-20 text-right">
+                            {day.dataPoints} days
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    </div>
+)}
+
+{activeTab === 'dashboard' && sessionHistory && sessionHistory.length > 0 && (
+    <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+        <h3 className="text-xl font-bold text-white mb-6">Last 30 Days Peak Users</h3>
+        
+        <div className="overflow-x-auto">
+            <table className="w-full">
+                <thead>
+                    <tr className="border-b border-white/10">
+                        <th className="text-left py-3 text-gray-400">Date</th>
+                        <th className="text-center py-3 text-gray-400">Peak Users</th>
+                        <th className="text-center py-3 text-gray-400">Avg Concurrent</th>
+                        <th className="text-center py-3 text-gray-400">Peak Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {sessionHistory.slice(-14).reverse().map((log, index) => (
+                        <tr key={index} className="border-b border-white/5 hover:bg-white/5">
+                            <td className="py-3 text-white">
+                                {new Date(log.date).toLocaleDateString('en-US', { 
+                                    weekday: 'short', 
+                                    month: 'short', 
+                                    day: 'numeric' 
+                                })}
+                            </td>
+                            <td className="py-3 text-center text-blue-400 font-semibold">{log.maxConcurrent}</td>
+                            <td className="py-3 text-center text-gray-300">{log.avgConcurrent}</td>
+                            <td className="py-3 text-center text-gray-400 text-sm">
+                                {log.peakTime ? new Date(log.peakTime).toLocaleTimeString('en-US', { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                }) : '—'}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </div>
+)}
+
+        {recentActivity && (
+  <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8">
+    <h3 className="text-xl font-bold text-white mb-4">Recent Activity</h3>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Recent Users */}
+      <div>
+        <h4 className="text-lg font-semibold text-blue-400 mb-3">New Users (Last 7 days)</h4>
+        {recentActivity.recentUsers && recentActivity.recentUsers.length > 0 ? (
+          <ul>
+            {recentActivity.recentUsers.map(u => (
+              <li key={u._id} className="text-white py-1 flex justify-between border-b border-gray-700">
+                <span>{u.fullName}</span>
+                <span className="text-sm text-gray-400">{new Date(u.createdAt).toLocaleDateString()}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-gray-500">No new users in last week.</div>
+        )}
+      </div>
+
+      {/* Recent Notes */}
+      <div>
+        <h4 className="text-lg font-semibold text-green-400 mb-3">New Notes (Last 7 days)</h4>
+        {recentActivity.recentNotes && recentActivity.recentNotes.length > 0 ? (
+          <ul>
+            {recentActivity.recentNotes.map(n => (
+              <li key={n._id} className="text-white py-1 flex justify-between border-b border-gray-700">
+                <span>{n.title} <span className="text-xs text-gray-400">({n.uploadedBy?.fullName || 'Unknown'})</span></span>
+                <span className="text-sm text-gray-400">{new Date(n.createdAt).toLocaleDateString()}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-gray-500">No new notes in last week.</div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Quick Actions Section - Add this after Stats Cards */}
+{activeTab === 'dashboard' && (
+    <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8">
+        <h3 className="text-xl font-bold text-white mb-6">Quick Actions</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Link
+                to="/admin/banners"
+                className="group p-4 rounded-xl border border-white/10 hover:border-white/30 transition-all duration-300 hover:bg-white/5 text-center"
+            >
+                <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📢</div>
+                <div className="text-white font-medium">Manage Banners</div>
+                <div className="text-gray-400 text-sm">Create announcements</div>
+            </Link>
+            
+            {/* <Link
+                to="/admin/users"
+                className="group p-4 rounded-xl border border-white/10 hover:border-white/30 transition-all duration-300 hover:bg-white/5 text-center"
+            >
+                <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">👥</div>
+                <div className="text-white font-medium">Manage Users</div>
+                <div className="text-gray-400 text-sm">User administration</div>
+            </Link>
+             */}
+            {/* <Link
+                to="/admin/notes"
+                className="group p-4 rounded-xl border border-white/10 hover:border-white/30 transition-all duration-300 hover:bg-white/5 text-center"
+            >
+                <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📚</div>
+                <div className="text-white font-medium">Manage Notes</div>
+                <div className="text-gray-400 text-sm">Content moderation</div>
+            </Link>
+             */}
+            {/* <Link
+                to="/admin/reports"
+                className="group p-4 rounded-xl border border-white/10 hover:border-white/30 transition-all duration-300 hover:bg-white/5 text-center"
+            >
+                <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📊</div>
+                <div className="text-white font-medium">View Reports</div>
+                <div className="text-gray-400 text-sm">Analytics & insights</div>
+            </Link> */}
+        </div>
+    </div>
+)}
+
 
                             {/* Charts Row */}
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -287,6 +748,7 @@ export default function AdminDashboard() {
                                                                     <img
                                                                         src={user.avatar.secure_url}
                                                                         alt={user.fullName}
+                                                                        loading='lazy'
                                                                         className="w-10 h-10 rounded-full"
                                                                     />
                                                                 ) : (
@@ -454,6 +916,7 @@ export default function AdminDashboard() {
                             </div>
                         </div>
                     )}
+                    
                 </div>
             </div>
         </HomeLayout>

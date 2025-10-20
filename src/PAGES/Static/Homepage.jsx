@@ -115,7 +115,7 @@ const Homepage = () => {
         <div className="max-w-5xl mx-auto text-center relative z-10">
           {/* AKTU Badge */}
           <div className="inline-flex items-center space-x-2 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-6">
-            <img src={aktulogo} alt="AKTU Logo" className="w-6 rounded-4xl h-6" />
+            <img src={aktulogo} alt="AKTU Logo"loading='lazy' className="w-6 rounded-4xl h-6" />
 
             <span className="text-sm text-gray-300 font-medium">AKTU Study Platform</span>
           </div>

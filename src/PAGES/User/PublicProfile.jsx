@@ -106,6 +106,7 @@ const formatDate = (dateString) => {
                   <img
                     src={publicProfile.avatar.secure_url}
                     alt={publicProfile.fullName}
+                    loading='lazy'
                     className="w-full h-full object-cover"
                   />
                 ) : (

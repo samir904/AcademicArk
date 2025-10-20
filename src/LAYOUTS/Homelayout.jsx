@@ -6,6 +6,7 @@ import { showToast } from '../HELPERS/Toaster';
 import { getProfile, logout } from '../REDUX/Slices/authslice';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginRoundedIcon from '@mui/icons-material/LoginRounded';
+import NotificationBanner from '../COMPONENTS/NotificationBanner';
 
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
@@ -296,14 +297,18 @@ useEffect(() => {
   };
 
   return (
+    <>
+    {/* Notification banner - rendered independently */}
+      <NotificationBanner />
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Dynamic Background */}
+            {/* Dynamic Background */}
       <div 
         className="fixed inset-0 opacity-[0.02] pointer-events-none transition-all duration-1000"
         style={{
           background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(255,255,255,0.1) 0%, transparent 50%)`
         }}
       />
+      
 
       {/* Desktop Header */}
       <header className={`hidden md:block fixed top-0 w-full z-50 transition-all duration-700 ${
@@ -365,6 +370,7 @@ useEffect(() => {
     <img
       src={userData.avatar.secure_url}
       alt="Profile"
+      loading='lazy'
       className="w-full h-full object-cover"
     />
   ) : (
@@ -397,6 +403,7 @@ useEffect(() => {
     <img
       src={userData.avatar.secure_url}
       alt="Profile"
+      loading='lazy'
       className="w-full h-full object-cover"
     />
   ) : (
@@ -487,6 +494,7 @@ useEffect(() => {
                 <img 
                   src={userData.avatar.secure_url} 
                   alt="Profile" 
+                  loading='lazy'
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -534,6 +542,7 @@ useEffect(() => {
                     <img 
                       src={userData.avatar.secure_url} 
                       alt="Profile" 
+                      loading='lazy'
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -692,6 +701,7 @@ useEffect(() => {
         </div>
       </footer>
     </div>
+    </>
   );
 };
 
