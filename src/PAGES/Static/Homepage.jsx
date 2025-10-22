@@ -5,6 +5,9 @@ import HomeLayout from '../../LAYOUTS/Homelayout';
 import { useSelector } from 'react-redux';
 import aktulogo from "../../../public/download.jpeg";
 import { MovingBorderButton } from '../../COMPONENTS/MovingBorderButton';
+import { LampSection } from '../../COMPONENTS/LampSection';
+import { WhyChooseAcademicArkLamp } from '../../COMPONENTS/WhyChooseAcademicArkLamp';
+import { BackgroundLines } from '../../COMPONENTS/ui/background-lines';
 
 const Homepage = () => {
   const [isVisible, setIsVisible] = useState({});
@@ -108,19 +111,29 @@ const Homepage = () => {
   return (
     <HomeLayout>
       {/* Hero Section - Enhanced with AKTU branding */}
-      <section className="min-h-screen flex items-center justify-center px-4 relative">
+      <BackgroundLines
+      className="flex items-center justify-center w-full flex-col px-4"
+      svgOptions={{ duration: 10 }}
+    >
+      {/* Hero Section Content */}
+      <section className="min-h-screen flex items-center justify-center px-4 relative w-full">
         {/* Subtle background accents */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
         
         <div className="max-w-5xl mx-auto text-center relative z-10">
           {/* AKTU Badge */}
-          <div className="inline-flex items-center space-x-2 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-6">
-            <img src={aktulogo} alt="AKTU Logo"loading='lazy' className="w-6 rounded-4xl h-6" />
-
+          <div className="inline-flex items-center space-x-2 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-6 animate-fade-in">
+            <img 
+              src={aktulogo} 
+              alt="AKTU Logo" 
+              loading="lazy" 
+              className="w-6 h-6 rounded-full" 
+            />
             <span className="text-sm text-gray-300 font-medium">AKTU Study Platform</span>
           </div>
 
+          {/* Main Heading */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light text-white leading-none mb-4">
             Your Complete
             <span className="block font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent text-4xl sm:text-5xl lg:text-6xl mt-4">
@@ -131,35 +144,40 @@ const Homepage = () => {
             </span>
           </h1>
 
-          {/* Rotating features with AKTU context */}
+          {/* Rotating features with animation */}
           <div className="h-16 flex items-center justify-center mb-8">
-            <div className="text-2xl sm:text-3xl font-light text-gray-300 transition-all duration-500">
+            <div 
+              key={currentIndex}
+              className="text-2xl sm:text-3xl font-light text-gray-300 animate-fade-in-out"
+            >
               {features[currentIndex]}
             </div>
           </div>
           
-          <p className="text-xl text-gray-400 mb-4 max-w-3xl mx-auto leading-relaxed">
+          {/* Description */}
+          {/* <p className="text-xl text-gray-400 mb-4 max-w-3xl mx-auto leading-relaxed">
             Access comprehensive <span className="text-white font-semibold">AKTU study materials</span>, 
             previous year question papers (PYQ), and important questions—all organized by subject and 
             syllabus. Built specifically for <span className="text-white font-semibold">AKTU students</span>.
-          </p>
+          </p> */}
 
           {/* Key highlights */}
           <div className="flex flex-wrap justify-center gap-4 mb-12 text-sm">
-            <div className="flex items-center space-x-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg">
+            <div className="flex items-center space-x-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-blue-500/50 transition-all duration-300">
               <span className="text-blue-400">📚</span>
               <span className="text-gray-300">AKTU Syllabus Aligned</span>
             </div>
-            <div className="flex items-center space-x-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg">
+            <div className="flex items-center space-x-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-green-500/50 transition-all duration-300">
               <span className="text-green-400">✅</span>
               <span className="text-gray-300">Updated for 2025-26</span>
             </div>
-            <div className="flex items-center space-x-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg">
+            <div className="flex items-center space-x-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-purple-500/50 transition-all duration-300">
               <span className="text-purple-400">⚡</span>
               <span className="text-gray-300">Free Access</span>
             </div>
           </div>
 
+          {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             {!isLoggedIn && (
               <>
@@ -186,6 +204,8 @@ const Homepage = () => {
           </p>
         </div>
       </section>
+    </BackgroundLines>
+
 
       {/* Stats Section - Enhanced with AKTU context */}
       <section 
@@ -296,6 +316,8 @@ const Homepage = () => {
           </div>
         </div>
       </section>
+
+     
 
       {/* Subjects Grid - Enhanced with course codes */}
       <section 
@@ -450,8 +472,11 @@ const Homepage = () => {
           </div>
         </div>
       </section>
+       {/* ✨ ADD LAMP EFFECT HERE ✨ */}
+      {/* <WhyChooseAcademicArkLamp /> */}
 
       {/* Enhanced CTA Section */}
+      
       <section className="relative py-32 border-t border-white/10 overflow-hidden">
         {/* Background Effects */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-transparent to-purple-900/10"></div>
