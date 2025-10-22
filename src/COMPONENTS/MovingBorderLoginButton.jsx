@@ -6,7 +6,7 @@ export const MovingBorderLoginButton = () => (
     <Button
       borderRadius="1.75rem"
       className="text-white  font-semibold tracking-wide"
-      duration={6000}
+      duration={3000}
     >
       sign in
     </Button>

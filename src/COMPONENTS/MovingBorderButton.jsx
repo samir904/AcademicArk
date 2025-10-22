@@ -5,8 +5,8 @@ export const MovingBorderButton = () => (
   <Link to="/notes" className="inline-block">
     <Button
       borderRadius="1.75rem"
-      className="text-white  font-semibold tracking-wide"
-      duration={6000}
+      className="text-white cursor-pointer font-semibold tracking-wide"
+      duration={3000}
     >
       Browse AKTU Notes
     </Button>
