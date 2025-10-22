@@ -11,7 +11,7 @@ export const BackgroundLines = ({
   return (
     <div
       className={cn(
-        "relative h-[20rem] md:h-screen w-full overflow-hidden bg-black dark:bg-black",
+        "relative min-h-screen w-full overflow-hidden bg-black dark:bg-black",
         className
       )}>
       <SVG svgOptions={svgOptions} />
