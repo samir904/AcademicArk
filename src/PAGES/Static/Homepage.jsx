@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import HomeLayout from '../../LAYOUTS/Homelayout';
 import { useSelector } from 'react-redux';
 import aktulogo from "../../../public/download.jpeg";
+import { MovingBorderButton } from '../../COMPONENTS/MovingBorderButton';
 
 const Homepage = () => {
   const [isVisible, setIsVisible] = useState({});
@@ -61,48 +62,48 @@ const Homepage = () => {
     { number: '2025', label: 'Updated Syllabus' }
   ];
 
-  const TravelingDotButton = () => (
-    <Link 
-      to="/notes" 
-      className="relative inline-flex items-center space-x-2 bg-black text-white px-6 py-3 font-semibold group overflow-hidden transition-all duration-300 hover:scale-105"
-    >
-      {/* Border Container */}
-      <div className="absolute inset-0 rounded-xl">
-        {/* Top line */}
-        <div className="absolute top-0 left-0 w-full h-0.5 bg-gray-800 rounded-full">
-          <div className="absolute top-0 left-0 w-6 h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full animate-travel-top"></div>
-        </div>
+  // const TravelingDotButton = () => (
+  //   <Link 
+  //     to="/notes" 
+  //     className="relative inline-flex items-center space-x-2 bg-black text-white px-6 py-3 font-semibold group overflow-hidden transition-all duration-300 hover:scale-105"
+  //   >
+  //     {/* Border Container */}
+  //     <div className="absolute inset-0 rounded-xl">
+  //       {/* Top line */}
+  //       <div className="absolute top-0 left-0 w-full h-0.5 bg-gray-800 rounded-full">
+  //         <div className="absolute top-0 left-0 w-6 h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full animate-travel-top"></div>
+  //       </div>
         
-        {/* Right line */}
-        <div className="absolute top-0 right-0 w-0.5 h-full bg-gray-800 rounded-full">
-          <div className="absolute top-0 right-0 w-0.5 h-6 bg-gradient-to-b from-transparent via-purple-500 to-transparent rounded-full animate-travel-right"></div>
-        </div>
+  //       {/* Right line */}
+  //       <div className="absolute top-0 right-0 w-0.5 h-full bg-gray-800 rounded-full">
+  //         <div className="absolute top-0 right-0 w-0.5 h-6 bg-gradient-to-b from-transparent via-purple-500 to-transparent rounded-full animate-travel-right"></div>
+  //       </div>
         
-        {/* Bottom line */}
-        <div className="absolute bottom-0 right-0 w-full h-0.5 bg-gray-800">
-          <div className="absolute bottom-0 right-0 w-6 h-0.5 bg-gradient-to-l from-transparent via-pink-500 to-transparent rounded-full animate-travel-bottom"></div>
-        </div>
+  //       {/* Bottom line */}
+  //       <div className="absolute bottom-0 right-0 w-full h-0.5 bg-gray-800">
+  //         <div className="absolute bottom-0 right-0 w-6 h-0.5 bg-gradient-to-l from-transparent via-pink-500 to-transparent rounded-full animate-travel-bottom"></div>
+  //       </div>
         
-        {/* Left line */}
-        <div className="absolute bottom-0 left-0 w-0.5 h-full bg-gray-800">
-          <div className="absolute bottom-0 left-0 w-0.5 h-6 bg-gradient-to-t from-transparent via-cyan-500 to-transparent rounded-full animate-travel-left"></div>
-        </div>
-      </div>
+  //       {/* Left line */}
+  //       <div className="absolute bottom-0 left-0 w-0.5 h-full bg-gray-800">
+  //         <div className="absolute bottom-0 left-0 w-0.5 h-6 bg-gradient-to-t from-transparent via-cyan-500 to-transparent rounded-full animate-travel-left"></div>
+  //       </div>
+  //     </div>
       
-      {/* Content */}
-      <div className="relative z-10 flex items-center space-x-2">
-        <span className="bg-clip-text text-white font-bold tracking-wide">
-          Browse AKTU Notes
-        </span>
-      </div>
+  //     {/* Content */}
+  //     <div className="relative z-10 flex items-center space-x-2">
+  //       <span className="bg-clip-text text-white font-bold tracking-wide">
+  //         Browse AKTU Notes
+  //       </span>
+  //     </div>
       
-      {/* Corner Dots */}
-      <div className="absolute top-1 left-1 w-1 h-1 bg-blue-500 rounded-full animate-pulse"></div>
-      <div className="absolute top-1 right-1 w-1 h-1 bg-purple-500 rounded-full animate-pulse delay-500"></div>
-      <div className="absolute bottom-1 right-1 w-1 h-1 bg-pink-500 rounded-full animate-pulse delay-1000"></div>
-      <div className="absolute bottom-1 left-1 w-1 h-1 bg-cyan-500 rounded-full animate-pulse delay-1500"></div>
-    </Link>
-  );
+  //     {/* Corner Dots */}
+  //     <div className="absolute top-1 left-1 w-1 h-1 bg-blue-500 rounded-full animate-pulse"></div>
+  //     <div className="absolute top-1 right-1 w-1 h-1 bg-purple-500 rounded-full animate-pulse delay-500"></div>
+  //     <div className="absolute bottom-1 right-1 w-1 h-1 bg-pink-500 rounded-full animate-pulse delay-1000"></div>
+  //     <div className="absolute bottom-1 left-1 w-1 h-1 bg-cyan-500 rounded-full animate-pulse delay-1500"></div>
+  //   </Link>
+  // );
 
   return (
     <HomeLayout>
@@ -176,7 +177,7 @@ const Homepage = () => {
                 </Link>
               </>
             )}
-            {isLoggedIn && <TravelingDotButton />}
+            {isLoggedIn && <MovingBorderButton />}
           </div>
 
           {/* Trust indicator */}

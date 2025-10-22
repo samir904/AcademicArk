@@ -7,6 +7,8 @@ import { getProfile, logout } from '../REDUX/Slices/authslice';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginRoundedIcon from '@mui/icons-material/LoginRounded';
 import NotificationBanner from '../COMPONENTS/NotificationBanner';
+import { MovingBorderButton } from '../COMPONENTS/MovingBorderButton';
+import { MovingBorderLoginButton } from '../COMPONENTS/MovingBorderLoginButton';
 
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
@@ -108,51 +110,51 @@ const HomeLayout = ({ children }) => {
 
 
 
-const TravelingDotButton = () => (
-  <Link 
-    to="/login" 
-    className="relative inline-flex items-center space-x-2 bg-black text-white px-6 py-3  font-semibold group overflow-hidden transition-all duration-300 hover:scale-105"
-  >
-    {/* Border Container */}
-    <div className="absolute inset-0 rounded-xl">
-      {/* Top line */}
-      <div className="absolute top-0 left-0 w-full h-0.5 bg-gray-800 rounded-full">
-        <div className="absolute top-0 left-0 w-6 h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full animate-travel-top"></div>
-      </div>
+// const TravelingDotButton = () => (
+//   <Link 
+//     to="/login" 
+//     className="relative inline-flex items-center space-x-2 bg-black text-white px-6 py-3  font-semibold group overflow-hidden transition-all duration-300 hover:scale-105"
+//   >
+//     {/* Border Container */}
+//     <div className="absolute inset-0 rounded-xl">
+//       {/* Top line */}
+//       <div className="absolute top-0 left-0 w-full h-0.5 bg-gray-800 rounded-full">
+//         <div className="absolute top-0 left-0 w-6 h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full animate-travel-top"></div>
+//       </div>
       
-      {/* Right line */}
-      <div className="absolute top-0 right-0 w-0.5 h-full bg-gray-800 rounded-full">
-        <div className="absolute top-0 right-0 w-0.5 h-6 bg-gradient-to-b from-transparent via-purple-500 to-transparent rounded-full animate-travel-right"></div>
-      </div>
+//       {/* Right line */}
+//       <div className="absolute top-0 right-0 w-0.5 h-full bg-gray-800 rounded-full">
+//         <div className="absolute top-0 right-0 w-0.5 h-6 bg-gradient-to-b from-transparent via-purple-500 to-transparent rounded-full animate-travel-right"></div>
+//       </div>
       
-      {/* Bottom line */}
-      <div className="absolute bottom-0 right-0 w-full h-0.5 bg-gray-800 ">
-        <div className="absolute bottom-0 right-0 w-6 h-0.5 bg-gradient-to-l from-transparent via-pink-500 to-transparent rounded-full animate-travel-bottom"></div>
-      </div>
+//       {/* Bottom line */}
+//       <div className="absolute bottom-0 right-0 w-full h-0.5 bg-gray-800 ">
+//         <div className="absolute bottom-0 right-0 w-6 h-0.5 bg-gradient-to-l from-transparent via-pink-500 to-transparent rounded-full animate-travel-bottom"></div>
+//       </div>
       
-      {/* Left line */}
-      <div className="absolute bottom-0 left-0 w-0.5 h-full bg-gray-800 ">
-        <div className="absolute bottom-0 left-0 w-0.5 h-6 bg-gradient-to-t from-transparent via-cyan-500 to-transparent rounded-full animate-travel-left"></div>
-      </div>
-    </div>
+//       {/* Left line */}
+//       <div className="absolute bottom-0 left-0 w-0.5 h-full bg-gray-800 ">
+//         <div className="absolute bottom-0 left-0 w-0.5 h-6 bg-gradient-to-t from-transparent via-cyan-500 to-transparent rounded-full animate-travel-left"></div>
+//       </div>
+//     </div>
     
-    {/* Content */}
-    <div className="relative z-10 flex items-center space-x-2">
-      {/* <div className="p-1.5  rounded-lg group-hover:animate-spin">
-        <LoginIcon className="w-4 h-4" />
-      </div> */}
-      <span className=" bg-clip-text  text-white font-bold tracking-wide">
-        Sign In
-      </span>
-    </div>
+//     {/* Content */}
+//     <div className="relative z-10 flex items-center space-x-2">
+//       {/* <div className="p-1.5  rounded-lg group-hover:animate-spin">
+//         <LoginIcon className="w-4 h-4" />
+//       </div> */}
+//       <span className=" bg-clip-text  text-white font-bold tracking-wide">
+//         Sign In
+//       </span>
+//     </div>
     
-    {/* Corner Dots */}
-    <div className="absolute top-1 left-1 w-1 h-1 bg-blue-500 rounded-full animate-pulse"></div>
-    <div className="absolute top-1 right-1 w-1 h-1 bg-purple-500 rounded-full animate-pulse delay-500"></div>
-    <div className="absolute bottom-1 right-1 w-1 h-1 bg-pink-500 rounded-full animate-pulse delay-1000"></div>
-    <div className="absolute bottom-1 left-1 w-1 h-1 bg-cyan-500 rounded-full animate-pulse delay-1500"></div>
-  </Link>
-);
+//     {/* Corner Dots */}
+//     <div className="absolute top-1 left-1 w-1 h-1 bg-blue-500 rounded-full animate-pulse"></div>
+//     <div className="absolute top-1 right-1 w-1 h-1 bg-purple-500 rounded-full animate-pulse delay-500"></div>
+//     <div className="absolute bottom-1 right-1 w-1 h-1 bg-pink-500 rounded-full animate-pulse delay-1000"></div>
+//     <div className="absolute bottom-1 left-1 w-1 h-1 bg-cyan-500 rounded-full animate-pulse delay-1500"></div>
+//   </Link>
+// );
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -525,7 +527,7 @@ useEffect(() => {
             {/* <BellIcon className="w-6 h-6 text-gray-400" /> */}
           </button>
           ):(
-            <TravelingDotButton/>
+            <MovingBorderLoginButton/>
 
 
           )}
