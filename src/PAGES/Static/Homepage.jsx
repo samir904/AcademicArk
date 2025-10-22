@@ -116,7 +116,7 @@ const Homepage = () => {
       svgOptions={{ duration: 10 }}
     >
       {/* Hero Section Content */}
-      <section className="min-h-screen flex items-center justify-center px-4 relative w-full">
+      <section className="hero-viewport flex items-center justify-center px-4 relative w-full">
         {/* Subtle background accents */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
