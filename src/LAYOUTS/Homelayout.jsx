@@ -465,7 +465,7 @@ useEffect(() => {
                 </div>
               ) : (
                 <>
-                  <Link to="/login" className="relative group px-6 py-2.5 text-sm font-medium text-gray-400 hover:text-white transition-all duration-300 overflow-hidden rounded-lg">
+                  <Link to="/login" className="relative group px-6 py-2.5 text-sm font-medium text-gray-200 hover:text-white transition-all duration-300 overflow-hidden rounded-lg">
                     <span className="relative z-10">Sign in</span>
                     <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                   </Link>
