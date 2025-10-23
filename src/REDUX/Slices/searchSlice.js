@@ -64,7 +64,29 @@ const searchSlice = createSlice({
         },
         clearError: (state) => {
             state.error = null;
-        }
+        },
+        // ADD THIS - Update bookmark in search results
+        // updateBookmarkInSearchResults: (state, action) => {
+        //     const { noteId, bookmarkedBy } = action.payload;
+            
+        //     // Update in searchResults
+        //     const searchIndex = state.searchResults.findIndex(n => n._id === noteId);
+        //     if (searchIndex !== -1) {
+        //         state.searchResults[searchIndex].bookmarkedBy = bookmarkedBy;
+        //     }
+            
+        //     // Update in trendingNotes
+        //     const trendingIndex = state.trendingNotes.findIndex(n => n._id === noteId);
+        //     if (trendingIndex !== -1) {
+        //         state.trendingNotes[trendingIndex].bookmarkedBy = bookmarkedBy;
+        //     }
+            
+        //     // Update in popularNotes
+        //     const popularIndex = state.popularNotes.findIndex(n => n._id === noteId);
+        //     if (popularIndex !== -1) {
+        //         state.popularNotes[popularIndex].bookmarkedBy = bookmarkedBy;
+        //     }
+        // }
     },
     extraReducers: (builder) => {
         builder

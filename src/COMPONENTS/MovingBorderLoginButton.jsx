@@ -4,7 +4,7 @@ import { Button } from "./ui/moving-border";
 export const MovingBorderLoginButton = () => (
    <Link to="/login" className="inline-block">
     <Button
-      borderRadius="1.75rem"
+      borderRadius="1.2rem"//1.75 rem
       className="text-white  font-semibold tracking-wide"
       duration={3000}
     >
