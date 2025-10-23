@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { LampContainer } from "./ui/lamp";
+import { MovingBorderButton } from "./MovingBorderButton";
 
 export function LampSection() {
   return (
@@ -27,12 +28,7 @@ export function LampSection() {
         </p>
 
         <div className="mt-8 flex gap-4 justify-center">
-          <button className="px-8 py-3 bg-white text-black rounded-lg font-semibold hover:bg-gray-100 transition-all duration-300">
-            Start Learning
-          </button>
-          <button className="px-8 py-3 border border-gray-600 text-white rounded-lg font-semibold hover:border-gray-400 transition-all duration-300">
-            Explore Materials
-          </button>
+          <MovingBorderButton/>
         </div>
       </motion.div>
     </LampContainer>

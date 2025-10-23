@@ -39,7 +39,10 @@ const TrendingUpIcon = ({ className }) => (
 export default function ImportantCard({ note }) {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const dispatch = useDispatch();
-  const { bookmarking, downloading } = useSelector(state => state.note);
+  const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
+   const isBookmarking=bookmarkingNotes.includes(note._id);
+  const isDownloading=downloadingNotes.includes(note._id);
+
   const user = useSelector(state => state.auth.data);
   const isLoggedIn=useSelector((state)=>state?.auth?.isLoggedIn)
   const isBookmarked = note.bookmarkedBy?.includes(user?._id);
@@ -106,13 +109,57 @@ export default function ImportantCard({ note }) {
           </div>
           <button
             onClick={handleBookmark}
-            disabled={bookmarking}
-            className="p-2 rounded-full hover:bg-yellow-500/20 transition-colors group/bookmark"
-          >
-            <BookmarkIcon 
-              className={`w-5 h-5 ${isBookmarked ? 'text-yellow-300' : 'text-yellow-400'} hover:text-yellow-300 transition-colors group-hover/bookmark:scale-110`}
+            disabled={isBookmarking}
+            className={`relative p-2 rounded-full hover:bg-blue-500/20 transition-all duration-300 group/bookmark ${
+              isBookmarking ? 'animate-pulse' : ''
+            }`}>
+       {isBookmarking ? (
+  <div className="relative w-5 h-5">
+    {/* Outer ripple circle */}
+    <div className="absolute inset-0 rounded-full border-2 border-yellow-300/60 animate-pulse"></div>
+    
+    {/* Middle ripple circle */}
+    <div 
+      className="absolute inset-0 rounded-full border-2 border-transparent border-t-yellow-300 border-r-yellow-300"
+      style={{
+        animation: 'spin 1s linear infinite'
+      }}
+    ></div>
+    
+    {/* Center icon - faded */}
+    <BookmarkIcon 
+      className="w-5 h-5 text-yellow-300/50 absolute inset-0"
+      filled={isBookmarked}
+    />
+    
+    {/* Animated glow */}
+    <style>{`
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      
+      @keyframes glow {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(253, 224, 71, 0.7); }
+        50% { box-shadow: 0 0 0 6px rgba(253, 224, 71, 0); }
+      }
+    `}</style>
+  </div>
+) : (
+  <BookmarkIcon 
+    className={`w-5 h-5 transition-all duration-300 ${
+      isBookmarked 
+        ? 'text-yellow-300 scale-110' 
+        : 'text-yellow-400'
+    } hover:text-yellow-300 hover:scale-125 group-hover/bookmark:rotate-0`}
+    filled={isBookmarked}
+  />
+)}
+
+            {/* <BookmarkIcon 
+              className={`w-5 h-5 ${isBookmarked ? 'text-yellow-300' : 'text-blue-300'} hover:text-yellow-300 transition-colors group-hover/bookmark:scale-110`}
               filled={isBookmarked}
-            />
+            /> */}
           </button>
         </div>
         
@@ -218,10 +265,10 @@ export default function ImportantCard({ note }) {
         
         <button
           onClick={handleDownload}
-          disabled={downloading}
+          disabled={isDownloading}
           className="bg-yellow-500/20 border border-yellow-500/30 text-yellow-200 py-3 px-4 rounded-xl hover:bg-yellow-500/30 transition-all duration-300 disabled:opacity-50 hover:scale-105"
         >
-          {downloading ? (
+          {isDownloading ? (
             <div className="w-4 h-4 animate-spin border-2 border-yellow-300 border-t-transparent rounded-full"></div>
           ) : (
             <DownloadIcon className="w-4 h-4" />

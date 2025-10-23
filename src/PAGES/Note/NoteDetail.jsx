@@ -79,6 +79,10 @@ export default function NoteDetail() {
     const dispatch = useDispatch();
 
     const { currentNote, loading, bookmarking, downloading, rating, deleting } = useSelector(state => state.note);
+      const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
+      const isBookmarking=bookmarkingNotes.includes(id);
+      const isDownloading=downloadingNotes.includes(id);
+    
     const user = useSelector(state => state.auth.data);
     const role = useSelector((state) => state?.auth?.data?.role || "");
 
@@ -87,7 +91,7 @@ export default function NoteDetail() {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [userRating, setUserRating] = useState(0);
     const [userReview, setUserReview] = useState('');
-    const isLoggedIn=useSelector((state)=>state?.auth?.isLoggedIn);
+    const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
 
     // Authorization checks
     const isAdmin = role === 'ADMIN';
@@ -153,8 +157,8 @@ export default function NoteDetail() {
 
     const handleBookmark = (e) => {
         e.preventDefault();
-    e.stopPropagation();
-        if(!isLoggedIn){
+        e.stopPropagation();
+        if (!isLoggedIn) {
             console.log("not loggedin");
             setShowLoginModal(true);
             return;
@@ -164,8 +168,8 @@ export default function NoteDetail() {
 
     const handleDownload = (e) => {
         e.preventDefault();
-    e.stopPropagation();
-        if(!isLoggedIn){
+        e.stopPropagation();
+        if (!isLoggedIn) {
             setShowLoginModal(true);
             return;
         }
@@ -185,8 +189,8 @@ export default function NoteDetail() {
 
     const handleRating = (e) => {
         e.preventDefault();
-    e.stopPropagation();
-        if(!isLoggedIn){
+        e.stopPropagation();
+        if (!isLoggedIn) {
             setShowLoginModal(true);
             return;
         }
@@ -314,40 +318,49 @@ export default function NoteDetail() {
                             {/* Action Buttons */}
                             <div className="flex flex-col space-y-3 lg:w-64">
                                 {/* 🔥 READ BUTTON - Primary Action */}
-  <Link
-    to={`/notes/${currentNote._id}/read`}
-    className={`w-full bg-gradient-to-r ${theme.gradient}     text-white py-3 px-6 rounded-xl font-medium  transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105`}>
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-    </svg>
-    <span>Read Now</span>
-  </Link>
-                                <button
-                                    onClick={handleDownload}
-                                    disabled={downloading}
-                                    className={`w-full bg-gradient-to-r ${theme.gradient} text-white py-3 px-6 rounded-xl font-medium hover:opacity-90 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
-                                >
-                                    {downloading ? (
-                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                    ) : (
-                                        <>
-                                            <DownloadIcon className="w-5 h-5" />
-                                            <span>Download</span>
-                                        </>
-                                    )}
-                                </button>
+                                <Link
+                                    to={`/notes/${currentNote._id}/read`}
+                                    className={`w-full bg-gradient-to-r ${theme.gradient}     text-white py-3 px-6 rounded-xl font-medium  transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105`}>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
+                                    <span>Read Now</span>
+                                </Link>
+                               {/* DOWNLOAD BUTTON - Simple Spinner */}
+<button
+    onClick={handleDownload}
+    disabled={isDownloading}
+    className={`w-full bg-gradient-to-r ${theme.gradient} text-white py-3 px-6 rounded-xl font-medium hover:opacity-90 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
+>
+    {isDownloading ? (
+        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+    ) : (
+        <>
+            <DownloadIcon className="w-5 h-5" />
+            <span>Download</span>
+        </>
+    )}
+</button>
 
-                                <button
-                                    onClick={handleBookmark}
-                                    disabled={bookmarking}
-                                    className={`w-full border-2 ${theme.borderColor} text-white py-3 px-6 rounded-xl font-medium hover:bg-white/5 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
-                                >
-                                    <BookmarkIcon
-                                        className={`w-5 h-5 ${isBookmarked ? 'text-yellow-400' : 'text-gray-400'}`}
-                                        filled={isBookmarked}
-                                    />
-                                    <span>{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
-                                </button>
+{/* BOOKMARK BUTTON - Simple Spinner */}
+<button
+    onClick={handleBookmark}
+    disabled={isBookmarking}
+    className={`w-full border-2 ${theme.borderColor} text-white py-3 px-6 rounded-xl font-medium hover:bg-white/5 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
+>
+    {isBookmarking ? (
+        <div className="animate-spin rounded-full h-5 w-5 border-2 border-yellow-400 border-t-transparent"></div>
+    ) : (
+        <>
+            <BookmarkIcon
+                className={`w-5 h-5 ${isBookmarked ? 'text-yellow-400' : 'text-gray-400'}`}
+                filled={isBookmarked}
+            />
+            <span>{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
+        </>
+    )}
+</button>
+
 
                                 {/* Update Note Button - Only for note creator (teacher) or admin */}
                                 {canEditNote && (
@@ -371,7 +384,7 @@ export default function NoteDetail() {
                                     </button>
                                 )}
 
-{/* // Update the rating button */}
+                                {/* // Update the rating button */}
                                 {user && (
                                     <button
                                         onClick={handleRating}
@@ -447,94 +460,94 @@ export default function NoteDetail() {
                                 </div>
                             )}
 
-                         {/* Reviews */}
-{currentNote.rating?.length > 0 && (
-    <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-        <h2 className="text-2xl font-bold text-white mb-6 flex items-center space-x-2">
-            <StarIcon className="w-6 h-6 text-yellow-400" filled />
-            <span>Reviews & Ratings</span>
-        </h2>
-        <div className="space-y-4">
-            {currentNote.rating.map((review, index) => (
-                <div key={review._id || index} className="p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                        <Link 
-                          to={`/profile/${review.user?._id}`}
-                          className="flex items-center space-x-2 hover:opacity-80 hover:underline transition-opacity"
-                        >
-                        <div className="flex items-center space-x-3">
-                            {/* User Avatar */}
-                            {review.user?.avatar?.secure_url?.startsWith('http') ? (
-                                <img 
-                                    src={review.user.avatar.secure_url} 
-                                    alt={review.user.fullName || 'User'}
-                                    loading='lazy'
-                                    className="w-10 h-10 rounded-full border-2 border-white/20 object-cover shadow-lg"
-                                />
-                            ) : (
-                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
-                                    <span className="text-white text-lg font-bold">
-                                        {review.user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
-                                    </span>
-                                </div>
-                            )}
-                            
-                            <div>
-                                {/* User Name */}
-                                <span className="text-white font-medium text-lg">
-                                    {review.user?.fullName || 'Anonymous User'}
-                                </span>
-                                {/* Optional: Show user role if available */}
-                                {review.user?.role && (
-                                    <div className="text-xs text-gray-400 capitalize">
-                                        {review.user.role.toLowerCase()}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        </Link>
-                        
-                        {/* Rating Stars */}
-                        <div className="flex items-center space-x-1 bg-yellow-500/20 px-3 py-1 rounded-full">
-                            {[...Array(5)].map((_, i) => (
-                                <StarIcon
-                                    key={i}
-                                    className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-600'}`}
-                                    filled={i < review.rating}
-                                />
-                            ))}
-                            {/* <span className="text-yellow-400 font-semibold ml-1">
+                            {/* Reviews */}
+                            {currentNote.rating?.length > 0 && (
+                                <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+                                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center space-x-2">
+                                        <StarIcon className="w-6 h-6 text-yellow-400" filled />
+                                        <span>Reviews & Ratings</span>
+                                    </h2>
+                                    <div className="space-y-4">
+                                        {currentNote.rating.map((review, index) => (
+                                            <div key={review._id || index} className="p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
+                                                <div className="flex items-start justify-between mb-3">
+                                                    <Link
+                                                        to={`/profile/${review.user?._id}`}
+                                                        className="flex items-center space-x-2 hover:opacity-80 hover:underline transition-opacity"
+                                                    >
+                                                        <div className="flex items-center space-x-3">
+                                                            {/* User Avatar */}
+                                                            {review.user?.avatar?.secure_url?.startsWith('http') ? (
+                                                                <img
+                                                                    src={review.user.avatar.secure_url}
+                                                                    alt={review.user.fullName || 'User'}
+                                                                    loading='lazy'
+                                                                    className="w-10 h-10 rounded-full border-2 border-white/20 object-cover shadow-lg"
+                                                                />
+                                                            ) : (
+                                                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                                                                    <span className="text-white text-lg font-bold">
+                                                                        {review.user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+
+                                                            <div>
+                                                                {/* User Name */}
+                                                                <span className="text-white font-medium text-lg">
+                                                                    {review.user?.fullName || 'Anonymous User'}
+                                                                </span>
+                                                                {/* Optional: Show user role if available */}
+                                                                {review.user?.role && (
+                                                                    <div className="text-xs text-gray-400 capitalize">
+                                                                        {review.user.role.toLowerCase()}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </Link>
+
+                                                    {/* Rating Stars */}
+                                                    <div className="flex items-center space-x-1 bg-yellow-500/20 px-3 py-1 rounded-full">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <StarIcon
+                                                                key={i}
+                                                                className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-600'}`}
+                                                                filled={i < review.rating}
+                                                            />
+                                                        ))}
+                                                        {/* <span className="text-yellow-400 font-semibold ml-1">
                                 {review.rating}/5
                             </span> */}
-                        </div>
-                    </div>
-                    
-                    {/* Review Text */}
-                    {review.review && (
-                        <div className="ml-13">
-                            <p className="text-gray-300 leading-relaxed">"{review.review}"</p>
-                        </div>
-                    )}
-                </div>
-            ))}
-        </div>
-        
-        {/* Average Rating Summary */}
-        <div className="mt-6 pt-4 border-t border-white/10">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                    <StarIcon className="w-5 h-5 text-yellow-400" filled />
-                    <span className="text-white font-medium">
-                        Average Rating: {avgRating}/5
-                    </span>
-                </div>
-                <span className="text-gray-400 text-sm">
-                    Based on {currentNote.rating.length} review{currentNote.rating.length !== 1 ? 's' : ''}
-                </span>
-            </div>
-        </div>
-    </div>
-)}
+                                                    </div>
+                                                </div>
+
+                                                {/* Review Text */}
+                                                {review.review && (
+                                                    <div className="ml-13">
+                                                        <p className="text-gray-300 leading-relaxed">"{review.review}"</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Average Rating Summary */}
+                                    <div className="mt-6 pt-4 border-t border-white/10">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center space-x-2">
+                                                <StarIcon className="w-5 h-5 text-yellow-400" filled />
+                                                <span className="text-white font-medium">
+                                                    Average Rating: {avgRating}/5
+                                                </span>
+                                            </div>
+                                            <span className="text-gray-400 text-sm">
+                                                Based on {currentNote.rating.length} review{currentNote.rating.length !== 1 ? 's' : ''}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
 
                         </div>
@@ -544,28 +557,28 @@ export default function NoteDetail() {
                             {/* Uploader Info */}
                             <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
                                 <h3 className="text-lg font-bold text-white mb-4">Uploaded By</h3>
-                                 <Link 
-                                  to={`/profile/${currentNote.uploadedBy?._id}`}
-                                  className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+                                <Link
+                                    to={`/profile/${currentNote.uploadedBy?._id}`}
+                                    className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
                                 >
-                                <div className="flex items-center space-x-3">
-                                    {currentNote.uploadedBy?.avatar?.secure_url?.startsWith('http')  ? (
-                                        <img
-                                            src={currentNote.uploadedBy.avatar.secure_url}
-                                            alt={currentNote.uploadedBy.fullName}
-                                            loading='lazy'
-                                            className="w-12 h-12 rounded-full border-2 border-white/20"
-                                        />
-                                    ) : (
-                                        <div className={`w-12 h-12 bg-gradient-to-br ${theme.gradient} rounded-full flex items-center justify-center text-white font-bold`}>
-                                            {currentNote.uploadedBy?.fullName?.charAt(0) || 'U'}
+                                    <div className="flex items-center space-x-3">
+                                        {currentNote.uploadedBy?.avatar?.secure_url?.startsWith('http') ? (
+                                            <img
+                                                src={currentNote.uploadedBy.avatar.secure_url}
+                                                alt={currentNote.uploadedBy.fullName}
+                                                loading='lazy'
+                                                className="w-12 h-12 rounded-full border-2 border-white/20"
+                                            />
+                                        ) : (
+                                            <div className={`w-12 h-12 bg-gradient-to-br ${theme.gradient} rounded-full flex items-center justify-center text-white font-bold`}>
+                                                {currentNote.uploadedBy?.fullName?.charAt(0) || 'U'}
+                                            </div>
+                                        )}
+                                        <div>
+                                            <div className="text-white font-medium">{currentNote.uploadedBy?.fullName || 'Unknown'}</div>
+                                            <div className="text-gray-400 text-sm">Contributor</div>
                                         </div>
-                                    )}
-                                    <div>
-                                        <div className="text-white font-medium">{currentNote.uploadedBy?.fullName || 'Unknown'}</div>
-                                        <div className="text-gray-400 text-sm">Contributor</div>
                                     </div>
-                                </div>
                                 </Link>
                             </div>
 
@@ -686,19 +699,19 @@ export default function NoteDetail() {
                     </div>
                 )}
                 {/* Login Modal */}
-                            {showLoginModal && (
-                                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                                    <div className="max-w-md w-full mx-4">
-                                        <LoginPrompt  />
-                                        <button 
-                                            onClick={() => setShowLoginModal(false)}
-                                            className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
-                                        >
-                                            Close
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                {showLoginModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                        <div className="max-w-md w-full mx-4">
+                            <LoginPrompt />
+                            <button
+                                onClick={() => setShowLoginModal(false)}
+                                className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </HomeLayout>
     );

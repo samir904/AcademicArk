@@ -8,6 +8,7 @@ import { MovingBorderButton } from '../../COMPONENTS/MovingBorderButton';
 import { LampSection } from '../../COMPONENTS/LampSection';
 import { WhyChooseAcademicArkLamp } from '../../COMPONENTS/WhyChooseAcademicArkLamp';
 import { BackgroundLines } from '../../COMPONENTS/ui/background-lines';
+import { BackgroundBeams } from '../../COMPONENTS/ui/background-beams';
 
 const Homepage = () => {
   const [isVisible, setIsVisible] = useState({});
@@ -316,6 +317,7 @@ const Homepage = () => {
           </div>
         </div>
       </section>
+
 
      
 

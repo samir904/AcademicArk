@@ -13,8 +13,8 @@ const initialState = {
     updating: false,
     deleting: false,
     rating: false,
-    bookmarking: false,
-    downloading: false,
+    bookmarkingNotes: [],//new array of note ids being bookmarked
+    downloadingNotes: [],//new array of note ids being downloading
     error: null,
     filters: {
         subject: '',
@@ -317,9 +317,22 @@ const noteSlice = createSlice({
 
             // In your noteSlice.js - Fix the toggleBookmark.fulfilled
             // Update the reducer
+
+            .addCase(toggleBookmark.pending,(state,action)=>{
+                const noteId=action.meta.arg;
+                if(!state.bookmarkingNotes.includes(noteId)){
+                    state.bookmarkingNotes.push(noteId);
+                }
+                state.error=null;
+            })
+
             .addCase(toggleBookmark.fulfilled, (state, action) => {
-                state.bookmarking = false;
+                //state.bookmarking = false;
                 const updatedNote = action.payload.data; // Make sure backend returns { data: updatedNote }
+                const noteId=updatedNote._id;
+
+                //remove from bookmarking array
+                state.bookmarkingNotes=state.bookmarkingNotes.filter(id=>id!==noteId);
 
                 // Update in notes array
                 const index = state.notes.findIndex(n => n._id === updatedNote._id);
@@ -334,19 +347,30 @@ const noteSlice = createSlice({
             })
 
             .addCase(toggleBookmark.rejected, (state, action) => {
-                state.bookmarking = false;
+                //state.bookmarking = false;
+                const noteId=action.meta.arg;
+
+                //remove from bookmarking array
+                state.bookmarkingNotes=state.bookmarkingNotes.filter(id=>id!==noteId);
+
                 state.error = action?.payload?.message || "Failed to toggle bookmark"
             })
 
             //download note
             .addCase(downloadnote.pending, (state, action) => {
-                state.downloading = true;
-                state.error = null;
+                const noteId=action.meta.arg.noteId;
+                if(!state.downloadingNotes.includes(noteId)){
+                    state.downloadingNotes.push(noteId);
+                }
+                state.error=null;
             })
             .addCase(downloadnote.fulfilled, (state, action) => {
-                state.downloading = false;
-                //optionally increment download count in local state
+             //optionally increment download count in local state
                 const noteId = action?.payload?.noteId;
+
+                //remove from downloading array
+                state.downloadingNotes=state.downloadingNotes.filter(id=>id!==noteId);
+
                 const index = state.notes.findIndex(note => note._id === noteId);
                 if (index !== -1) {
                     state.notes[index].downloads += 1;
@@ -356,7 +380,12 @@ const noteSlice = createSlice({
                 }
             })
             .addCase(downloadnote.rejected, (state, action) => {
-                state.downloading = false;
+                
+                const noteId=action.meta.arg.noteId;
+
+                //remove from downloading array
+                state.downloadingNotes=state.downloadingNotes.filter(id=>id!==noteId);
+
                 state.error = action?.payload?.message || "Failed to download note"
             })
             // Add to extraReducers
