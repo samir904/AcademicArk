@@ -9,7 +9,7 @@
 
   :root {
     --font-primary: 'Poppins', sans-serif;
-    --font-secondary: 'Open Sans', sans-serif;
+    --font-secondary: 'sans-serif', sans-serif;
   }
 
   * {

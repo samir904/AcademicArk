@@ -9,6 +9,7 @@ import { LampSection } from '../../COMPONENTS/LampSection';
 import { WhyChooseAcademicArkLamp } from '../../COMPONENTS/WhyChooseAcademicArkLamp';
 import { BackgroundLines } from '../../COMPONENTS/ui/background-lines';
 import { BackgroundBeams } from '../../COMPONENTS/ui/background-beams';
+import { GridBackground } from '../../COMPONENTS/ui/GridBackground';
 
 const Homepage = () => {
   const [isVisible, setIsVisible] = useState({});
@@ -118,6 +119,7 @@ const Homepage = () => {
     >
       {/* Hero Section Content */}
       <section className="hero-viewport flex items-center justify-center px-4 relative w-full">
+        
         {/* Subtle background accents */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
