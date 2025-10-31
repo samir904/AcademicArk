@@ -184,7 +184,7 @@ const filteredNotes = notes?.filter(note => {
     setIsStatsCollapsed(false);
   };
 
-  // Get category icon and color
+  // ✨ FIXED: Updated getCategoryConfig with Handwritten Notes
   const getCategoryConfig = (category) => {
     const configs = {
       'Notes': {
@@ -192,18 +192,32 @@ const filteredNotes = notes?.filter(note => {
         gradient: 'from-blue-600 to-blue-500',
         hoverGradient: 'hover:from-blue-500 hover:to-blue-400',
         borderColor: 'border-blue-500/30',
-      },
-      'PYQ': {
-        icon: '📄',
-        gradient: 'from-purple-600 to-purple-500',
-        hoverGradient: 'hover:from-purple-500 hover:to-purple-400',
-        borderColor: 'border-purple-500/30',
+        bgGradient: 'from-blue-900/90 to-purple-900/80',
+        textColor: 'text-blue-400'
       },
       'Important Question': {
         icon: '⭐',
-        gradient: 'from-pink-600 to-pink-500',
-        hoverGradient: 'hover:from-pink-500 hover:to-pink-400',
-        borderColor: 'border-pink-500/30',
+        gradient: 'from-yellow-600 to-orange-500',
+        hoverGradient: 'hover:from-yellow-500 hover:to-orange-400',
+        borderColor: 'border-yellow-500/30',
+        bgGradient: 'from-yellow-900/90 to-orange-900/80',
+        textColor: 'text-yellow-400'
+      },
+      'PYQ': {
+        icon: '📄',
+        gradient: 'from-red-600 to-pink-500',
+        hoverGradient: 'hover:from-red-500 hover:to-pink-400',
+        borderColor: 'border-red-500/30',
+        bgGradient: 'from-red-900/90 to-pink-900/80',
+        textColor: 'text-red-400'
+      },
+      'Handwritten Notes': {
+        icon: '✏️',
+        gradient: 'from-green-600 to-teal-500',
+        hoverGradient: 'hover:from-green-500 hover:to-teal-400',
+        borderColor: 'border-green-500/30',
+        bgGradient: 'from-green-900/90 to-teal-900/80',
+        textColor: 'text-green-400'
       }
     };
     return configs[category] || configs['Notes'];
@@ -299,7 +313,7 @@ const filteredNotes = notes?.filter(note => {
                 </select>
               </div>
 
-              {/* Category */}
+              {/* ✨ FIXED: Updated Category Select with Handwritten Notes */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
                 <select
@@ -308,14 +322,16 @@ const filteredNotes = notes?.filter(note => {
                   className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Show All Materials</option>
-                  <option value="Notes">Notes</option>
-                  <option value="PYQ">Previous Year Questions</option>
-                  <option value="Important Question">Important Questions</option>
+                  <option value="Notes">📚 Study Notes</option>
+                  <option value="Important Question">⭐ Important Questions</option>
+                  <option value="PYQ">📄 Previous Year Questions</option>
+                  <option value="Handwritten Notes">✏️ Handwritten Notes</option>
                 </select>
                 <div className="mt-1 text-xs text-gray-400 text-center">
-                  Choose <span className="text-green-400">PYQ</span> for exam prep, <span className="text-blue-400">Notes</span> for learning
+                  Choose <span className="text-green-400">Handwritten</span> for personal notes, <span className="text-yellow-400">Important</span> for key topics
                 </div>
               </div>
+            
 
               {/* Subject */}
               <div>
@@ -504,104 +520,96 @@ const filteredNotes = notes?.filter(note => {
                     </div>
                   )}
 
-                  {/* Category Selection Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Object.entries(categoryStats).map(([category, count]) => {
-                      const isActive = localFilters.category === category;
-                      const config = getCategoryConfig(category);
+                  {/* Category Selection Grid - ✨ Now includes Handwritten Notes */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {Object.entries(categoryStats).map(([category, count]) => {
+                    const isActive = localFilters.category === category;
+                    const config = getCategoryConfig(category);
 
-                      return (
-                        <button
-                          key={category}
-                          onClick={() => handleCategoryClick(category)}
-                          className={`
-                            group relative p-6 rounded-2xl
-                            transition-all duration-300 transform
-                            ${isActive
-                              ? `bg-gradient-to-br ${config.gradient} border-transparent shadow-2xl scale-105`
-                              : `bg-gradient-to-br from-gray-900/50 to-gray-800/30 border ${config.borderColor} hover:scale-102 ${config.hoverGradient}`
-                            }
-                            hover:shadow-xl
-                          `}
-                        >
-                          {/* Background Glow Effect */}
-                          {isActive && (
-                            <div className="absolute inset-0 bg-white/10 rounded-2xl blur-xl"></div>
-                          )}
+                    return (
+                      <button
+                        key={category}
+                        onClick={() => handleCategoryClick(category)}
+                        className={`
+                          group relative p-6 rounded-2xl
+                          transition-all duration-300 transform
+                          ${isActive
+                            ? `bg-gradient-to-br ${config.gradient} border-transparent shadow-2xl scale-105`
+                            : `bg-gradient-to-br from-gray-900/50 to-gray-800/30 border ${config.borderColor} hover:scale-102 ${config.hoverGradient}`
+                          }
+                          hover:shadow-xl
+                        `}
+                      >
+                        {/* Background Glow Effect */}
+                        {isActive && (
+                          <div className="absolute inset-0 bg-white/10 rounded-2xl blur-xl"></div>
+                        )}
 
-                          {/* Content */}
-                          <div className="relative flex items-center space-x-4">
-                            {/* Icon */}
+                        {/* Content */}
+                        <div className="relative flex items-center space-x-4">
+                          {/* Icon */}
+                          <div className={`
+                            w-16 h-16 rounded-xl flex items-center justify-center
+                            ${isActive ? 'bg-white/20' : 'bg-black/30 group-hover:bg-black/50'}
+                            transition-all duration-300
+                          `}>
+                            <span className="text-3xl">{config.icon}</span>
+                          </div>
+
+                          {/* Text */}
+                          <div className="flex-1 text-left">
                             <div className={`
-                              w-16 h-16 rounded-xl flex items-center justify-center
-                              ${isActive ? 'bg-white/20' : 'bg-black/30 group-hover:bg-black/50'}
-                              transition-all duration-300
+                              text-3xl font-bold mb-1
+                              ${isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'}
                             `}>
-                              <span className="text-3xl">{config.icon}</span>
+                              {count}
                             </div>
-
-                            {/* Text */}
-                            <div className="flex-1 text-left">
-                              <div className={`
-                                text-3xl font-bold mb-1
-                                ${isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'}
-                              `}>
-                                {count}
-                              </div>
-                              <div className={`
-                                text-sm font-medium
-                                ${isActive ? 'text-white/90' : 'text-gray-400 group-hover:text-gray-300'}
-                              `}>
-                                {category}
-                              </div>
-                            </div>
-
-                            {/* Arrow Indicator */}
                             <div className={`
-                              transition-all duration-300
-                              ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                              text-sm font-medium
+                              ${isActive ? 'text-white/90' : 'text-gray-400 group-hover:text-gray-300'}
                             `}>
-                              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                              </svg>
+                              {category}
                             </div>
                           </div>
 
-                          {/* Active Pulse Indicator this is at top you can even add a cross button here  */}
-                          {isActive && (
-                            <button
-                              onClick={handleClearCategory}// or your clear handler
-                              className="absolute top-3 right-3 p-1 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
-                              title="Clear filter"
-                            >
-                              <svg
-                                className="w-4 h-4 text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M6 18L18 6M6 6l12 12"
-                                />
-                              </svg>
-                            </button>
-                          )}
+                          {/* Arrow Indicator */}
+                          <div className={`
+                            transition-all duration-300
+                            ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                          `}>
+                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
+                        </div>
 
-                          {/* Hover Tooltip */}
-                          {!isActive && (
-                            <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <div className="bg-black/90 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap">
-                                Click to filter
-                              </div>
+                        {/* Clear button for active category */}
+                        {isActive && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleClearCategory();
+                            }}
+                            className="absolute top-3 right-3 p-1 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
+                            title="Clear filter"
+                          >
+                            <CloseIcon className="w-4 h-4 text-white" />
+                          </button>
+                        )}
+
+                        {/* Hover Tooltip */}
+                        {!isActive && (
+                          <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <div className="bg-black/90 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap">
+                              Click to filter
                             </div>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
 
                   {/*filter by uploaded by where i need to change the logic */ }
 {/* NEW: Uploaded By Filter - Only show when category is selected or no filter active */}

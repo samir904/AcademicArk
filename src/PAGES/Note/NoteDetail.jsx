@@ -72,6 +72,11 @@ const TrashIcon = ({ className }) => (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
     </svg>
 );
+const PencilIcon = ({ className }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.364-6.364a1 1 0 011.414 0l3.586 3.586a1 1 0 010 1.414L13 17h-4v-4z" />
+    </svg>
+);
 
 export default function NoteDetail() {
     const { id } = useParams();
@@ -214,38 +219,116 @@ export default function NoteDetail() {
         }
     };
 
-    // Get theme colors based on category
-    const getTheme = () => {
-        switch (currentNote.category) {
-            case 'PYQ':
-                return {
-                    gradient: 'from-red-500 to-pink-500',
-                    bgGradient: 'from-red-900/20 to-pink-900/20',
-                    borderColor: 'border-red-500/30',
-                    icon: <TargetIcon className="w-8 h-8" />,
-                    badge: '🎯 PYQ'
-                };
-            case 'Important Question':
-                return {
-                    gradient: 'from-yellow-500 to-orange-500',
-                    bgGradient: 'from-yellow-900/20 to-orange-900/20',
-                    borderColor: 'border-yellow-500/30',
-                    icon: <FlameIcon className="w-8 h-8" />,
-                    badge: '⭐ Important'
-                };
-            default:
-                return {
-                    gradient: 'from-blue-500 to-purple-500',
-                    bgGradient: 'from-blue-900/20 to-purple-900/20',
-                    borderColor: 'border-blue-500/30',
-                    icon: <TargetIcon className="w-8 h-8" />,
-                    badge: '📚 Notes'
-                };
-        }
-    };
+   // ✨ UPDATED: getTheme function with Handwritten Notes support
+const getTheme = () => {
+    switch (currentNote.category) {
+        case 'PYQ':
+            return {
+                gradient: 'from-cyan-500 to-blue-500',
+                bgGradient: 'from-cyan-900/20 to-blue-900/20',
+                borderColor: 'border-cyan-500/30',
+                textColor: 'text-red-400',
+                icon: <TargetIcon className="w-8 h-8 text-cyan-200" />,
+                badge: '📄 PYQ',
+                headingIcon: <TargetIcon className="w-6 h-6" />,
+                accentBg: 'bg-cyan-500/10',
+                accentBorder: 'border-cyan-500/20'
+            };
+        case 'Important Question':
+            return {
+                gradient: 'from-yellow-500 to-orange-500',
+                bgGradient: 'from-yellow-900/20 to-orange-900/20',
+                borderColor: 'border-yellow-500/30',
+                textColor: 'text-yellow-400',
+                icon: <FlameIcon className="w-8 h-8 text-yellow-200" />,
+                badge: '⭐ Important',
+                headingIcon: <FlameIcon className="w-6 h-6" />,
+                accentBg: 'bg-yellow-500/10',
+                accentBorder: 'border-yellow-500/20'
+            };
+        case 'Handwritten Notes':
+            return {
+                gradient: 'from-green-500 to-teal-500',
+                bgGradient: 'from-green-900/20 to-teal-900/20',
+                borderColor: 'border-green-500/30',
+                textColor: 'text-green-400',
+                icon: <PencilIcon className="w-8 h-8 text-green-200" />,
+                badge: '✏️ Handwritten',
+                headingIcon: <PencilIcon className="w-6 h-6" />,
+                accentBg: 'bg-green-500/10',
+                accentBorder: 'border-green-500/20'
+            };
+        default: // Notes
+            return {
+                gradient: 'from-blue-500 to-purple-500',
+                bgGradient: 'from-blue-900/20 to-purple-900/20',
+                borderColor: 'border-blue-500/30',
+                textColor: 'text-blue-400',
+                icon: <TargetIcon className="w-8 h-8 text-blue-200" />,
+                badge: '📚 Notes',
+                headingIcon: <TargetIcon className="w-6 h-6" />,
+                accentBg: 'bg-blue-500/10',
+                accentBorder: 'border-blue-500/20'
+            };
+    }
+};
+// ✨ NEW: Add category-specific content section
+const getCategoryContent = () => {
+    switch (currentNote.category) {
+        case 'Handwritten Notes':
+            return (
+                <div className={`bg-gradient-to-br from-green-900/30 to-teal-900/20 backdrop-blur-xl ${theme.accentBorder} rounded-2xl p-6`}>
+                    <h2 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
+                        <PencilIcon className="w-6 h-6 text-green-400" />
+                        <span>Study Tips</span>
+                    </h2>
+                    <div className="space-y-4">
+                        <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+                            <h3 className="font-medium text-green-300 mb-2">✍️ Personal Notes</h3>
+                            <p className="text-gray-300 text-sm">These are carefully handwritten notes with personal insights. Great for understanding concepts through the author's perspective and learning style.</p>
+                        </div>
+                        <div className="p-4 bg-teal-500/10 rounded-lg border border-teal-500/20">
+                            <h3 className="font-medium text-teal-300 mb-2">💡 Deep Conceptual Clarity</h3>
+                            <p className="text-gray-300 text-sm">Handwritten notes often provide detailed explanations, diagrams, and annotations that enhance understanding. Perfect for visual learners.</p>
+                        </div>
+                    </div>
+                </div>
+            );
+case 'Notes':
+  return (
+    <div className={`bg-gradient-to-br from-blue-900/30 to-purple-900/20 backdrop-blur-xl ${theme.accentBorder} rounded-2xl p-6`}>
+      {/* Header */}
+      <h2 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
+        <TargetIcon className="w-6 h-6 text-blue-300" />
+        <span>Study Tips</span>
+      </h2>
+      {/* Content: animated box with info */}
+      <div className="space-y-4">
+        {/* Personal Notes */}
+        <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+          <h3 className="font-medium text-blue-300 mb-2">✍️ Personal Notes</h3>
+          <p className="text-gray-300 text-sm">
+            These are carefully curated study notes created by experts. Great for understanding concepts through summaries, diagrams, and annotated explanations.
+          </p>
+        </div>
+        {/* Conceptual Clarity */}
+        <div className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
+          <h3 className="font-medium text-purple-300 mb-2">💡 Deep Conceptual Clarity</h3>
+          <p className="text-gray-300 text-sm">
+            Well-structured notes designed to clarify difficult topics, with diagrams, flowcharts, and concise summaries to aid quick revision.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+        default:
+            return null;
+    }
+};
+
 
     const theme = getTheme();
-
+const categoryContent = getCategoryContent();
     return (
         <HomeLayout>
             <div className="min-h-screen bg-black text-white">
@@ -416,26 +499,26 @@ export default function NoteDetail() {
 
                             {/* Category-specific content */}
                             {currentNote.category === 'PYQ' && (
-                                <div className="bg-gradient-to-br from-red-900/30 to-pink-900/20 backdrop-blur-xl border border-red-500/20 rounded-2xl p-6">
+                                <div className="bg-gradient-to-br from-cyan-900/30 to-blue-900/20 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-6">
                                     <h2 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
-                                        <TargetIcon className="w-6 h-6 text-red-400" />
+                                        <TargetIcon className="w-6 h-6 text-cyan-400" />
                                         <span>Exam Information</span>
                                     </h2>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="text-center p-4 bg-red-500/10 rounded-lg">
-                                            <ClockIcon className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                                        <div className="text-center p-4 bg-cyan-500/10 rounded-lg">
+                                            <ClockIcon className="w-8 h-8 text-cyan-400 mx-auto mb-2" />
                                             <div className="text-white font-medium">3 Hours</div>
-                                            <div className="text-red-300 text-sm">Duration</div>
+                                            <div className="text-cyan-300 text-sm">Duration</div>
                                         </div>
-                                        <div className="text-center p-4 bg-red-500/10 rounded-lg">
-                                            <TargetIcon className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                                        <div className="text-center p-4 bg-cyan-500/10 rounded-lg">
+                                            <TargetIcon className="w-8 h-8 text-cyan-400 mx-auto mb-2" />
                                             <div className="text-white font-medium">100 Marks</div>
-                                            <div className="text-red-300 text-sm">Total</div>
+                                            <div className="text-cyan-300 text-sm">Total</div>
                                         </div>
-                                        <div className="text-center p-4 bg-red-500/10 rounded-lg">
-                                            <StarIcon className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                                        <div className="text-center p-4 bg-cyan-500/10 rounded-lg">
+                                            <StarIcon className="w-8 h-8 text-cyan-400 mx-auto mb-2" />
                                             <div className="text-white font-medium">High Priority</div>
-                                            <div className="text-red-300 text-sm">Importance</div>
+                                            <div className="text-cyan-300 text-sm">Importance</div>
                                         </div>
                                     </div>
                                 </div>
@@ -459,6 +542,12 @@ export default function NoteDetail() {
                                     </div>
                                 </div>
                             )}
+
+                              {/* ✨ Category-specific content */}
+                            {categoryContent && categoryContent}
+
+
+                           
 
                             {/* Reviews */}
                             {currentNote.rating?.length > 0 && (
@@ -551,6 +640,8 @@ export default function NoteDetail() {
 
 
                         </div>
+
+                       
 
                         {/* Sidebar */}
                         <div className="space-y-6">

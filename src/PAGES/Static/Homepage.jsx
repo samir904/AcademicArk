@@ -476,6 +476,7 @@ const Homepage = () => {
           </div>
         </div>
       </section>
+      <LampSection/>
        {/* ✨ ADD LAMP EFFECT HERE ✨ */}
       {/* <WhyChooseAcademicArkLamp /> */}
 

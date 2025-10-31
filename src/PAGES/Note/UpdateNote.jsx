@@ -54,11 +54,11 @@ export default function UpdateNote() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  
+
   const { currentNote, updating, loading } = useSelector(state => state.note);
   const user = useSelector(state => state.auth.data);
   const role = useSelector(state => state.auth.data?.role || '');
-  
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -85,7 +85,7 @@ export default function UpdateNote() {
     if (id) {
       dispatch(getNote(id));
     }
-    
+
     return () => {
       dispatch(clearCurrentNote());
       // Clean up file preview URL
@@ -119,8 +119,8 @@ export default function UpdateNote() {
             <XCircleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
             <p className="text-gray-400 mb-4">You don't have permission to update this note.</p>
-            <button 
-              onClick={() => navigate('/notes')} 
+            <button
+              onClick={() => navigate('/notes')}
               className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all"
             >
               Back to Notes
@@ -154,8 +154,8 @@ export default function UpdateNote() {
             <XCircleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-2">Note Not Found</h2>
             <p className="text-gray-400 mb-4">The note you're trying to update doesn't exist.</p>
-            <button 
-              onClick={() => navigate('/notes')} 
+            <button
+              onClick={() => navigate('/notes')}
               className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all"
             >
               Back to Notes
@@ -177,7 +177,7 @@ export default function UpdateNote() {
 
     if (!formData.subject.trim()) newErrors.subject = 'Subject is required';
     else if (formData.subject.trim().length < 2) newErrors.subject = 'Subject must be at least 2 characters';
-    
+
     if (!formData.semester) newErrors.semester = 'Semester is required';
 
     // File validation (optional for update)
@@ -204,7 +204,7 @@ export default function UpdateNote() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -238,7 +238,7 @@ export default function UpdateNote() {
     }
 
     setSelectedFile(file);
-    
+
     // Create preview for PDF files
     if (file.type === 'application/pdf') {
       const previewUrl = URL.createObjectURL(file);
@@ -276,7 +276,7 @@ export default function UpdateNote() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     const submitFormData = new FormData();
@@ -287,7 +287,7 @@ export default function UpdateNote() {
     submitFormData.append('semester', formData.semester);
     submitFormData.append('university', formData.university);
     submitFormData.append('category', formData.category);
-    
+
     // Only append file if new file is selected
     if (selectedFile) {
       submitFormData.append('fileDetails', selectedFile);
@@ -295,7 +295,7 @@ export default function UpdateNote() {
 
     try {
       const result = await dispatch(updateNote({ noteId: id, data: submitFormData }));
-      
+
       if (result.payload?.success) {
         setIsSuccess(true);
         // Navigate back to note detail after success
@@ -310,7 +310,7 @@ export default function UpdateNote() {
 
   const getFileIcon = () => {
     if (!selectedFile) return null;
-    
+
     if (selectedFile.type === 'application/pdf') return '📄';
     if (selectedFile.type.includes('word')) return '📝';
     if (selectedFile.type === 'text/plain') return '📋';
@@ -359,7 +359,7 @@ export default function UpdateNote() {
               <ArrowLeftIcon className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
               <span>Back</span>
             </button>
-            
+
             <div className="text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <EditIcon className="w-8 h-8 text-white" />
@@ -372,14 +372,14 @@ export default function UpdateNote() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
-              
+
               {/* Basic Information */}
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center space-x-2">
                   <DocumentIcon className="w-6 h-6" />
                   <span>Basic Information</span>
                 </h2>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Title */}
                   <div className="md:col-span-2">
@@ -392,9 +392,8 @@ export default function UpdateNote() {
                       value={formData.title}
                       onChange={handleInputChange}
                       placeholder="Enter note title (e.g., Data Structures - Unit 1)"
-                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 ${
-                        errors.title ? 'border-red-500' : 'border-white/20'
-                      }`}
+                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 ${errors.title ? 'border-red-500' : 'border-white/20'
+                        }`}
                     />
                     {errors.title && (
                       <p className="mt-2 text-sm text-red-400">{errors.title}</p>
@@ -412,9 +411,8 @@ export default function UpdateNote() {
                       onChange={handleInputChange}
                       rows={4}
                       placeholder="Provide a detailed description of the content, topics covered, and any special notes..."
-                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 resize-none ${
-                        errors.description ? 'border-red-500' : 'border-white/20'
-                      }`}
+                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 resize-none ${errors.description ? 'border-red-500' : 'border-white/20'
+                        }`}
                     />
                     {errors.description && (
                       <p className="mt-2 text-sm text-red-400">{errors.description}</p>
@@ -432,9 +430,8 @@ export default function UpdateNote() {
                       value={formData.subject}
                       onChange={handleInputChange}
                       placeholder="Enter subject name (e.g., Operating System, Machine Learning)"
-                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 ${
-                        errors.subject ? 'border-red-500' : 'border-white/20'
-                      }`}
+                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 ${errors.subject ? 'border-red-500' : 'border-white/20'
+                        }`}
                     />
                     {errors.subject && (
                       <p className="mt-2 text-sm text-red-400">{errors.subject}</p>
@@ -453,9 +450,8 @@ export default function UpdateNote() {
                       name="semester"
                       value={formData.semester}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 ${
-                        errors.semester ? 'border-red-500' : 'border-white/20'
-                      }`}
+                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 ${errors.semester ? 'border-red-500' : 'border-white/20'
+                        }`}
                     >
                       <option value="">Select Semester</option>
                       {[...Array(8)].map((_, i) => (
@@ -478,9 +474,10 @@ export default function UpdateNote() {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
                     >
-                      <option value="Notes">Notes</option>
-                      <option value="PYQ">Previous Year Questions</option>
-                      <option value="Important Question">Important Questions</option>
+                      <option value="Notes">📚 Study Notes</option>
+                      <option value="Handwritten Notes">✏️ Handwritten Notes</option>
+                      <option value="PYQ">📄 Previous Year Questions</option>
+                      <option value="Important Question">⭐ Important Questions</option>
                     </select>
                   </div>
 
@@ -507,7 +504,7 @@ export default function UpdateNote() {
                   <CloudUploadIcon className="w-6 h-6" />
                   <span>Update File (Optional)</span>
                 </h2>
-                
+
                 <div className="mb-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                   <p className="text-blue-300 text-sm">
                     📝 <strong>Current file:</strong> {currentNote.fileDetails?.public_id || 'Unknown file'}
@@ -516,16 +513,15 @@ export default function UpdateNote() {
                     Upload a new file only if you want to replace the existing one.
                   </p>
                 </div>
-                
+
                 {/* FIXED: Drag & Drop Area - Full clickable */}
                 <div
-                  className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 cursor-pointer ${
-                    dragActive 
-                      ? 'border-green-500 bg-green-500/10' 
-                      : errors.file 
-                        ? 'border-red-500 bg-red-500/5' 
+                  className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 cursor-pointer ${dragActive
+                      ? 'border-green-500 bg-green-500/10'
+                      : errors.file
+                        ? 'border-red-500 bg-red-500/5'
                         : 'border-white/30 hover:border-white/50 hover:bg-white/5'
-                  }`}
+                    }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
@@ -539,7 +535,7 @@ export default function UpdateNote() {
                     accept=".pdf,.doc,.docx,.txt"
                     className="hidden"
                   />
-                  
+
                   {selectedFile ? (
                     <div className="space-y-4">
                       <div className="flex items-center justify-center space-x-3 p-4 bg-white/5 rounded-xl">
@@ -559,7 +555,7 @@ export default function UpdateNote() {
                           <XCircleIcon className="w-5 h-5" />
                         </button>
                       </div>
-                      
+
                       {/* PDF Preview */}
                       {filePreview && selectedFile.type === 'application/pdf' && (
                         <div className="mt-4">
@@ -588,7 +584,7 @@ export default function UpdateNote() {
                           </div>
                         </div>
                       )}
-                      
+
                       <p className="text-green-400 text-sm">Click anywhere to choose a different file</p>
                     </div>
                   ) : (
@@ -605,7 +601,7 @@ export default function UpdateNote() {
                     </div>
                   )}
                 </div>
-                
+
                 {errors.file && (
                   <p className="mt-2 text-sm text-red-400">{errors.file}</p>
                 )}
@@ -621,7 +617,7 @@ export default function UpdateNote() {
                 >
                   Cancel
                 </button>
-                
+
                 <button
                   type="submit"
                   disabled={updating}

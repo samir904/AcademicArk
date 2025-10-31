@@ -42,6 +42,26 @@ const EyeIcon = ({ className }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
   </svg>
 );
+// ✨ NEW: Category config for better UX
+const CATEGORY_INFO = {
+  'Notes': {
+    emoji: '📚',
+    description: 'Comprehensive study materials and lecture notes'
+  },
+  'Handwritten Notes': {
+    emoji: '✏️',
+    description: 'Personal handwritten notes and annotations'
+  },
+  'PYQ': {
+    emoji: '📄',
+    description: 'Previous year question papers and solutions'
+  },
+  'Important Question': {
+    emoji: '⭐',
+    description: 'Frequently asked and important questions'
+  }
+};
+
 
 export default function UploadNote() {
   const dispatch = useDispatch();
@@ -212,7 +232,7 @@ export default function UploadNote() {
     submitFormData.append('course', formData.course);
     submitFormData.append('semester', formData.semester);
     submitFormData.append('university', formData.university);
-    submitFormData.append('category', formData.category);
+    submitFormData.append('category', formData.category); // ✨ Fixed:
     submitFormData.append('fileDetails', selectedFile);
 
     try {
@@ -396,7 +416,7 @@ export default function UploadNote() {
                     )}
                   </div>
 
-                  {/* Category */}
+                 {/* ✨ FIXED: Category Dropdown */}
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Category
@@ -407,11 +427,19 @@ export default function UploadNote() {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                     >
-                      <option value="Notes">Notes</option>
-                      <option value="PYQ">Previous Year Questions</option>
-                      <option value="Important Question">Important Questions</option>
+                      <option value="Notes">📚 Study Notes</option>
+                      <option value="Handwritten Notes">✏️ Handwritten Notes</option>
+                      <option value="PYQ">📄 Previous Year Questions</option>
+                      <option value="Important Question">⭐ Important Questions</option>
                     </select>
+                    {/* ✨ NEW: Category description */}
+                    {formData.category && (
+                      <p className="mt-2 text-xs text-gray-400">
+                        {CATEGORY_INFO[formData.category]?.description}
+                      </p>
+                    )}
                   </div>
+
 
                   {/* University */}
                   <div>
@@ -585,6 +613,24 @@ export default function UploadNote() {
               </div>
             </div>
           </div>
+          {/* ✨ NEW: Category Tips */}
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <h4 className="font-medium text-white mb-3">Choosing the Right Category</h4>
+              <div className="space-y-2 text-sm text-gray-400">
+                <p>
+                  <span className="text-blue-400">📚 Study Notes:</span> Comprehensive lecture notes, tutorials, and study guides
+                </p>
+                <p>
+                  <span className="text-green-400">✏️ Handwritten Notes:</span> Personal handwritten notes, annotations, and scanned notebooks
+                </p>
+                <p>
+                  <span className="text-yellow-400">📄 PYQ:</span> Previous year exam papers and solved solutions
+                </p>
+                <p>
+                  <span className="text-purple-400">⭐ Important Questions:</span> Frequently asked questions and important topics
+                </p>
+              </div>
+            </div>
         </div>
       </div>
     </HomeLayout>
