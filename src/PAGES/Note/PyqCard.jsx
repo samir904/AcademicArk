@@ -179,7 +179,7 @@ export default function PyqCard({ note }) {
       <div className="relative p-4 space-y-3">
         
         {/* Description */}
-        <p className="text-sm text-cyan-100 leading-relaxed opacity-90">
+<p className="text-sm text-green-100 line-clamp-2 leading-relaxed opacity-90 flex-shrink-0">
           {note.description}
         </p>
 

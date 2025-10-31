@@ -192,9 +192,11 @@ export default function HandwrittenCard({ note }) {
 
         {/* Description */}
         <div>
-          <p className="text-sm text-green-100 leading-relaxed opacity-90">
-            {note.description}
-          </p>
+          {/* // CHANGE from: (no line-clamp)
+// TO: line-clamp-2 flex-shrink-0 */}
+<p className="text-sm text-green-100 line-clamp-2 leading-relaxed opacity-90 flex-shrink-0">
+  {note.description}
+</p>
         </div>
 
         {/* Stats */}
