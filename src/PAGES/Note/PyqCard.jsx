@@ -168,7 +168,7 @@ export default function PyqCard({ note }) {
         </h3>
 
         <div className="flex items-center space-x-3 text-xs text-cyan-200 flex-wrap gap-2">
-          <span className="bg-cyan-500/20 px-2 py-1 rounded border border-cyan-500/30">{note.subject}</span>
+          <span className="bg-cyan-500/20 px-2 py-1 capitalize rounded border border-cyan-500/30">{note.subject}</span>
           <span>Sem {note.semester}</span>
           <span>•</span>
           <span>{note.university}</span>
@@ -179,7 +179,7 @@ export default function PyqCard({ note }) {
       <div className="relative p-4 space-y-3">
         
         {/* Description */}
-<p className="text-sm text-green-100 line-clamp-2 leading-relaxed opacity-90 flex-shrink-0">
+<p className="text-sm text-green-100 capitalize line-clamp-2 leading-relaxed opacity-90 flex-shrink-0">
           {note.description}
         </p>
 
@@ -215,7 +215,7 @@ export default function PyqCard({ note }) {
                   {note.uploadedBy?.fullName?.charAt(0) || 'U'}
                 </div>
               )}
-              <span className="text-cyan-200 text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
+              <span className="text-cyan-200 capitalize text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
             </div>
           </Link>
         </div>

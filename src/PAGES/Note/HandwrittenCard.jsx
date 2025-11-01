@@ -180,7 +180,7 @@ export default function HandwrittenCard({ note }) {
         </h3>
 
         <div className="flex items-center space-x-3 text-xs text-green-200 flex-wrap gap-2">
-          <span className="bg-green-500/20 px-2 py-1 rounded border border-green-500/30">{note.subject}</span>
+          <span className="bg-green-500/20 px-2 py-1 capitalize rounded border border-green-500/30">{note.subject}</span>
           <span>Sem {note.semester}</span>
           <span>•</span>
           <span>{note.university}</span>
@@ -194,7 +194,7 @@ export default function HandwrittenCard({ note }) {
         <div>
           {/* // CHANGE from: (no line-clamp)
 // TO: line-clamp-2 flex-shrink-0 */}
-<p className="text-sm text-green-100 line-clamp-2 leading-relaxed opacity-90 flex-shrink-0">
+<p className="text-sm text-green-100 capitalize line-clamp-2 leading-relaxed opacity-90 flex-shrink-0">
   {note.description}
 </p>
         </div>
@@ -231,7 +231,7 @@ export default function HandwrittenCard({ note }) {
                   {note.uploadedBy?.fullName?.charAt(0) || 'U'}
                 </div>
               )}
-              <span className="text-green-200 text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
+              <span className="text-green-200 capitalize text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
             </div>
           </Link>
         </div>

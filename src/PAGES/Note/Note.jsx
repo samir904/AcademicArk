@@ -709,7 +709,7 @@ const filteredNotes = notes?.filter(note => {
           {/* Text Content */}
           <div className="flex flex-col items-start min-w-0 flex-1">
             {/* Name */}
-            <span className={`text-sm font-medium truncate w-full text-left ${isActive ? 'text-white' : 'text-gray-300'}`}>
+            <span className={`text-sm capitalize font-medium truncate w-full text-left ${isActive ? 'text-white' : 'text-gray-300'}`}>
               {uploader.name}
             </span>
 

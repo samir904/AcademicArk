@@ -117,7 +117,7 @@ export default function ImportantCard({ note }) {
   const importance = getImportanceLevel();
 
   return (
-    <div className="group bg-gradient-to-br from-yellow-900/90 to-orange-900/80 backdrop-blur-xl border border-yellow-500/30 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-yellow-500/25 hover:scale-[1.02] transition-all duration-300 hover:border-yellow-400/50 relative">
+    <div className="group bg-gradient-to-br   from-yellow-900/90 to-orange-900/80 backdrop-blur-xl border border-yellow-500/30 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-yellow-500/25 hover:scale-[1.02] transition-all duration-300 hover:border-yellow-400/50 relative ">
 
       {/* Animated background pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-yellow-800/10 to-orange-800/10 opacity-50"></div>
@@ -176,7 +176,7 @@ export default function ImportantCard({ note }) {
         </h3>
 
         <div className="flex items-center space-x-3 text-xs text-yellow-200 flex-wrap gap-2">
-          <span className="bg-yellow-500/20 px-2 py-1 rounded border border-yellow-500/30">{note.subject}</span>
+          <span className="bg-yellow-500/20  capitalize px-2 py-1 rounded border border-yellow-500/30">{note.subject}</span>
           <span>Sem {note.semester}</span>
           <span>•</span>
           <span>{note.university}</span>
@@ -187,7 +187,7 @@ export default function ImportantCard({ note }) {
       <div className="relative p-4 space-y-3">
 
         {/* Description */}
- <p className="text-sm text-green-100 line-clamp-2 leading-relaxed opacity-90 flex-shrink-0">
+ <p className="text-sm text-green-100 capitalize line-clamp-2 leading-relaxed opacity-90 flex-shrink-0">
           {note.description}
         </p>
 
@@ -219,11 +219,11 @@ export default function ImportantCard({ note }) {
                   className="w-5 h-5 rounded-full border border-yellow-500/30"
                 />
               ) : (
-                <div className="w-5 h-5 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-black font-bold">
+                <div className="w-5 h-5 capitalize bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-black font-bold">
                   {note.uploadedBy?.fullName?.charAt(0) || 'U'}
                 </div>
               )}
-              <span className="text-yellow-200 text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
+              <span className="text-yellow-200 capitalize text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
             </div>
           </Link>
         </div>
