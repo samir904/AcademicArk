@@ -383,7 +383,7 @@ useEffect(() => {
 </div>
 
                     <div className="text-left">
-                      <div className="text-sm  font-medium text-white">
+                      <div className="text-sm  capitalize font-medium text-white">
                         {userData?.fullName || 'User'}
                       </div>
                       <div className="text-xs text-gray-400 capitalize">
