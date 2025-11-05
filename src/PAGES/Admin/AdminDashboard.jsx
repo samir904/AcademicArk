@@ -19,6 +19,7 @@ import {
 import HomeLayout from '../../LAYOUTS/Homelayout';
 import { Link } from 'react-router-dom';
 import AdminLogs from './AdminLogs';
+import Analytics from './Analytics';
 
 // Icons
 const UsersIcon = ({ className }) => (
@@ -127,6 +128,8 @@ export default function AdminDashboard() {
         if (activeTab === 'dashboard') {
             dispatch(getDashboardStats());
             dispatch(getRecentActivity());
+         } else if (activeTab === 'analytics') {
+            // Analytics component handles its own data fetching
         } else if (activeTab === 'users') {
             dispatch(getAllUsers({ page: userPage, search: userSearch }));
         } else if (activeTab === 'notes') {
@@ -201,7 +204,7 @@ export default function AdminDashboard() {
                 <div className="bg-gray-900/50 border-b border-white/10">
                     <div className="max-w-7xl mx-auto px-4">
                         <div className="flex space-x-8 overflow-x-auto">
-                            {['dashboard', 'users', 'notes', 'logs'].map(tab => (
+                            {['dashboard', 'analytics', 'users', 'notes', 'logs'].map(tab => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
@@ -210,7 +213,9 @@ export default function AdminDashboard() {
                                         : 'border-transparent text-gray-400 hover:text-white'
                                         }`}
                                 >
-                                    {tab === 'logs' ? 'Admin Logs' : tab}
+                                    {tab === 'logs' ? 'Admin Logs'
+                                        : tab === 'analytics' ? 'Analytics'
+                                            : tab}
                                 </button>
                             ))}
                         </div>
@@ -286,8 +291,8 @@ export default function AdminDashboard() {
                                         <div className="mt-3 h-2 bg-gray-700 rounded-full overflow-hidden">
                                             <div
                                                 className={`h-full transition-all duration-500 ${parseFloat(serverMetrics.cpu.usage ?? '--') > 80 ? 'bg-red-500' :
-                                                        parseFloat(serverMetrics.cpu.usage ?? '--') > 50 ? 'bg-yellow-500' :
-                                                            'bg-green-500'
+                                                    parseFloat(serverMetrics.cpu.usage ?? '--') > 50 ? 'bg-yellow-500' :
+                                                        'bg-green-500'
                                                     }`}
                                                 style={{ width: `${serverMetrics.cpu.usage ?? '--'}%` }}
                                             />
@@ -304,8 +309,8 @@ export default function AdminDashboard() {
                                         <div className="mt-3 h-2 bg-gray-700 rounded-full overflow-hidden">
                                             <div
                                                 className={`h-full transition-all duration-500 ${parseFloat(serverMetrics.memory.percentage ?? '--') > 80 ? 'bg-red-500' :
-                                                        parseFloat(serverMetrics.memory.percentage ?? '--') > 50 ? 'bg-yellow-500' :
-                                                            'bg-green-500'
+                                                    parseFloat(serverMetrics.memory.percentage ?? '--') > 50 ? 'bg-yellow-500' :
+                                                        'bg-green-500'
                                                     }`}
                                                 style={{ width: `${serverMetrics.memory.percentage ?? '--'}%` }}
                                             />
@@ -449,8 +454,8 @@ export default function AdminDashboard() {
                                                                 <div className="text-gray-400 text-xs truncate">{user.email}</div>
                                                             </div>
                                                             <div className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'ADMIN' ? 'bg-red-500/20 text-red-400' :
-                                                                    user.role === 'TEACHER' ? 'bg-blue-500/20 text-blue-400' :
-                                                                        'bg-green-500/20 text-green-400'
+                                                                user.role === 'TEACHER' ? 'bg-blue-500/20 text-blue-400' :
+                                                                    'bg-green-500/20 text-green-400'
                                                                 }`}>
                                                                 {user.role}
                                                             </div>
@@ -929,6 +934,13 @@ export default function AdminDashboard() {
                     {activeTab === 'logs' && (
                         <AdminLogs />
                     )}
+
+                    {/* Add Analytics Tab Content */}
+{activeTab === 'analytics' && (
+    <div className="space-y-6">
+        <Analytics />
+    </div>
+)}
 
                 </div>
             </div>

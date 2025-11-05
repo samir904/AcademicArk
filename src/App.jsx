@@ -17,6 +17,8 @@ import LoginEmail from './PAGES/User/Login';
 import SignupChoice from './PAGES/User/SignupChoice';
 import SignupEmail from './PAGES/User/Signup';
 import ManageBanners from './PAGES/Admin/ManageBanners';
+import PageTracker from './COMPONENTS/PageTracker';
+import Analytics from './PAGES/Admin/Analytics';
 
 // 🟡 LAZY LOAD THESE (Medium priority)
 const ForgotPassword = React.lazy(() => import('./PAGES/User/Forgotpassword'));
@@ -117,6 +119,7 @@ function App() {
   return (
     <div className="App">
       <AuthChecker /> {/* ✅ Add this at the top */}
+      <PageTracker />  {/* ← OUTSIDE Routes */}
       <Routes>
         {/* 🟢 Core Routes */}
         <Route path="/" element={<Homepage />} />
@@ -126,7 +129,7 @@ function App() {
         <Route path="/login/email" element={<LoginEmail />} />
 
         <Route path="/admin/banners" element={<ManageBanners />} />
-
+        <Route path="/admin/analytics" element={<Analytics />} />
         {/* 🟡 Lazy Routes */}
         <Route path="/forgot-password" element={
           <Suspense fallback={<AppLoader />}>

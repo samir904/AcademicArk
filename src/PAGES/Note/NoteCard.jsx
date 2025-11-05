@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleBookmark, downloadnote } from '../../REDUX/Slices/noteslice.js';
 import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
-
+import ReactGA from "react-ga4"
 // Icon components
 const BookmarkIcon = ({ className, filled }) => (
   <svg className={className} fill={filled ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
@@ -103,6 +103,13 @@ export default function NoteCard({ note }) {
       setShowLoginModal(true);
       return;
     }
+    // Send event to Google Analytics
+  ReactGA.event({
+    category: 'engagement',
+    action: 'download_note',
+    label: note.title,
+    value: note._id,
+  })
     dispatch(downloadnote({ noteId: note._id, title: note.title }));
   };
 

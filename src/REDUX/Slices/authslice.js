@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import axiosInstance from "../../HELPERS/axiosInstance.js"
 import toast from "react-hot-toast"
 import { showToast } from "../../HELPERS/Toaster.jsx"
+import ReactGA from "react-ga4"
 const initialState = {
     isLoggedIn: localStorage.getItem('isLoggedIn') === 'true',
     role: localStorage.getItem('role') || "",
@@ -48,6 +49,12 @@ export const createAccount = createAsyncThunk("/auth/signup", async (data, { rej
                 return error?.response?.data?.message || "Failed to create account"
             }
         })
+        // ✅ Track signup event
+      ReactGA.event({
+        category: 'user',
+        action: 'signup',
+        label: data.email,
+      })
         return res.data;
 
     } catch (e) {
@@ -68,6 +75,12 @@ export const login = createAsyncThunk("/auth/login", async (data, { rejectWithVa
                 return error?.response?.data?.message || "Login failed. Please try again."
             }
         })
+        // ✅ Track login event
+      ReactGA.event({
+        category: 'user',
+        action: 'login',
+        label: 'User Logged In',
+      })
         return res.data;
     } catch (error) {
         toast.error(error?.response?.data?.message)
