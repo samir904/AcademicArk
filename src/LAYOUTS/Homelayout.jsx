@@ -9,6 +9,7 @@ import LoginRoundedIcon from '@mui/icons-material/LoginRounded';
 import NotificationBanner from '../COMPONENTS/NotificationBanner';
 import { MovingBorderButton } from '../COMPONENTS/MovingBorderButton';
 import { MovingBorderLoginButton } from '../COMPONENTS/MovingBorderLoginButton';
+import MilestoneBanner from '../COMPONENTS/MilestoneBanner';
 
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
@@ -302,6 +303,10 @@ useEffect(() => {
     <>
     {/* Notification banner - rendered independently */}
       <NotificationBanner />
+
+      {/* 🎉 NEW: Milestone celebration */}
+    <MilestoneBanner />
+    
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
             {/* Dynamic Background */}
       <div 

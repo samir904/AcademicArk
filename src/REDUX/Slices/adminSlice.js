@@ -84,28 +84,28 @@ export const getRecentActivity = createAsyncThunk('/admin/getRecentActivity', as
     }
 });
 
-export const getServerMetrics=createAsyncThunk(
+export const getServerMetrics = createAsyncThunk(
     'admin/getServerMetrics',
-    async(_,{rejectWithValue})=>{
-        try{
-            const res=await axiosInstance.get('/admin/server-metrics');
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await axiosInstance.get('/admin/server-metrics');
             return res.data;
-        }catch(error){
-            const message=error?.response?.data?.message||'Failed to get server metrics';
+        } catch (error) {
+            const message = error?.response?.data?.message || 'Failed to get server metrics';
             showToast.error(message);
             return rejectWithValue(message);
         }
     }
 )
 
-export const getSessionMetrics=createAsyncThunk(
+export const getSessionMetrics = createAsyncThunk(
     '/admin/getSessionMetrics',
-    async(_,{rejectWithValue})=>{
-        try{
-            const res=await axiosInstance.get('/admin/session-metrics');
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await axiosInstance.get('/admin/session-metrics');
             return res.data;
-        }catch(err){
-            const message=err?.response?.data?.message||'Failed to get session metrics';
+        } catch (err) {
+            const message = err?.response?.data?.message || 'Failed to get session metrics';
             showToast.error(message);
             return rejectWithValue(message);
         }
@@ -145,6 +145,39 @@ export const getTrafficPattern = createAsyncThunk('/admin/getTrafficPattern', as
     }
 });
 
+export const getMilestoneStats = createAsyncThunk(
+    '/admin/getMilestoneStats',
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await axiosInstance.get('/public/stats');
+            return {
+                totalUsers: res.data.data.totalUsers,
+                totalNotes: res.data.data.totalNotes,
+                totalDownloads: res.data.data.totalDownloads
+            };
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message);
+        }
+    }
+);
+
+export const getAdminLogs = createAsyncThunk(
+    '/admin/getAdminLogs',
+    async ({ days = 7, action = '', page = 1 }, { rejectWithValue }) => {
+        try {
+            let url = `/admin/admin-logs?days=${days}&page=${page}`;
+            if (action) url += `&action=${action}`;
+
+            const res = await axiosInstance.get(url);
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message);
+        }
+    }
+);
+
+
+
 const initialState = {
     loading: false,
     error: null,
@@ -154,11 +187,15 @@ const initialState = {
     usersPagination: null,
     notesPagination: null,
     recentActivity: null,
-    serverMetrics:null,
-    sessionMetrics:null,
+    serverMetrics: null,
+    sessionMetrics: null,
     sessionHistory: null,
     weeklyComparison: null,
-    trafficPattern: null
+    trafficPattern: null,
+    milestoneStats: { totalUsers: 0, totalNotes: 0, totalDownloads: 0 },
+    adminLogs: [],
+    adminLogsPagination: null
+
 };
 
 const adminSlice = createSlice({
@@ -256,7 +293,7 @@ const adminSlice = createSlice({
             .addCase(updateUserRole.fulfilled, (state, action) => {
                 state.loading = false;
                 const updatedUser = action.payload.data;
-                state.users = state.users.map(user => 
+                state.users = state.users.map(user =>
                     user._id === updatedUser._id ? updatedUser : user
                 );
             })
@@ -279,39 +316,58 @@ const adminSlice = createSlice({
             })
 
             //server metrics extra reducer
-            .addCase(getServerMetrics.pending,(state)=>{
-                state.loading=true;
+            .addCase(getServerMetrics.pending, (state) => {
+                state.loading = true;
             })
-            .addCase(getServerMetrics.fulfilled,(state,action)=>{
-                state.loading=false;
-                state.serverMetrics=action.payload.data;
+            .addCase(getServerMetrics.fulfilled, (state, action) => {
+                state.loading = false;
+                state.serverMetrics = action.payload.data;
             })
-            .addCase(getServerMetrics.rejected,(state,action)=>{
-                state.loading=false;
-                state.error=action.payload;
-            })
-
-            .addCase(getSessionMetrics.pending,(state)=>{
-                state.loading=true;
-            })
-            .addCase(getSessionMetrics.fulfilled,(state,action)=>{
-                state.loading=false;
-                state.sessionMetrics=action.payload.data;
-            })
-            .addCase(getSessionMetrics.rejected,(state,action)=>{
-                state.loading=false;
-                state.error=action.payload;
+            .addCase(getServerMetrics.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
             })
 
-            .addCase(getSessionHistory.fulfilled,(state,action)=>{
-                state.sessionHistory=action.payload.data;
+            .addCase(getSessionMetrics.pending, (state) => {
+                state.loading = true;
             })
-            .addCase(getWeeklyComparison.fulfilled,(state,action)=>{
-                state.weeklyComparison=action.payload.data;
+            .addCase(getSessionMetrics.fulfilled, (state, action) => {
+                state.loading = false;
+                state.sessionMetrics = action.payload.data;
             })
-            .addCase(getTrafficPattern.fulfilled,(state,action)=>{
-                state.trafficPattern=action.payload.data;
+            .addCase(getSessionMetrics.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
             })
+
+            .addCase(getSessionHistory.fulfilled, (state, action) => {
+                state.sessionHistory = action.payload.data;
+            })
+            .addCase(getWeeklyComparison.fulfilled, (state, action) => {
+                state.weeklyComparison = action.payload.data;
+            })
+            .addCase(getTrafficPattern.fulfilled, (state, action) => {
+                state.trafficPattern = action.payload.data;
+            })
+            .addCase(getMilestoneStats.fulfilled, (state, action) => {
+                state.milestoneStats = action.payload;
+            })
+            .addCase(getAdminLogs.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(getAdminLogs.fulfilled, (state, action) => {
+                state.loading = false;
+                state.adminLogs = action.payload.data;
+                state.adminLogsPagination = action.payload.pagination;
+            })
+            .addCase(getAdminLogs.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+
+
+
     }
 });
 

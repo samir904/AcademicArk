@@ -19,6 +19,7 @@
     "@reduxjs/toolkit": "^2.8.2",
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.11.0",
+    "canvas-confetti": "^1.9.4",
     "chart.js": "^4.5.0",
     "clsx": "^2.1.1",
     "colorthief": "^2.6.0",
