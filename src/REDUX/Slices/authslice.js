@@ -50,11 +50,11 @@ export const createAccount = createAsyncThunk("/auth/signup", async (data, { rej
             }
         })
         // ✅ Track signup event
-      ReactGA.event({
-        category: 'user',
-        action: 'signup',
-        label: data.email,
-      })
+        ReactGA.event({
+            category: 'user',
+            action: 'signup',
+            label: data.email,
+        })
         return res.data;
 
     } catch (e) {
@@ -76,11 +76,11 @@ export const login = createAsyncThunk("/auth/login", async (data, { rejectWithVa
             }
         })
         // ✅ Track login event
-      ReactGA.event({
-        category: 'user',
-        action: 'login',
-        label: 'User Logged In',
-      })
+        ReactGA.event({
+            category: 'user',
+            action: 'login',
+            label: 'User Logged In',
+        })
         return res.data;
     } catch (error) {
         toast.error(error?.response?.data?.message)
@@ -89,6 +89,51 @@ export const login = createAsyncThunk("/auth/login", async (data, { rejectWithVa
 })
 
 /// ✅ FIX #3: Enhanced googleLogin with better callback handling
+// export const googleLogin = createAsyncThunk(
+//     '/auth/google',
+//     async (_, { rejectWithValue }) => {
+//         try {
+//             showToast.loading('Redirecting to Google...', { id: 'google-auth' });
+//             await new Promise(resolve => setTimeout(resolve, 300));
+
+//             // Mark that Google auth was initiated
+//             sessionStorage.setItem('googleAuthInitiated', Date.now().toString());
+
+//             const apiUrl = 'https://academicark.onrender.com';
+//             //const apiUrl = 'https://localhost:5014';
+//             window.location.href = `${apiUrl}/api/v1/oauth/google`;
+
+//             return null;
+//         } catch (error) {
+//             toast.dismiss('google-auth');
+//             const message = error?.response?.data?.message || 'Google login failed';
+//             showToast.error(message);
+//             sessionStorage.removeItem('googleAuthInitiated');
+//             return rejectWithValue(message);
+//         }
+//     }
+// );
+
+// ✨ NEW: Token validation thunk
+export const validateGoogleToken = createAsyncThunk(
+    '/auth/validateToken',
+    async ({ token, userData }, { rejectWithValue }) => {
+        try {
+            const res = await axiosInstance.post('/user/validate-token', { token });
+
+            // Store in localStorage as backup
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('role', userData.role);
+            localStorage.setItem('data', JSON.stringify(userData));
+
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error?.response?.data?.message || 'Token validation failed');
+        }
+    }
+);
+
+// ✨ UPDATED: Enhanced googleLogin
 export const googleLogin = createAsyncThunk(
     '/auth/google',
     async (_, { rejectWithValue }) => {
@@ -99,9 +144,11 @@ export const googleLogin = createAsyncThunk(
             // Mark that Google auth was initiated
             sessionStorage.setItem('googleAuthInitiated', Date.now().toString());
 
-            const apiUrl = 'https://academicark.onrender.com';
-            //const apiUrl = 'https://localhost:5014';
-            window.location.href = `${apiUrl}/api/v1/oauth/google`;
+            // const apiUrl = process.env.NODE_ENV === 'production'
+            //     ? 'https://academicark.onrender.com'
+            //     : 'http://localhost:5014';
+             const apiUrl = 'https://academicark.onrender.com';
+                        window.location.href = `${apiUrl}/api/v1/oauth/google`;
 
             return null;
         } catch (error) {
@@ -113,6 +160,7 @@ export const googleLogin = createAsyncThunk(
         }
     }
 );
+
 
 // ✅ FIX #2: Modified checkAuth to NOT show Google toast
 export const checkAuth = createAsyncThunk(
@@ -165,6 +213,8 @@ export const logout = createAsyncThunk(
         }
     }
 );
+
+
 
 
 export const getProfile = createAsyncThunk("/auth/profile", async () => {
@@ -458,17 +508,17 @@ const authSlice = createSlice({
 
             //public profile extra reducer action 
             .addCase(getPublicProfile.pending, (state) => {
-  state.publicProfileLoading = true;
-})
-.addCase(getPublicProfile.fulfilled, (state, action) => {
-  state.publicProfileLoading = false;
-  // Only store the inner `data` object:
-  state.publicProfile = action.payload.data;
-})
-.addCase(getPublicProfile.rejected, (state) => {
-  state.publicProfileLoading = false;
-  state.publicProfile = null;
-})
+                state.publicProfileLoading = true;
+            })
+            .addCase(getPublicProfile.fulfilled, (state, action) => {
+                state.publicProfileLoading = false;
+                // Only store the inner `data` object:
+                state.publicProfile = action.payload.data;
+            })
+            .addCase(getPublicProfile.rejected, (state) => {
+                state.publicProfileLoading = false;
+                state.publicProfile = null;
+            })
 
             .addCase(updateSocialLinks.fulfilled, (state, action) => {
                 const user = action.payload.data;
@@ -481,6 +531,23 @@ const authSlice = createSlice({
                     localStorage.setItem("data", JSON.stringify(state.data));
                 }
             })
+
+            .addCase(validateGoogleToken.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(validateGoogleToken.fulfilled, (state, action) => {
+                state.loading = false;
+                state.isLoggedIn = true;
+                state.data = action.payload.data;
+                state.role = action.payload.data.role;
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('role', action.payload.data.role);
+                localStorage.setItem('data', JSON.stringify(action.payload.data));
+            })
+            .addCase(validateGoogleToken.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            });
 
         // Add these cases to your existing extraReducers in authSlice
 

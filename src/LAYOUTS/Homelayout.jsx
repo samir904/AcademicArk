@@ -106,6 +106,13 @@ const BellIcon = ({ className }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM10.07 2.82l3.12 3.12c.94-.3 1.92-.94 1.92-.94M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1" />
   </svg>
 );
+// Add this with other icon components
+const AttendanceIcon = ({ className, active }) => (
+  <svg className={className} fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 0 : 2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+  </svg>
+);
+
 
 const HomeLayout = ({ children }) => {
 
@@ -237,20 +244,23 @@ useEffect(() => {
     const baseItems = [
       { name: 'Home', path: '/', icon: '🏠' },
       { name: 'Library', path: '/notes', icon: '📚' },
-       { name: 'Search', path: '/search', icon: '📖' }
+       { name: 'Search', path: '/search', icon: '📖' },
+       { name: 'Attendance', path: '/attendance', icon: '📊' } // ✨ MOVED: Always show
+
+       
     ];
-
-    if (isLoggedIn) {
-      if (role === 'ADMIN') {
-        baseItems.push(
-          { name: 'Upload', path: '/upload', icon: '📤' },
-          { name: 'Dashboard', path: '/admin', icon: '⚡' }
-        );
-      } else if (role === 'TEACHER') {
-        baseItems.push({ name: 'Upload', path: '/upload', icon: '📤' });
-      }
+    // ✨ ADD ATTENDANCE FOR LOGGED-IN USERS
+  if (isLoggedIn) {
+        
+    if (role === 'ADMIN') {
+      baseItems.push(
+        { name: 'Upload', path: '/upload', icon: '📤' },
+        { name: 'Dashboard', path: '/admin', icon: '⚡' }
+      );
+    } else if (role === 'TEACHER') {
+      baseItems.push({ name: 'Upload', path: '/upload', icon: '📤' });
     }
-
+  } 
     return baseItems;
   };
 
@@ -274,8 +284,15 @@ useEffect(() => {
         path: '/notes', 
         icon: LibraryIcon,
         label: 'Library'
-      }
+      },{ 
+      name: 'Attendance', 
+      path: '/attendance', 
+      icon: AttendanceIcon, 
+      label: 'Attendance' 
+    } // ✨ MOVED: Always show
     ];
+     
+    
 
     // Add role-specific navigation
     if (isLoggedIn) {
@@ -295,6 +312,7 @@ useEffect(() => {
         });
       }
     }
+    
 
     return baseItems;
   };
@@ -343,7 +361,7 @@ useEffect(() => {
 
             {/* Enhanced Desktop Navigation */}
             <div className="flex items-center space-x-2 bg-white/5 backdrop-blur-xl rounded-full p-2 border border-white/10">
-              {getNavigationItems().slice(0, 4).map((item) => (
+              {getNavigationItems().slice(0, 6).map((item) => (
                 <Link 
                   key={item.name}
                   to={item.path} 
