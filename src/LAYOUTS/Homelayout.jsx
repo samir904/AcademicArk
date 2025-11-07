@@ -224,20 +224,38 @@ useEffect(() => {
   const isActiveLink = (path) => location.pathname === path;
 
   const handleLogout = async () => {
+  try {
     const result = await dispatch(logout());
-    if(logout.fulfilled.match(result)){
-      //manually remove client side cokkie before navigation
-      document.cookie= 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure';
-
-      //also clear any localstorage/sessionstorage flags
+    
+    if (logout.fulfilled.match(result)) {
+      // ✅ MUST happen AFTER logout thunk completes
+      // Clear localStorage BEFORE navigating
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('data');
       localStorage.removeItem('role');
-    }
-    if (result?.payload?.success) {
+      localStorage.removeItem('currentSemester');  // Also clear other storage
+      
+      // Clear sessionStorage
+      sessionStorage.clear();
+      
+      // Clear cookies (do this more thoroughly)
+      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure';
+      
+      // ✅ CRITICAL: Dispatch logout action to Redux reducer
+      // (Make sure your Redux logout.fulfilled case clears state)
+      
+      // Navigate AFTER everything is cleared
       navigate("/");
+      
+      // Optional: Force a hard refresh after logout
+      // window.location.href = "/";
     }
-  };
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
+};
+
 
   // Get navigation items based on role
   const getNavigationItems = () => {
