@@ -3,7 +3,6 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { googleLogin } from '../../REDUX/Slices/authslice';
-import BrowserWarning from '../../COMPONENTS/BrowserWarning';
 
 const GoogleIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -47,7 +46,6 @@ export default function SignupChoice() {
 
   return (
     <>
-    <BrowserWarning /> {/* ✨ ADD THIS */}
     <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8">
       <div className="max-w-md w-full">
         {/* Header with sparkle effect */}
