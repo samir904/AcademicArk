@@ -1,6 +1,6 @@
 // src/pages/HomePage.jsx
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import HomeLayout from '../../LAYOUTS/Homelayout';
 import { useSelector } from 'react-redux';
 import aktulogo from "../../../public/download.jpeg";
@@ -15,7 +15,7 @@ const Homepage = () => {
   const [isVisible, setIsVisible] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
-  const navigate=useNavigate();
+
   const features = [
     'AKTU Notes',
     'AKTU Important Questions',
@@ -109,21 +109,6 @@ const Homepage = () => {
   //     <div className="absolute bottom-1 left-1 w-1 h-1 bg-cyan-500 rounded-full animate-pulse delay-1500"></div>
   //   </Link>
   // );
-useEffect(() => {
-    // ✅ CRITICAL: Don't do ANY navigation during OAuth callback
-    const urlParams = new URLSearchParams(location.search);
-    const isOAuthCallback = urlParams.get('googleAuth') === 'success';
-    
-    if (isOAuthCallback) {
-      console.log('⏭️ Skipping homepage redirect - OAuth in progress');
-      return; // Exit early, don't do any redirects
-    }
-
-    // Your existing homepage logic here
-    // Example: if (isLoggedIn) { navigate('/dashboard'); }
-  }, [isLoggedIn, location.search, navigate]);
-
-  // Rest of your component...
 
   return (
     <HomeLayout>

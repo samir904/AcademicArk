@@ -1,9 +1,8 @@
 // src/pages/LoginChoice.jsx
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { googleLogin } from '../../REDUX/Slices/authslice';
-import { useEffect } from 'react';
 
 const GoogleIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -38,25 +37,6 @@ export default function LoginChoice() {
   const handleEmailLogin = () => {
     navigate('/login/email');
   };
-const location = useLocation();
-  const { isLoggedIn } = useSelector(state => state.auth);
-
-  useEffect(() => {
-    // ✅ Skip redirect check during OAuth callback
-    const urlParams = new URLSearchParams(location.search);
-    const isOAuthCallback = urlParams.get('googleAuth') === 'success';
-    
-    if (isOAuthCallback) {
-      return; // Let App.js handle the OAuth flow
-    }
-
-    // If already logged in, redirect away from login page
-    if (isLoggedIn) {
-      const intendedPath = sessionStorage.getItem('intendedPath') || '/';
-      sessionStorage.removeItem('intendedPath');
-      navigate(intendedPath, { replace: true });
-    }
-  }, [isLoggedIn, navigate, location.search]);
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8">

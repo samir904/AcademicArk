@@ -11,7 +11,7 @@ import PageNotFound from './PAGES/Static/PageNotFound';
 import AuthChecker from './COMPONENTS/AuthChecker';
 import { useDispatch } from 'react-redux';
 import { showToast } from './HELPERS/Toaster';
-import { checkAuth, validateGoogleToken } from './REDUX/Slices/authslice';
+import { checkAuth } from './REDUX/Slices/authslice';
 import LoginChoice from './PAGES/User/LoginChoice';
 import LoginEmail from './PAGES/User/Login';
 import SignupChoice from './PAGES/User/SignupChoice';
@@ -107,22 +107,22 @@ function App() {
   const dispatch = useDispatch();
   const navigate=useNavigate();
 
-  // useEffect(() => {
-  //   // ✅ Detect Google OAuth success from URL parameter
-  //   const urlParams = new URLSearchParams(window.location.search);
-  //   const googleAuth = urlParams.get('googleAuth');
+  useEffect(() => {
+    // ✅ Detect Google OAuth success from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const googleAuth = urlParams.get('googleAuth');
 
-  //   if (googleAuth === 'success') {
-  //     // Show success toast
-  //     showToast.success('Successfully signed in with Google! 🎉');
+    if (googleAuth === 'success') {
+      // Show success toast
+      showToast.success('Successfully signed in with Google! 🎉');
 
-  //     // Clean URL (remove ?googleAuth=success)
-  //     window.history.replaceState({}, '', window.location.pathname);
+      // Clean URL (remove ?googleAuth=success)
+      window.history.replaceState({}, '', window.location.pathname);
 
-  //     // Fetch user data
-  //     dispatch(checkAuth());
-  //   }
-  // }, [dispatch]);
+      // Fetch user data
+      dispatch(checkAuth());
+    }
+  }, [dispatch]);
   
   // useEffect(() => {
   //       // ✨ SOLUTION: Handle Google OAuth callback with URL parameters
@@ -213,66 +213,66 @@ function App() {
 
 // src/App.jsx - UPDATE useEffect
 // App.js - Update your useEffect
-useEffect(() => {
-    const handleGoogleCallback = async () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const googleAuth = urlParams.get('googleAuth');
-        const token = urlParams.get('token');
-        const userData = urlParams.get('userData');
+// useEffect(() => {
+//     const handleGoogleCallback = async () => {
+//         const urlParams = new URLSearchParams(window.location.search);
+//         const googleAuth = urlParams.get('googleAuth');
+//         const token = urlParams.get('token');
+//         const userData = urlParams.get('userData');
 
-        if (googleAuth === 'success' && token && userData) {
-            try {
-                const parsedUserData = JSON.parse(decodeURIComponent(userData));
+//         if (googleAuth === 'success' && token && userData) {
+//             try {
+//                 const parsedUserData = JSON.parse(decodeURIComponent(userData));
                 
-                // Ensure avatar structure
-                if (!parsedUserData.avatar) {
-                    parsedUserData.avatar = { secure_url: '' };
-                }
+//                 // Ensure avatar structure
+//                 if (!parsedUserData.avatar) {
+//                     parsedUserData.avatar = { secure_url: '' };
+//                 }
                 
-                // ✅ Store in localStorage FIRST
-                localStorage.setItem('authToken', token);
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('role', parsedUserData.role);
-                localStorage.setItem('data', JSON.stringify(parsedUserData));
+//                 // ✅ Store in localStorage FIRST
+//                 localStorage.setItem('authToken', token);
+//                 localStorage.setItem('isLoggedIn', 'true');
+//                 localStorage.setItem('role', parsedUserData.role);
+//                 localStorage.setItem('data', JSON.stringify(parsedUserData));
                 
-                // ✅ Clean URL BEFORE validation to prevent re-renders
-                window.history.replaceState({}, document.title, window.location.pathname);
+//                 // ✅ Clean URL BEFORE validation to prevent re-renders
+//                 window.history.replaceState({}, document.title, window.location.pathname);
                 
-                // ✅ Small delay to ensure localStorage is written
-                await new Promise(resolve => setTimeout(resolve, 100));
+//                 // ✅ Small delay to ensure localStorage is written
+//                 await new Promise(resolve => setTimeout(resolve, 100));
                 
-                // Validate token
-                await dispatch(validateGoogleToken({ token, userData: parsedUserData })).unwrap();
+//                 // Validate token
+//                 await dispatch(validateGoogleToken({ token, userData: parsedUserData })).unwrap();
                 
-                // ✅ SUCCESS: Show toast and navigate
-                showToast.success('Successfully signed in with Google! 🎉');
-                sessionStorage.removeItem('googleAuthInitiated');
+//                 // ✅ SUCCESS: Show toast and navigate
+//                 showToast.success('Successfully signed in with Google! 🎉');
+//                 sessionStorage.removeItem('googleAuthInitiated');
                 
-                // ✅ Navigate to intended destination
-                const intendedPath = sessionStorage.getItem('intendedPath') || '/';
-                sessionStorage.removeItem('intendedPath');
+//                 // ✅ Navigate to intended destination
+//                 const intendedPath = sessionStorage.getItem('intendedPath') || '/';
+//                 sessionStorage.removeItem('intendedPath');
                 
-                // ✅ Force navigation using window.location if needed
-                if (window.location.pathname === '/login' || window.location.pathname === '/login/email') {
-                    window.location.href = intendedPath;
-                } else {
-                    // Already on the right page, just stay
-                    console.log('✅ OAuth complete, staying on:', window.location.pathname);
-                }
+//                 // ✅ Force navigation using window.location if needed
+//                 if (window.location.pathname === '/login' || window.location.pathname === '/login/email') {
+//                     window.location.href = intendedPath;
+//                 } else {
+//                     // Already on the right page, just stay
+//                     console.log('✅ OAuth complete, staying on:', window.location.pathname);
+//                 }
                 
-            } catch (error) {
-                console.error('Failed to parse user data:', error);
-                showToast.error('Authentication failed: ' + error);
-                navigate('/login', { replace: true });
-            }
-        } else if (!localStorage.getItem('isLoggedIn')) {
-            // Only check auth if not already logged in AND not during OAuth
-            dispatch(checkAuth());
-        }
-    };
+//             } catch (error) {
+//                 console.error('Failed to parse user data:', error);
+//                 showToast.error('Authentication failed: ' + error);
+//                 navigate('/login', { replace: true });
+//             }
+//         } else if (!localStorage.getItem('isLoggedIn')) {
+//             // Only check auth if not already logged in AND not during OAuth
+//             dispatch(checkAuth());
+//         }
+//     };
 
-    handleGoogleCallback();
-}, [dispatch, navigate]);
+//     handleGoogleCallback();
+// }, [dispatch, navigate]);
 
   return (
     <div className="App">
