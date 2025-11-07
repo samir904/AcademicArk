@@ -45,41 +45,51 @@ const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
     dispatch(getAttendanceStats(currentSemester));
   }, [currentSemester, dispatch]);
 
-  // ✨ UPDATED: Better validation
   const handleAddSubject = async (e) => {
-    e.preventDefault();
-    
-    // Clear previous alerts
-    setAlertMessage('');
-    
-    if (!newSubject.name.trim()) {
-      setAlertMessage('Subject name is required');
-      setAlertType('error');
-      return;
-    }
+  e.preventDefault();
+  setAlertMessage('');
+  
+  if (!newSubject.name.trim()) {
+    setAlertMessage('Subject name is required');
+    setAlertType('error');
+    return;
+  }
 
-    const totalClasses = newSubject.initialTotalClasses || 0;
-    const presentClasses = newSubject.initialPresentClasses || 0;
+  const totalClasses = newSubject.initialTotalClasses || 0;
+  const presentClasses = newSubject.initialPresentClasses || 0;
 
-    if (presentClasses > totalClasses) {
-      setAlertMessage('Present classes cannot exceed total classes');
-      setAlertType('error');
-      return;
-    }
+  if (presentClasses > totalClasses) {
+    setAlertMessage('Present classes cannot exceed total classes');
+    setAlertType('error');
+    return;
+  }
 
+  try {
+    // ✨ Use .unwrap() to get actual error if it fails
     await dispatch(addSubject({
       semester: currentSemester,
       subject: newSubject.name,
       targetPercentage: newSubject.target,
       initialTotalClasses: totalClasses,
       initialPresentClasses: presentClasses
-    }));
+    })).unwrap();
 
+    // ✨ WAIT for addSubject to finish, then fetch fresh data
+    await dispatch(getAttendance(currentSemester)).unwrap();
+    await dispatch(getAttendanceStats(currentSemester)).unwrap();
+
+    // Only reset/close after both fetches succeed
     setNewSubject({ name: '', target: 75, initialTotalClasses: 0, initialPresentClasses: 0 });
     setAlertMessage('');
     setShowAddModal(false);
-    dispatch(getAttendance(currentSemester));
-  };
+    
+  } catch (error) {
+    // If any step fails, show error
+    setAlertMessage(error || 'Failed to add subject');
+    setAlertType('error');
+  }
+};
+
 
   // ✨ UPDATED: Better validation for edit
   const handleEditSubject = async (e) => {
@@ -259,7 +269,7 @@ const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {attendance.subjects.map((subject) => (
                   <SubjectCard
-                    key={subject.subject}
+                    key={subject._id || subject.subject} // ✅ Use Mongo _id if possible, fallback to name as last resor
                     subject={subject}
                     semester={currentSemester}
                     onDelete={() => handleDeleteClick(subject)}
@@ -317,7 +327,7 @@ const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
           message={alertMessage} 
           onClose={() => setAlertMessage('')} 
         />
-      )}
+      )}a
       
       <form onSubmit={handleAddSubject}>
         <div className="mb-4">

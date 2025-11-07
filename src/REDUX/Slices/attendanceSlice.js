@@ -229,10 +229,16 @@ const attendanceSlice = createSlice({
         state.adding = true;
         state.error = null;
       })
-      .addCase(addSubject.fulfilled, (state, action) => {
-        state.adding = false;
-        // Refresh will be handled by component
-      })
+    .addCase(addSubject.fulfilled, (state, action) => {
+  state.adding = false;
+  // ✅ Backend now returns { semester, subjects: [...with currentPercentage] }
+  if (action.payload && action.payload.data) {
+    state.attendance = action.payload.data;  // This now has subjects with calculated percentages!
+  }
+})
+
+
+
       .addCase(addSubject.rejected, (state, action) => {
         state.adding = false;
         state.error = action.payload;

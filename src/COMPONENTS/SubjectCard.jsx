@@ -9,7 +9,15 @@ export default function SubjectCard({ subject, onDelete, onEdit, semester }) {
   const dispatch = useDispatch();
   const [marking, setMarking] = useState(false);
   
-  const { currentPercentage, classesAttended, totalClasses, targetPercentage, prediction } = subject;
+  // ✨ FIXED: Add safety checks and defaults
+  const currentPercentage = subject?.currentPercentage ?? 0;
+  const classesAttended = subject?.classesAttended ?? 0;
+  const totalClasses = subject?.totalClasses ?? 0;
+  const targetPercentage = subject?.targetPercentage ?? 75;
+  const prediction = subject?.prediction ?? null;
+
+  // Safety check for NaN
+  const safePercentage = isNaN(currentPercentage) ? 0 : currentPercentage;
 
   const getPercentageColor = (percentage) => {
     if (percentage >= 75) return 'from-green-500 to-emerald-500';
