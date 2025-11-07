@@ -223,41 +223,72 @@ useEffect(() => {
 
   const isActiveLink = (path) => location.pathname === path;
 
-  const handleLogout = async () => {
-  try {
-    const result = await dispatch(logout());
+//   const handleLogout = async () => {
+//   try {
+//     const result = await dispatch(logout());
     
-    if (logout.fulfilled.match(result)) {
-      // ✅ MUST happen AFTER logout thunk completes
-      // Clear localStorage BEFORE navigating
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('data');
-      localStorage.removeItem('role');
-      localStorage.removeItem('currentSemester');  // Also clear other storage
+//     if (logout.fulfilled.match(result)) {
+//       // ✅ MUST happen AFTER logout thunk completes
+//       // Clear localStorage BEFORE navigating
+//       localStorage.removeItem('isLoggedIn');
+//       localStorage.removeItem('data');
+//       localStorage.removeItem('role');
+//       localStorage.removeItem('currentSemester');  // Also clear other storage
       
-      // Clear sessionStorage
-      sessionStorage.clear();
+//       // Clear sessionStorage
+//       sessionStorage.clear();
       
-      // Clear cookies (do this more thoroughly)
-      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure';
+//       // Clear cookies (do this more thoroughly)
+//       document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+//       document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure';
       
-      // ✅ CRITICAL: Dispatch logout action to Redux reducer
-      // (Make sure your Redux logout.fulfilled case clears state)
+//       // ✅ CRITICAL: Dispatch logout action to Redux reducer
+//       // (Make sure your Redux logout.fulfilled case clears state)
       
-      // Navigate AFTER everything is cleared
-      navigate("/");
+//       // Navigate AFTER everything is cleared
+//       navigate("/");
       
-      // Optional: Force a hard refresh after logout
-      // window.location.href = "/";
-    }
-  } catch (error) {
-    console.error('Logout error:', error);
-  }
-};
+//       // Optional: Force a hard refresh after logout
+//       // window.location.href = "/";
+//     }
+//   } catch (error) {
+//     console.error('Logout error:', error);
+//   }
+// };
 
 
   // Get navigation items based on role
+ const handleLogout = async () => {
+  try {
+    // 1. Call logout API
+    const result = await dispatch(logout());
+    
+    // 2. ALWAYS clear storage, regardless of API response
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('data');
+    localStorage.removeItem('role');
+    localStorage.removeItem('currentSemester');
+    
+    sessionStorage.clear();
+    
+    // 3. Clear all cookies
+    document.cookie = 'token=; path=/; max-age=0';
+    document.cookie = 'token=; path=/; max-age=0; SameSite=None; Secure';
+    
+    // 4. Reset Redux state
+    dispatch(clearAuthState()); // ✅ Add this action
+    
+    // 5. Navigate after clearing everything
+    navigate("/", { replace: true });
+    
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Still clear storage even if API fails
+    localStorage.clear();
+    navigate("/", { replace: true });
+  }
+};
+
   const getNavigationItems = () => {
     const baseItems = [
       { name: 'Home', path: '/', icon: '🏠' },

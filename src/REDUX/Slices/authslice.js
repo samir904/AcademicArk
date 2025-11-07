@@ -3,39 +3,6 @@ import axiosInstance from "../../HELPERS/axiosInstance.js"
 import toast from "react-hot-toast"
 import { showToast } from "../../HELPERS/Toaster.jsx"
 import ReactGA from "react-ga4"
-// const initialState = {
-//     isLoggedIn: localStorage.getItem('isLoggedIn') === 'true',
-//     role: localStorage.getItem('role') || "",
-//     data: (() => {
-//         try {
-//             const data = localStorage.getItem("data");
-//             // Check if data exists and is not "undefined" string
-//             if (!data || data === 'undefined' || data === 'null') {
-//                 return {};
-//             }
-//             const parsed = JSON.parse(data);
-//             // Ensure avatar exists with default structure
-//             if (parsed && !parsed.avatar) {
-//                 parsed.avatar = { secure_url: '' };
-//             }
-//             return parsed;
-//         } catch (e) {
-//             console.error("Failed to parse localStorage data:", e);
-//             // Clear corrupted data
-//             localStorage.removeItem("data");
-//             return {};
-//         }
-//     })(),
-//     loading: false,
-//     error: null,
-//     analytics: null,
-//     myNotes: [],
-//     myBookmarks: [],
-//     myNotesPagination: null,
-//     bookmarksPagination: null,
-//     publicProfile: null,
-//     publicProfileLoading: false,
-// }
 const initialState = {
     isLoggedIn: localStorage.getItem('isLoggedIn') === 'true',
     role: localStorage.getItem('role') || "",
@@ -69,6 +36,39 @@ const initialState = {
     publicProfile: null,
     publicProfileLoading: false,
 }
+// const initialState = {
+//     isLoggedIn: localStorage.getItem('isLoggedIn') === 'true',
+//     role: localStorage.getItem('role') || "",
+//     data: (() => {
+//         try {
+//             const data = localStorage.getItem("data");
+//             // Check if data exists and is not "undefined" string
+//             if (!data || data === 'undefined' || data === 'null') {
+//                 return {};
+//             }
+//             const parsed = JSON.parse(data);
+//             // Ensure avatar exists with default structure
+//             if (parsed && !parsed.avatar) {
+//                 parsed.avatar = { secure_url: '' };
+//             }
+//             return parsed;
+//         } catch (e) {
+//             console.error("Failed to parse localStorage data:", e);
+//             // Clear corrupted data
+//             localStorage.removeItem("data");
+//             return {};
+//         }
+//     })(),
+//     loading: false,
+//     error: null,
+//     analytics: null,
+//     myNotes: [],
+//     myBookmarks: [],
+//     myNotesPagination: null,
+//     bookmarksPagination: null,
+//     publicProfile: null,
+//     publicProfileLoading: false,
+// }
 
 
 export const createAccount = createAsyncThunk("/auth/signup", async (data, { rejectWithValue }) => {
@@ -161,7 +161,11 @@ export const checkAuth = createAsyncThunk(
             //     sessionStorage.removeItem('googleAuthStarted');
             //     showToast.success('Successfully signed in with Google! 🎉');
             // }
-
+// If no data (304 cache), treat as not authenticated
+            if (!res.data.data || !res.data.data._id) {
+                return rejectWithValue('Not authenticated');
+            }
+            
             return res.data;
         } catch (error) {
             sessionStorage.removeItem('googleAuthStarted');
@@ -366,7 +370,21 @@ export const toggleProfileVisibility = createAsyncThunk(
 const authSlice = createSlice({
     name: "auth",
     initialState,
-    reducers: {},
+    reducers: {// ✅ ADD THIS NEW REDUCER
+        clearAuthState: (state) => {
+            state.isLoggedIn = false;
+            state.data = {};
+            state.role = "";
+            state.loading = false;
+            state.error = null;
+            state.analytics = null;
+            state.myNotes = [];
+            state.myBookmarks = [];
+            state.myNotesPagination = null;
+            state.bookmarksPagination = null;
+            state.publicProfile = null;
+            state.publicProfileLoading = false;
+        }},
     extraReducers: (builder) => {
         builder.addCase(createAccount.pending, (state, action) => {
             state.loading = true;
