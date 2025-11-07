@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { googleLogin } from '../../REDUX/Slices/authslice';
+import BrowserWarning from '../../COMPONENTS/BrowserWarning';
 
 const GoogleIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -45,6 +46,8 @@ export default function SignupChoice() {
   };
 
   return (
+    <>
+    <BrowserWarning /> {/* ✨ ADD THIS */}
     <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8">
       <div className="max-w-md w-full">
         {/* Header with sparkle effect */}
@@ -79,6 +82,12 @@ export default function SignupChoice() {
             </div>
             <ArrowRightIcon className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
           </button>
+
+          {/* ✨ NEW: Message below Google button */}
+          <div className="text-center text-xs text-gray-500 px-4 py-2">
+            <p>Having trouble with Google sign-up? (Brave/Safari users)</p>
+            <p className="text-gray-600 mt-1">👇 Use email sign-in below instead</p>
+          </div>
 
           {/* OR Divider */}
           <div className="relative py-4">
@@ -169,5 +178,6 @@ export default function SignupChoice() {
         </p>
       </div>
     </div>
+    </>
   );
 }

@@ -1,8 +1,8 @@
-// src/pages/LoginChoice.jsx
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { googleLogin } from '../../REDUX/Slices/authslice';
+import GoogleAuthWarning from '../../COMPONENTS/GoogleAuthWarning';  // ✨ ADD THIS
 
 const GoogleIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -49,11 +49,14 @@ export default function LoginChoice() {
 
         {/* Login Options */}
         <div className="space-y-4">
+          {/* ✨ ADD WARNING HERE - RIGHT ABOVE GOOGLE BUTTON */}
+          <GoogleAuthWarning />
+          
           {/* Google Sign-In - Primary CTA */}
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="group w-full  bg-white hover:bg-gray-100 text-black py-4 rounded-full font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between px-6 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+            className="group w-full bg-white hover:bg-gray-100 text-black py-4 rounded-full font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between px-6 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
           >
             <div className="flex items-center space-x-4">
               <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
@@ -63,7 +66,11 @@ export default function LoginChoice() {
             </div>
             <ArrowRightIcon className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
           </button>
-
+{/* ✨ NEW: Message below Google button */}
+          <div className="text-center text-xs text-gray-500 px-4 py-2">
+            <p>Having trouble with Google sign-in? (Brave/Safari users)</p>
+            <p className="text-gray-600 mt-1">👇 Use email sign-in below instead</p>
+          </div>
           {/* OR Divider */}
           <div className="relative py-4">
             <div className="absolute inset-0 flex items-center">
@@ -79,7 +86,7 @@ export default function LoginChoice() {
             onClick={handleEmailLogin}
             className="group w-full bg-gray-900 hover:bg-gray-800 text-white border border-gray-700 hover:border-gray-600 py-4 rounded-full font-semibold transition-all duration-300 flex items-center justify-between px-6"
           >
-            <div className="flex items-center space-x-4 ">
+            <div className="flex items-center space-x-4">
               <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
                 <EnvelopeIcon className="w-6 h-6 text-gray-400" />
               </div>
