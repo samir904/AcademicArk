@@ -36,40 +36,6 @@ const initialState = {
     publicProfile: null,
     publicProfileLoading: false,
 }
-// const initialState = {
-//     isLoggedIn: localStorage.getItem('isLoggedIn') === 'true',
-//     role: localStorage.getItem('role') || "",
-//     data: (() => {
-//         try {
-//             const data = localStorage.getItem("data");
-//             // Check if data exists and is not "undefined" string
-//             if (!data || data === 'undefined' || data === 'null') {
-//                 return {};
-//             }
-//             const parsed = JSON.parse(data);
-//             // Ensure avatar exists with default structure
-//             if (parsed && !parsed.avatar) {
-//                 parsed.avatar = { secure_url: '' };
-//             }
-//             return parsed;
-//         } catch (e) {
-//             console.error("Failed to parse localStorage data:", e);
-//             // Clear corrupted data
-//             localStorage.removeItem("data");
-//             return {};
-//         }
-//     })(),
-//     loading: false,
-//     error: null,
-//     analytics: null,
-//     myNotes: [],
-//     myBookmarks: [],
-//     myNotesPagination: null,
-//     bookmarksPagination: null,
-//     publicProfile: null,
-//     publicProfileLoading: false,
-// }
-
 
 export const createAccount = createAsyncThunk("/auth/signup", async (data, { rejectWithValue }) => {
     try {
@@ -84,11 +50,11 @@ export const createAccount = createAsyncThunk("/auth/signup", async (data, { rej
             }
         })
         // ✅ Track signup event
-        ReactGA.event({
-            category: 'user',
-            action: 'signup',
-            label: data.email,
-        })
+      ReactGA.event({
+        category: 'user',
+        action: 'signup',
+        label: data.email,
+      })
         return res.data;
 
     } catch (e) {
@@ -110,11 +76,11 @@ export const login = createAsyncThunk("/auth/login", async (data, { rejectWithVa
             }
         })
         // ✅ Track login event
-        ReactGA.event({
-            category: 'user',
-            action: 'login',
-            label: 'User Logged In',
-        })
+      ReactGA.event({
+        category: 'user',
+        action: 'login',
+        label: 'User Logged In',
+      })
         return res.data;
     } catch (error) {
         toast.error(error?.response?.data?.message)
@@ -161,11 +127,7 @@ export const checkAuth = createAsyncThunk(
             //     sessionStorage.removeItem('googleAuthStarted');
             //     showToast.success('Successfully signed in with Google! 🎉');
             // }
-// If no data (304 cache), treat as not authenticated
-            if (!res.data.data || !res.data.data._id) {
-                return rejectWithValue('Not authenticated');
-            }
-            
+
             return res.data;
         } catch (error) {
             sessionStorage.removeItem('googleAuthStarted');
@@ -370,21 +332,7 @@ export const toggleProfileVisibility = createAsyncThunk(
 const authSlice = createSlice({
     name: "auth",
     initialState,
-    reducers: {// ✅ ADD THIS NEW REDUCER
-        clearAuthState: (state) => {
-            state.isLoggedIn = false;
-            state.data = {};
-            state.role = "";
-            state.loading = false;
-            state.error = null;
-            state.analytics = null;
-            state.myNotes = [];
-            state.myBookmarks = [];
-            state.myNotesPagination = null;
-            state.bookmarksPagination = null;
-            state.publicProfile = null;
-            state.publicProfileLoading = false;
-        }},
+    reducers: {},
     extraReducers: (builder) => {
         builder.addCase(createAccount.pending, (state, action) => {
             state.loading = true;
@@ -437,16 +385,8 @@ const authSlice = createSlice({
                 state.data = user;
                 state.loading = false;
             })
-            // Update the rejected case:
             .addCase(checkAuth.rejected, (state) => {
                 state.loading = false;
-                state.isLoggedIn = false;
-                state.data = {};
-                state.role = "";
-                // Clear localStorage on failed auth check
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('data');
-                localStorage.removeItem('role');
             })
 
         builder.addCase(getProfile.fulfilled, (state, action) => {
@@ -459,39 +399,15 @@ const authSlice = createSlice({
             state.data = user;
         })
         builder.addCase(logout.fulfilled, (state, action) => {
-            // ✅ COMPLETE cleanup
             localStorage.removeItem("isLoggedIn");
             localStorage.removeItem("data");
             localStorage.removeItem("role");
-
             sessionStorage.removeItem('googleAuthStarted');
             sessionStorage.removeItem('googleAuthInitiated');
-            sessionStorage.removeItem('googleAuthInitiated'); // Typo in your code?
-
-            // ✅ Reset Redux state completely
             state.isLoggedIn = false;
             state.data = {};
             state.role = "";
-            state.loading = false;
-            state.error = null;
-            state.analytics = null;
-            state.myNotes = [];
-            state.myBookmarks = [];
-            state.myNotesPagination = null;
-            state.bookmarksPagination = null;
-            state.publicProfile = null;
         })
-            .addCase(logout.rejected, (state, action) => {
-                // Even if logout API fails, clear local state
-                localStorage.removeItem("isLoggedIn");
-                localStorage.removeItem("data");
-                localStorage.removeItem("role");
-
-                state.isLoggedIn = false;
-                state.data = {};
-                state.role = "";
-            })
-
         builder.addCase(updateProfile.fulfilled, (state, action) => {
             const user = action?.payload?.data || action?.payload;
             localStorage.setItem("data", JSON.stringify(user));
@@ -542,17 +458,17 @@ const authSlice = createSlice({
 
             //public profile extra reducer action 
             .addCase(getPublicProfile.pending, (state) => {
-                state.publicProfileLoading = true;
-            })
-            .addCase(getPublicProfile.fulfilled, (state, action) => {
-                state.publicProfileLoading = false;
-                // Only store the inner `data` object:
-                state.publicProfile = action.payload.data;
-            })
-            .addCase(getPublicProfile.rejected, (state) => {
-                state.publicProfileLoading = false;
-                state.publicProfile = null;
-            })
+  state.publicProfileLoading = true;
+})
+.addCase(getPublicProfile.fulfilled, (state, action) => {
+  state.publicProfileLoading = false;
+  // Only store the inner `data` object:
+  state.publicProfile = action.payload.data;
+})
+.addCase(getPublicProfile.rejected, (state) => {
+  state.publicProfileLoading = false;
+  state.publicProfile = null;
+})
 
             .addCase(updateSocialLinks.fulfilled, (state, action) => {
                 const user = action.payload.data;
