@@ -74,21 +74,26 @@ const uniqueUploaders = getUniqueUploaders();
   // Subject mapping by semester
   const subjectsBySemester = {
     1: [
-      'Mathematics-I', 'Physics', 'PPS', 'Engineering Graphics',
-      'Electrical Engineering', 'EVS'
+      'engineering mathematics-i', 'engineering physics', 'programming for problem solving', 
+      'Electrical Engineering', 'EVS',"FUNDAMENTALS OF ELECTRONICS ENGINEERING","soft skills",
+      "fundamentals of mechanical engineering","engineering chemistry","fundamentals of electrical engineering"
     ],
     2: [
-      'Mathematics-II', 'Chemistry', 'FME',
-      'Electronics', 'Soft Skill'
+      'Mathematics-II', , 'engineering physics', 'programming for problem solving', 
+      'Electrical Engineering', 'EVS',"FUNDAMENTALS OF ELECTRONICS ENGINEERING","soft skills",
+      "fundamentals of mechanical engineering","engineering chemistry","fundamentals of electrical engineering"
     ],
     3: [
-      'Data Structure', 'Digital Electronics',
-      'computer organization and architecture', 'Python Programming', 'discrete structures & theory of logic', "mathematics-iv",
+      'data structure', 'digital electronics',
+      'computer organization and architecture', 'python programming', 'discrete structures & theory of logic', 
       "technical communication",
+      "discrete structures & theory of logic","mathematics-iv","technical communication"
     ],
     4: [
-      'Mathematics-IV', 'TAFL', 'Operating System',
-      'Oops-Java', 'Cyber Security', 'UHV'
+       'data structure', 'digital electronics',
+      'computer organization and architecture', 'python programming', 'discrete structures & theory of logic', 
+      "technical communication",
+      "discrete structures & theory of logic","mathematics-iv","technical communication"
     ],
     5: [
       'Web Technology', 'cloud computing',
@@ -101,8 +106,10 @@ const uniqueUploaders = getUniqueUploaders();
       'Network Security', 'Advanced Database', 'Human Computer Interaction'
     ],
     7: [
-      'Advanced Machine Learning', 'Distributed Systems', 'Cloud Computing',
-      'Data Mining', 'Blockchain Technology', 'Project Management'
+      // 'Advanced Machine Learning', 'Distributed Systems','Data Mining', 'Blockchain Technology',
+       "internet of things",
+       'project management',"cryptography & network security",
+      "deep learning"
     ],
     8: [
       'Advanced AI', 'IoT Systems', 'Big Data Analytics',
