@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleBookmark, downloadnote } from '../../REDUX/Slices/noteslice.js';
+import { toggleBookmark, downloadnote, addRating } from '../../REDUX/Slices/noteslice.js';
 import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
+import ReactGA from "react-ga4"
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -23,9 +24,9 @@ const StarIcon = ({ className, filled }) => (
   </svg>
 );
 
-const ClockIcon = ({ className }) => (
+const CloseIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
 
@@ -35,56 +36,28 @@ const TargetIcon = ({ className }) => (
   </svg>
 );
 
-const AwardIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-  </svg>
-);
-
-// ✨ NEW: Info Icon
-const InfoIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-);
-
-// ✨ FIXED: Proper Chevron Icon
-const ChevronDownIcon = ({ className, isOpen }) => (
-  <svg 
-    className={`${className} transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-    fill="none" 
-    stroke="currentColor" 
-    viewBox="0 0 24 24"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-  </svg>
-);
-
-// ✨ NEW: Metrics Icon (Chart/Dashboard style)
-const MetricsIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-  </svg>
-);
-
-
 export default function PyqCard({ note }) {
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [expandedMetrics, setExpandedMetrics] = useState(false); // ✨ NEW: Collapsible metrics
-  const [expandedTips, setExpandedTips] = useState(false); // ✨ NEW: Collapsible tips
-  
   const dispatch = useDispatch();
   const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
-  const isBookmarking = bookmarkingNotes.includes(note._id);
-  const isDownloading = downloadingNotes.includes(note._id);
   const user = useSelector(state => state.auth.data);
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
+  
+  const isBookmarking = bookmarkingNotes.includes(note._id);
+  const isDownloading = downloadingNotes.includes(note._id);
   const isBookmarked = note.bookmarkedBy?.includes(user?._id);
-
-  const avgRating = note.rating?.length > 0
+  
+  const avgRating = note.rating?.length
     ? (note.rating.reduce((sum, r) => sum + r.rating, 0) / note.rating.length).toFixed(1)
     : 0;
 
+  // State
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [userReview, setUserReview] = useState('');
+
+  // Handlers
   const handleBookmark = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -102,229 +75,337 @@ export default function PyqCard({ note }) {
       setShowLoginModal(true);
       return;
     }
+
+    ReactGA.event({
+      category: 'engagement',
+      action: 'download_pyq',
+      label: note.title,
+      value: note._id,
+    });
+
     dispatch(downloadnote({ noteId: note._id, title: note.title }));
+
+    // Show review modal after download
+    setTimeout(() => {
+      setShowReviewModal(true);
+    }, 500);
+  };
+
+  const submitRating = () => {
+    if (userRating > 0) {
+      dispatch(addRating({
+        noteId: note._id,
+        rating: userRating,
+        review: userReview
+      }));
+      setShowReviewModal(false);
+      setUserRating(0);
+      setUserReview('');
+      // Show share modal
+      setTimeout(() => {
+        setShowShareModal(true);
+      }, 300);
+    }
+  };
+
+  const handleShare = (platform) => {
+    const url = `${window.location.origin}/notes/${note._id}`;
+    const title = `Check out this PYQ: ${note.title}`;
+    
+    const shareLinks = {
+      whatsapp: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`,
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      link: url
+    };
+    
+    if (platform === 'link') {
+      navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+    } else {
+      window.open(shareLinks[platform], '_blank');
+    }
+    
+    setShowShareModal(false);
   };
 
   return (
-    // ✨ CHANGED: Cyan color scheme instead of red
-    <div className="group bg-gradient-to-br from-cyan-900/90 to-blue-900/80 backdrop-blur-xl border border-cyan-500/30 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-cyan-500/25 hover:scale-[1.02] transition-all duration-300 hover:border-cyan-400/50 relative">
-      
-      {/* Animated background pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-800/10 to-blue-800/10 opacity-50"></div>
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
-      
-      {/* Header with PYQ Badge */}
-      <div className="relative p-4 border-b border-cyan-500/20">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <div className="px-3 py-1 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full text-xs font-bold text-white flex items-center space-x-1 shadow-lg">
-              <TargetIcon className="w-3 h-3" />
-              <span>PYQ</span>
-            </div>
-            <div className="px-2 py-1 bg-cyan-500/20 border border-cyan-500/30 rounded-full text-xs text-cyan-200">
-              Exam Pattern
-            </div>
-          </div>
-          <button
-            onClick={handleBookmark}
-            disabled={isBookmarking}
-            className={`relative p-2 rounded-full hover:bg-cyan-500/20 transition-all duration-300 group/bookmark ${
-              isBookmarking ? 'animate-pulse' : ''
-            }`}
-          >
-            {isBookmarking ? (
-              <div className="relative w-5 h-5">
-                <div className="absolute inset-0 rounded-full border-2 border-yellow-300/60 animate-pulse"></div>
-                <div 
-                  className="absolute inset-0 rounded-full border-2 border-transparent border-t-yellow-300 border-r-yellow-300"
-                  style={{ animation: 'spin 1s linear infinite' }}
-                ></div>
-                <BookmarkIcon 
-                  className="w-5 h-5 text-yellow-300/50 absolute inset-0"
-                  filled={isBookmarked}
-                />
-                <style>{`
-                  @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                  }
-                `}</style>
+    <>
+      {/* ✨ SIMPLIFIED PYQ CARD - Cyan Theme */}
+      <div className="group bg-gradient-to-br from-cyan-900/90 to-blue-900/80 backdrop-blur-xl border border-cyan-500/30 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-cyan-500/25 hover:scale-[1.02] transition-all duration-300 hover:border-cyan-400/50">
+        
+        {/* Background Effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-800/10 to-blue-800/10 opacity-50"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
+        
+        {/* Content */}
+        <div className="relative p-6 space-y-4">
+          
+          {/* Header */}
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="px-2 py-1 bg-cyan-500/30 text-cyan-300 text-xs font-bold rounded-full">
+                  PYQ
+                </span>
+                {note.rating?.length > 0 && (
+                  <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1">
+                    <StarIcon className="w-3 h-3" filled />
+                    <span>{avgRating}</span>
+                  </span>
+                )}
               </div>
-            ) : (
+              
+              <h3 className="text-lg font-bold text-white line-clamp-2 capitalize group-hover:text-cyan-200 transition-colors">
+                {note.title}
+              </h3>
+              
+              <div className="flex items-center space-x-2 mt-2 text-xs text-cyan-300">
+                <span className="capitalize">{note.subject}</span>
+                <span>•</span>
+                <span>Sem {note.semester}</span>
+                <span>•</span>
+                <span>{note.university}</span>
+              </div>
+            </div>
+            
+            <button
+              onClick={handleBookmark}
+              disabled={isBookmarking}
+              className="p-2 rounded-full hover:bg-cyan-500/20 transition-all"
+            >
               <BookmarkIcon 
-                className={`w-5 h-5 transition-all duration-300 ${
+                className={`w-5 h-5 transition-all ${
                   isBookmarked 
-                    ? 'text-yellow-300 scale-110' 
-                    : 'text-cyan-200'
-                } hover:text-yellow-300 hover:scale-125`}
+                    ? 'text-yellow-400 scale-110' 
+                    : 'text-cyan-300 hover:text-yellow-400'
+                }`}
                 filled={isBookmarked}
               />
-            )}
-          </button>
-        </div>
-
-        <h3 className="text-lg font-bold capitalize text-white line-clamp-2 group-hover:text-cyan-200 transition-colors mb-2">
-          {note.title}
-        </h3>
-
-        <div className="flex items-center space-x-3 text-xs text-cyan-200 flex-wrap gap-2">
-          <span className="bg-cyan-500/20 px-2 py-1 capitalize rounded border border-cyan-500/30">{note.subject}</span>
-          <span>Sem {note.semester}</span>
-          <span>•</span>
-          <span>{note.university}</span>
-        </div>
-      </div>
-
-      {/* Content Section */}
-      <div className="relative p-4 space-y-3">
-        
-        {/* Description */}
-<p className="text-sm text-green-100 capitalize line-clamp-2 leading-relaxed opacity-90 flex-shrink-0">
-          {note.description}
-        </p>
-
-        {/* Stats */}
-        <div className="flex items-center justify-between text-xs text-cyan-300 flex-wrap gap-2">
-          <div className="flex items-center space-x-3">
-            {note.rating?.length > 0 && (
-              <div className="flex items-center space-x-1 bg-cyan-500/20 px-2 py-1 rounded">
-                <StarIcon className="w-3 h-3 text-cyan-400" filled />
-                <span>{avgRating}</span>
-                <span>({note.rating.length})</span>
-              </div>
-            )}
-            <div className="flex items-center space-x-1 bg-cyan-500/20 px-2 py-1 rounded">
-              <DownloadIcon className="w-3 h-3" />
-              <span>{note.downloads || 0} downloads</span>
-            </div>
+            </button>
           </div>
-          <Link
-            to={`/profile/${note.uploadedBy?._id}`}
-            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
-          >
-            <div className="flex items-center space-x-1">
+          
+          {/* Description */}
+          <p className="text-sm text-gray-300 line-clamp-2 leading-relaxed">
+            {note.description}
+          </p>
+          
+          {/* Stats */}
+          <div className="flex items-center justify-between text-xs text-cyan-300 pt-2 border-t border-cyan-500/20">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-1">
+                <DownloadIcon className="w-4 h-4" />
+                <span>{note.downloads || 0} downloads</span>
+              </div>
+              {note.rating?.length > 0 && (
+                <span>({note.rating.length} reviews)</span>
+              )}
+            </div>
+            
+            <Link 
+              to={`/profile/${note.uploadedBy?._id}`}
+              className="flex items-center space-x-1 hover:text-cyan-200 transition-colors"
+            >
               {note.uploadedBy?.avatar?.secure_url?.startsWith('http') ? (
-                <img
-                  src={note.uploadedBy.avatar.secure_url}
+                <img 
+                  src={note.uploadedBy.avatar.secure_url} 
                   alt={note.uploadedBy.fullName}
-                  loading="lazy"
-                  className="w-5 h-5 rounded-full border border-cyan-500/30"
+                  className="w-4 h-4 rounded-full"
                 />
               ) : (
-                <div className="w-5 h-5 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
+                <div className="w-4 h-4 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
                   {note.uploadedBy?.fullName?.charAt(0) || 'U'}
                 </div>
               )}
-              <span className="text-cyan-200 capitalize text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
-            </div>
-          </Link>
-        </div>
-
-        {/* ✨ IMPROVED: Collapsible Exam Metrics */}
-        <div className="border border-cyan-500/20 rounded-lg overflow-hidden">
-         <button
-    onClick={() => setExpandedMetrics(!expandedMetrics)}
-    className="w-full flex items-center justify-between p-3 bg-cyan-500/10 hover:bg-cyan-500/15 transition-colors"
-  >
-    <div className="flex items-center space-x-2">
-      <MetricsIcon className="w-4 h-4 text-cyan-300" />
-      <span className="text-xs font-semibold text-cyan-200">Exam Metrics</span>
-    </div>
-    <ChevronDownIcon className="w-4 h-4 text-cyan-300" isOpen={expandedMetrics} />
-  </button>
+              <span className="capitalize text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
+            </Link>
+          </div>
           
-          {expandedMetrics && (
-            <div className="p-3 bg-cyan-500/5 border-t border-cyan-500/20 space-y-3">
-              <div className="grid grid-cols-3 gap-3">
-                <div className="text-center p-2 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
-                  <ClockIcon className="w-4 h-4 text-cyan-300 mx-auto mb-1" />
-                  <div className="text-xs text-cyan-200 font-medium">3 Hours</div>
-                  <div className="text-xs text-cyan-400">Duration</div>
-                </div>
-                <div className="text-center p-2 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
-                  <AwardIcon className="w-4 h-4 text-cyan-300 mx-auto mb-1" />
-                  <div className="text-xs text-cyan-200 font-medium">70 Marks</div>
-                  <div className="text-xs text-cyan-400">Total</div>
-                </div>
-                <div className="text-center p-2 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
-                  <TargetIcon className="w-4 h-4 text-cyan-300 mx-auto mb-1" />
-                  <div className="text-xs text-cyan-200 font-medium">High</div>
-                  <div className="text-xs text-cyan-400">Priority</div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ✨ IMPROVED: Collapsible Study Tips */}
-        <div className="border border-cyan-500/20 rounded-lg overflow-hidden">
-          <button
-            onClick={() => setExpandedTips(!expandedTips)}
-            className="w-full flex items-center justify-between p-3 bg-cyan-500/10 hover:bg-cyan-500/15 transition-colors"
-          >
-            <div className="flex items-center space-x-2">
-              <InfoIcon className="w-4 h-4 text-cyan-300" />
-              <span className="text-xs font-semibold text-cyan-200">Exam Tips</span>
-            </div>
-            <ChevronDownIcon className="w-4 h-4 text-cyan-300" isOpen={expandedTips} />
-          </button>
-          
-          {expandedTips && (
-            <div className="p-3 bg-cyan-500/5 border-t border-cyan-500/20 space-y-3">
-              <div className="space-y-3">
-                <div className="p-3 bg-cyan-500/10 rounded border border-cyan-500/20">
-                  <h4 className="text-xs font-semibold text-cyan-300 mb-1 flex items-center space-x-1">
-                    <span>📚</span>
-                    <span>Pattern Recognition</span>
-                  </h4>
-                  <p className="text-xs text-cyan-100 leading-relaxed">
-                    Practice previous year questions to identify recurring patterns and frequently asked topics.
-                  </p>
-                </div>
-                <div className="p-3 bg-blue-500/10 rounded border border-blue-500/20">
-                  <h4 className="text-xs font-semibold text-blue-300 mb-1 flex items-center space-x-1">
-                    <span>⏱️</span>
-                    <span>Time Management</span>
-                  </h4>
-                  <p className="text-xs text-blue-100 leading-relaxed">
-                    Solve questions within time limits to build exam-ready confidence and improve speed.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Actions */}
+          <div className="flex gap-2 pt-2">
+            <Link
+              to={`/notes/${note._id}`}
+              className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-2 px-4 rounded-lg text-sm font-bold hover:from-cyan-600 hover:to-blue-600 transition-all text-center"
+            >
+              View Details
+            </Link>
+            
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className="px-4 py-2 bg-cyan-500/30 border border-cyan-500/50 text-cyan-200 rounded-lg hover:bg-cyan-500/50 transition-all"
+            >
+              {isDownloading ? (
+                <div className="w-4 h-4 animate-spin border-2 border-cyan-300 border-t-transparent rounded-full"></div>
+              ) : (
+                <DownloadIcon className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Footer Actions */}
-      <div className="relative p-4 pt-0 flex items-center space-x-2">
-        <Link
-          to={`/notes/${note._id}`}
-          className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-3 px-4 rounded-xl text-sm font-bold hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 text-center transform hover:scale-105 shadow-lg hover:shadow-cyan-500/40 flex items-center justify-center space-x-2"
-        >
-          <TargetIcon className="w-4 h-4" />
-          <span>View Details</span>
-        </Link>
+      {/* ✨ REVIEW MODAL - After Download */}
+      {showReviewModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Rate This PYQ</h2>
+              <button
+                onClick={() => {
+                  setShowReviewModal(false);
+                  setUserRating(0);
+                  setUserReview('');
+                }}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <CloseIcon className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
 
-        <button
-          onClick={handleDownload}
-          disabled={isDownloading}
-          className="bg-cyan-500/20 border border-cyan-500/30 text-cyan-200 py-3 px-4 rounded-xl hover:bg-cyan-500/30 transition-all duration-300 disabled:opacity-50 hover:scale-105"
-        >
-          {isDownloading ? (
-            <div className="w-4 h-4 animate-spin border-2 border-cyan-300 border-t-transparent rounded-full"></div>
-          ) : (
-            <DownloadIcon className="w-4 h-4" />
-          )}
-        </button>
-      </div>
+            {/* PYQ Icon */}
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                <TargetIcon className="w-8 h-8 text-white" />
+              </div>
+              <p className="text-sm text-gray-400">Help others by rating this exam paper</p>
+            </div>
+
+            {/* Rating Stars */}
+            <div className="mb-6">
+              <label className="block text-sm text-gray-300 mb-3">Your Rating</label>
+              <div className="flex justify-center space-x-2">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button
+                    key={star}
+                    onClick={() => setUserRating(star)}
+                    className="transition-all hover:scale-125"
+                  >
+                    <StarIcon 
+                      className={`w-8 h-8 ${
+                        star <= userRating 
+                          ? 'text-yellow-400' 
+                          : 'text-gray-600 hover:text-gray-500'
+                      }`}
+                      filled={star <= userRating}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Review Text */}
+            <div className="mb-6">
+              <label className="block text-sm text-gray-300 mb-2">Your Review (Optional)</label>
+              <textarea
+                value={userReview}
+                onChange={(e) => setUserReview(e.target.value)}
+                placeholder="Share your thoughts about this PYQ paper..."
+                className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                rows={3}
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowReviewModal(false);
+                  setUserRating(0);
+                  setUserReview('');
+                  setShowShareModal(true);
+                }}
+                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+              >
+                Skip
+              </button>
+              <button
+                onClick={submitRating}
+                disabled={userRating === 0}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-lg font-bold transition-all disabled:opacity-50"
+              >
+                Submit Review
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✨ SHARE MODAL - After Review */}
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Share This PYQ</h2>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <CloseIcon className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            {/* Share Message */}
+            <p className="text-gray-400 text-sm mb-6">
+              Help your classmates ace the exam! Share this paper 📝
+            </p>
+
+            {/* Share Buttons */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <button
+                onClick={() => handleShare('whatsapp')}
+                className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+              >
+                <span>💬</span>
+                <span>WhatsApp</span>
+              </button>
+              
+              <button
+                onClick={() => handleShare('twitter')}
+                className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+              >
+                <span>𝕏</span>
+                <span>Twitter</span>
+              </button>
+              
+              <button
+                onClick={() => handleShare('facebook')}
+                className="flex items-center justify-center space-x-2 bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+              >
+                <span>f</span>
+                <span>Facebook</span>
+              </button>
+              
+              <button
+                onClick={() => handleShare('link')}
+                className="flex items-center justify-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+              >
+                <span>🔗</span>
+                <span>Copy Link</span>
+              </button>
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Login Modal */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="max-w-md w-full mx-4">
             <LoginPrompt />
-            <button
+            <button 
               onClick={() => setShowLoginModal(false)}
               className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
             >
@@ -333,6 +414,6 @@ export default function PyqCard({ note }) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

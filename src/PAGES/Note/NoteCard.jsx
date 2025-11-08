@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleBookmark, downloadnote } from '../../REDUX/Slices/noteslice.js';
+import { toggleBookmark, downloadnote, addRating } from '../../REDUX/Slices/noteslice.js';
 import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
 import ReactGA from "react-ga4"
-// Icon components
+
+// Icons
 const BookmarkIcon = ({ className, filled }) => (
   <svg className={className} fill={filled ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
@@ -23,70 +24,47 @@ const StarIcon = ({ className, filled }) => (
   </svg>
 );
 
-const FlameIcon = ({ className }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-  </svg>
-);
-
-const BookIcon = ({ className }) => (
+const ShareIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C9.589 12.938 10 12.502 10 12c0-.502-.411-.938-1.316-1.342m0 2.684a3 3 0 110-2.684m9.032-6.348a9.01 9.01 0 010 12.696m0 0a9 9 0 11-12.696-12.696" />
   </svg>
 );
 
-const TrendingUpIcon = ({ className }) => (
+const CloseIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
 
-// ✨ NEW: Info Icon
-const InfoIcon = ({ className }) => (
+const CheckIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-);
-
-// ✨ FIXED: Proper Chevron Icon
-const ChevronDownIcon = ({ className, isOpen }) => (
-  <svg 
-    className={`${className} transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-    fill="none" 
-    stroke="currentColor" 
-    viewBox="0 0 24 24"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-  </svg>
-);
-
-// ✨ NEW: Metrics Icon (Chart/Dashboard style)
-const MetricsIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
   </svg>
 );
 
 export default function NoteCard({ note }) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [expandedMetrics, setExpandedMetrics] = useState(false); // ✨ NEW: Collapsible metrics
-  const [expandedTips, setExpandedTips] = useState(false); // ✨ NEW: Collapsible tips
-  
   const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
-  const isBookmarking = bookmarkingNotes.includes(note._id);
-  const isDownloading = downloadingNotes.includes(note._id);
   const user = useSelector(state => state.auth.data);
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
+  
+  const isBookmarking = bookmarkingNotes.includes(note._id);
+  const isDownloading = downloadingNotes.includes(note._id);
   const isBookmarked = note.bookmarkedBy?.includes(user?._id);
   
   const avgRating = note.rating?.length
     ? (note.rating.reduce((sum, r) => sum + r.rating, 0) / note.rating.length).toFixed(1)
     : 0;
 
-  // Auth protection
-  const handleBookmark = e => {
+  // State
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [userReview, setUserReview] = useState('');
+
+  // Handlers
+  const handleBookmark = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
@@ -96,254 +74,329 @@ export default function NoteCard({ note }) {
     dispatch(toggleBookmark(note._id));
   };
 
-  const handleDownload = e => {
+  const handleDownload = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
     }
-    // Send event to Google Analytics
-  ReactGA.event({
-    category: 'engagement',
-    action: 'download_note',
-    label: note.title,
-    value: note._id,
-  })
+    
+    ReactGA.event({
+      category: 'engagement',
+      action: 'download_note',
+      label: note.title,
+      value: note._id,
+    });
+    
     dispatch(downloadnote({ noteId: note._id, title: note.title }));
+    
+    // Show modals after download
+    setTimeout(() => {
+      setShowReviewModal(true);
+    }, 500);
   };
 
-  // Calculate quality score for notes
-  const getQualityLevel = () => {
-    const downloads = note.downloads || 0;
-    const ratings = note.rating?.length || 0;
-    const avgRat = parseFloat(avgRating) || 0;
-    
-    const score = downloads * 0.3 + ratings * 0.4 + avgRat * 0.3;
-    
-    if (score >= 4) return { level: 'Premium', color: 'text-blue-400', stars: 5 };
-    if (score >= 3) return { level: 'Quality', color: 'text-cyan-400', stars: 4 };
-    if (score >= 2) return { level: 'Good', color: 'text-green-400', stars: 3 };
-    return { level: 'Standard', color: 'text-gray-400', stars: 2 };
+  const submitRating = () => {
+    if (userRating > 0) {
+      dispatch(addRating({
+        noteId: note._id,
+        rating: userRating,
+        review: userReview
+      }));
+      setShowReviewModal(false);
+      setUserRating(0);
+      setUserReview('');
+      // Show share modal
+      setTimeout(() => {
+        setShowShareModal(true);
+      }, 300);
+    }
   };
 
-  const quality = getQualityLevel();
+  const handleShare = (platform) => {
+    const url = `${window.location.origin}/notes/${note._id}`;
+    const title = `Check out: ${note.title}`;
+    
+    const shareLinks = {
+      whatsapp: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`,
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      link: url
+    };
+    
+    if (platform === 'link') {
+      navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+    } else {
+      window.open(shareLinks[platform], '_blank');
+    }
+    
+    setShowShareModal(false);
+  };
 
   return (
-    <div className="group bg-gradient-to-br from-blue-900/90 to-purple-900/80 backdrop-blur-xl border border-blue-500/30 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-blue-500/25 hover:scale-[1.02] transition-all duration-300 hover:border-blue-400/50 relative">
-      
-      {/* Animated background pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-800/10 to-purple-800/10 opacity-50"></div>
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
-      
-      {/* Header with Notes Badge */}
-      <div className="relative p-4 border-b border-blue-500/20">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <div className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-xs font-bold text-white flex items-center space-x-1 shadow-lg">
-              <BookIcon className="w-3 h-3" />
-              <span>STUDY NOTES</span>
-            </div>
-            <div className={`px-2 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-xs ${quality.color} font-medium`}>
-              {quality.level} Quality
-            </div>
-          </div>
-          <button
-            onClick={handleBookmark}
-            disabled={isBookmarking}
-            className={`relative p-2 rounded-full hover:bg-blue-500/20 transition-all duration-300 group/bookmark ${
-              isBookmarking ? 'animate-pulse' : ''
-            }`}
-          >
-            {isBookmarking ? (
-              <div className="relative w-5 h-5">
-                <div className="absolute inset-0 rounded-full border-2 border-yellow-300/60 animate-pulse"></div>
-                <div 
-                  className="absolute inset-0 rounded-full border-2 border-transparent border-t-yellow-300 border-r-yellow-300"
-                  style={{ animation: 'spin 1s linear infinite' }}
-                ></div>
-                <BookmarkIcon 
-                  className="w-5 h-5 text-yellow-300/50 absolute inset-0"
-                  filled={isBookmarked}
-                />
-                <style>{`
-                  @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                  }
-                `}</style>
+    <>
+      {/* ✨ SIMPLIFIED NOTE CARD */}
+      <div className="group bg-gradient-to-br from-blue-900/90 to-purple-900/80 backdrop-blur-xl border border-blue-500/30 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-blue-500/25 hover:scale-[1.02] transition-all duration-300 hover:border-blue-400/50">
+        
+        {/* Background Effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-800/10 to-purple-800/10 opacity-50"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
+        
+        {/* Content */}
+        <div className="relative p-6 space-y-4">
+          
+          {/* Header */}
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="px-2 py-1 bg-blue-500/30 text-blue-300 text-xs font-bold rounded-full">
+                  {note.category}
+                </span>
+                {note.rating?.length > 0 && (
+                  <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1">
+                    <StarIcon className="w-3 h-3" filled />
+                    <span>{avgRating}</span>
+                  </span>
+                )}
               </div>
-            ) : (
+              
+              <h3 className="text-lg font-bold capitalize text-white line-clamp-2 group-hover:text-blue-200 transition-colors">
+                {note.title}
+              </h3>
+              
+              <div className="flex items-center space-x-2 mt-2 text-xs text-blue-300">
+                <span className="capitalize">{note.subject}</span>
+                <span>•</span>
+                <span>Sem {note.semester}</span>
+                <span>•</span>
+                <span>{note.university}</span>
+              </div>
+            </div>
+            
+            <button
+              onClick={handleBookmark}
+              disabled={isBookmarking}
+              className="p-2 rounded-full hover:bg-blue-500/20 transition-all"
+            >
               <BookmarkIcon 
-                className={`w-5 h-5 transition-all duration-300 ${
+                className={`w-5 h-5 transition-all ${
                   isBookmarked 
-                    ? 'text-yellow-300 scale-110' 
-                    : 'text-blue-300'
-                } hover:text-yellow-300 hover:scale-125`}
+                    ? 'text-yellow-400 scale-110' 
+                    : 'text-blue-300 hover:text-yellow-400'
+                }`}
                 filled={isBookmarked}
               />
-            )}
-          </button>
-        </div>
-        
-        <h3 className="text-lg font-bold capitalize text-white line-clamp-2 group-hover:text-blue-200 transition-colors mb-2">
-          {note.title}
-        </h3>
-        
-        <div className="flex items-center space-x-3 text-xs text-blue-200 flex-wrap gap-2">
-          <span className="bg-blue-500/20 px-2 py-1 capitalize rounded border border-blue-500/30">{note.subject}</span>
-          <span>Sem {note.semester}</span>
-          <span>•</span>
-          <span>{note.university}</span>
-        </div>
-      </div>
-
-      {/* Content Section */}
-      <div className="relative p-4 space-y-3">
-        
-        {/* Description */}
-<p className="text-sm text-green-100 capitalize line-clamp-2 leading-relaxed opacity-90 flex-shrink-0">
-          {note.description}
-        </p>
-
-        {/* Stats */}
-        <div className="flex items-center justify-between text-xs text-blue-300 flex-wrap gap-2">
-          <div className="flex items-center space-x-3">
-            {note.rating?.length > 0 && (
-              <div className="flex items-center space-x-1 bg-blue-500/20 px-2 py-1 rounded">
-                <StarIcon className="w-3 h-3 text-blue-400" filled />
-                <span>{avgRating}</span>
-                <span>({note.rating.length})</span>
-              </div>
-            )}
-            <div className="flex items-center space-x-1 bg-blue-500/20 px-2 py-1 rounded">
-              <DownloadIcon className="w-3 h-3" />
-              <span>{note.downloads || 0} downloads</span>
-            </div>
+            </button>
           </div>
-          <Link 
-            to={`/profile/${note.uploadedBy?._id}`}
-            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
-          >
-            <div className="flex items-center space-x-1">
+          
+          {/* Description */}
+          <p className="text-sm text-gray-300  line-clamp-2 leading-relaxed">
+            {note.description}
+          </p>
+          
+          {/* Stats */}
+          <div className="flex items-center justify-between text-xs text-blue-300 pt-2 border-t border-blue-500/20">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-1">
+                <DownloadIcon className="w-4 h-4" />
+                <span>{note.downloads || 0} downloads</span>
+              </div>
+              {note.rating?.length > 0 && (
+                <span>({note.rating.length} reviews)</span>
+              )}
+            </div>
+            
+            <Link 
+              to={`/profile/${note.uploadedBy?._id}`}
+              className="flex items-center space-x-1 hover:text-blue-200 transition-colors"
+            >
               {note.uploadedBy?.avatar?.secure_url?.startsWith('http') ? (
                 <img 
                   src={note.uploadedBy.avatar.secure_url} 
-                  alt={note.uploadedBy.fullName || 'User'}
-                  loading="lazy"
-                  className="w-5 h-5 rounded-full border border-blue-500/30"
+                  alt={note.uploadedBy.fullName}
+                  className="w-4 h-4 rounded-full"
                 />
               ) : (
-                <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
+                <div className="w-4 h-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
                   {note.uploadedBy?.fullName?.charAt(0) || 'U'}
                 </div>
               )}
-              <span className="text-blue-200 capitalize text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
-            </div>
-          </Link>
-        </div>
-
-        {/* ✨ IMPROVED: Collapsible Quality Metrics */}
-        <div className="border border-blue-500/20 rounded-lg overflow-hidden">
-          <button
-            onClick={() => setExpandedMetrics(!expandedMetrics)}
-            className="w-full flex items-center justify-between p-3 bg-blue-500/10 hover:bg-blue-500/15 transition-colors"
-          >
-            <div className="flex items-center space-x-2">
-              <MetricsIcon className="w-4 h-4 text-blue-300" />
-              <span className="text-xs font-semibold text-blue-200">Quality Metrics</span>
-            </div>
-            <ChevronDownIcon className="w-4 h-4 text-blue-300" isOpen={expandedMetrics} />
-          </button>
+              <span className="capitalize text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
+            </Link>
+          </div>
           
-          {expandedMetrics && (
-            <div className="p-3 bg-blue-500/5 border-t border-blue-500/20 space-y-3">
-              <div className="grid grid-cols-3 gap-3">
-                <div className="text-center p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                  <div className="flex justify-center mb-1">
-                    {[...Array(quality.stars)].map((_, i) => (
-                      <StarIcon key={i} className="w-3 h-3 text-blue-400" filled />
-                    ))}
-                  </div>
-                  <div className="text-xs text-blue-200 font-medium">Quality</div>
-                </div>
-                <div className="text-center p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                  <TrendingUpIcon className="w-4 h-4 text-blue-300 mx-auto mb-1" />
-                  <div className="text-xs text-blue-200 font-medium">Comprehensive</div>
-                  <div className="text-xs text-blue-400">Content</div>
-                </div>
-                <div className="text-center p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                  <FlameIcon className="w-4 h-4 text-purple-400 mx-auto mb-1" />
-                  <div className="text-xs text-blue-200 font-medium">Popular</div>
-                  <div className="text-xs text-blue-400">Resource</div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ✨ IMPROVED: Collapsible Study Tips */}
-        <div className="border border-blue-500/20 rounded-lg overflow-hidden">
-          <button
-            onClick={() => setExpandedTips(!expandedTips)}
-            className="w-full flex items-center justify-between p-3 bg-blue-500/10 hover:bg-blue-500/15 transition-colors"
-          >
-            <div className="flex items-center space-x-2">
-              <InfoIcon className="w-4 h-4 text-blue-300" />
-              <span className="text-xs font-semibold text-blue-200">Study Tips</span>
-            </div>
-            <ChevronDownIcon className="w-4 h-4 text-blue-300" isOpen={expandedTips} />
-          </button>
-          
-          {expandedTips && (
-            <div className="p-3 bg-blue-500/5 border-t border-blue-500/20 space-y-3">
-              <div className="space-y-3">
-                <div className="p-3 bg-blue-500/10 rounded border border-blue-500/20">
-                  <h4 className="text-xs font-semibold text-blue-300 mb-1 flex items-center space-x-1">
-                    <span>📚</span>
-                    <span>Comprehensive Content</span>
-                  </h4>
-                  <p className="text-xs text-blue-100 leading-relaxed">
-                    Detailed explanations covering core concepts with examples. Perfect for exam preparation and deep learning.
-                  </p>
-                </div>
-                <div className="p-3 bg-purple-500/10 rounded border border-purple-500/20">
-                  <h4 className="text-xs font-semibold text-purple-300 mb-1 flex items-center space-x-1">
-                    <span>💡</span>
-                    <span>Well-Organized</span>
-                  </h4>
-                  <p className="text-xs text-purple-100 leading-relaxed">
-                    Logically structured material with clear headings and examples. Easy to follow and understand complex topics.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Actions */}
+          <div className="flex gap-2 pt-2">
+            <Link
+              to={`/notes/${note._id}`}
+              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 px-4 rounded-lg text-sm font-bold hover:from-blue-600 hover:to-purple-600 transition-all text-center"
+            >
+              View Details
+            </Link>
+            
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className="px-4 py-2 bg-blue-500/30 border border-blue-500/50 text-blue-200 rounded-lg hover:bg-blue-500/50 transition-all"
+            >
+              {isDownloading ? (
+                <div className="w-4 h-4 animate-spin border-2 border-blue-300 border-t-transparent rounded-full"></div>
+              ) : (
+                <DownloadIcon className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Footer Actions */}
-      <div className="relative p-4 pt-0 flex items-center space-x-2">
-        <Link
-          to={`/notes/${note._id}`}
-          className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 px-4 rounded-xl text-sm font-bold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 text-center transform hover:scale-105 shadow-lg hover:shadow-blue-500/40 flex items-center justify-center space-x-2"
-        >
-          <BookIcon className="w-4 h-4" />
-          <span>View Details</span>
-        </Link>
-        
-        <button
-          onClick={handleDownload}
-          disabled={isDownloading}
-          className="bg-blue-500/20 border border-blue-500/30 text-blue-200 py-3 px-4 rounded-xl hover:bg-blue-500/30 transition-all duration-300 disabled:opacity-50 hover:scale-105"
-        >
-          {isDownloading ? (
-            <div className="w-4 h-4 animate-spin border-2 border-blue-300 border-t-transparent rounded-full"></div>
-          ) : (
-            <DownloadIcon className="w-4 h-4" />
-          )}
-        </button>
-      </div>
+      {/* ✨ REVIEW MODAL - After Download */}
+      {showReviewModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Rate This Note</h2>
+              <button
+                onClick={() => {
+                  setShowReviewModal(false);
+                  setUserRating(0);
+                  setUserReview('');
+                }}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <CloseIcon className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            {/* Rating Stars */}
+            <div className="mb-6">
+              <label className="block text-sm text-gray-300 mb-3">Your Rating</label>
+              <div className="flex justify-center space-x-2">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button
+                    key={star}
+                    onClick={() => setUserRating(star)}
+                    className="transition-all hover:scale-125"
+                  >
+                    <StarIcon 
+                      className={`w-8 h-8 ${
+                        star <= userRating 
+                          ? 'text-yellow-400' 
+                          : 'text-gray-600 hover:text-gray-500'
+                      }`}
+                      filled={star <= userRating}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Review Text */}
+            <div className="mb-6">
+              <label className="block text-sm text-gray-300 mb-2">Your Review (Optional)</label>
+              <textarea
+                value={userReview}
+                onChange={(e) => setUserReview(e.target.value)}
+                placeholder="Share your thoughts about this note..."
+                className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                rows={3}
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowReviewModal(false);
+                  setUserRating(0);
+                  setUserReview('');
+                  setShowShareModal(true);
+                }}
+                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+              >
+                Skip
+              </button>
+              <button
+                onClick={submitRating}
+                disabled={userRating === 0}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-lg font-bold transition-all disabled:opacity-50"
+              >
+                Submit Review
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✨ SHARE MODAL - After Review */}
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Share This Note</h2>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <CloseIcon className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            {/* Share Message */}
+            <p className="text-gray-400 text-sm mb-6">
+              Help your friends by sharing this awesome note! 📚
+            </p>
+
+            {/* Share Buttons */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <button
+                onClick={() => handleShare('whatsapp')}
+                className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+              >
+                <span>💬</span>
+                <span>WhatsApp</span>
+              </button>
+              
+              <button
+                onClick={() => handleShare('twitter')}
+                className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+              >
+                <span>𝕏</span>
+                <span>Twitter</span>
+              </button>
+              
+              <button
+                onClick={() => handleShare('facebook')}
+                className="flex items-center justify-center space-x-2 bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+              >
+                <span>f</span>
+                <span>Facebook</span>
+              </button>
+              
+              <button
+                onClick={() => handleShare('link')}
+                className="flex items-center justify-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+              >
+                <span>🔗</span>
+                <span>Copy Link</span>
+              </button>
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Login Modal */}
       {showLoginModal && (
@@ -359,6 +412,6 @@ export default function NoteCard({ note }) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
