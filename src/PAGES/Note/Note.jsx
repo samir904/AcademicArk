@@ -298,99 +298,196 @@ const filteredNotes = notes?.filter(note => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              {/* Semester */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Semester *</label>
-                <select
-                  value={localFilters.semester}
-                  onChange={e => handleFilterChange('semester', Number(e.target.value))}
-                  className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                >
-                  <option value="">Select Semester</option>
-                  {[...Array(8)].map((_, i) => {
-                    const sem = i + 1;
-                    return (
-                      <option key={sem} value={sem}>
-                        Semester {sem}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-
-              {/* ✨ FIXED: Updated Category Select with Handwritten Notes */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
-                <select
-                  value={localFilters.category}
-                  onChange={(e) => handleFilterChange('category', e.target.value)}
-                  className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Show All Materials</option>
-                  <option value="Notes">📚 Study Notes</option>
-                  <option value="Important Question">⭐ Important Questions</option>
-                  <option value="PYQ">📄 Previous Year Questions</option>
-                  <option value="Handwritten Notes">✏️ Handwritten Notes</option>
-                </select>
-                <div className="mt-1 text-xs text-gray-400 text-center">
-                  Choose <span className="text-green-400">Handwritten</span> for personal notes, <span className="text-yellow-400">Important</span> for key topics
-                </div>
-              </div>
-            
-
-              {/* Subject */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Subject
-                  {localFilters.semester && (
-                    <span className="ml-2 text-xs text-blue-400">
-                      (Semester {localFilters.semester} subjects)
-                    </span>
-                  )}
-                </label>
-                <select
-                  value={localFilters.subject}
-                  onChange={(e) => handleFilterChange('subject', e.target.value)}
-                  className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">
-                    {localFilters.semester
-                      ? `All Semester ${localFilters.semester} Subjects`
-                      : 'All Subjects'
-                    }
-                  </option>
-                  {(localFilters.semester
-                    ? subjectsBySemester[localFilters.semester] || []
-                    : allSubjects
-                  ).map(subject => (
-                    <option key={subject} value={subject}>
-                      {subject}
-                    </option>
-                  ))}
-                </select>
-                <div className="mt-1 text-xs text-gray-400 text-center">
-                  {localFilters.semester ? (
-                    <>Showing subjects for <span className="text-blue-400">Semester {localFilters.semester}</span></>
-                  ) : (
-                    <>Select a <span className="text-green-400">semester</span> to filter subjects</>
-                  )}
-                </div>
-              </div>
-
-              {/* University */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">University</label>
-                <select
-                  value={localFilters.university}
-                  onChange={(e) => handleFilterChange('university', e.target.value)}
-                  className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="AKTU">AKTU</option>
-                </select>
-              </div>
+            {/* STEP 1: Select Semester FIRST */}
+<div className="mb-8">
+  <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-2xl p-6">
+    <div className="flex items-center space-x-3 mb-4">
+      <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+        <span className="text-2xl">🎓</span>
+      </div>
+      <div>
+        <h3 className="text-lg font-bold text-white">Step 1: Choose Your Semester</h3>
+        <p className="text-sm text-gray-400">Start by selecting your current semester</p>
+      </div>
+    </div>
+    
+    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+      {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
+        <button
+          key={sem}
+          onClick={() => {
+            handleFilterChange('semester', sem);
+            handleFilterChange('subject', ''); // Reset subject when semester changes
+          }}
+          className={`
+            relative p-4 rounded-xl border-2 transition-all duration-300 transform hover:scale-105
+            ${localFilters.semester === sem
+              ? 'bg-gradient-to-br from-blue-600 to-purple-600 border-transparent shadow-xl scale-105'
+              : 'bg-gray-900/50 border-gray-700 hover:border-blue-500/50'
+            }
+          `}
+        >
+          <div className="text-center">
+            <div className={`text-2xl font-bold mb-1 ${localFilters.semester === sem ? 'text-white' : 'text-gray-300'}`}>
+              {sem}
             </div>
+            <div className={`text-xs ${localFilters.semester === sem ? 'text-white/80' : 'text-gray-500'}`}>
+              Semester
+            </div>
+          </div>
+          
+          {localFilters.semester === sem && (
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          )}
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
+
+{/* STEP 2: Filters (Only show when semester is selected) */}
+{localFilters.semester && (
+  <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8">
+    <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center space-x-3">
+        <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+          <FilterIcon className="w-5 h-5 text-purple-400" />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-white">Step 2: Filter Resources</h3>
+          <p className="text-sm text-gray-400">
+            Showing Semester {localFilters.semester} - {subjectsBySemester[localFilters.semester]?.length || 0} subjects available
+          </p>
+        </div>
+      </div>
+      <button
+        onClick={handleClearFilters}
+        className="text-sm text-gray-400 hover:text-white transition-colors flex items-center space-x-2 group"
+      >
+        <CloseIcon className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
+        <span>Reset All</span>
+      </button>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      {/* Subject Filter */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Subject
+          <span className="ml-2 text-xs text-blue-400">
+            ({subjectsBySemester[localFilters.semester]?.length || 0} available)
+          </span>
+        </label>
+        <select
+          value={localFilters.subject}
+          onChange={(e) => handleFilterChange('subject', e.target.value)}
+          className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="">All Subjects in Semester {localFilters.semester}</option>
+          {(subjectsBySemester[localFilters.semester] || []).map(subject => (
+            <option key={subject} value={subject}>
+              {subject}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Category Filter */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+        <select
+          value={localFilters.category}
+          onChange={(e) => handleFilterChange('category', e.target.value)}
+          className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="">All Materials</option>
+          <option value="Notes">📚 Study Notes</option>
+          <option value="Important Question">⭐ Important Questions</option>
+          <option value="PYQ">📄 Previous Year Questions</option>
+          <option value="Handwritten Notes">✏️ Handwritten Notes</option>
+        </select>
+      </div>
+
+      {/* Uploader Filter */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">Contributor</label>
+        <select
+          value={localFilters.uploadedBy}
+          onChange={(e) => handleFilterChange('uploadedBy', e.target.value)}
+          className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="">All Contributors</option>
+          {uniqueUploaders.map(uploader => (
+            <option key={uploader.id} value={uploader.id}>
+              {uploader.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    {/* Search Bar */}
+    <div className="relative">
+      <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+      <input
+        type="text"
+        placeholder={`Search in Semester ${localFilters.semester}...`}
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      />
+    </div>
+
+    {/* Active Filters Display */}
+    {(localFilters.subject || localFilters.category || localFilters.uploadedBy) && (
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span className="text-sm text-gray-400">Active filters:</span>
+        {localFilters.subject && (
+          <span className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-sm text-blue-400 flex items-center space-x-2">
+            <span>{localFilters.subject}</span>
+            <button onClick={() => handleFilterChange('subject', '')} className="hover:text-blue-300">
+              <CloseIcon className="w-3 h-3" />
+            </button>
+          </span>
+        )}
+        {localFilters.category && (
+          <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-sm text-purple-400 flex items-center space-x-2">
+            <span>{localFilters.category}</span>
+            <button onClick={() => handleFilterChange('category', '')} className="hover:text-purple-300">
+              <CloseIcon className="w-3 h-3" />
+            </button>
+          </span>
+        )}
+        {localFilters.uploadedBy && (
+          <span className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full text-sm text-green-400 flex items-center space-x-2">
+            <span>{uniqueUploaders.find(u => u.id === localFilters.uploadedBy)?.name}</span>
+            <button onClick={() => handleFilterChange('uploadedBy', '')} className="hover:text-green-300">
+              <CloseIcon className="w-3 h-3" />
+            </button>
+          </span>
+        )}
+      </div>
+    )}
+  </div>
+)}
+
+{/* Message when no semester selected */}
+{!localFilters.semester && (
+  <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-yellow-500/30 rounded-2xl p-12 text-center mb-8">
+    <div className="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+      <span className="text-4xl">👆</span>
+    </div>
+    <h3 className="text-xl font-bold text-white mb-2">Select Your Semester First</h3>
+    <p className="text-gray-400">
+      Choose your semester above to see available subjects and study materials
+    </p>
+  </div>
+)}
+
 
             {/* Spotify-style OR divider */}
             <div className="flex items-center my-8">
