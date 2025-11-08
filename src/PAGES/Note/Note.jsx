@@ -6,6 +6,7 @@ import aktulogo from "../../../public/download.jpeg";
 import HomeLayout from '../../LAYOUTS/Homelayout';
 import CardRenderer from './CardRenderer';
 import { Link } from 'react-router-dom';
+import AdBanner from '../../COMPONENTS/AdBanner';
 
 // Icon components
 const FilterIcon = ({ className }) => (
@@ -52,21 +53,21 @@ export default function Note() {
   });
 
   // Get unique uploaders from notes
-const getUniqueUploaders = () => {
-  const uploaders = new Map();
-  notes?.forEach(note => {
-    if (note.uploadedBy?._id) {
-      uploaders.set(note.uploadedBy._id, {
-        id: note.uploadedBy._id,
-        name: note.uploadedBy.fullName || 'Unknown',
-        avatar: note.uploadedBy.avatar
-      });
-    }
-  });
-  return Array.from(uploaders.values()).sort((a, b) => a.name.localeCompare(b.name));
-};
+  const getUniqueUploaders = () => {
+    const uploaders = new Map();
+    notes?.forEach(note => {
+      if (note.uploadedBy?._id) {
+        uploaders.set(note.uploadedBy._id, {
+          id: note.uploadedBy._id,
+          name: note.uploadedBy.fullName || 'Unknown',
+          avatar: note.uploadedBy.avatar
+        });
+      }
+    });
+    return Array.from(uploaders.values()).sort((a, b) => a.name.localeCompare(b.name));
+  };
 
-const uniqueUploaders = getUniqueUploaders();
+  const uniqueUploaders = getUniqueUploaders();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isStatsCollapsed, setIsStatsCollapsed] = useState(false);
@@ -74,26 +75,26 @@ const uniqueUploaders = getUniqueUploaders();
   // Subject mapping by semester
   const subjectsBySemester = {
     1: [
-      'engineering mathematics-i', 'engineering physics', 'programming for problem solving', 
-      'Electrical Engineering', 'EVS',"FUNDAMENTALS OF ELECTRONICS ENGINEERING","soft skills",
-      "fundamentals of mechanical engineering","engineering chemistry","fundamentals of electrical engineering"
+      'engineering mathematics-i', 'engineering physics', 'programming for problem solving',
+      'Electrical Engineering', 'EVS', "FUNDAMENTALS OF ELECTRONICS ENGINEERING", "soft skills",
+      "fundamentals of mechanical engineering", "engineering chemistry", "fundamentals of electrical engineering"
     ],
     2: [
-      'Mathematics-II', , 'engineering physics', 'programming for problem solving', 
-      'Electrical Engineering', 'EVS',"FUNDAMENTALS OF ELECTRONICS ENGINEERING","soft skills",
-      "fundamentals of mechanical engineering","engineering chemistry","fundamentals of electrical engineering"
+      'Mathematics-II', , 'engineering physics', 'programming for problem solving',
+      'Electrical Engineering', 'EVS', "FUNDAMENTALS OF ELECTRONICS ENGINEERING", "soft skills",
+      "fundamentals of mechanical engineering", "engineering chemistry", "fundamentals of electrical engineering"
     ],
     3: [
       'data structure', 'digital electronics',
-      'computer organization and architecture', 'python programming', 'discrete structures & theory of logic', 
+      'computer organization and architecture', 'python programming', 'discrete structures & theory of logic',
       "technical communication",
-      "discrete structures & theory of logic","mathematics-iv","technical communication"
+      "discrete structures & theory of logic", "mathematics-iv", "technical communication"
     ],
     4: [
-       'data structure', 'digital electronics',
-      'computer organization and architecture', 'python programming', 'discrete structures & theory of logic', 
+      'data structure', 'digital electronics',
+      'computer organization and architecture', 'python programming', 'discrete structures & theory of logic',
       "technical communication",
-      "discrete structures & theory of logic","mathematics-iv","technical communication"
+      "discrete structures & theory of logic", "mathematics-iv", "technical communication"
     ],
     5: [
       'Web Technology', 'cloud computing',
@@ -107,8 +108,8 @@ const uniqueUploaders = getUniqueUploaders();
     ],
     7: [
       // 'Advanced Machine Learning', 'Distributed Systems','Data Mining', 'Blockchain Technology',
-       "internet of things",
-       'project management',"cryptography & network security",
+      "internet of things",
+      'project management', "cryptography & network security",
       "deep learning"
     ],
     8: [
@@ -151,17 +152,17 @@ const uniqueUploaders = getUniqueUploaders();
   };
 
   // Filter notes by search term AND uploadedBy
-const filteredNotes = notes?.filter(note => {
-  const matchesSearch = 
-    note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    note.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    note.subject.toLowerCase().includes(searchTerm.toLowerCase());
-  
-  const matchesUploader = !localFilters.uploadedBy || 
-    note.uploadedBy?._id === localFilters.uploadedBy;
-  
-  return matchesSearch && matchesUploader;
-}) || [];
+  const filteredNotes = notes?.filter(note => {
+    const matchesSearch =
+      note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      note.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      note.subject.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesUploader = !localFilters.uploadedBy ||
+      note.uploadedBy?._id === localFilters.uploadedBy;
+
+    return matchesSearch && matchesUploader;
+  }) || [];
 
   const getCategoryStats = () => {
     const stats = {};
@@ -212,10 +213,10 @@ const filteredNotes = notes?.filter(note => {
       },
       'PYQ': {
         icon: '📄',
-        gradient: 'from-red-600 to-pink-500',
-        hoverGradient: 'hover:from-red-500 hover:to-pink-400',
-        borderColor: 'border-red-500/30',
-        bgGradient: 'from-red-900/90 to-pink-900/80',
+        gradient: 'from-clan-00 to-blue-500',
+        hoverGradient: 'hover:from-clan-500 hover:to-blue-400',
+        borderColor: 'border-clan-500/30',
+        bgGradient: 'from-clan-900/90 to-blue-900/80',
         textColor: 'text-red-400'
       },
       'Handwritten Notes': {
@@ -299,194 +300,194 @@ const filteredNotes = notes?.filter(note => {
             </div>
 
             {/* STEP 1: Select Semester FIRST */}
-<div className="mb-8">
-  <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-2xl p-6">
-    <div className="flex items-center space-x-3 mb-4">
-      <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-        <span className="text-2xl">🎓</span>
-      </div>
-      <div>
-        <h3 className="text-lg font-bold text-white">Step 1: Choose Your Semester</h3>
-        <p className="text-sm text-gray-400">Start by selecting your current semester</p>
-      </div>
-    </div>
-    
-    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
-      {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
-        <button
-          key={sem}
-          onClick={() => {
-            handleFilterChange('semester', sem);
-            handleFilterChange('subject', ''); // Reset subject when semester changes
-          }}
-          className={`
+            <div className="mb-8">
+              <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-2xl p-6">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <span className="text-2xl">🎓</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Step 1: Choose Your Semester</h3>
+                    <p className="text-sm text-gray-400">Start by selecting your current semester</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
+                    <button
+                      key={sem}
+                      onClick={() => {
+                        handleFilterChange('semester', sem);
+                        handleFilterChange('subject', ''); // Reset subject when semester changes
+                      }}
+                      className={`
             relative p-4 rounded-xl border-2 transition-all duration-300 transform hover:scale-105
             ${localFilters.semester === sem
-              ? 'bg-gradient-to-br from-blue-600 to-purple-600 border-transparent shadow-xl scale-105'
-              : 'bg-gray-900/50 border-gray-700 hover:border-blue-500/50'
-            }
+                          ? 'bg-gradient-to-br from-blue-600 to-purple-600 border-transparent shadow-xl scale-105'
+                          : 'bg-gray-900/50 border-gray-700 hover:border-blue-500/50'
+                        }
           `}
-        >
-          <div className="text-center">
-            <div className={`text-2xl font-bold mb-1 ${localFilters.semester === sem ? 'text-white' : 'text-gray-300'}`}>
-              {sem}
+                    >
+                      <div className="text-center">
+                        <div className={`text-2xl font-bold mb-1 ${localFilters.semester === sem ? 'text-white' : 'text-gray-300'}`}>
+                          {sem}
+                        </div>
+                        <div className={`text-xs ${localFilters.semester === sem ? 'text-white/80' : 'text-gray-500'}`}>
+                          Semester
+                        </div>
+                      </div>
+
+                      {localFilters.semester === sem && (
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className={`text-xs ${localFilters.semester === sem ? 'text-white/80' : 'text-gray-500'}`}>
-              Semester
-            </div>
-          </div>
-          
-          {localFilters.semester === sem && (
-            <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-          )}
-        </button>
-      ))}
-    </div>
-  </div>
-</div>
 
-{/* STEP 2: Filters (Only show when semester is selected) */}
-{localFilters.semester && (
-  <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8">
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center space-x-3">
-        <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-          <FilterIcon className="w-5 h-5 text-purple-400" />
-        </div>
-        <div>
-          <h3 className="text-lg font-bold text-white">Step 2: Filter Resources</h3>
-          <p className="text-sm text-gray-400">
-            Showing Semester {localFilters.semester} - {subjectsBySemester[localFilters.semester]?.length || 0} subjects available
-          </p>
-        </div>
-      </div>
-      <button
-        onClick={handleClearFilters}
-        className="text-sm text-gray-400 hover:text-white transition-colors flex items-center space-x-2 group"
-      >
-        <CloseIcon className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
-        <span>Reset All</span>
-      </button>
-    </div>
+            {/* STEP 2: Filters (Only show when semester is selected) */}
+            {localFilters.semester && (
+              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                      <FilterIcon className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Step 2: Filter Resources</h3>
+                      <p className="text-sm text-gray-400">
+                        Showing Semester {localFilters.semester} - {subjectsBySemester[localFilters.semester]?.length || 0} subjects available
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleClearFilters}
+                    className="text-sm text-gray-400 hover:text-white transition-colors flex items-center space-x-2 group"
+                  >
+                    <CloseIcon className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
+                    <span>Reset All</span>
+                  </button>
+                </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      {/* Subject Filter */}
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Subject
-          <span className="ml-2 text-xs text-blue-400">
-            ({subjectsBySemester[localFilters.semester]?.length || 0} available)
-          </span>
-        </label>
-        <select
-          value={localFilters.subject}
-          onChange={(e) => handleFilterChange('subject', e.target.value)}
-          className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="">All Subjects in Semester {localFilters.semester}</option>
-          {(subjectsBySemester[localFilters.semester] || []).map(subject => (
-            <option key={subject} value={subject}>
-              {subject}
-            </option>
-          ))}
-        </select>
-      </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  {/* Subject Filter */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Subject
+                      <span className="ml-2 text-xs text-blue-400">
+                        ({subjectsBySemester[localFilters.semester]?.length || 0} available)
+                      </span>
+                    </label>
+                    <select
+                      value={localFilters.subject}
+                      onChange={(e) => handleFilterChange('subject', e.target.value)}
+                      className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">All Subjects in Semester {localFilters.semester}</option>
+                      {(subjectsBySemester[localFilters.semester] || []).map(subject => (
+                        <option key={subject} value={subject}>
+                          {subject}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-      {/* Category Filter */}
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
-        <select
-          value={localFilters.category}
-          onChange={(e) => handleFilterChange('category', e.target.value)}
-          className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="">All Materials</option>
-          <option value="Notes">📚 Study Notes</option>
-          <option value="Important Question">⭐ Important Questions</option>
-          <option value="PYQ">📄 Previous Year Questions</option>
-          <option value="Handwritten Notes">✏️ Handwritten Notes</option>
-        </select>
-      </div>
+                  {/* Category Filter */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+                    <select
+                      value={localFilters.category}
+                      onChange={(e) => handleFilterChange('category', e.target.value)}
+                      className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">All Materials</option>
+                      <option value="Notes">📚 Study Notes</option>
+                      <option value="Important Question">⭐ Important Questions</option>
+                      <option value="PYQ">📄 Previous Year Questions</option>
+                      <option value="Handwritten Notes">✏️ Handwritten Notes</option>
+                    </select>
+                  </div>
 
-      {/* Uploader Filter */}
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">Contributor</label>
-        <select
-          value={localFilters.uploadedBy}
-          onChange={(e) => handleFilterChange('uploadedBy', e.target.value)}
-          className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="">All Contributors</option>
-          {uniqueUploaders.map(uploader => (
-            <option key={uploader.id} value={uploader.id}>
-              {uploader.name}
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
+                  {/* Uploader Filter */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Contributor</label>
+                    <select
+                      value={localFilters.uploadedBy}
+                      onChange={(e) => handleFilterChange('uploadedBy', e.target.value)}
+                      className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">All Contributors</option>
+                      {uniqueUploaders.map(uploader => (
+                        <option key={uploader.id} value={uploader.id}>
+                          {uploader.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-    {/* Search Bar */}
-    <div className="relative">
-      <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-      <input
-        type="text"
-        placeholder={`Search in Semester ${localFilters.semester}...`}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      />
-    </div>
+                {/* Search Bar */}
+                <div className="relative">
+                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder={`Search in Semester ${localFilters.semester}...`}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
 
-    {/* Active Filters Display */}
-    {(localFilters.subject || localFilters.category || localFilters.uploadedBy) && (
-      <div className="mt-4 flex flex-wrap gap-2">
-        <span className="text-sm text-gray-400">Active filters:</span>
-        {localFilters.subject && (
-          <span className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-sm text-blue-400 flex items-center space-x-2">
-            <span>{localFilters.subject}</span>
-            <button onClick={() => handleFilterChange('subject', '')} className="hover:text-blue-300">
-              <CloseIcon className="w-3 h-3" />
-            </button>
-          </span>
-        )}
-        {localFilters.category && (
-          <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-sm text-purple-400 flex items-center space-x-2">
-            <span>{localFilters.category}</span>
-            <button onClick={() => handleFilterChange('category', '')} className="hover:text-purple-300">
-              <CloseIcon className="w-3 h-3" />
-            </button>
-          </span>
-        )}
-        {localFilters.uploadedBy && (
-          <span className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full text-sm text-green-400 flex items-center space-x-2">
-            <span>{uniqueUploaders.find(u => u.id === localFilters.uploadedBy)?.name}</span>
-            <button onClick={() => handleFilterChange('uploadedBy', '')} className="hover:text-green-300">
-              <CloseIcon className="w-3 h-3" />
-            </button>
-          </span>
-        )}
-      </div>
-    )}
-  </div>
-)}
+                {/* Active Filters Display */}
+                {(localFilters.subject || localFilters.category || localFilters.uploadedBy) && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <span className="text-sm text-gray-400">Active filters:</span>
+                    {localFilters.subject && (
+                      <span className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-sm text-blue-400 flex items-center space-x-2">
+                        <span>{localFilters.subject}</span>
+                        <button onClick={() => handleFilterChange('subject', '')} className="hover:text-blue-300">
+                          <CloseIcon className="w-3 h-3" />
+                        </button>
+                      </span>
+                    )}
+                    {localFilters.category && (
+                      <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-sm text-purple-400 flex items-center space-x-2">
+                        <span>{localFilters.category}</span>
+                        <button onClick={() => handleFilterChange('category', '')} className="hover:text-purple-300">
+                          <CloseIcon className="w-3 h-3" />
+                        </button>
+                      </span>
+                    )}
+                    {localFilters.uploadedBy && (
+                      <span className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full text-sm text-green-400 flex items-center space-x-2">
+                        <span>{uniqueUploaders.find(u => u.id === localFilters.uploadedBy)?.name}</span>
+                        <button onClick={() => handleFilterChange('uploadedBy', '')} className="hover:text-green-300">
+                          <CloseIcon className="w-3 h-3" />
+                        </button>
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
-{/* Message when no semester selected */}
-{!localFilters.semester && (
-  <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-yellow-500/30 rounded-2xl p-12 text-center mb-8">
-    <div className="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-      <span className="text-4xl">👆</span>
-    </div>
-    <h3 className="text-xl font-bold text-white mb-2">Select Your Semester First</h3>
-    <p className="text-gray-400">
-      Choose your semester above to see available subjects and study materials
-    </p>
-  </div>
-)}
+            {/* Message when no semester selected */}
+            {!localFilters.semester && (
+              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-yellow-500/30 rounded-2xl p-12 text-center mb-8">
+                <div className="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-4xl">👆</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Select Your Semester First</h3>
+                <p className="text-gray-400">
+                  Choose your semester above to see available subjects and study materials
+                </p>
+              </div>
+            )}
 
 
             {/* Spotify-style OR divider */}
@@ -517,351 +518,161 @@ const filteredNotes = notes?.filter(note => {
             </div> */}
           </div>
 
-          {/* Enhanced Collapsible Stats Cards - Spotify Style */}
-          {localFilters.semester && (
-            <div className="mb-8">
-              {/* Stats Header Bar - Shows when collapsed or no category selected */}
-              {(isStatsCollapsed || !localFilters.category) && (
-                <div
-                  className={`
-                    bg-gradient-to-br from-gray-900/80 to-gray-800/50 backdrop-blur-xl 
-                    border border-white/10 rounded-2xl p-6 mb-4
-                    transition-all duration-300 ease-in-out
-                    ${!localFilters.category ? 'shadow-lg' : 'cursor-pointer hover:border-white/20'}
-                  `}
-                  onClick={() => !localFilters.category && setIsStatsCollapsed(false)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-6">
-                      {/* Total Resources */}
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl flex items-center justify-center">
-                          <span className="text-2xl">📊</span>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-blue-400">{totalNotes}</div>
-                          <div className="text-xs text-gray-400">Total Resources</div>
-                        </div>
-                      </div>
+         {/* ✨ REDESIGNED: Simple Stats Section */}
+{localFilters.semester && (
+  <div className="mb-8">
+    {/* Stats Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {/* Total Resources Card */}
+      <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-2xl p-6 hover:border-blue-500/50 transition-all">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-gray-400 text-sm mb-1">Total Resources</p>
+            <p className="text-3xl font-bold text-blue-400">{totalNotes}</p>
+          </div>
+          <span className="text-4xl">📊</span>
+        </div>
+      </div>
 
-                      {/* Category Stats Preview */}
-                      <div className="hidden md:flex items-center space-x-4">
-                        {Object.entries(categoryStats).map(([category, count]) => {
-                          const config = getCategoryConfig(category);
-                          return (
-                            <div key={category} className="flex items-center space-x-2 px-3 py-2 bg-black/30 rounded-lg">
-                              <span className="text-lg">{config.icon}</span>
-                              <div className="text-sm">
-                                <span className="font-bold text-white">{count}</span>
-                                <span className="text-gray-400 ml-1">{category}</span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+      {/* Category Cards */}
+      {Object.entries(categoryStats).map(([category, count]) => {
+        const config = getCategoryConfig(category);
+        const isActive = localFilters.category === category;
 
-                    {/* Expand hint */}
-                    {!localFilters.category && (
-                      <div className="flex items-center space-x-2 text-gray-400 text-sm">
-                        <span>Click to filter by category</span>
-                        <ChevronDownIcon className="w-5 h-5 " />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+        return (
+          <button
+            key={category}
+            onClick={() => handleFilterChange('category', category)}
+            className={`
+              relative rounded-2xl p-6 transition-all duration-300 transform hover:scale-105
+              ${isActive
+                ? `bg-gradient-to-br ${config.gradient} border-transparent shadow-xl scale-105`
+                : `bg-gradient-to-br from-gray-900/40 to-gray-800/30 border ${config.borderColor} hover:border-white/30`
+              }
+            `}
+          >
+            <div className="flex items-center justify-between">
+              <div className="text-left">
+                <p className={`text-sm font-medium mb-1 ${isActive ? 'text-white/80' : 'text-gray-400'}`}>
+                  {category}
+                </p>
+                <p className={`text-3xl font-bold ${isActive ? 'text-white' : config.textColor}`}>
+                  {count}
+                </p>
+              </div>
+              <span className="text-4xl">{config.icon}</span>
+            </div>
 
-              {/* Expanded Category Cards - Spotify Playlist Style */}
-              {!isStatsCollapsed && (
-                <div className="space-y-4">
-                  {/* Selected Category Bar (when category is selected) */}
-                  {localFilters.category && (
-                    <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/50 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-lg">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <button
-                            onClick={handleClearCategory}
-                            className="w-10 h-10 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg flex items-center justify-center transition-all duration-200 group"
-                            title="Clear category filter"
-                          >
-                            <CloseIcon className="w-5 h-5 text-red-400 group-hover:rotate-90 transition-transform duration-300" />
-                          </button>
+            {/* Clear button if active */}
+            {isActive && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleFilterChange('category', '');
+                }}
+                className="absolute top-2 right-2 p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                title="Clear filter"
+              >
+                <CloseIcon className="w-4 h-4 text-white" />
+              </button>
+            )}
+          </button>
+        );
+      })}
+    </div>
 
-                          <div className="flex items-center space-x-3">
-                            {(() => {
-                              const config = getCategoryConfig(localFilters.category);
-                              return (
-                                <>
-                                  <div className={`w-12 h-12 bg-gradient-to-br ${config.gradient} rounded-xl flex items-center justify-center shadow-lg`}>
-                                    <span className="text-2xl">{config.icon}</span>
-                                  </div>
-                                  <div>
-                                    <div className="text-sm text-gray-400">Viewing</div>
-                                    <div className="text-xl font-bold text-white">{localFilters.category}</div>
-                                  </div>
-                                </>
-                              );
-                            })()}
-                          </div>
-
-                          <div className="h-8 w-px bg-white/10"></div>
-
-                          <div className="text-sm text-gray-400">
-                            <span className="text-2xl font-bold text-white">{categoryStats[localFilters.category] || 0}</span>
-                            <span className="ml-2">resources found</span>
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => setIsStatsCollapsed(true)}
-                          className="flex items-center space-x-2 px-4 py-2 bg-black/30 hover:bg-black/50 border border-white/10 hover:border-white/20 rounded-lg transition-all duration-200 group"
-                        >
-                          <span className="text-sm text-gray-400 group-hover:text-white">Collapse</span>
-                          <ChevronDownIcon className="w-4 h-4 text-gray-400 group-hover:text-white rotate-180 transition-transform" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Category Selection Grid - ✨ Now includes Handwritten Notes */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {Object.entries(categoryStats).map(([category, count]) => {
-                    const isActive = localFilters.category === category;
-                    const config = getCategoryConfig(category);
-
-                    return (
-                      <button
-                        key={category}
-                        onClick={() => handleCategoryClick(category)}
-                        className={`
-                          group relative p-6 rounded-2xl
-                          transition-all duration-300 transform
-                          ${isActive
-                            ? `bg-gradient-to-br ${config.gradient} border-transparent shadow-2xl scale-105`
-                            : `bg-gradient-to-br from-gray-900/50 to-gray-800/30 border ${config.borderColor} hover:scale-102 ${config.hoverGradient}`
-                          }
-                          hover:shadow-xl
-                        `}
-                      >
-                        {/* Background Glow Effect */}
-                        {isActive && (
-                          <div className="absolute inset-0 bg-white/10 rounded-2xl blur-xl"></div>
-                        )}
-
-                        {/* Content */}
-                        <div className="relative flex items-center space-x-4">
-                          {/* Icon */}
-                          <div className={`
-                            w-16 h-16 rounded-xl flex items-center justify-center
-                            ${isActive ? 'bg-white/20' : 'bg-black/30 group-hover:bg-black/50'}
-                            transition-all duration-300
-                          `}>
-                            <span className="text-3xl">{config.icon}</span>
-                          </div>
-
-                          {/* Text */}
-                          <div className="flex-1 text-left">
-                            <div className={`
-                              text-3xl font-bold mb-1
-                              ${isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'}
-                            `}>
-                              {count}
-                            </div>
-                            <div className={`
-                              text-sm font-medium
-                              ${isActive ? 'text-white/90' : 'text-gray-400 group-hover:text-gray-300'}
-                            `}>
-                              {category}
-                            </div>
-                          </div>
-
-                          {/* Arrow Indicator */}
-                          <div className={`
-                            transition-all duration-300
-                            ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
-                          `}>
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </div>
-                        </div>
-
-                        {/* Clear button for active category */}
-                        {isActive && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleClearCategory();
-                            }}
-                            className="absolute top-3 right-3 p-1 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
-                            title="Clear filter"
-                          >
-                            <CloseIcon className="w-4 h-4 text-white" />
-                          </button>
-                        )}
-
-                        {/* Hover Tooltip */}
-                        {!isActive && (
-                          <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                            <div className="bg-black/90 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap">
-                              Click to filter
-                            </div>
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-
-                  {/*filter by uploaded by where i need to change the logic */ }
-{/* NEW: Uploaded By Filter - Only show when category is selected or no filter active */}
-{localFilters.semester && notes && notes.length > 0 && (
-  <div className="mt-6">
-    <div className="flex items-center justify-between mb-4">
-      <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
-        <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
-        <span>Filter by Contributor</span>
-      </h3>
-      {localFilters.uploadedBy && (
+    {/* Active Filter Badge */}
+    {localFilters.category && (
+      <div className="mb-6 p-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-xl flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <span>Filtering by:</span>
+          <span className="px-3 py-1 bg-blue-600 text-white rounded-full font-medium">
+            {localFilters.category}
+          </span>
+        </div>
         <button
-          onClick={() => handleFilterChange('uploadedBy', '')}
-          className="text-sm text-red-400 hover:text-red-300 flex items-center space-x-1"
+          onClick={() => handleFilterChange('category', '')}
+          className="text-red-400 hover:text-red-300 text-sm flex items-center space-x-1"
         >
           <CloseIcon className="w-4 h-4" />
           <span>Clear</span>
         </button>
-      )}
-    </div>
-
-   {/* Horizontal scrollable uploaders */}
-<div className="relative">
-  <div className="flex overflow-x-auto space-x-3 pb-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
-    {/* All Contributors Option */}
-    <button
-      onClick={() => handleFilterChange('uploadedBy', '')}
-      className={`
-        flex-shrink-0 flex items-center space-x-3 px-5 py-3 rounded-xl border transition-all duration-200
-        ${!localFilters.uploadedBy
-          ? 'bg-gradient-to-br from-blue-600 to-purple-600 border-transparent shadow-lg'
-          : 'bg-gray-900/50 border-gray-700 hover:border-gray-600 hover:bg-gray-800/50'
-        }
-      `}
-    >
-      <div className={`
-        w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
-        ${!localFilters.uploadedBy ? 'bg-white/20' : 'bg-gray-800'}
-      `}>
-        <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
       </div>
-      <div className="flex flex-col items-start">
-        <span className={`text-sm font-medium whitespace-nowrap ${!localFilters.uploadedBy ? 'text-white' : 'text-gray-300'}`}>
-          All Contributors
-        </span>
-        <span className="text-xs text-gray-400">
-          {notes.length} notes
-        </span>
-      </div>
-    </button>
+    )}
 
-    {/* Individual Uploaders */}
-    {uniqueUploaders.map((uploader) => {
-      const isActive = localFilters.uploadedBy === uploader.id;
-      const uploaderNotesCount = notes.filter(n => n.uploadedBy?._id === uploader.id).length;
-      
-      return (
-        <button
-          key={uploader.id}
-          onClick={() => handleFilterChange('uploadedBy', uploader.id)}
-          className={`
-            relative flex-shrink-0 flex items-center space-x-3 px-5 py-3 rounded-xl border transition-all duration-200 min-w-[160px]
-            ${isActive
-              ? 'bg-gradient-to-br from-blue-600 to-purple-600 border-transparent shadow-lg scale-105'
-              : 'bg-gray-900/50 border-gray-700 hover:border-gray-600 hover:bg-gray-800/50'
-            }
-          `}
-        >
-          {/* Avatar */}
-          <div className={`
-            w-10 h-10 rounded-full overflow-hidden border-2 transition-colors flex-shrink-0
-            ${isActive ? 'border-white/30' : 'border-gray-700'}
-          `}>
-            {uploader?.avatar?.secure_url?.startsWith('http') ? (
-              <img
-                src={uploader?.avatar?.secure_url}
-                alt={uploader.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextElementSibling.style.display = 'flex';
-                }}
-              />
-            ) : null}
-            <div 
-              className={`w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm ${uploader?.avatar?.secure_url ? 'hidden' : 'flex'}`}
-              style={{ display: uploader?.avatar?.secure_url ? 'none' : 'flex' }}
-            >
-              {uploader.name.charAt(0).toUpperCase()}
-            </div>
-          </div>
+    {/* Contributors Filter - Simple Version */}
+    {notes && notes.length > 0 && (
+      <div className="mb-8">
+        <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+          <span>👤</span>
+          <span>Filter by Contributor</span>
+        </h3>
 
-          {/* Text Content */}
-          <div className="flex flex-col items-start min-w-0 flex-1">
-            {/* Name */}
-            <span className={`text-sm capitalize font-medium truncate w-full text-left ${isActive ? 'text-white' : 'text-gray-300'}`}>
-              {uploader.name}
-            </span>
+        <div className="flex flex-wrap gap-3">
+          {/* All Contributors Button */}
+          <button
+            onClick={() => handleFilterChange('uploadedBy', '')}
+            className={`
+              px-4 py-2 rounded-full font-medium transition-all
+              ${!localFilters.uploadedBy
+                ? 'bg-blue-600 text-white shadow-lg'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }
+            `}
+          >
+            All Contributors ({notes.length})
+          </button>
 
-            {/* Notes Count */}
-            <span className="text-xs text-gray-400">
-              {uploaderNotesCount} {uploaderNotesCount === 1 ? 'note' : 'notes'}
+          {/* Individual Contributors */}
+          {uniqueUploaders.map(uploader => {
+            const uploaderCount = notes.filter(n => n.uploadedBy?._id === uploader.id).length;
+            const isActive = localFilters.uploadedBy === uploader.id;
+
+            return (
+              <button
+                key={uploader.id}
+                onClick={() => handleFilterChange('uploadedBy', uploader.id)}
+                className={`
+                  px-4 py-2 rounded-full font-medium transition-all flex items-center space-x-2
+                  ${isActive
+                    ? 'bg-purple-600 text-white shadow-lg'
+                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  }
+                `}
+              >
+                {/* Avatar */}
+                {uploader?.avatar?.secure_url ? (
+                  <img
+                    src={uploader.avatar.secure_url}
+                    alt={uploader.name}
+                    className="w-5 h-5 rounded-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                    {uploader.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span>{uploader.name} ({uploaderCount})</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Active Contributor Badge */}
+        {localFilters.uploadedBy && (
+          <div className="mt-3 text-sm text-gray-400">
+            Showing notes by: <span className="text-purple-400 font-medium">
+              {uniqueUploaders.find(u => u.id === localFilters.uploadedBy)?.name}
             </span>
           </div>
-
-          {/* Active Indicator */}
-          {/* {isActive && (
-            <div className="absolute top-2 right-2 w-2 h-2 bg-white rounded-full animate-pulse"></div>
-          )} */}
-        </button>
-      );
-    })}
-  </div>
-
-  {/* Scroll indicators (optional) */}
-  {uniqueUploaders.length > 5 && (
-    <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-black to-transparent pointer-events-none"></div>
-  )}
-</div>
-
-
-    {/* Currently filtered by */}
-    {localFilters.uploadedBy && (
-      <div className="mt-3 flex items-center space-x-2 text-sm text-gray-400">
-        <span>Showing notes by:</span>
-        <span className="text-blue-400 font-medium">
-          {uniqueUploaders.find(u => u.id === localFilters.uploadedBy)?.name || 'Unknown'}
-        </span>
+        )}
       </div>
     )}
   </div>
 )}
-                  {/* Quick Actions */}
-                  {!localFilters.category && (
-                    <div className="text-center mt-4">
-                      <p className="text-sm text-gray-400">
-                        💡 <span className="text-gray-300">Tip:</span> Click any category card to filter resources, or click again to collapse
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Loading State */}
           {loading && (
@@ -1040,6 +851,7 @@ const filteredNotes = notes?.filter(note => {
             </div>
           )}
 
+<AdBanner />
           {/* Notes Grid */}
           {!loading && filteredNotes.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1048,6 +860,7 @@ const filteredNotes = notes?.filter(note => {
               ))}
             </div>
           )}
+          <AdBanner />
         </div>
       </div>
     </HomeLayout>

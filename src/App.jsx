@@ -123,7 +123,14 @@ function App() {
       dispatch(checkAuth());
     }
   }, [dispatch]);
-
+useEffect(() => {
+    // ✨ Load Google AdSense Script
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9047304299228199';
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+  }, []);
   return (
     <div className="App">
       <AuthChecker /> {/* ✅ Add this at the top */}

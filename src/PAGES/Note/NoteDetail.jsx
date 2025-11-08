@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getNote, toggleBookmark, downloadnote, addRating, deleteNote, clearCurrentNote } from '../../REDUX/Slices/noteslice';
 import HomeLayout from '../../LAYOUTS/Homelayout';
 import LoginPrompt from '../../COMPONENTS/LoginPrompt';
+import AdSidebar from '../../COMPONENTS/AdSidebar';
 
 // Icon components
 const ArrowLeftIcon = ({ className }) => (
@@ -84,10 +85,10 @@ export default function NoteDetail() {
     const dispatch = useDispatch();
 
     const { currentNote, loading, bookmarking, downloading, rating, deleting } = useSelector(state => state.note);
-      const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
-      const isBookmarking=bookmarkingNotes.includes(id);
-      const isDownloading=downloadingNotes.includes(id);
-    
+    const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
+    const isBookmarking = bookmarkingNotes.includes(id);
+    const isDownloading = downloadingNotes.includes(id);
+
     const user = useSelector(state => state.auth.data);
     const role = useSelector((state) => state?.auth?.data?.role || "");
 
@@ -219,116 +220,120 @@ export default function NoteDetail() {
         }
     };
 
-   // ✨ UPDATED: getTheme function with Handwritten Notes support
-const getTheme = () => {
-    switch (currentNote.category) {
-        case 'PYQ':
-            return {
-                gradient: 'from-cyan-500 to-blue-500',
-                bgGradient: 'from-cyan-900/20 to-blue-900/20',
-                borderColor: 'border-cyan-500/30',
-                textColor: 'text-red-400',
-                icon: <TargetIcon className="w-8 h-8 text-cyan-200" />,
-                badge: '📄 PYQ',
-                headingIcon: <TargetIcon className="w-6 h-6" />,
-                accentBg: 'bg-cyan-500/10',
-                accentBorder: 'border-cyan-500/20'
-            };
-        case 'Important Question':
-            return {
-                gradient: 'from-yellow-500 to-orange-500',
-                bgGradient: 'from-yellow-900/20 to-orange-900/20',
-                borderColor: 'border-yellow-500/30',
-                textColor: 'text-yellow-400',
-                icon: <FlameIcon className="w-8 h-8 text-yellow-200" />,
-                badge: '⭐ Important',
-                headingIcon: <FlameIcon className="w-6 h-6" />,
-                accentBg: 'bg-yellow-500/10',
-                accentBorder: 'border-yellow-500/20'
-            };
-        case 'Handwritten Notes':
-            return {
-                gradient: 'from-green-500 to-teal-500',
-                bgGradient: 'from-green-900/20 to-teal-900/20',
-                borderColor: 'border-green-500/30',
-                textColor: 'text-green-400',
-                icon: <PencilIcon className="w-8 h-8 text-green-200" />,
-                badge: '✏️ Handwritten',
-                headingIcon: <PencilIcon className="w-6 h-6" />,
-                accentBg: 'bg-green-500/10',
-                accentBorder: 'border-green-500/20'
-            };
-        default: // Notes
-            return {
-                gradient: 'from-blue-500 to-purple-500',
-                bgGradient: 'from-blue-900/20 to-purple-900/20',
-                borderColor: 'border-blue-500/30',
-                textColor: 'text-blue-400',
-                icon: <TargetIcon className="w-8 h-8 text-blue-200" />,
-                badge: '📚 Notes',
-                headingIcon: <TargetIcon className="w-6 h-6" />,
-                accentBg: 'bg-blue-500/10',
-                accentBorder: 'border-blue-500/20'
-            };
-    }
-};
-// ✨ NEW: Add category-specific content section
-const getCategoryContent = () => {
-    switch (currentNote.category) {
-        case 'Handwritten Notes':
-            return (
-                <div className={`bg-gradient-to-br from-green-900/30 to-teal-900/20 backdrop-blur-xl ${theme.accentBorder} rounded-2xl p-6`}>
-                    <h2 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
-                        <PencilIcon className="w-6 h-6 text-green-400" />
-                        <span>Study Tips</span>
-                    </h2>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                            <h3 className="font-medium text-green-300 mb-2">✍️ Personal Notes</h3>
-                            <p className="text-gray-300 text-sm">These are carefully handwritten notes with personal insights. Great for understanding concepts through the author's perspective and learning style.</p>
-                        </div>
-                        <div className="p-4 bg-teal-500/10 rounded-lg border border-teal-500/20">
-                            <h3 className="font-medium text-teal-300 mb-2">💡 Deep Conceptual Clarity</h3>
-                            <p className="text-gray-300 text-sm">Handwritten notes often provide detailed explanations, diagrams, and annotations that enhance understanding. Perfect for visual learners.</p>
+    // ✨ UPDATED: getTheme function with Handwritten Notes support
+    const getTheme = () => {
+        switch (currentNote.category) {
+            case 'PYQ':
+                return {
+                    gradient: 'from-cyan-500 to-blue-500',
+                    bgGradient: 'from-cyan-900/20 to-blue-900/20',
+                    borderColor: 'border-cyan-500/30',
+                    textColor: 'text-red-400',
+                    icon: <TargetIcon className="w-8 h-8 text-cyan-200" />,
+                    badge: '📄 PYQ',
+                    headingIcon: <TargetIcon className="w-6 h-6" />,
+                    accentBg: 'bg-cyan-500/10',
+                    accentBorder: 'border-cyan-500/20'
+                };
+            case 'Important Question':
+                return {
+                    gradient: 'from-yellow-500 to-orange-500',
+                    bgGradient: 'from-yellow-900/20 to-orange-900/20',
+                    borderColor: 'border-yellow-500/30',
+                    textColor: 'text-yellow-400',
+                    icon: <FlameIcon className="w-8 h-8 text-yellow-200" />,
+                    badge: '⭐ Important',
+                    headingIcon: <FlameIcon className="w-6 h-6" />,
+                    accentBg: 'bg-yellow-500/10',
+                    accentBorder: 'border-yellow-500/20'
+                };
+            case 'Handwritten Notes':
+                return {
+                    gradient: 'from-green-500 to-teal-500',
+                    bgGradient: 'from-green-900/20 to-teal-900/20',
+                    borderColor: 'border-green-500/30',
+                    textColor: 'text-green-400',
+                    icon: <PencilIcon className="w-8 h-8 text-green-200" />,
+                    badge: '✏️ Handwritten',
+                    headingIcon: <PencilIcon className="w-6 h-6" />,
+                    accentBg: 'bg-green-500/10',
+                    accentBorder: 'border-green-500/20'
+                };
+            default: // Notes
+                return {
+                    gradient: 'from-blue-500 to-purple-500',
+                    bgGradient: 'from-blue-900/20 to-purple-900/20',
+                    borderColor: 'border-blue-500/30',
+                    textColor: 'text-blue-400',
+                    icon: <TargetIcon className="w-8 h-8 text-blue-200" />,
+                    badge: '📚 Notes',
+                    headingIcon: <TargetIcon className="w-6 h-6" />,
+                    accentBg: 'bg-blue-500/10',
+                    accentBorder: 'border-blue-500/20'
+                };
+        }
+    };
+    // ✨ NEW: Add category-specific content section
+    const getCategoryContent = () => {
+        switch (currentNote.category) {
+            case 'Handwritten Notes':
+                return (
+                    <div className={`bg-gradient-to-br from-green-900/30 to-teal-900/20 backdrop-blur-xl ${theme.accentBorder} rounded-2xl p-6`}>
+                        <h2 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
+                            <PencilIcon className="w-6 h-6 text-green-400" />
+                            <span>Study Tips</span>
+                        </h2>
+                        <div className="space-y-4">
+                            <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+                                <h3 className="font-medium text-green-300 mb-2">✍️ Personal Notes</h3>
+                                <p className="text-gray-300 text-sm">These are carefully handwritten notes with personal insights. Great for understanding concepts through the author's perspective and learning style.</p>
+                            </div>
+                            <div className="p-4 bg-teal-500/10 rounded-lg border border-teal-500/20">
+                                <h3 className="font-medium text-teal-300 mb-2">💡 Deep Conceptual Clarity</h3>
+                                <p className="text-gray-300 text-sm">Handwritten notes often provide detailed explanations, diagrams, and annotations that enhance understanding. Perfect for visual learners.</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            );
-case 'Notes':
-  return (
-    <div className={`bg-gradient-to-br from-blue-900/30 to-purple-900/20 backdrop-blur-xl ${theme.accentBorder} rounded-2xl p-6`}>
-      {/* Header */}
-      <h2 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
-        <TargetIcon className="w-6 h-6 text-blue-300" />
-        <span>Study Tips</span>
-      </h2>
-      {/* Content: animated box with info */}
-      <div className="space-y-4">
-        {/* Personal Notes */}
-        <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
-          <h3 className="font-medium text-blue-300 mb-2">✍️ Personal Notes</h3>
-          <p className="text-gray-300 text-sm">
-            These are carefully curated study notes created by experts. Great for understanding concepts through summaries, diagrams, and annotated explanations.
-          </p>
-        </div>
-        {/* Conceptual Clarity */}
-        <div className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
-          <h3 className="font-medium text-purple-300 mb-2">💡 Deep Conceptual Clarity</h3>
-          <p className="text-gray-300 text-sm">
-            Well-structured notes designed to clarify difficult topics, with diagrams, flowcharts, and concise summaries to aid quick revision.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-        default:
-            return null;
-    }
-};
+                );
+            case 'Notes':
+                return (
+                    <div className={`bg-gradient-to-br from-blue-900/30 to-purple-900/20 backdrop-blur-xl ${theme.accentBorder} rounded-2xl p-6`}>
+                        {/* Header */}
+                        <h2 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
+                            <TargetIcon className="w-6 h-6 text-blue-300" />
+                            <span>Study Tips</span>
+                        </h2>
+                        {/* Content: animated box with info */}
+                        <div className="space-y-4">
+                            {/* Personal Notes */}
+                            <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                                <h3 className="font-medium text-blue-300 mb-2">✍️ Personal Notes</h3>
+                                <p className="text-gray-300 text-sm">
+                                    These are carefully curated study notes created by experts. Great for understanding concepts through summaries, diagrams, and annotated explanations.
+                                </p>
+                            </div>
+                            {/* Conceptual Clarity */}
+                            <div className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                                <h3 className="font-medium text-purple-300 mb-2">💡 Deep Conceptual Clarity</h3>
+                                <p className="text-gray-300 text-sm">
+                                    Well-structured notes designed to clarify difficult topics, with diagrams, flowcharts, and concise summaries to aid quick revision.
+                                </p>
+                            </div>
+                        </div>
+                        {/* Sidebar - col 4 */}
+      <aside className="lg:col-span-1">
+        <AdSidebar />
+      </aside>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
 
 
     const theme = getTheme();
-const categoryContent = getCategoryContent();
+    const categoryContent = getCategoryContent();
     return (
         <HomeLayout>
             <div className="min-h-screen bg-black text-white">
@@ -409,40 +414,40 @@ const categoryContent = getCategoryContent();
                                     </svg>
                                     <span>Read Now</span>
                                 </Link>
-                               {/* DOWNLOAD BUTTON - Simple Spinner */}
-<button
-    onClick={handleDownload}
-    disabled={isDownloading}
-    className={`w-full bg-gradient-to-r ${theme.gradient} text-white py-3 px-6 rounded-xl font-medium hover:opacity-90 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
->
-    {isDownloading ? (
-        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-    ) : (
-        <>
-            <DownloadIcon className="w-5 h-5" />
-            <span>Download</span>
-        </>
-    )}
-</button>
+                                {/* DOWNLOAD BUTTON - Simple Spinner */}
+                                <button
+                                    onClick={handleDownload}
+                                    disabled={isDownloading}
+                                    className={`w-full bg-gradient-to-r ${theme.gradient} text-white py-3 px-6 rounded-xl font-medium hover:opacity-90 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
+                                >
+                                    {isDownloading ? (
+                                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                                    ) : (
+                                        <>
+                                            <DownloadIcon className="w-5 h-5" />
+                                            <span>Download</span>
+                                        </>
+                                    )}
+                                </button>
 
-{/* BOOKMARK BUTTON - Simple Spinner */}
-<button
-    onClick={handleBookmark}
-    disabled={isBookmarking}
-    className={`w-full border-2 ${theme.borderColor} text-white py-3 px-6 rounded-xl font-medium hover:bg-white/5 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
->
-    {isBookmarking ? (
-        <div className="animate-spin rounded-full h-5 w-5 border-2 border-yellow-400 border-t-transparent"></div>
-    ) : (
-        <>
-            <BookmarkIcon
-                className={`w-5 h-5 ${isBookmarked ? 'text-yellow-400' : 'text-gray-400'}`}
-                filled={isBookmarked}
-            />
-            <span>{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
-        </>
-    )}
-</button>
+                                {/* BOOKMARK BUTTON - Simple Spinner */}
+                                <button
+                                    onClick={handleBookmark}
+                                    disabled={isBookmarking}
+                                    className={`w-full border-2 ${theme.borderColor} text-white py-3 px-6 rounded-xl font-medium hover:bg-white/5 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
+                                >
+                                    {isBookmarking ? (
+                                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-yellow-400 border-t-transparent"></div>
+                                    ) : (
+                                        <>
+                                            <BookmarkIcon
+                                                className={`w-5 h-5 ${isBookmarked ? 'text-yellow-400' : 'text-gray-400'}`}
+                                                filled={isBookmarked}
+                                            />
+                                            <span>{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
+                                        </>
+                                    )}
+                                </button>
 
 
                                 {/* Update Note Button - Only for note creator (teacher) or admin */}
@@ -543,11 +548,11 @@ const categoryContent = getCategoryContent();
                                 </div>
                             )}
 
-                              {/* ✨ Category-specific content */}
+                            {/* ✨ Category-specific content */}
                             {categoryContent && categoryContent}
 
 
-                           
+
 
                             {/* Reviews */}
                             {currentNote.rating?.length > 0 && (
@@ -641,7 +646,7 @@ const categoryContent = getCategoryContent();
 
                         </div>
 
-                       
+
 
                         {/* Sidebar */}
                         <div className="space-y-6">

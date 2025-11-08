@@ -10,6 +10,7 @@ import { WhyChooseAcademicArkLamp } from '../../COMPONENTS/WhyChooseAcademicArkL
 import { BackgroundLines } from '../../COMPONENTS/ui/background-lines';
 import { BackgroundBeams } from '../../COMPONENTS/ui/background-beams';
 import { GridBackground } from '../../COMPONENTS/ui/GridBackground';
+import AdBanner from '../../COMPONENTS/AdBanner';
 
 const Homepage = () => {
   const [isVisible, setIsVisible] = useState({});
@@ -209,6 +210,7 @@ const Homepage = () => {
       </section>
     </BackgroundLines>
 
+<AdBanner />
 
       {/* Stats Section - Enhanced with AKTU context */}
       <section 
