@@ -404,6 +404,7 @@ const authSlice = createSlice({
             localStorage.removeItem("role");
             sessionStorage.removeItem('googleAuthStarted');
             sessionStorage.removeItem('googleAuthInitiated');
+            localStorage.removeItem('currentSemester');
             state.isLoggedIn = false;
             state.data = {};
             state.role = "";
