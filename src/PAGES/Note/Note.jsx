@@ -490,7 +490,7 @@ const filteredNotes = notes?.filter(note => {
 
 
             {/* Spotify-style OR divider */}
-            <div className="flex items-center my-8">
+            {/* <div className="flex items-center my-8">
               <div className="flex-1">
                 <div className="h-px bg-gradient-to-r from-white/5 via-white/20 to-white/5"></div>
               </div>
@@ -502,10 +502,10 @@ const filteredNotes = notes?.filter(note => {
               <div className="flex-1">
                 <div className="h-px bg-gradient-to-l from-white/5 via-white/20 to-white/5"></div>
               </div>
-            </div>
+            </div> */}
 
             {/* Search Bar */}
-            <div className="relative">
+            {/* <div className="relative">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
@@ -514,7 +514,7 @@ const filteredNotes = notes?.filter(note => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-            </div>
+            </div> */}
           </div>
 
           {/* Enhanced Collapsible Stats Cards - Spotify Style */}
