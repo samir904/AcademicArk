@@ -6,6 +6,7 @@ import { getNote, toggleBookmark, downloadnote, addRating, deleteNote, clearCurr
 import HomeLayout from '../../LAYOUTS/Homelayout';
 import LoginPrompt from '../../COMPONENTS/LoginPrompt';
 import AdSidebar from '../../COMPONENTS/AdSidebar';
+import AdBanner from '../../COMPONENTS/AdBanner';
 
 // Icon components
 const ArrowLeftIcon = ({ className }) => (
@@ -804,10 +805,7 @@ export default function NoteDetail() {
                         </div>
                     </div>
                 )}
-                              {/* Sidebar - col 4 */}
-      <aside className="lg:col-span-1">
-        <AdSidebar />
-      </aside>
+        <AdBanner/>
             </div>
         </HomeLayout>
     );
