@@ -320,10 +320,6 @@ export default function NoteDetail() {
                                 </p>
                             </div>
                         </div>
-                        {/* Sidebar - col 4 */}
-      <aside className="lg:col-span-1">
-        <AdSidebar />
-      </aside>
                     </div>
                 );
             default:
@@ -701,7 +697,7 @@ export default function NoteDetail() {
                         </div>
                     </div>
                 </div>
-
+          
                 {/* Rating Modal */}
                 {showRatingModal && (
                     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -808,6 +804,10 @@ export default function NoteDetail() {
                         </div>
                     </div>
                 )}
+                              {/* Sidebar - col 4 */}
+      <aside className="lg:col-span-1">
+        <AdSidebar />
+      </aside>
             </div>
         </HomeLayout>
     );
