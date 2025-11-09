@@ -193,7 +193,7 @@ export default function NoteCard({ note }) {
     </div>
     
     {/* Description */}
-    <p className="text-sm text-indigo-200/90 line-clamp-2 leading-relaxed">
+    <p className="text-sm text-indigo-200/90 line-clamp-1 leading-relaxed">
       {note.description}
     </p>
     
