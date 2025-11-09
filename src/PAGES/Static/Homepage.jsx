@@ -11,6 +11,7 @@ import { BackgroundLines } from '../../COMPONENTS/ui/background-lines';
 import { BackgroundBeams } from '../../COMPONENTS/ui/background-beams';
 import { GridBackground } from '../../COMPONENTS/ui/GridBackground';
 import AdBanner from '../../COMPONENTS/AdBanner';
+import TestimonialsSection from '../../COMPONENTS/TestimonialsSection';
 
 const Homepage = () => {
   const [isVisible, setIsVisible] = useState({});
@@ -481,7 +482,7 @@ const Homepage = () => {
       {/* <LampSection/> */}
        {/* ✨ ADD LAMP EFFECT HERE ✨ */}
       {/* <WhyChooseAcademicArkLamp /> */}
-
+<TestimonialsSection />
       {/* Enhanced CTA Section */}
       
       <section className="relative py-32 border-t border-white/10 overflow-hidden">

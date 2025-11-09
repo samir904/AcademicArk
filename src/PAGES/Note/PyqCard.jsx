@@ -131,119 +131,119 @@ export default function PyqCard({ note }) {
 
   return (
     <>
-      {/* ✨ SIMPLIFIED PYQ CARD - Cyan Theme */}
-      <div className="group bg-gradient-to-br from-cyan-900/90 to-blue-900/80 backdrop-blur-xl border border-cyan-500/30 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-cyan-500/25 hover:scale-[1.02] transition-all duration-300 hover:border-cyan-400/50">
+      {/* ✨ CYAN-BLUE THEME FOR PYQ */}
+<div className="group bg-gradient-to-br from-cyan-950/50 to-blue-950/50 backdrop-blur-xl border border-cyan-500/25 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-cyan-500/10 hover:scale-[1.02] transition-all duration-300 hover:border-cyan-400/40">
+  
+  {/* Background Effect */}
+  <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/10 to-blue-900/10 opacity-30"></div>
+  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-400/8 to-blue-400/8 rounded-full blur-3xl"></div>
+  
+  {/* Content */}
+  <div className="relative p-6 space-y-4">
+    
+    {/* Header */}
+    <div className="flex items-start justify-between">
+      <div className="flex-1">
+        <div className="flex items-center space-x-2 mb-2">
+          <span className="px-2 py-1 bg-cyan-500/20 text-cyan-300 text-xs font-bold rounded-full border border-cyan-400/30">
+            PYQ
+          </span>
+          {note.rating?.length > 0 && (
+            <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1 border border-yellow-400/30">
+              <StarIcon className="w-3 h-3" filled />
+              <span>{avgRating}</span>
+            </span>
+          )}
+        </div>
         
-        {/* Background Effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-800/10 to-blue-800/10 opacity-50"></div>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
+        <h3 className="text-lg font-bold text-cyan-100 line-clamp-2 group-hover:text-cyan-50 transition-colors">
+          {note.title}
+        </h3>
         
-        {/* Content */}
-        <div className="relative p-6 space-y-4">
-          
-          {/* Header */}
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="px-2 py-1 bg-cyan-500/30 text-cyan-300 text-xs font-bold rounded-full">
-                  PYQ
-                </span>
-                {note.rating?.length > 0 && (
-                  <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1">
-                    <StarIcon className="w-3 h-3" filled />
-                    <span>{avgRating}</span>
-                  </span>
-                )}
-              </div>
-              
-              <h3 className="text-lg font-bold text-white line-clamp-2 capitalize group-hover:text-cyan-200 transition-colors">
-                {note.title}
-              </h3>
-              
-              <div className="flex items-center space-x-2 mt-2 text-xs text-cyan-300">
-                <span className="capitalize">{note.subject}</span>
-                <span>•</span>
-                <span>Sem {note.semester}</span>
-                <span>•</span>
-                <span>{note.university}</span>
-              </div>
-            </div>
-            
-            <button
-              onClick={handleBookmark}
-              disabled={isBookmarking}
-              className="p-2 rounded-full hover:bg-cyan-500/20 transition-all"
-            >
-              <BookmarkIcon 
-                className={`w-5 h-5 transition-all ${
-                  isBookmarked 
-                    ? 'text-yellow-400 scale-110' 
-                    : 'text-cyan-300 hover:text-yellow-400'
-                }`}
-                filled={isBookmarked}
-              />
-            </button>
-          </div>
-          
-          {/* Description */}
-          <p className="text-sm text-gray-300 line-clamp-2 leading-relaxed">
-            {note.description}
-          </p>
-          
-          {/* Stats */}
-          <div className="flex items-center justify-between text-xs text-cyan-300 pt-2 border-t border-cyan-500/20">
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-1">
-                <DownloadIcon className="w-4 h-4" />
-                <span>{note.downloads || 0} downloads</span>
-              </div>
-              {note.rating?.length > 0 && (
-                <span>({note.rating.length} reviews)</span>
-              )}
-            </div>
-            
-            <Link 
-              to={`/profile/${note.uploadedBy?._id}`}
-              className="flex items-center space-x-1 hover:text-cyan-200 transition-colors"
-            >
-              {note.uploadedBy?.avatar?.secure_url?.startsWith('http') ? (
-                <img 
-                  src={note.uploadedBy.avatar.secure_url} 
-                  alt={note.uploadedBy.fullName}
-                  className="w-4 h-4 rounded-full"
-                />
-              ) : (
-                <div className="w-4 h-4 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
-                  {note.uploadedBy?.fullName?.charAt(0) || 'U'}
-                </div>
-              )}
-              <span className="capitalize text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
-            </Link>
-          </div>
-          
-          {/* Actions */}
-          <div className="flex gap-2 pt-2">
-            <Link
-              to={`/notes/${note._id}`}
-              className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-2 px-4 rounded-lg text-sm font-bold hover:from-cyan-600 hover:to-blue-600 transition-all text-center"
-            >
-              View Details
-            </Link>
-            
-            <button
-              onClick={handleDownload}
-              disabled={isDownloading}
-              className="px-4 py-2 bg-cyan-500/30 border border-cyan-500/50 text-cyan-200 rounded-lg hover:bg-cyan-500/50 transition-all"
-            >
-              {isDownloading ? (
-                <div className="w-4 h-4 animate-spin border-2 border-cyan-300 border-t-transparent rounded-full"></div>
-              ) : (
-                <DownloadIcon className="w-4 h-4" />
-              )}
-            </button>
-          </div>
+        <div className="flex items-center space-x-2 mt-2 text-xs text-cyan-300/80">
+          <span className="capitalize">{note.subject}</span>
+          <span>•</span>
+          <span>Sem {note.semester}</span>
+          <span>•</span>
+          <span>{note.university}</span>
         </div>
       </div>
+      
+      <button
+        onClick={handleBookmark}
+        disabled={isBookmarking}
+        className="p-2 rounded-full hover:bg-cyan-500/20 transition-all"
+      >
+        <BookmarkIcon 
+          className={`w-5 h-5 transition-all ${
+            isBookmarked 
+              ? 'text-blue-400 scale-110' 
+              : 'text-cyan-300 hover:text-blue-400'
+          }`}
+          filled={isBookmarked}
+        />
+      </button>
+    </div>
+    
+    {/* Description */}
+    <p className="text-sm text-cyan-200/90 line-clamp-2 leading-relaxed">
+      {note.description}
+    </p>
+    
+    {/* Stats */}
+    <div className="flex items-center justify-between text-xs text-cyan-300/80 pt-2 border-t border-cyan-500/20">
+      <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-1">
+          <DownloadIcon className="w-4 h-4" />
+          <span>{note.downloads || 0} downloads</span>
+        </div>
+        {note.rating?.length > 0 && (
+          <span>({note.rating.length} reviews)</span>
+        )}
+      </div>
+      
+      <Link 
+        to={`/profile/${note.uploadedBy?._id}`}
+        className="flex items-center space-x-1 hover:text-cyan-200 transition-colors"
+      >
+        {note.uploadedBy?.avatar?.secure_url?.startsWith('http') ? (
+          <img 
+            src={note.uploadedBy.avatar.secure_url} 
+            alt={note.uploadedBy.fullName}
+            className="w-4 h-4 rounded-full"
+          />
+        ) : (
+          <div className="w-4 h-4 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
+            {note.uploadedBy?.fullName?.charAt(0) || 'U'}
+          </div>
+        )}
+        <span className="capitalize text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
+      </Link>
+    </div>
+    
+    {/* Actions */}
+    <div className="flex gap-2 pt-2">
+      <Link
+        to={`/notes/${note._id}`}
+        className="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white py-2 px-4 rounded-lg text-sm font-bold transition-all text-center"
+      >
+        View Details
+      </Link>
+      
+      <button
+        onClick={handleDownload}
+        disabled={isDownloading}
+        className="px-4 py-2 bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 rounded-lg hover:bg-cyan-500/30 hover:border-cyan-400/50 transition-all"
+      >
+        {isDownloading ? (
+          <div className="w-4 h-4 animate-spin border-2 border-cyan-400 border-t-transparent rounded-full"></div>
+        ) : (
+          <DownloadIcon className="w-4 h-4" />
+        )}
+      </button>
+    </div>
+  </div>
+</div>
 
       {/* ✨ REVIEW MODAL - After Download */}
       {showReviewModal && (
