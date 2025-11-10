@@ -37,7 +37,39 @@ const initialState = {
     publicProfileLoading: false,
 }
 
-export const createAccount = createAsyncThunk("/auth/signup", async (data, { rejectWithValue }) => {
+// ✅ ADD THIS: Create a function to clear auth on 401
+const clearAuthOnUnauthorized = (error, dispatch) => {
+    if (error?.response?.status === 401) {
+        // Clear all auth data
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("data");
+        localStorage.removeItem("role");
+        sessionStorage.removeItem('googleAuthStarted');
+        sessionStorage.removeItem('googleAuthInitiated');
+        localStorage.removeItem('currentSemester');
+        
+        // Dispatch logout action
+        dispatch(clearAuthState());
+        
+        // Redirect to login
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+            window.location.href = '/login';
+        }
+        
+        return true;
+    }
+    return false;
+};
+
+// ✅ ADD THIS: Action to clear auth state
+const clearAuthState = (state) => {
+    state.isLoggedIn = false;
+    state.data = {};
+    state.role = "";
+};
+
+
+export const createAccount = createAsyncThunk("/auth/signup", async (data, { rejectWithValue ,dispatch}) => {
     try {
         const httpPromise = axiosInstance.post("user/register", data);
         const res = await showToast.promise(httpPromise, {
@@ -58,12 +90,16 @@ export const createAccount = createAsyncThunk("/auth/signup", async (data, { rej
         return res.data;
 
     } catch (e) {
+        // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
         toast.error(e?.response?.data?.message)
         return rejectWithValue(e?.response?.data || { message: "Signup failed" }); // ✅
     }
 })
 
-export const login = createAsyncThunk("/auth/login", async (data, { rejectWithValue }) => {
+export const login = createAsyncThunk("/auth/login", async (data, { rejectWithValue,dispatch }) => {
     try {
         const httpPromise = axiosInstance.post("/user/login", data);
         const res = await showToast.promise(httpPromise, {
@@ -75,14 +111,22 @@ export const login = createAsyncThunk("/auth/login", async (data, { rejectWithVa
                 return error?.response?.data?.message || "Login failed. Please try again."
             }
         })
+        // ✅ Wait for cookie to be set before returning
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         // ✅ Track login event
       ReactGA.event({
         category: 'user',
         action: 'login',
         label: 'User Logged In',
       })
+
         return res.data;
     } catch (error) {
+        // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
         toast.error(error?.response?.data?.message)
         return rejectWithValue(error?.response?.data || { message: "Login failed" }); // ✅
     }
@@ -95,12 +139,17 @@ export const googleLogin = createAsyncThunk(
         try {
             showToast.loading('Redirecting to Google...', { id: 'google-auth' });
             await new Promise(resolve => setTimeout(resolve, 300));
+// ✅ Wait before redirecting to ensure toast shows
+            await new Promise(resolve => setTimeout(resolve, 300));
 
             // Mark that Google auth was initiated
             sessionStorage.setItem('googleAuthInitiated', Date.now().toString());
 
             const apiUrl = 'https://academicark.onrender.com';
             //const apiUrl = 'https://localhost:5014';
+            // ✅ Add extra delay to ensure backend is ready
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
             window.location.href = `${apiUrl}/api/v1/oauth/google`;
 
             return null;
@@ -127,7 +176,8 @@ export const checkAuth = createAsyncThunk(
             //     sessionStorage.removeItem('googleAuthStarted');
             //     showToast.success('Successfully signed in with Google! 🎉');
             // }
-
+// ✅ Add delay for cookie to be processed
+            await new Promise(resolve => setTimeout(resolve, 300));
             return res.data;
         } catch (error) {
             sessionStorage.removeItem('googleAuthStarted');
@@ -139,7 +189,7 @@ export const checkAuth = createAsyncThunk(
 
 export const logout = createAsyncThunk(
     'auth/logout',
-    async (_, { rejectWithValue }) => {
+    async (_, { rejectWithValue ,dispatch}) => {
         try {
             // 1. Fire the request
             const resPromise = axiosInstance.get('/user/logout');
@@ -158,6 +208,10 @@ export const logout = createAsyncThunk(
             // 3. Return the data
             return res.data;
         } catch (err) {
+            // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
             // Return a rejected value so your thunk goes to .rejected
             return rejectWithValue(
                 err?.response?.data?.message || 'Logout failed, please try again'
@@ -172,11 +226,15 @@ export const getProfile = createAsyncThunk("/auth/profile", async () => {
         const res = axiosInstance.get("/user/getprofile");
         return (await res).data;
     } catch (e) {
+        // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
         showToast.error(e?.response?.data?.message);
     }
 })
 
-export const updateProfile = createAsyncThunk("/auth/updateprofile", async (data) => {
+export const updateProfile = createAsyncThunk("/auth/updateprofile", async (data, { rejectWithValue,dispatch }) => {
     try {
         const httpPromise = axiosInstance.put("/user/update", data);
         const res = await showToast.promise(httpPromise, {
@@ -190,11 +248,15 @@ export const updateProfile = createAsyncThunk("/auth/updateprofile", async (data
         })
         return res.data;
     } catch (e) {
+        // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
         showToast.error(e?.response?.data?.message || "Update failed. please try again!")
     }
 })
 
-export const changePassword = createAsyncThunk("/auth/changepassword", async (data) => {
+export const changePassword = createAsyncThunk("/auth/changepassword", async (data, { rejectWithValue ,dispatch}) => {
     try {
         const httpPromise = axiosInstance.post("/user/change-password", data);
         const res = await showToast.promise(httpPromise, {
@@ -203,6 +265,10 @@ export const changePassword = createAsyncThunk("/auth/changepassword", async (da
                 return data?.data?.message || "Password changed."
             },
             error: (error) => {
+                // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
                 return error?.response?.data?.message || "Failed please try again!"
             }
         })
@@ -212,7 +278,7 @@ export const changePassword = createAsyncThunk("/auth/changepassword", async (da
     }
 })
 
-export const forgotPassword = createAsyncThunk("/auth/forgotpassword", async (data) => {
+export const forgotPassword = createAsyncThunk("/auth/forgotpassword", async (data, { rejectWithValue ,dispatch}) => {
     try {
         const httpPromise = axiosInstance.post("/user/reset", data);
         const res = await showToast.promise(httpPromise, {
@@ -221,6 +287,10 @@ export const forgotPassword = createAsyncThunk("/auth/forgotpassword", async (da
                 return data?.data?.message || "Email sended. please check your email!"
             },
             error: (error) => {
+                // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
                 return error?.response?.data?.message || "Failed to send email please try again!"
             }
         })
@@ -249,33 +319,45 @@ export const resetPassword = createAsyncThunk("/auth/resetpassword", async ({ re
     }
 })
 
-export const getMyAnalytics = createAsyncThunk('/user/getMyAnalytics', async (_, { rejectWithValue }) => {
+export const getMyAnalytics = createAsyncThunk('/user/getMyAnalytics', async (_, { rejectWithValue,dispatch }) => {
     try {
         const res = await axiosInstance.get('/user/my-analytics');
         return res.data;
     } catch (error) {
+        // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
         const message = error?.response?.data?.message || 'Failed to get analytics';
         showToast.error(message);
         return rejectWithValue(message);
     }
 });
 
-export const getMyNotes = createAsyncThunk('/user/getMyNotes', async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
+export const getMyNotes = createAsyncThunk('/user/getMyNotes', async ({ page = 1, limit = 10 }, { rejectWithValue,dispatch }) => {
     try {
         const res = await axiosInstance.get(`/user/my-notes?page=${page}&limit=${limit}`);
         return res.data;
     } catch (error) {
+        // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
         const message = error?.response?.data?.message || 'Failed to get my notes';
         showToast.error(message);
         return rejectWithValue(message);
     }
 });
 
-export const getMyBookmarks = createAsyncThunk('/user/getMyBookmarks', async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
+export const getMyBookmarks = createAsyncThunk('/user/getMyBookmarks', async ({ page = 1, limit = 10 }, { rejectWithValue,dispatch }) => {
     try {
         const res = await axiosInstance.get(`/user/my-bookmarks?page=${page}&limit=${limit}`);
         return res.data;
     } catch (error) {
+        // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
         const message = error?.response?.data?.message || 'Failed to get bookmarks';
         showToast.error(message);
         return rejectWithValue(message);
@@ -284,11 +366,15 @@ export const getMyBookmarks = createAsyncThunk('/user/getMyBookmarks', async ({ 
 
 export const getPublicProfile = createAsyncThunk(
     '/user/getPublicProfile',
-    async (userId, { rejectWithValue }) => {
+    async (userId, { rejectWithValue,dispatch }) => {
         try {
             const res = await axiosInstance.get(`/user/public-profile/${userId}`);
             return res.data;
         } catch (error) {
+            // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
             const message = error?.response?.data?.message || 'Failed to load profile';
             showToast.error(message);
             return rejectWithValue(message);
@@ -298,7 +384,7 @@ export const getPublicProfile = createAsyncThunk(
 
 export const updateSocialLinks = createAsyncThunk(
     '/user/updateSocialLinks',
-    async (data, { rejectWithValue }) => {
+    async (data, { rejectWithValue,dispatch }) => {
         try {
             const httpPromise = axiosInstance.put('/user/update-social-links', data);
             const res = await showToast.promise(httpPromise, {
@@ -308,6 +394,10 @@ export const updateSocialLinks = createAsyncThunk(
             });
             return res.data;
         } catch (error) {
+            // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
             return rejectWithValue(error?.response?.data?.message || 'Update failed');
         }
     }
@@ -315,12 +405,16 @@ export const updateSocialLinks = createAsyncThunk(
 
 export const toggleProfileVisibility = createAsyncThunk(
     '/user/toggleProfileVisibility',
-    async (_, { rejectWithValue }) => {
+    async (_, { rejectWithValue,dispatch }) => {
         try {
             const res = await axiosInstance.put('/user/toggle-profile-visibility');
             showToast.success(res.data.message);
             return res.data;
         } catch (error) {
+            // ✅ Check for 401
+        if (clearAuthOnUnauthorized(e, dispatch)) {
+            return rejectWithValue("Session expired. Please login again.");
+        }
             const message = error?.response?.data?.message || 'Failed to update visibility';
             showToast.error(message);
             return rejectWithValue(message);
@@ -332,7 +426,9 @@ export const toggleProfileVisibility = createAsyncThunk(
 const authSlice = createSlice({
     name: "auth",
     initialState,
-    reducers: {},
+    reducers: {
+        clearAuth: clearAuthState,
+    },
     extraReducers: (builder) => {
         builder.addCase(createAccount.pending, (state, action) => {
             state.loading = true;
