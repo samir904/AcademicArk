@@ -294,8 +294,9 @@ useEffect(() => {
       { name: 'Home', path: '/', icon: '🏠' },
       { name: 'Library', path: '/notes', icon: '📚' },
        { name: 'Search', path: '/search', icon: '📖' },
-       { name: 'Attendance', path: '/attendance', icon: '📊' } // ✨ MOVED: Always show
-
+       { name: 'Attendance', path: '/attendance', icon: '📊' }, // ✨ MOVED: Always show
+      {name:'Study Buddy', path:'/study-buddy',icon:''},
+      {name:'Study Planner',path:'/study-planner',icon:''}
        
     ];
     // ✨ ADD ATTENDANCE FOR LOGGED-IN USERS
@@ -410,7 +411,7 @@ useEffect(() => {
 
             {/* Enhanced Desktop Navigation */}
             <div className="flex items-center space-x-2 bg-white/5 backdrop-blur-xl rounded-full p-2 border border-white/10">
-              {getNavigationItems().slice(0, 6).map((item) => (
+              {getNavigationItems().slice(0, 8).map((item) => (
                 <Link 
                   key={item.name}
                   to={item.path} 
