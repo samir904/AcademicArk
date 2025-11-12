@@ -373,7 +373,7 @@ useEffect(() => {
       <NotificationBanner />
 
       {/* 🎉 NEW: Milestone celebration */}
-    <MilestoneBanner />
+    {/* <MilestoneBanner /> */}
     
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
             {/* Dynamic Background */}
