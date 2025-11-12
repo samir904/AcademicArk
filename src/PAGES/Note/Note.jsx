@@ -655,7 +655,7 @@ export default function Note() {
                     {uploader.name.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span>{uploader.name} ({uploaderCount})</span>
+                <span className='capitalize'>{uploader.name} ({uploaderCount})</span>
               </button>
             );
           })}

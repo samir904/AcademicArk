@@ -304,7 +304,7 @@ useEffect(() => {
         
     if (role === 'ADMIN') {
       baseItems.push(
-        { name: 'Upload', path: '/upload', icon: '📤' },
+        // { name: 'Upload', path: '/upload', icon: '📤' },
         { name: 'Dashboard', path: '/admin', icon: '⚡' }
       );
     } else if (role === 'TEACHER') {

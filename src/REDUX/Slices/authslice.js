@@ -5,6 +5,7 @@ import { showToast } from "../../HELPERS/Toaster.jsx"
 import ReactGA from "react-ga4"
 const initialState = {
     isLoggedIn: localStorage.getItem('isLoggedIn') === 'true',
+    authToken: localStorage.getItem('authToken') || "",  // ✅ ADD THIS LINE
     role: localStorage.getItem('role') || "",
     data: (() => {
         try {
@@ -164,27 +165,66 @@ export const googleLogin = createAsyncThunk(
 );
 
 // ✅ FIX #2: Modified checkAuth to NOT show Google toast
+// export const checkAuth = createAsyncThunk(
+//     '/auth/checkAuth',
+//     async (_, { rejectWithValue }) => {
+//         try {
+//             const res = await axiosInstance.get('/user/getprofile');
+
+//             // ❌ REMOVED - Don't show toast here
+//             // const googleAuthStarted = sessionStorage.getItem('googleAuthStarted');
+//             // if (googleAuthStarted) {
+//             //     sessionStorage.removeItem('googleAuthStarted');
+//             //     showToast.success('Successfully signed in with Google! 🎉');
+//             // }
+// // ✅ Add delay for cookie to be processed
+//             await new Promise(resolve => setTimeout(resolve, 300));
+//             return res.data;
+//         } catch (error) {
+//             sessionStorage.removeItem('googleAuthStarted');
+//             return rejectWithValue(error?.response?.data?.message || 'Not authenticated');
+//         }
+//     }
+// );
+
 export const checkAuth = createAsyncThunk(
     '/auth/checkAuth',
     async (_, { rejectWithValue }) => {
         try {
-            const res = await axiosInstance.get('/user/getprofile');
+            console.log('🔐 checkAuth called...');
+            
+            // ✅ Get token from localStorage
+            const token = localStorage.getItem('authToken');
+            console.log('🔑 Token found:', !!token);
+            
+            if (!token) {
+                console.error('❌ No token in localStorage!');
+                return rejectWithValue('No token found');
+            }
 
-            // ❌ REMOVED - Don't show toast here
-            // const googleAuthStarted = sessionStorage.getItem('googleAuthStarted');
-            // if (googleAuthStarted) {
-            //     sessionStorage.removeItem('googleAuthStarted');
-            //     showToast.success('Successfully signed in with Google! 🎉');
-            // }
-// ✅ Add delay for cookie to be processed
-            await new Promise(resolve => setTimeout(resolve, 300));
+            // ✅ Make request with token
+            console.log('📥 Fetching profile with token...');
+            const res = await axiosInstance.get('/user/getprofile');
+            
+            console.log('✅ Profile fetched successfully:', res.data.data?.email);
             return res.data;
+            
         } catch (error) {
-            sessionStorage.removeItem('googleAuthStarted');
+            console.error('❌ checkAuth failed:', error.response?.status, error.response?.data?.message);
+            
+            // ✅ Clear auth on 401
+            if (error.response?.status === 401) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('data');
+                localStorage.removeItem('role');
+            }
+            
             return rejectWithValue(error?.response?.data?.message || 'Not authenticated');
         }
     }
 );
+
 
 
 export const logout = createAsyncThunk(
@@ -472,15 +512,24 @@ const authSlice = createSlice({
                 state.error = null;
             })
             .addCase(checkAuth.fulfilled, (state, action) => {
-                const user = action?.payload?.data || action?.payload;
-                localStorage.setItem("isLoggedIn", "true");
-                localStorage.setItem("data", JSON.stringify(user));
-                localStorage.setItem("role", user?.role || "USER");
-                state.isLoggedIn = true;
-                state.role = user?.role || "";
-                state.data = user;
-                state.loading = false;
-            })
+    const user = action?.payload?.data || action?.payload;
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("data", JSON.stringify(user));
+    localStorage.setItem("role", user?.role || "USER");
+    
+    // ✅ Also store token from localStorage
+    const token = localStorage.getItem('authToken');
+    if (token) {
+        state.authToken = token;
+    }
+    
+    state.isLoggedIn = true;
+    state.role = user?.role || "";
+    state.data = user;
+    state.loading = false;
+    console.log('✅ Redux auth state updated');
+})
+
             .addCase(checkAuth.rejected, (state) => {
                 state.loading = false;
             })
@@ -501,6 +550,7 @@ const authSlice = createSlice({
             sessionStorage.removeItem('googleAuthStarted');
             sessionStorage.removeItem('googleAuthInitiated');
             localStorage.removeItem('currentSemester');
+            localStorage.removeItem('authToken')
             state.isLoggedIn = false;
             state.data = {};
             state.role = "";

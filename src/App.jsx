@@ -22,6 +22,7 @@ import Analytics from './PAGES/Admin/Analytics';
 import StudyBuddy from './PAGES/AI/StudyBuddy';
 import StudyPlanner from './PAGES/AI/StudyPlanner';
 import StudyPlannerDetail from './PAGES/AI/StudyPlannerDetail';
+// import CookieWarning from './COMPONENTS/CookieWarning';
 // import AttendanceDashboard from './PAGES/Attendance/AttendanceDashboard';
 
 // 🟡 LAZY LOAD THESE (Medium priority)
@@ -110,32 +111,83 @@ function App() {
   const dispatch = useDispatch();
   const navigate=useNavigate();
 
-  useEffect(() => {
-    // ✅ Detect Google OAuth success from URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const googleAuth = urlParams.get('googleAuth');
+  // useEffect(() => {
+  //   // ✅ Detect Google OAuth success from URL parameter
+  //   const urlParams = new URLSearchParams(window.location.search);
+  //   const googleAuth = urlParams.get('googleAuth');
 
-    if (googleAuth === 'success') {
-      // Show success toast
-      showToast.success('Successfully signed in with Google! 🎉');
+  //   if (googleAuth === 'success') {
+  //     // Show success toast
+  //     showToast.success('Successfully signed in with Google! 🎉');
 
-      // Clean URL (remove ?googleAuth=success)
+  //     // Clean URL (remove ?googleAuth=success)
+  //     window.history.replaceState({}, '', window.location.pathname);
+
+  //     // Fetch user data
+  //     dispatch(checkAuth());
+  //   }
+  // }, [dispatch]);
+useEffect(() => {
+  console.log('🔍 Checking Google OAuth callback...');
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const googleAuth = urlParams.get('googleAuth');
+  const tokenFromURL = urlParams.get('token');
+
+  console.log('OAuth Params:', { googleAuth, hasToken: !!tokenFromURL });
+
+  if (googleAuth === 'success' && tokenFromURL) {
+    try {
+      console.log('✅ Google OAuth success! Token received');
+      
+      // ✅ Store token
+      localStorage.setItem('authToken', tokenFromURL);
+      localStorage.setItem('isLoggedIn', 'true');
+      
+      // Decode user info from token
+      try {
+        const payload = JSON.parse(atob(tokenFromURL.split('.')[1]));
+        console.log('👤 User:', payload.email);
+        localStorage.setItem('data', JSON.stringify(payload));
+        localStorage.setItem('role', payload.role || 'USER');
+      } catch (e) {
+        console.error('Error decoding token');
+      }
+
+      // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
 
-      // Fetch user data
-      dispatch(checkAuth());
+      // Show success
+      showToast.success('Successfully signed in with Google! 🎉');
+
+      // Fetch fresh profile
+      setTimeout(() => {
+        console.log('📥 Fetching user profile...');
+        dispatch(checkAuth());
+      }, 300);
+    } catch (error) {
+      console.error('❌ OAuth error:', error);
+      showToast.error('Login failed');
     }
-  }, [dispatch]);
-useEffect(() => {
-    // ✨ Load Google AdSense Script
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9047304299228199';
-    script.crossOrigin = 'anonymous';
-    document.head.appendChild(script);
-  }, []);
+  } else if (googleAuth === 'success' && !tokenFromURL) {
+    console.error('❌ OAuth success but NO TOKEN!');
+    showToast.error('Login failed: No token received');
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 2000);
+  }
+}, [dispatch]);
+  // useEffect(() => {
+  //   // ✨ Load Google AdSense Script
+  //   const script = document.createElement('script');
+  //   script.async = true;
+  //   script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9047304299228199';
+  //   script.crossOrigin = 'anonymous';
+  //   document.head.appendChild(script);
+  // }, []);
   return (
     <div className="App">
+      {/* <CookieWarning /> */}
       <AuthChecker /> {/* ✅ Add this at the top */}
       <PageTracker />  {/* ← OUTSIDE Routes */}
       <Routes>
