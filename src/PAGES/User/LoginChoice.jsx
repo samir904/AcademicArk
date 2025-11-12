@@ -24,6 +24,12 @@ const ArrowRightIcon = ({ className }) => (
   </svg>
 );
 
+const BookIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+  </svg>
+);
+
 export default function LoginChoice() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -38,97 +44,98 @@ export default function LoginChoice() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black flex items-center justify-center px-4 py-8">
+      
       <div className="max-w-md w-full">
+        
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-light text-white mb-3">Welcome Back</h1>
-          <p className="text-gray-400 text-lg">Choose how you'd like to sign in</p>
+        <div className="text-center mb-10">
+           <div className="w-12 h-12 bg-gradient-to-br from-white to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <span className="text-black font-bold text-lg">A</span>
+              </div>
+          <h1 className="text-4xl font-bold text-white mb-3">Welcome Back</h1>
+          <p className="text-white/70 text-base">Sign in to AcademicArk</p>
         </div>
 
-        {/* Login Options */}
-        <div className="space-y-4">    
-          {/* Google Sign-In - Primary CTA */}
+        {/* Glass Card */}
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl space-y-5">
+          
+          {/* Google Sign-In Button */}
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="group w-full bg-white hover:bg-gray-100 text-black py-4 rounded-full font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between px-6 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+            className="group w-full bg-gradient-to-r from-white to-gray-100 hover:from-gray-50 hover:to-white text-black py-4 rounded-full font-bold transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-between px-6 shadow-lg hover:shadow-xl"
           >
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
-                <GoogleIcon className="w-6 h-6" />
+            <div className="flex items-center space-x-3">
+              <div className="w-5 h-5">
+                <GoogleIcon className="w-5 h-5" />
               </div>
-              <span className="text-lg">Continue with Google</span>
+              <span>Continue with Google</span>
             </div>
             <ArrowRightIcon className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
           </button>
-{/* ✨ NEW: Message below Google button */}
-          {/* <div className="text-center text-xs text-gray-500 px-4 py-2">
-            <p>Having trouble with Google sign-in? (Brave/Safari users)</p>
-            <p className="text-gray-600 mt-1">👇 Use email sign-in below instead</p>
-          </div> */}
-          {/* OR Divider */}
-          <div className="relative py-4">
+
+          {/* Divider */}
+          <div className="relative py-3">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-800"></div>
+              <div className="w-full border-t border-white/20"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="px-4 bg-black text-gray-500 text-sm font-medium">OR</span>
+              <span className="px-3 bg-gradient-to-br from-black via-slate-900 to-black text-white/60 text-xs font-medium">OR</span>
             </div>
           </div>
 
-          {/* Email Sign-In */}
+          {/* Email Sign-In Button */}
           <button
             onClick={handleEmailLogin}
-            className="group w-full bg-gray-900 hover:bg-gray-800 text-white border border-gray-700 hover:border-gray-600 py-4 rounded-full font-semibold transition-all duration-300 flex items-center justify-between px-6"
+            className="group w-full bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 text-white py-4 rounded-full font-bold transition-all transform hover:scale-[1.02] flex items-center justify-between px-6"
           >
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
-                <EnvelopeIcon className="w-6 h-6 text-gray-400" />
-              </div>
-              <span className="text-lg">Continue with Email</span>
+            <div className="flex items-center space-x-3">
+              <EnvelopeIcon className="w-5 h-5 text-white/60 group-hover:text-white/80 transition-colors" />
+              <span>Continue with Email</span>
             </div>
-            <ArrowRightIcon className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
+            <ArrowRightIcon className="w-5 h-5 text-white/60 transform group-hover:translate-x-1 transition-all group-hover:text-white/80" />
           </button>
         </div>
 
-        {/* Features */}
-        <div className="mt-12 space-y-4">
-          <p className="text-center text-gray-500 text-sm mb-6">Why sign in?</p>
-          <div className="space-y-3">
+        {/* Features Section */}
+        {/* <div className="mt-10">
+          <p className="text-center text-white/60 text-sm font-semibold mb-5">Why sign in?</p>
+          <div className="grid grid-cols-2 gap-3">
             {[
-              { icon: '📚', text: 'Access all AKTU study materials' },
-              { icon: '⭐', text: 'Save your favorite notes' },
-              { icon: '📱', text: 'Sync across all devices' },
-              { icon: '🔔', text: 'Get notified of new resources' }
+              { icon: '📚', text: 'Study Materials' },
+              { icon: '⭐', text: 'Save Notes' },
+              { icon: '📱', text: 'Sync Access' },
+              { icon: '🔔', text: 'New Updates' }
             ].map((feature, index) => (
-              <div key={index} className="flex items-center space-x-3 text-gray-400 text-sm">
-                <span className="text-xl">{feature.icon}</span>
-                <span>{feature.text}</span>
+              <div 
+                key={index} 
+                className="bg-white/5 hover:bg-white/10 border border-white/20 rounded-lg p-3 text-center transition-all group cursor-default"
+              >
+                <div className="text-2xl mb-1">{feature.icon}</div>
+                <p className="text-white/70 text-xs font-medium group-hover:text-white/90 transition-colors">{feature.text}</p>
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Signup Link */}
-        <div className="mt-12 text-center">
-          <p className="text-gray-400 text-sm">
-            Don't have an account?{' '}
-            <Link 
-              to="/signup" 
-              className="text-white hover:text-gray-300 font-semibold transition-colors"
-            >
-              Create account
-            </Link>
-          </p>
-        </div>
+        <p className="text-center text-white/70 text-sm mt-8">
+          Don't have an account?{' '}
+          <Link 
+            to="/signup" 
+            className="text-white font-bold hover:text-gray-200 transition-colors"
+          >
+            Create account
+          </Link>
+        </p>
 
         {/* Privacy Notice */}
-        <p className="mt-8 text-center text-gray-600 text-xs">
+        <p className="mt-6 text-center text-white/50 text-xs leading-relaxed">
           By continuing, you agree to our{' '}
-          <Link to="/terms" className="underline hover:text-gray-500">Terms</Link>
+          <Link to="/terms" className="underline hover:text-white/70 transition-colors">Terms</Link>
           {' '}and{' '}
-          <Link to="/privacy" className="underline hover:text-gray-500">Privacy Policy</Link>
+          <Link to="/privacy" className="underline hover:text-white/70 transition-colors">Privacy Policy</Link>
         </p>
       </div>
     </div>

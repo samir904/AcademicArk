@@ -1,12 +1,11 @@
-// src/pages/SignupEmail.jsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { showToast } from '../../HELPERS/Toaster';
 import { isEmail, isValidPassword } from '../../HELPERS/regexmatch';
 import { createAccount } from '../../REDUX/Slices/authslice';
 
-// Custom SVG Icons (keep all your existing icon components)
+// SVG Icons
 const EyeIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -38,13 +37,6 @@ const LockIcon = ({ className }) => (
   </svg>
 );
 
-const CameraIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-);
-
 const ArrowLeftIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -54,12 +46,15 @@ const ArrowLeftIcon = ({ className }) => (
 export default function SignupEmail() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { loading } = useSelector((state) => state?.auth);
   const { isLoggedIn } = useSelector(state => state.auth);
 
+  const emailFromModal = location.state?.email || "";
+
   const [signupdata, setSignupdata] = useState({
     fullName: "",
-    email: "",
+    email: emailFromModal,
     password: "",
     avatar: ""
   });
@@ -67,9 +62,7 @@ export default function SignupEmail() {
   const [previewImage, setPreviewimage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
-  const [isUploading, setIsUploading] = useState(false);
 
-  // Validation function
   const validateField = (name, value) => {
     const newErrors = { ...errors };
 
@@ -134,8 +127,6 @@ export default function SignupEmail() {
       return;
     }
 
-    setIsUploading(true);
-
     setSignupdata({
       ...signupdata,
       avatar: uploadImage
@@ -145,7 +136,6 @@ export default function SignupEmail() {
     filereader.readAsDataURL(uploadImage);
     filereader.addEventListener("load", function () {
       setPreviewimage(this.result);
-      setIsUploading(false);
     });
   }
 
@@ -199,137 +189,103 @@ export default function SignupEmail() {
   }, [isLoggedIn, navigate]);
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black flex items-center justify-center px-4 py-8">
+      
       <div className="max-w-md w-full">
+        
         {/* Back Button */}
         <button
           onClick={() => navigate('/signup')}
-          className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors mb-8 group"
+          className="flex items-center space-x-2 text-white/60 hover:text-white transition-colors mb-8 group"
         >
           <ArrowLeftIcon className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" />
-          <span>Back to signup options</span>
+          <span className="text-sm font-medium">Back</span>
         </button>
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-light text-white mb-2">Create Your Account</h1>
-          <p className="text-gray-400 text-sm">Fill in your details to get started</p>
+          <div className="w-10 h-10 bg-gradient-to-br from-white to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <span className="text-black font-bold text-lg">A</span>
+              </div>
+          <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
+          <p className="text-white/70 text-sm">Join the learning community</p>
         </div>
 
-        {/* Main Form */}
-        <form onSubmit={submitSignupForm} className="space-y-6">
-          {/* Profile Image Upload */}
-          <div className="flex flex-col items-center space-y-3">
-            <label 
-              htmlFor="avatar" 
-              className="relative group cursor-pointer"
-            >
-              <div className="w-24 h-24 rounded-full border-2 border-dashed border-gray-600 hover:border-gray-500 flex items-center justify-center overflow-hidden transition-colors bg-gray-900 hover:bg-gray-800">
-                {previewImage ? (
-                  <>
-                    <img 
-                      className="w-full h-full object-cover rounded-full" 
-                      src={previewImage} 
-                      alt="Profile preview" 
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full flex items-center justify-center">
-                      <CameraIcon className="w-8 h-8 text-white" />
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center">
-                    {isUploading ? (
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                    ) : (
-                      <CameraIcon className="w-8 h-8 text-gray-400 group-hover:text-gray-300" />
-                    )}
-                  </div>
-                )}
-              </div>
-            </label>
-            <p className="text-xs text-gray-400">Click to upload profile photo (optional)</p>
-            <input
-              type="file"
-              onChange={handleImage}
-              id="avatar"
-              name="avatar"
-              className="hidden"
-              accept=".jpg,.jpeg,.png,.svg"
-            />
-          </div>
-
-          {/* Form Fields */}
-          <div className="space-y-4">
-            {/* Full Name */}
+        {/* Glass Card */}
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
+          
+          <form onSubmit={submitSignupForm} className="space-y-5">
+            
+            {/* Full Name Field */}
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="fullName" className="block text-sm font-semibold text-white/90 mb-2.5">
                 Full Name
               </label>
-              <div className="relative">
-                <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <div className="relative group">
+                <UserIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white/60 transition-colors" />
                 <input
                   type="text"
                   value={signupdata.fullName}
                   onChange={handleUserInput}
                   name="fullName"
                   id="fullName"
-                  placeholder="Enter your full name"
-                  className={`w-full pl-12 pr-4 py-3.5 bg-gray-900 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-transparent transition-colors ${
-                    errors.fullName ? 'border-red-500' : 'border-gray-700 hover:border-gray-600'
+                  placeholder="Your full name"
+                  className={`w-full pl-12 pr-4 py-3.5 bg-white/5 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all backdrop-blur-sm ${
+                    errors.fullName ? 'border-red-500/50' : 'border-white/20 hover:border-white/30'
                   }`}
                 />
               </div>
               {errors.fullName && (
-                <p className="mt-1 text-sm text-red-400">{errors.fullName}</p>
+                <p className="mt-2 text-xs text-red-400 font-medium">{errors.fullName}</p>
               )}
             </div>
 
-            {/* Email */}
+            {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="email" className="block text-sm font-semibold text-white/90 mb-2.5">
                 Email Address
               </label>
-              <div className="relative">
-                <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <div className="relative group">
+                <EnvelopeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white/60 transition-colors" />
                 <input
                   type="email"
                   value={signupdata.email}
                   onChange={handleUserInput}
                   name="email"
                   id="email"
-                  placeholder="Enter your email"
-                  className={`w-full pl-12 pr-4 py-3.5 bg-gray-900 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-transparent transition-colors ${
-                    errors.email ? 'border-red-500' : 'border-gray-700 hover:border-gray-600'
+                  placeholder="your@gmail.com"
+                  className={`w-full pl-12 pr-4 py-3.5 bg-white/5 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all backdrop-blur-sm ${
+                    errors.email ? 'border-red-500/50' : 'border-white/20 hover:border-white/30'
                   }`}
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-400">{errors.email}</p>
+                <p className="mt-2 text-xs text-red-400 font-medium">{errors.email}</p>
               )}
             </div>
 
-            {/* Password */}
+            {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-white/90 mb-2.5">
                 Password
               </label>
-              <div className="relative">
-                <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <div className="relative group">
+                <LockIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white/60 transition-colors" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={signupdata.password}
                   onChange={handleUserInput}
                   name="password"
                   id="password"
-                  placeholder="Create a strong password"
-                  className={`w-full pl-12 pr-12 py-3.5 bg-gray-900 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-transparent transition-colors ${
-                    errors.password ? 'border-red-500' : 'border-gray-700 hover:border-gray-600'
+                  placeholder="••••••••"
+                  className={`w-full pl-12 pr-12 py-3.5 bg-white/5 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all backdrop-blur-sm ${
+                    errors.password ? 'border-red-500/50' : 'border-white/20 hover:border-white/30'
                   }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors"
                 >
                   {showPassword ? (
                     <EyeSlashIcon className="w-5 h-5" />
@@ -339,41 +295,49 @@ export default function SignupEmail() {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-400">{errors.password}</p>
+                <p className="mt-2 text-xs text-red-400 font-medium">{errors.password}</p>
               )}
-              <p className="mt-1 text-xs text-gray-500">
-                Must contain 8+ characters with uppercase, lowercase, number & special character
+              <p className="mt-2 text-xs text-white/60">
+                Min 8 chars: uppercase, lowercase, number & special character
               </p>
             </div>
-          </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading || Object.keys(errors).length > 0}
-            className="w-full bg-white text-black py-3.5 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-          >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
-                <span>Creating Account...</span>
-              </>
-            ) : (
-              <span>Create Account</span>
-            )}
-          </button>
-
-          {/* Login Link */}
-          <p className="text-center text-gray-400 text-sm">
-            Already have an account?{' '}
-            <Link 
-              to="/login" 
-              className="text-white hover:text-gray-300 font-semibold transition-colors"
+            {/* Sign Up Button */}
+            <button
+              type="submit"
+              disabled={loading || Object.keys(errors).length > 0}
+              className="w-full mt-6 bg-gradient-to-r from-white to-gray-100 hover:from-gray-50 hover:to-white text-black py-3.5 rounded-xl font-bold transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center space-x-2 shadow-lg"
             >
-              Sign in
-            </Link>
-          </p>
-        </form>
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-black"></div>
+                  <span>Creating Account...</span>
+                </>
+              ) : (
+                <span>Create Account</span>
+              )}
+            </button>
+          </form>
+        </div>
+
+        {/* Login Link */}
+        <p className="text-center text-white/70 text-sm mt-8">
+          Already have an account?{' '}
+          <Link 
+            to="/login" 
+            className="text-white font-bold hover:text-gray-200 transition-colors"
+          >
+            Sign in
+          </Link>
+        </p>
+
+        {/* Privacy Notice */}
+        <p className="mt-6 text-center text-white/50 text-xs leading-relaxed">
+          By continuing, you agree to our{' '}
+          <Link to="/terms" className="underline hover:text-white/70 transition-colors">Terms</Link>
+          {' '}and{' '}
+          <Link to="/privacy" className="underline hover:text-white/70 transition-colors">Privacy Policy</Link>
+        </p>
       </div>
     </div>
   );

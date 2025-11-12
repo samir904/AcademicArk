@@ -100,8 +100,44 @@ export const createAccount = createAsyncThunk("/auth/signup", async (data, { rej
     }
 })
 
-export const login = createAsyncThunk("/auth/login", async (data, { rejectWithValue,dispatch }) => {
+// export const login = createAsyncThunk("/auth/login", async (data, { rejectWithValue,dispatch }) => {
+//     try {
+//         const httpPromise = axiosInstance.post("/user/login", data);
+//         const res = await showToast.promise(httpPromise, {
+//             loading: "Signing you in...",
+//             success: (data) => {
+//                 return data?.data?.message || "Welcome back! 🎉"
+//             },
+//             error: (error) => {
+//                 return error?.response?.data?.message || "Login failed. Please try again."
+//             }
+//         })
+//         // ✅ Wait for cookie to be set before returning
+//         await new Promise(resolve => setTimeout(resolve, 500));
+
+//         // ✅ Track login event
+//       ReactGA.event({
+//         category: 'user',
+//         action: 'login',
+//         label: 'User Logged In',
+//       })
+
+//         return res.data;
+//     } catch (error) {
+//         // ✅ Check for 401
+//         if (clearAuthOnUnauthorized(e, dispatch)) {
+//             return rejectWithValue("Session expired. Please login again.");
+//         }
+//         toast.error(error?.response?.data?.message)
+//         return rejectWithValue(error?.response?.data || { message: "Login failed" }); // ✅
+//     }
+// })
+
+/// ✅ FIX #3: Enhanced googleLogin with better callback handling
+export const login = createAsyncThunk("/auth/login", async (data, { rejectWithValue, dispatch }) => {
     try {
+        console.log('🔐 Login attempt with:', data.email);
+        
         const httpPromise = axiosInstance.post("/user/login", data);
         const res = await showToast.promise(httpPromise, {
             loading: "Signing you in...",
@@ -109,31 +145,36 @@ export const login = createAsyncThunk("/auth/login", async (data, { rejectWithVa
                 return data?.data?.message || "Welcome back! 🎉"
             },
             error: (error) => {
-                return error?.response?.data?.message || "Login failed. Please try again."
+                const errorMsg = error?.response?.data?.message || "Login failed. Please try again.";
+                console.log('❌ Login error:', errorMsg);
+                return errorMsg;
             }
         })
-        // ✅ Wait for cookie to be set before returning
+        
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // ✅ Track login event
-      ReactGA.event({
-        category: 'user',
-        action: 'login',
-        label: 'User Logged In',
-      })
+        ReactGA.event({
+            category: 'user',
+            action: 'login',
+            label: 'User Logged In',
+        })
 
         return res.data;
+        
     } catch (error) {
-        // ✅ Check for 401
-        if (clearAuthOnUnauthorized(e, dispatch)) {
-            return rejectWithValue("Session expired. Please login again.");
-        }
-        toast.error(error?.response?.data?.message)
-        return rejectWithValue(error?.response?.data || { message: "Login failed" }); // ✅
+        // ✅ Capture the FULL error message
+        const errorMessage = error?.response?.data?.message || "Login failed";
+        console.error('❌ Login catch error:', errorMessage);
+        
+        // ✅ Return with email and message
+        return rejectWithValue({ 
+            success: false,
+            message: errorMessage,
+            email: data?.email  // ✅ Pass email too
+        });
     }
 })
 
-/// ✅ FIX #3: Enhanced googleLogin with better callback handling
 export const googleLogin = createAsyncThunk(
     '/auth/google',
     async (_, { rejectWithValue }) => {

@@ -1,4 +1,3 @@
-// src/pages/LoginEmail.jsx
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
@@ -6,8 +5,9 @@ import { showToast } from '../../HELPERS/Toaster';
 import { isEmail } from '../../HELPERS/regexmatch';
 import { login } from '../../REDUX/Slices/authslice';
 import { useEffect } from 'react';
+import SignupModal from '../../COMPONENTS/SignupModal';
 
-// Custom SVG Icons
+// SVG Icons
 const EyeIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -52,8 +52,9 @@ export default function LoginEmail() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showSignupModal, setShowSignupModal] = useState(false);
+  const [modalEmail, setModalEmail] = useState("");
 
-  // Validation function
   const validateField = (name, value) => {
     const newErrors = { ...errors };
 
@@ -99,7 +100,7 @@ export default function LoginEmail() {
 
   async function handleLoginFormSubmit(e) {
     e.preventDefault();
-    
+
     if (!logindata.email || !logindata.password) {
       showToast.error("All fields are required");
       return;
@@ -111,147 +112,185 @@ export default function LoginEmail() {
     }
 
     const res = await dispatch(login(logindata));
-    
+
+    if (res?.payload?.message && res.payload.message.includes("not registered")) {
+      setModalEmail(logindata.email);
+      setShowSignupModal(true);
+      return;
+    }
+
     if (res?.payload?.success) {
       navigate("/");
-      setLogindata({
-        email: "",
-        password: ""
-      });
+      setLogindata({ email: "", password: "" });
     }
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8">
-      <div className="max-w-md w-full">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate('/login')}
-          className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors mb-8 group"
-        >
-          <ArrowLeftIcon className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" />
-          <span>Back to login options</span>
-        </button>
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center px-4 py-8 relative overflow-hidden">
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-light text-white mb-2">Sign in with Email</h1>
-          <p className="text-gray-400 text-sm">Enter your credentials to continue</p>
-        </div>
+        {/* Animated Background Elements */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl opacity-20 " />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl opacity-20 "  />
 
-        {/* Main Form */}
-        <form onSubmit={handleLoginFormSubmit} className="space-y-6">
-          {/* Form Fields */}
-          <div className="space-y-4">
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="email"
-                  value={logindata.email}
-                  onChange={handleInputChange}
-                  name="email"
-                  id="email"
-                  placeholder="Enter your email"
-                  className={`w-full pl-12 pr-4 py-3.5 bg-gray-900 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-transparent transition-colors ${
-                    errors.email ? 'border-red-500' : 'border-gray-700 hover:border-gray-600'
-                  }`}
-                />
-              </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-400">{errors.email}</p>
-              )}
-            </div>
+        <div className="max-w-md w-full relative z-10">
 
-            {/* Password */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300">
-                  Password
-                </label>
-                <Link 
-                  to="/forgot-password" 
-                  className="text-sm text-gray-400 hover:text-white transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-              <div className="relative">
-                <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={logindata.password}
-                  onChange={handleInputChange}
-                  name="password"
-                  id="password"
-                  placeholder="Enter your password"
-                  className={`w-full pl-12 pr-12 py-3.5 bg-gray-900 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-transparent transition-colors ${
-                    errors.password ? 'border-red-500' : 'border-gray-700 hover:border-gray-600'
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                >
-                  {showPassword ? (
-                    <EyeSlashIcon className="w-5 h-5" />
-                  ) : (
-                    <EyeIcon className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-400">{errors.password}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Remember Me Checkbox */}
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              className="h-4 w-4 text-white focus:ring-white/20 border-gray-600 rounded bg-gray-900"
-            />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
-              Remember me for 15 days
-            </label>
-          </div>
-
-          {/* Submit Button */}
+          {/* Back Button */}
           <button
-            type="submit"
-            disabled={loading || Object.keys(errors).length > 0}
-            className="w-full bg-white text-black py-3.5 rounded-xl font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+            onClick={() => navigate('/login')}
+            className="flex items-center space-x-2 text-white/60 hover:text-white transition-colors mb-8 group"
           >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
-                <span>Signing In...</span>
-              </>
-            ) : (
-              <span>Sign In</span>
-            )}
+            <ArrowLeftIcon className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" />
+            <span className="text-sm font-medium">Back</span>
           </button>
 
-          {/* Signup Link */}
-          <p className="text-center text-gray-400 text-sm">
-            Don't have an account?{' '}
-            <Link 
-              to="/signup" 
-              className="text-white hover:text-gray-300 font-semibold transition-colors"
-            >
-              Create account
-            </Link>
-          </p>
-        </form>
+          {/* Glass Card */}
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
+
+            {/* Header */}
+            <div className="text-center mb-8">
+                <div className="w-10 h-10 bg-gradient-to-br from-white to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <span className="text-black font-bold text-lg">A</span>
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+              <p className="text-white/70 text-sm">Sign in to your AcademicArk account</p>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleLoginFormSubmit} className="space-y-5">
+
+              {/* Email Field */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-semibold text-white/90 mb-2.5">
+                  Email Address
+                </label>
+                <div className="relative group">
+                  <EnvelopeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white/60 transition-colors" />
+                  <input
+                    type="email"
+                    value={logindata.email}
+                    onChange={handleInputChange}
+                    name="email"
+                    id="email"
+                    placeholder="your@gmail.com"
+                    className={`w-full pl-12 pr-4 py-3.5 bg-white/5 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all backdrop-blur-sm ${errors.email ? 'border-red-500/50' : 'border-white/20 hover:border-white/30'
+                      }`}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="mt-2 text-xs text-red-400 font-medium">{errors.email}</p>
+                )}
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <div className="flex items-center justify-between mb-2.5">
+                  <label htmlFor="password" className="block text-sm font-semibold text-white/90">
+                    Password
+                  </label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-xs text-white/60 hover:text-white transition-colors font-medium"
+                  >
+                    Forgot?
+                  </Link>
+                </div>
+                <div className="relative group">
+                  <LockIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white/60 transition-colors" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={logindata.password}
+                    onChange={handleInputChange}
+                    name="password"
+                    id="password"
+                    placeholder="••••••••"
+                    className={`w-full pl-12 pr-12 py-3.5 bg-white/5 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all backdrop-blur-sm ${errors.password ? 'border-red-500/50' : 'border-white/20 hover:border-white/30'
+                      }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="w-5 h-5" />
+                    ) : (
+                      <EyeIcon className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="mt-2 text-xs text-red-400 font-medium">{errors.password}</p>
+                )}
+              </div>
+
+              {/* Remember Me */}
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 rounded bg-white/10 border border-white/30 text-white focus:ring-white/30 cursor-pointer"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-xs text-white/70 font-medium cursor-pointer">
+                  Keep me signed in
+                </label>
+              </div>
+
+              {/* Sign In Button */}
+              <button
+                type="submit"
+                disabled={loading || Object.keys(errors).length > 0}
+                className="w-full mt-6 bg-gradient-to-r from-white to-gray-100 hover:from-gray-50 hover:to-white text-black py-3.5 rounded-xl font-bold transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center space-x-2 shadow-lg"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-black"></div>
+                    <span>Signing In...</span>
+                  </>
+                ) : (
+                  <span>Sign In</span>
+                )}
+              </button>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/20"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="px-2 bg-gradient-to-br from-black via-gray-900 to-black text-white/60">Or</span>
+                </div>
+              </div>
+
+              {/* Create Account Link */}
+              <p className="text-center text-white/70 text-sm">
+                New here?{' '}
+                <Link
+                  to="/signup"
+                  className="text-white font-bold hover:text-gray-200 transition-colors"
+                >
+                  Create account
+                </Link>
+              </p>
+            </form>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-6 text-center">
+            <p className="text-xs text-white/50">
+              Protected by enterprise-grade encryption
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Signup Modal */}
+      <SignupModal
+        isOpen={showSignupModal}
+        email={modalEmail}
+        onClose={() => setShowSignupModal(false)}
+      />
+    </>
   );
 }
