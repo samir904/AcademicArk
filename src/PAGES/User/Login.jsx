@@ -5,6 +5,7 @@ import { showToast } from '../../HELPERS/Toaster';
 import { isEmail } from '../../HELPERS/regexmatch';
 import { login } from '../../REDUX/Slices/authslice';
 import { useEffect } from 'react';
+
 import SignupModal from '../../COMPONENTS/SignupModal';
 
 // SVG Icons
