@@ -82,10 +82,10 @@ export default function SignupChoice() {
           </button>
 
           {/* ✨ NEW: Message below Google button */}
-          <div className="text-center text-xs text-gray-500 px-4 py-2">
+          {/* <div className="text-center text-xs text-gray-500 px-4 py-2">
             <p>Having trouble with Google sign-up? (Brave/Safari users)</p>
             <p className="text-gray-600 mt-1">👇 Use email sign-in below instead</p>
-          </div>
+          </div> */}
 
           {/* OR Divider */}
           <div className="relative py-4">

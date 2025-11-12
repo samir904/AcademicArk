@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { googleLogin } from '../../REDUX/Slices/authslice';
-import GoogleAuthWarning from '../../COMPONENTS/GoogleAuthWarning';  // ✨ ADD THIS
 
 const GoogleIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -48,10 +47,7 @@ export default function LoginChoice() {
         </div>
 
         {/* Login Options */}
-        <div className="space-y-4">
-          {/* ✨ ADD WARNING HERE - RIGHT ABOVE GOOGLE BUTTON */}
-          <GoogleAuthWarning />
-          
+        <div className="space-y-4">    
           {/* Google Sign-In - Primary CTA */}
           <button
             onClick={handleGoogleSignIn}
@@ -67,10 +63,10 @@ export default function LoginChoice() {
             <ArrowRightIcon className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
           </button>
 {/* ✨ NEW: Message below Google button */}
-          <div className="text-center text-xs text-gray-500 px-4 py-2">
+          {/* <div className="text-center text-xs text-gray-500 px-4 py-2">
             <p>Having trouble with Google sign-in? (Brave/Safari users)</p>
             <p className="text-gray-600 mt-1">👇 Use email sign-in below instead</p>
-          </div>
+          </div> */}
           {/* OR Divider */}
           <div className="relative py-4">
             <div className="absolute inset-0 flex items-center">
