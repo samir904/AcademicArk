@@ -295,8 +295,8 @@ useEffect(() => {
       { name: 'Library', path: '/notes', icon: '📚' },
        { name: 'Search', path: '/search', icon: '📖' },
        { name: 'Attendance', path: '/attendance', icon: '📊' }, // ✨ MOVED: Always show
-      {name:'Study Buddy', path:'/study-buddy',icon:''},
-      {name:'Study Planner',path:'/study-planner',icon:''}
+      // {name:'Study Buddy', path:'/study-buddy',icon:''},
+      // {name:'Study Planner',path:'/study-planner',icon:''}
        
     ];
     // ✨ ADD ATTENDANCE FOR LOGGED-IN USERS
