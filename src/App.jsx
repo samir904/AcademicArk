@@ -19,9 +19,9 @@ import SignupEmail from './PAGES/User/Signup';
 import ManageBanners from './PAGES/Admin/ManageBanners';
 import PageTracker from './COMPONENTS/PageTracker';
 import Analytics from './PAGES/Admin/Analytics';
-import StudyBuddy from './PAGES/AI/StudyBuddy';
-import StudyPlanner from './PAGES/AI/StudyPlanner';
-import StudyPlannerDetail from './PAGES/AI/StudyPlannerDetail';
+// import StudyBuddy from './PAGES/AI/StudyBuddy';
+// import StudyPlanner from './PAGES/AI/StudyPlanner';
+// import StudyPlannerDetail from './PAGES/AI/StudyPlannerDetail';
 // import CookieWarning from './COMPONENTS/CookieWarning';
 // import AttendanceDashboard from './PAGES/Attendance/AttendanceDashboard';
 
@@ -209,9 +209,9 @@ useEffect(() => {
   
 } />
 {/* // Inside your Routes component, add: */}
-<Route path="/study-buddy" element={<StudyBuddy />} />
+{/* <Route path="/study-buddy" element={<StudyBuddy />} />
 <Route path="/study-planner" element={<StudyPlanner />} />
-<Route path="/study-planner/:id" element={<StudyPlannerDetail />} />
+<Route path="/study-planner/:id" element={<StudyPlannerDetail />} /> */}
 {/* // Add this route with other attendance routes */}
 <Route path="/attendance/:semester/subject/:subject" element={
   <AuthGuard>
