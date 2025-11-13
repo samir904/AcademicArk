@@ -616,23 +616,23 @@ export default function AdminDashboard() {
                                     <h3 className="text-xl font-bold text-white mb-6">Quick Actions</h3>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         {/* 📧 Broadcast Email */}
-                                        <Link
+                                        {/* <Link
                                             to="/admin/broadcast-email"
                                             className="group p-4 rounded-xl border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover:bg-purple-500/5 text-center"
                                         >
                                             <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📧</div>
                                             <div className="text-white font-medium">Broadcast Email</div>
                                             <div className="text-gray-400 text-sm">Send to all users</div>
-                                        </Link>
+                                        </Link> */}
                                          {/* 📅 Email Campaigns */}
-        <Link
+        {/* <Link
             to="/admin/campaigns"
             className="group p-4 rounded-xl border border-white/10 hover:border-blue-500/30 transition-all duration-300 hover:bg-blue-500/5 text-center"
         >
             <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📅</div>
             <div className="text-white font-medium">Campaigns</div>
             <div className="text-gray-400 text-sm">Scheduled</div>
-        </Link>
+        </Link> */}
                                         <Link
                                             to="/admin/banners"
                                             className="group p-4 rounded-xl border border-white/10 hover:border-white/30 transition-all duration-300 hover:bg-white/5 text-center"
