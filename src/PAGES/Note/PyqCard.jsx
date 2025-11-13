@@ -156,7 +156,7 @@ export default function PyqCard({ note }) {
           )}
         </div>
         
-        <h3 className="text-lg font-bold text-cyan-100 line-clamp-2 group-hover:text-cyan-50 transition-colors">
+        <h3 className="text-lg font-bold capitalize text-cyan-100 line-clamp-2 group-hover:text-cyan-50 transition-colors">
           {note.title}
         </h3>
         

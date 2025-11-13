@@ -163,7 +163,7 @@ export default function NoteCard({ note }) {
           )}
         </div>
         
-        <h3 className="text-lg font-bold text-indigo-100 line-clamp-2 group-hover:text-indigo-50 transition-colors">
+        <h3 className="text-lg font-bold capitalize text-indigo-100 line-clamp-2 group-hover:text-indigo-50 transition-colors">
           {note.title}
         </h3>
         

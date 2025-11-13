@@ -155,7 +155,7 @@ export default function ImportantCard({ note }) {
           )}
         </div>
         
-        <h3 className="text-lg font-bold text-orange-100 line-clamp-2 group-hover:text-orange-50 transition-colors">
+        <h3 className="text-lg font-bold capitalize text-orange-100 line-clamp-2 group-hover:text-orange-50 transition-colors">
           {note.title}
         </h3>
         
