@@ -6,6 +6,7 @@ import searchReducer from "../REDUX/Slices/searchSlice.js"
 import notificationReducer from './Slices/notificationSlice.js'
 import analyticsReducer from "./Slices/analyticsSlice.js"
 import attendanceSliceReducer from "./Slices/attendanceSlice.js"
+import emailReducer from "./Slices/emailSlice.js"
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
 // import studyPlannerSlice from "./Slices/studyPlanner.slice.js"
 const store = configureStore({
@@ -17,6 +18,7 @@ const store = configureStore({
         notification: notificationReducer, // ← Add this
         analytics: analyticsReducer,
         attendance: attendanceSliceReducer,
+        email: emailReducer,
         // studyBuddy: studyBuddySlice,  // ← ADD THIS
         // studyPlanner: studyPlannerSlice,  // ← ADD THIS
     },

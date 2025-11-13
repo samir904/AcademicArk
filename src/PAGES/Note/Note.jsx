@@ -388,9 +388,9 @@ export default function Note() {
                       onChange={(e) => handleFilterChange('subject', e.target.value)}
                       className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="">All Subjects in Semester {localFilters.semester}</option>
+                      <option className='bg-gray-900' value="">All Subjects in Semester {localFilters.semester}</option>
                       {(subjectsBySemester[localFilters.semester] || []).map(subject => (
-                        <option key={subject} value={subject}>
+                        <option className='bg-gray-900' key={subject} value={subject}>
                           {subject}
                         </option>
                       ))}
@@ -405,11 +405,11 @@ export default function Note() {
                       onChange={(e) => handleFilterChange('category', e.target.value)}
                       className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="">All Materials</option>
-                      <option value="Notes">📚 Study Notes</option>
-                      <option value="Important Question">⭐ Important Questions</option>
-                      <option value="PYQ">📄 Previous Year Questions</option>
-                      <option value="Handwritten Notes">✏️ Handwritten Notes</option>
+                      <option className='bg-gray-900' value="">All Materials</option>
+                      <option className='bg-gray-900' value="Notes">📚 Study Notes</option>
+                      <option className='bg-gray-900' value="Important Question">⭐ Important Questions</option>
+                      <option className='bg-gray-900' value="PYQ">📄 Previous Year Questions</option>
+                      <option className='bg-gray-900' value="Handwritten Notes">✏️ Handwritten Notes</option>
                     </select>
                   </div>
 
@@ -421,9 +421,9 @@ export default function Note() {
                       onChange={(e) => handleFilterChange('uploadedBy', e.target.value)}
                       className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="">All Contributors</option>
+                      <option className='bg-gray-900' value="">All Contributors</option>
                       {uniqueUploaders.map(uploader => (
-                        <option key={uploader.id} value={uploader.id}>
+                        <option className='bg-gray-900' key={uploader.id} value={uploader.id}>
                           {uploader.name}
                         </option>
                       ))}

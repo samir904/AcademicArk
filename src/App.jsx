@@ -19,6 +19,8 @@ import SignupEmail from './PAGES/User/Signup';
 import ManageBanners from './PAGES/Admin/ManageBanners';
 import PageTracker from './COMPONENTS/PageTracker';
 import Analytics from './PAGES/Admin/Analytics';
+import { BroadcastEmail } from './PAGES/Admin/BroadcastEmail';
+import EmailCampaigns from './PAGES/Admin/EmailCampaigns';
 // import StudyBuddy from './PAGES/AI/StudyBuddy';
 // import StudyPlanner from './PAGES/AI/StudyPlanner';
 // import StudyPlannerDetail from './PAGES/AI/StudyPlannerDetail';
@@ -200,7 +202,8 @@ useEffect(() => {
 
         <Route path="/admin/banners" element={<ManageBanners />} />
         <Route path="/admin/analytics" element={<Analytics />} />
-
+        <Route path="/admin/broadcast-email" element={<BroadcastEmail />} />
+        <Route path="/admin/campaigns" element={<EmailCampaigns />} />
         <Route path="/attendance" element={
   
     <Suspense fallback={<AppLoader />}>

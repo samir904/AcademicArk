@@ -128,7 +128,7 @@ export default function AdminDashboard() {
         if (activeTab === 'dashboard') {
             dispatch(getDashboardStats());
             dispatch(getRecentActivity());
-         } else if (activeTab === 'analytics') {
+        } else if (activeTab === 'analytics') {
             // Analytics component handles its own data fetching
         } else if (activeTab === 'users') {
             dispatch(getAllUsers({ page: userPage, search: userSearch }));
@@ -615,6 +615,24 @@ export default function AdminDashboard() {
                                 <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8">
                                     <h3 className="text-xl font-bold text-white mb-6">Quick Actions</h3>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        {/* 📧 Broadcast Email */}
+                                        <Link
+                                            to="/admin/broadcast-email"
+                                            className="group p-4 rounded-xl border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover:bg-purple-500/5 text-center"
+                                        >
+                                            <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📧</div>
+                                            <div className="text-white font-medium">Broadcast Email</div>
+                                            <div className="text-gray-400 text-sm">Send to all users</div>
+                                        </Link>
+                                         {/* 📅 Email Campaigns */}
+        <Link
+            to="/admin/campaigns"
+            className="group p-4 rounded-xl border border-white/10 hover:border-blue-500/30 transition-all duration-300 hover:bg-blue-500/5 text-center"
+        >
+            <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📅</div>
+            <div className="text-white font-medium">Campaigns</div>
+            <div className="text-gray-400 text-sm">Scheduled</div>
+        </Link>
                                         <Link
                                             to="/admin/banners"
                                             className="group p-4 rounded-xl border border-white/10 hover:border-white/30 transition-all duration-300 hover:bg-white/5 text-center"
@@ -936,11 +954,11 @@ export default function AdminDashboard() {
                     )}
 
                     {/* Add Analytics Tab Content */}
-{activeTab === 'analytics' && (
-    <div className="space-y-6">
-        <Analytics />
-    </div>
-)}
+                    {activeTab === 'analytics' && (
+                        <div className="space-y-6">
+                            <Analytics />
+                        </div>
+                    )}
 
                 </div>
             </div>
