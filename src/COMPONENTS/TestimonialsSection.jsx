@@ -6,6 +6,12 @@ const TestimonialsSection = () => {
 
   const testimonials = [
     {
+      name:"Raman Pandey",
+      image:"./raman.jpg",
+      review:"AcademicArk is honestly a really useful platform for students, especially during exam season. The website has everything arranged in a simple and organized way, which makes studying and revision a lot easier.What I like most is how it brings together study materials, notes, and helpful resources all in one place — saving a lot of time that usually goes into searching different sites. The layout is easy to navigate, and it’s quick to find what you need, whether it’s topic explanations, previous year papers, or quick reference guides.It’s also great for last-minute preparation, since everything is accessible and well-structured. The clean interface makes studying online feel less stressful and more focused.Overall, AcademicArk is a really helpful study companion for any college student. It keeps learning organized, efficient, and exam-ready — definitely worth using during your exam prparations!!",
+      rating:5
+    },
+    {
       name: 'Md Guffran Khan',
       image: "/gufran.jpg",
       review: 'Academic Ark is an outstanding platform for students. It provides everything a learner needs in one place — from well-structured notes and previous year question papers to important questions and an efficient attendance manager. The interface is clean, user-friendly, and designed with students\' needs in mind. It truly makes studying more organized and effective. Highly recommended for every student aiming for smart preparation and better results.',
