@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toggleBookmark, downloadnote, addRating } from '../../REDUX/Slices/noteslice.js';
 import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
 import ReactGA from "react-ga4"
+import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -35,11 +36,11 @@ export default function HandwrittenCard({ note }) {
   const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
   const user = useSelector(state => state.auth.data);
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
-  
+
   const isBookmarking = bookmarkingNotes.includes(note._id);
   const isDownloading = downloadingNotes.includes(note._id);
   const isBookmarked = note.bookmarkedBy?.includes(user?._id);
-  
+
   const avgRating = note.rating?.length
     ? (note.rating.reduce((sum, r) => sum + r.rating, 0) / note.rating.length).toFixed(1)
     : 0;
@@ -56,7 +57,13 @@ export default function HandwrittenCard({ note }) {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
-      setShowLoginModal(true);
+      dispatch(setLoginModal({
+        isOpen: true,
+        context: {
+          action: 'want to Bookmark this note',
+          noteTitle: note.title
+        }
+      }));
       return;
     }
     dispatch(toggleBookmark(note._id));
@@ -66,10 +73,15 @@ export default function HandwrittenCard({ note }) {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
-      setShowLoginModal(true);
+      dispatch(setLoginModal({
+        isOpen: true,
+        context: {
+          action: 'want to Download this note',
+          noteTitle: note.title
+        }
+      }));
       return;
     }
-
     ReactGA.event({
       category: 'engagement',
       action: 'download_handwritten',
@@ -103,146 +115,145 @@ export default function HandwrittenCard({ note }) {
   const handleShare = (platform) => {
     const url = `${window.location.origin}/notes/${note._id}`;
     const title = `Check out these Handwritten Notes: ${note.title}`;
-    
+
     const shareLinks = {
       whatsapp: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`,
       twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
       link: url
     };
-    
+
     if (platform === 'link') {
       navigator.clipboard.writeText(url);
       alert('Link copied to clipboard!');
     } else {
       window.open(shareLinks[platform], '_blank');
     }
-    
+
     setShowShareModal(false);
   };
 
   return (
     <>
       {/* ✨ SIMPLIFIED HANDWRITTEN CARD - Same Design as NoteCard */}
-     {/* ✨ GREEN-EMERALD THEME FOR HANDWRITTEN */}
-<div className="group bg-gradient-to-br from-green-950/50 to-emerald-950/50 backdrop-blur-xl border border-green-500/25 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-green-500/10 hover:scale-[1.02] transition-all duration-300 hover:border-green-400/40">
-  
-  {/* Background Effect */}
-  <div className="absolute inset-0 bg-gradient-to-br from-green-900/10 to-emerald-900/10 opacity-30"></div>
-  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-400/8 to-emerald-400/8 rounded-full blur-3xl"></div>
-  
-  {/* Content */}
-  <div className="relative p-6 space-y-4">
-    
-    {/* Header */}
-    <div className="flex items-start justify-between">
-      <div className="flex-1">
-        <div className="flex items-center space-x-2 mb-2">
-          <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs font-bold rounded-full border border-green-400/30">
-            ✏️ Handwritten
-          </span>
-          {note.rating?.length > 0 && (
-            <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1 border border-yellow-400/30">
-              <StarIcon className="w-3 h-3" filled />
-              <span>{avgRating}</span>
-            </span>
-          )}
-        </div>
-        
-        <h3 className="text-lg font-bold capitalize text-green-100 line-clamp-2 group-hover:text-green-50 transition-colors">
-          {note.title}
-        </h3>
-        
-        <div className="flex items-center space-x-2 mt-2 text-xs text-green-300/80">
-          <span className="capitalize">{note.subject}</span>
-          <span>•</span>
-          <span>Sem {note.semester}</span>
-          <span>•</span>
-          <span>{note.university}</span>
-        </div>
-      </div>
-      
-      <button
-        onClick={handleBookmark}
-        disabled={isBookmarking}
-        className="p-2 rounded-full hover:bg-green-500/20 transition-all"
-      >
-        <BookmarkIcon 
-          className={`w-5 h-5 transition-all ${
-            isBookmarked 
-              ? 'text-emerald-400 scale-110' 
-              : 'text-green-300 hover:text-emerald-400'
-          }`}
-          filled={isBookmarked}
-        />
-      </button>
-    </div>
-    
-    {/* Description */}
-    <p className="text-sm text-green-200/90 line-clamp-1 leading-relaxed">
-      {note.description}
-    </p>
-    
-    {/* Stats */}
-    <div className="flex items-center justify-between text-xs text-green-300/80 pt-2 border-t border-green-500/20">
-      <div className="flex items-center space-x-3">
-        <div className="flex items-center space-x-1">
-          <DownloadIcon className="w-4 h-4" />
-          <span>{note.downloads || 0} downloads</span>
-        </div>
-        {note.rating?.length > 0 && (
-          <span>({note.rating.length} reviews)</span>
-        )}
-      </div>
-      
-      <Link 
-        to={`/profile/${note.uploadedBy?._id}`}
-        className="flex items-center space-x-1 hover:text-green-200 transition-colors"
-      >
-        {note.uploadedBy?.avatar?.secure_url?.startsWith('http') ? (
-          <img 
-            src={note.uploadedBy.avatar.secure_url} 
-            alt={note.uploadedBy.fullName}
-            className="w-4 h-4 rounded-full"
-          />
-        ) : (
-          <div className="w-4 h-4 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
-            {note.uploadedBy?.fullName?.charAt(0) || 'U'}
+      {/* ✨ GREEN-EMERALD THEME FOR HANDWRITTEN */}
+      <div className="group bg-gradient-to-br from-green-950/50 to-emerald-950/50 backdrop-blur-xl border border-green-500/25 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-green-500/10 hover:scale-[1.02] transition-all duration-300 hover:border-green-400/40">
+
+        {/* Background Effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-green-900/10 to-emerald-900/10 opacity-30"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-400/8 to-emerald-400/8 rounded-full blur-3xl"></div>
+
+        {/* Content */}
+        <div className="relative p-6 space-y-4">
+
+          {/* Header */}
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs font-bold rounded-full border border-green-400/30">
+                  ✏️ Handwritten
+                </span>
+                {note.rating?.length > 0 && (
+                  <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1 border border-yellow-400/30">
+                    <StarIcon className="w-3 h-3" filled />
+                    <span>{avgRating}</span>
+                  </span>
+                )}
+              </div>
+
+              <h3 className="text-lg font-bold capitalize text-green-100 line-clamp-2 group-hover:text-green-50 transition-colors">
+                {note.title}
+              </h3>
+
+              <div className="flex items-center space-x-2 mt-2 text-xs text-green-300/80">
+                <span className="capitalize">{note.subject}</span>
+                <span>•</span>
+                <span>Sem {note.semester}</span>
+                <span>•</span>
+                <span>{note.university}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleBookmark}
+              disabled={isBookmarking}
+              className="p-2 rounded-full hover:bg-green-500/20 transition-all"
+            >
+              <BookmarkIcon
+                className={`w-5 h-5 transition-all ${isBookmarked
+                    ? 'text-emerald-400 scale-110'
+                    : 'text-green-300 hover:text-emerald-400'
+                  }`}
+                filled={isBookmarked}
+              />
+            </button>
           </div>
-        )}
-        <span className="capitalize text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
-      </Link>
-    </div>
-    
-    {/* Actions */}
-    <div className="flex gap-2 pt-2">
-      <Link
-        to={`/notes/${note._id}`}
-        className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white py-2 px-4 rounded-lg text-sm font-bold transition-all text-center"
-      >
-        View Details
-      </Link>
-      
-      <button
-        onClick={handleDownload}
-        disabled={isDownloading}
-        className="px-4 py-2 bg-green-500/20 border border-green-400/30 text-green-300 rounded-lg hover:bg-green-500/30 hover:border-green-400/50 transition-all"
-      >
-        {isDownloading ? (
-          <div className="w-4 h-4 animate-spin border-2 border-green-400 border-t-transparent rounded-full"></div>
-        ) : (
-          <DownloadIcon className="w-4 h-4" />
-        )}
-      </button>
-    </div>
-  </div>
-</div>
+
+          {/* Description */}
+          <p className="text-sm text-green-200/90 line-clamp-1 leading-relaxed">
+            {note.description}
+          </p>
+
+          {/* Stats */}
+          <div className="flex items-center justify-between text-xs text-green-300/80 pt-2 border-t border-green-500/20">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-1">
+                <DownloadIcon className="w-4 h-4" />
+                <span>{note.downloads || 0} downloads</span>
+              </div>
+              {note.rating?.length > 0 && (
+                <span>({note.rating.length} reviews)</span>
+              )}
+            </div>
+
+            <Link
+              to={`/profile/${note.uploadedBy?._id}`}
+              className="flex items-center space-x-1 hover:text-green-200 transition-colors"
+            >
+              {note.uploadedBy?.avatar?.secure_url?.startsWith('http') ? (
+                <img
+                  src={note.uploadedBy.avatar.secure_url}
+                  alt={note.uploadedBy.fullName}
+                  className="w-4 h-4 rounded-full"
+                />
+              ) : (
+                <div className="w-4 h-4 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
+                  {note.uploadedBy?.fullName?.charAt(0) || 'U'}
+                </div>
+              )}
+              <span className="capitalize text-xs">{note.uploadedBy?.fullName || 'Unknown'}</span>
+            </Link>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2 pt-2">
+            <Link
+              to={`/notes/${note._id}`}
+              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white py-2 px-4 rounded-lg text-sm font-bold transition-all text-center"
+            >
+              View Details
+            </Link>
+
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className="px-4 py-2 bg-green-500/20 border border-green-400/30 text-green-300 rounded-lg hover:bg-green-500/30 hover:border-green-400/50 transition-all"
+            >
+              {isDownloading ? (
+                <div className="w-4 h-4 animate-spin border-2 border-green-400 border-t-transparent rounded-full"></div>
+              ) : (
+                <DownloadIcon className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* ✨ REVIEW MODAL */}
       {showReviewModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
-            
+
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white">Rate These Notes</h2>
               <button
@@ -273,12 +284,11 @@ export default function HandwrittenCard({ note }) {
                     onClick={() => setUserRating(star)}
                     className="transition-all hover:scale-125"
                   >
-                    <StarIcon 
-                      className={`w-8 h-8 ${
-                        star <= userRating 
-                          ? 'text-green-400' 
+                    <StarIcon
+                      className={`w-8 h-8 ${star <= userRating
+                          ? 'text-green-400'
                           : 'text-gray-600 hover:text-gray-500'
-                      }`}
+                        }`}
                       filled={star <= userRating}
                     />
                   </button>
@@ -325,7 +335,7 @@ export default function HandwrittenCard({ note }) {
       {showShareModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
-            
+
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white">Share These Notes</h2>
               <button
@@ -346,7 +356,7 @@ export default function HandwrittenCard({ note }) {
                 <span>💬</span>
                 <span>WhatsApp</span>
               </button>
-              
+
               <button
                 onClick={() => handleShare('twitter')}
                 className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
@@ -354,7 +364,7 @@ export default function HandwrittenCard({ note }) {
                 <span>𝕏</span>
                 <span>Twitter</span>
               </button>
-              
+
               <button
                 onClick={() => handleShare('facebook')}
                 className="flex items-center justify-center space-x-2 bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
@@ -362,7 +372,7 @@ export default function HandwrittenCard({ note }) {
                 <span>f</span>
                 <span>Facebook</span>
               </button>
-              
+
               <button
                 onClick={() => handleShare('link')}
                 className="flex items-center justify-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
@@ -387,7 +397,7 @@ export default function HandwrittenCard({ note }) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="max-w-md w-full mx-4">
             <LoginPrompt />
-            <button 
+            <button
               onClick={() => setShowLoginModal(false)}
               className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
             >

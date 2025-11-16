@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toggleBookmark, downloadnote, addRating } from '../../REDUX/Slices/noteslice.js';
 import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
 import ReactGA from "react-ga4"
+import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -61,10 +62,16 @@ export default function PyqCard({ note }) {
   const handleBookmark = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isLoggedIn) {
-      setShowLoginModal(true);
-      return;
-    }
+   if (!isLoggedIn) {
+         dispatch(setLoginModal({
+           isOpen: true,
+           context: {
+             action: 'want to Bookmark this note',
+             noteTitle: note.title
+           }
+         }));
+         return;
+       }
     dispatch(toggleBookmark(note._id));
   };
 
@@ -72,10 +79,15 @@ export default function PyqCard({ note }) {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
-      setShowLoginModal(true);
-      return;
-    }
-
+          dispatch(setLoginModal({
+            isOpen: true,
+            context: {
+              action: 'want to Download this note',
+              noteTitle: note.title
+            }
+          }));
+          return;
+        }
     ReactGA.event({
       category: 'engagement',
       action: 'download_pyq',

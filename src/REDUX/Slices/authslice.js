@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import axiosInstance from "../../HELPERS/axiosInstance.js"
 import toast from "react-hot-toast"
 import { showToast } from "../../HELPERS/Toaster.jsx"
@@ -36,6 +36,8 @@ const initialState = {
     bookmarksPagination: null,
     publicProfile: null,
     publicProfileLoading: false,
+    isLoginModalOpen: false,
+    loginContext: null, // { action: string, noteTitle: string }
 }
 
 // ✅ ADD THIS: Create a function to clear auth on 401
@@ -48,15 +50,15 @@ const clearAuthOnUnauthorized = (error, dispatch) => {
         sessionStorage.removeItem('googleAuthStarted');
         sessionStorage.removeItem('googleAuthInitiated');
         localStorage.removeItem('currentSemester');
-        
+
         // Dispatch logout action
         dispatch(clearAuthState());
-        
+
         // Redirect to login
         if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
             window.location.href = '/login';
         }
-        
+
         return true;
     }
     return false;
@@ -70,7 +72,7 @@ const clearAuthState = (state) => {
 };
 
 
-export const createAccount = createAsyncThunk("/auth/signup", async (data, { rejectWithValue ,dispatch}) => {
+export const createAccount = createAsyncThunk("/auth/signup", async (data, { rejectWithValue, dispatch }) => {
     try {
         const httpPromise = axiosInstance.post("user/register", data);
         const res = await showToast.promise(httpPromise, {
@@ -83,11 +85,11 @@ export const createAccount = createAsyncThunk("/auth/signup", async (data, { rej
             }
         })
         // ✅ Track signup event
-      ReactGA.event({
-        category: 'user',
-        action: 'signup',
-        label: data.email,
-      })
+        ReactGA.event({
+            category: 'user',
+            action: 'signup',
+            label: data.email,
+        })
         return res.data;
 
     } catch (e) {
@@ -137,7 +139,7 @@ export const createAccount = createAsyncThunk("/auth/signup", async (data, { rej
 export const login = createAsyncThunk("/auth/login", async (data, { rejectWithValue, dispatch }) => {
     try {
         console.log('🔐 Login attempt with:', data.email);
-        
+
         const httpPromise = axiosInstance.post("/user/login", data);
         const res = await showToast.promise(httpPromise, {
             loading: "Signing you in...",
@@ -150,7 +152,7 @@ export const login = createAsyncThunk("/auth/login", async (data, { rejectWithVa
                 return errorMsg;
             }
         })
-        
+
         await new Promise(resolve => setTimeout(resolve, 500));
 
         ReactGA.event({
@@ -160,14 +162,14 @@ export const login = createAsyncThunk("/auth/login", async (data, { rejectWithVa
         })
 
         return res.data;
-        
+
     } catch (error) {
         // ✅ Capture the FULL error message
         const errorMessage = error?.response?.data?.message || "Login failed";
         console.error('❌ Login catch error:', errorMessage);
-        
+
         // ✅ Return with email and message
-        return rejectWithValue({ 
+        return rejectWithValue({
             success: false,
             message: errorMessage,
             email: data?.email  // ✅ Pass email too
@@ -181,7 +183,7 @@ export const googleLogin = createAsyncThunk(
         try {
             showToast.loading('Redirecting to Google...', { id: 'google-auth' });
             await new Promise(resolve => setTimeout(resolve, 300));
-// ✅ Wait before redirecting to ensure toast shows
+            // ✅ Wait before redirecting to ensure toast shows
             await new Promise(resolve => setTimeout(resolve, 300));
 
             // Mark that Google auth was initiated
@@ -191,7 +193,7 @@ export const googleLogin = createAsyncThunk(
             //const apiUrl = 'https://localhost:5014';
             // ✅ Add extra delay to ensure backend is ready
             await new Promise(resolve => setTimeout(resolve, 200));
-            
+
             window.location.href = `${apiUrl}/api/v1/oauth/google`;
 
             return null;
@@ -233,11 +235,11 @@ export const checkAuth = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             console.log('🔐 checkAuth called...');
-            
+
             // ✅ Get token from localStorage
             const token = localStorage.getItem('authToken');
             console.log('🔑 Token found:', !!token);
-            
+
             if (!token) {
                 console.error('❌ No token in localStorage!');
                 return rejectWithValue('No token found');
@@ -246,13 +248,13 @@ export const checkAuth = createAsyncThunk(
             // ✅ Make request with token
             console.log('📥 Fetching profile with token...');
             const res = await axiosInstance.get('/user/getprofile');
-            
+
             console.log('✅ Profile fetched successfully:', res.data.data?.email);
             return res.data;
-            
+
         } catch (error) {
             console.error('❌ checkAuth failed:', error.response?.status, error.response?.data?.message);
-            
+
             // ✅ Clear auth on 401
             if (error.response?.status === 401) {
                 localStorage.removeItem('authToken');
@@ -260,7 +262,7 @@ export const checkAuth = createAsyncThunk(
                 localStorage.removeItem('data');
                 localStorage.removeItem('role');
             }
-            
+
             return rejectWithValue(error?.response?.data?.message || 'Not authenticated');
         }
     }
@@ -270,7 +272,7 @@ export const checkAuth = createAsyncThunk(
 
 export const logout = createAsyncThunk(
     'auth/logout',
-    async (_, { rejectWithValue ,dispatch}) => {
+    async (_, { rejectWithValue, dispatch }) => {
         try {
             // 1. Fire the request
             const resPromise = axiosInstance.get('/user/logout');
@@ -290,9 +292,9 @@ export const logout = createAsyncThunk(
             return res.data;
         } catch (err) {
             // ✅ Check for 401
-        if (clearAuthOnUnauthorized(e, dispatch)) {
-            return rejectWithValue("Session expired. Please login again.");
-        }
+            if (clearAuthOnUnauthorized(e, dispatch)) {
+                return rejectWithValue("Session expired. Please login again.");
+            }
             // Return a rejected value so your thunk goes to .rejected
             return rejectWithValue(
                 err?.response?.data?.message || 'Logout failed, please try again'
@@ -315,7 +317,7 @@ export const getProfile = createAsyncThunk("/auth/profile", async () => {
     }
 })
 
-export const updateProfile = createAsyncThunk("/auth/updateprofile", async (data, { rejectWithValue,dispatch }) => {
+export const updateProfile = createAsyncThunk("/auth/updateprofile", async (data, { rejectWithValue, dispatch }) => {
     try {
         const httpPromise = axiosInstance.put("/user/update", data);
         const res = await showToast.promise(httpPromise, {
@@ -337,7 +339,7 @@ export const updateProfile = createAsyncThunk("/auth/updateprofile", async (data
     }
 })
 
-export const changePassword = createAsyncThunk("/auth/changepassword", async (data, { rejectWithValue ,dispatch}) => {
+export const changePassword = createAsyncThunk("/auth/changepassword", async (data, { rejectWithValue, dispatch }) => {
     try {
         const httpPromise = axiosInstance.post("/user/change-password", data);
         const res = await showToast.promise(httpPromise, {
@@ -347,9 +349,9 @@ export const changePassword = createAsyncThunk("/auth/changepassword", async (da
             },
             error: (error) => {
                 // ✅ Check for 401
-        if (clearAuthOnUnauthorized(e, dispatch)) {
-            return rejectWithValue("Session expired. Please login again.");
-        }
+                if (clearAuthOnUnauthorized(e, dispatch)) {
+                    return rejectWithValue("Session expired. Please login again.");
+                }
                 return error?.response?.data?.message || "Failed please try again!"
             }
         })
@@ -359,7 +361,7 @@ export const changePassword = createAsyncThunk("/auth/changepassword", async (da
     }
 })
 
-export const forgotPassword = createAsyncThunk("/auth/forgotpassword", async (data, { rejectWithValue ,dispatch}) => {
+export const forgotPassword = createAsyncThunk("/auth/forgotpassword", async (data, { rejectWithValue, dispatch }) => {
     try {
         const httpPromise = axiosInstance.post("/user/reset", data);
         const res = await showToast.promise(httpPromise, {
@@ -369,9 +371,9 @@ export const forgotPassword = createAsyncThunk("/auth/forgotpassword", async (da
             },
             error: (error) => {
                 // ✅ Check for 401
-        if (clearAuthOnUnauthorized(e, dispatch)) {
-            return rejectWithValue("Session expired. Please login again.");
-        }
+                if (clearAuthOnUnauthorized(e, dispatch)) {
+                    return rejectWithValue("Session expired. Please login again.");
+                }
                 return error?.response?.data?.message || "Failed to send email please try again!"
             }
         })
@@ -400,7 +402,7 @@ export const resetPassword = createAsyncThunk("/auth/resetpassword", async ({ re
     }
 })
 
-export const getMyAnalytics = createAsyncThunk('/user/getMyAnalytics', async (_, { rejectWithValue,dispatch }) => {
+export const getMyAnalytics = createAsyncThunk('/user/getMyAnalytics', async (_, { rejectWithValue, dispatch }) => {
     try {
         const res = await axiosInstance.get('/user/my-analytics');
         return res.data;
@@ -415,7 +417,7 @@ export const getMyAnalytics = createAsyncThunk('/user/getMyAnalytics', async (_,
     }
 });
 
-export const getMyNotes = createAsyncThunk('/user/getMyNotes', async ({ page = 1, limit = 10 }, { rejectWithValue,dispatch }) => {
+export const getMyNotes = createAsyncThunk('/user/getMyNotes', async ({ page = 1, limit = 10 }, { rejectWithValue, dispatch }) => {
     try {
         const res = await axiosInstance.get(`/user/my-notes?page=${page}&limit=${limit}`);
         return res.data;
@@ -430,7 +432,7 @@ export const getMyNotes = createAsyncThunk('/user/getMyNotes', async ({ page = 1
     }
 });
 
-export const getMyBookmarks = createAsyncThunk('/user/getMyBookmarks', async ({ page = 1, limit = 10 }, { rejectWithValue,dispatch }) => {
+export const getMyBookmarks = createAsyncThunk('/user/getMyBookmarks', async ({ page = 1, limit = 10 }, { rejectWithValue, dispatch }) => {
     try {
         const res = await axiosInstance.get(`/user/my-bookmarks?page=${page}&limit=${limit}`);
         return res.data;
@@ -447,15 +449,15 @@ export const getMyBookmarks = createAsyncThunk('/user/getMyBookmarks', async ({ 
 
 export const getPublicProfile = createAsyncThunk(
     '/user/getPublicProfile',
-    async (userId, { rejectWithValue,dispatch }) => {
+    async (userId, { rejectWithValue, dispatch }) => {
         try {
             const res = await axiosInstance.get(`/user/public-profile/${userId}`);
             return res.data;
         } catch (error) {
             // ✅ Check for 401
-        if (clearAuthOnUnauthorized(e, dispatch)) {
-            return rejectWithValue("Session expired. Please login again.");
-        }
+            if (clearAuthOnUnauthorized(e, dispatch)) {
+                return rejectWithValue("Session expired. Please login again.");
+            }
             const message = error?.response?.data?.message || 'Failed to load profile';
             showToast.error(message);
             return rejectWithValue(message);
@@ -465,7 +467,7 @@ export const getPublicProfile = createAsyncThunk(
 
 export const updateSocialLinks = createAsyncThunk(
     '/user/updateSocialLinks',
-    async (data, { rejectWithValue,dispatch }) => {
+    async (data, { rejectWithValue, dispatch }) => {
         try {
             const httpPromise = axiosInstance.put('/user/update-social-links', data);
             const res = await showToast.promise(httpPromise, {
@@ -476,9 +478,9 @@ export const updateSocialLinks = createAsyncThunk(
             return res.data;
         } catch (error) {
             // ✅ Check for 401
-        if (clearAuthOnUnauthorized(e, dispatch)) {
-            return rejectWithValue("Session expired. Please login again.");
-        }
+            if (clearAuthOnUnauthorized(e, dispatch)) {
+                return rejectWithValue("Session expired. Please login again.");
+            }
             return rejectWithValue(error?.response?.data?.message || 'Update failed');
         }
     }
@@ -486,16 +488,16 @@ export const updateSocialLinks = createAsyncThunk(
 
 export const toggleProfileVisibility = createAsyncThunk(
     '/user/toggleProfileVisibility',
-    async (_, { rejectWithValue,dispatch }) => {
+    async (_, { rejectWithValue, dispatch }) => {
         try {
             const res = await axiosInstance.put('/user/toggle-profile-visibility');
             showToast.success(res.data.message);
             return res.data;
         } catch (error) {
             // ✅ Check for 401
-        if (clearAuthOnUnauthorized(e, dispatch)) {
-            return rejectWithValue("Session expired. Please login again.");
-        }
+            if (clearAuthOnUnauthorized(e, dispatch)) {
+                return rejectWithValue("Session expired. Please login again.");
+            }
             const message = error?.response?.data?.message || 'Failed to update visibility';
             showToast.error(message);
             return rejectWithValue(message);
@@ -553,23 +555,23 @@ const authSlice = createSlice({
                 state.error = null;
             })
             .addCase(checkAuth.fulfilled, (state, action) => {
-    const user = action?.payload?.data || action?.payload;
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("data", JSON.stringify(user));
-    localStorage.setItem("role", user?.role || "USER");
-    
-    // ✅ Also store token from localStorage
-    const token = localStorage.getItem('authToken');
-    if (token) {
-        state.authToken = token;
-    }
-    
-    state.isLoggedIn = true;
-    state.role = user?.role || "";
-    state.data = user;
-    state.loading = false;
-    console.log('✅ Redux auth state updated');
-})
+                const user = action?.payload?.data || action?.payload;
+                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("data", JSON.stringify(user));
+                localStorage.setItem("role", user?.role || "USER");
+
+                // ✅ Also store token from localStorage
+                const token = localStorage.getItem('authToken');
+                if (token) {
+                    state.authToken = token;
+                }
+
+                state.isLoggedIn = true;
+                state.role = user?.role || "";
+                state.data = user;
+                state.loading = false;
+                console.log('✅ Redux auth state updated');
+            })
 
             .addCase(checkAuth.rejected, (state) => {
                 state.loading = false;
@@ -646,17 +648,17 @@ const authSlice = createSlice({
 
             //public profile extra reducer action 
             .addCase(getPublicProfile.pending, (state) => {
-  state.publicProfileLoading = true;
-})
-.addCase(getPublicProfile.fulfilled, (state, action) => {
-  state.publicProfileLoading = false;
-  // Only store the inner `data` object:
-  state.publicProfile = action.payload.data;
-})
-.addCase(getPublicProfile.rejected, (state) => {
-  state.publicProfileLoading = false;
-  state.publicProfile = null;
-})
+                state.publicProfileLoading = true;
+            })
+            .addCase(getPublicProfile.fulfilled, (state, action) => {
+                state.publicProfileLoading = false;
+                // Only store the inner `data` object:
+                state.publicProfile = action.payload.data;
+            })
+            .addCase(getPublicProfile.rejected, (state) => {
+                state.publicProfileLoading = false;
+                state.publicProfile = null;
+            })
 
             .addCase(updateSocialLinks.fulfilled, (state, action) => {
                 const user = action.payload.data;
@@ -669,6 +671,10 @@ const authSlice = createSlice({
                     localStorage.setItem("data", JSON.stringify(state.data));
                 }
             })
+        .addCase(setLoginModal, (state, action) => {
+            state.isLoginModalOpen = action.payload.isOpen;
+            state.loginContext = action.payload.context;
+        })
 
         // Add these cases to your existing extraReducers in authSlice
 
@@ -678,5 +684,6 @@ const authSlice = createSlice({
     }
 
 })
+export const setLoginModal = createAction('auth/setLoginModal');
 
 export default authSlice.reducer;

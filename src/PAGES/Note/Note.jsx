@@ -215,7 +215,7 @@ export default function Note() {
         icon: '📄',
         gradient: 'from-clan-00 to-blue-500',
         hoverGradient: 'hover:from-clan-500 hover:to-blue-400',
-        borderColor: 'border-clan-500/30',
+        borderColor: 'border-red-500/30',
         bgGradient: 'from-clan-900/90 to-blue-900/80',
         textColor: 'text-red-400'
       },

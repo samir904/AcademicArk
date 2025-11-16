@@ -21,6 +21,7 @@ import PageTracker from "./COMPONENTS/PageTracker";
 import Analytics from "./PAGES/Admin/Analytics";
 // import { BroadcastEmail } from "./PAGES/Admin/BroadcastEmail";
 import EmailCampaigns from "./PAGES/Admin/EmailCampaigns";
+import GlobalLoginModal from "./COMPONENTS/GlobalLoginModal";
 // import StudyBuddy from './PAGES/AI/StudyBuddy';
 // import StudyPlanner from './PAGES/AI/StudyPlanner';
 // import StudyPlannerDetail from './PAGES/AI/StudyPlannerDetail';
@@ -485,6 +486,7 @@ function App() {
         {/* ❌ Catch-all */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
+      <GlobalLoginModal />
     </div>
   );
 }
