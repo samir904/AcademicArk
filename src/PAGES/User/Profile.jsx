@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { getProfile } from '../../REDUX/Slices/authslice';
 import HomeLayout from '../../LAYOUTS/Homelayout';
 import {  getBackgroundTheme, useImageColors } from '../../hooks/useImageColors';
+import { setShowProfileModal } from '../../REDUX/Slices/academicProfileSlice'; // ✨ NEW
 
 // Icon components
 const EditIcon = ({ className }) => (
@@ -152,6 +153,7 @@ useEffect(() => {
                   )}
                 </div>
                 
+                
                 {/* Edit Profile Photo Button */}
                 <Link to={"/edit-profile"} className="absolute bottom-2 right-2 bg-white text-black p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors group-hover:scale-110 transform duration-200">
                   <EditIcon className="w-4 h-4" />
@@ -190,7 +192,7 @@ useEffect(() => {
                   >
                     <EditIcon className="w-5 h-5" />
                     <span>Edit Profile</span>
-                  </Link>
+                  </Link>                 
                   <Link
     to="/profile/edit-social"
     className="group bg-white/10 border border-white/20 text-white px-6 py-3 rounded-xl font-medium hover:bg-white/20 transition-all duration-300 flex items-center justify-center space-x-2 shadow-inner hover:shadow-lg transform hover:scale-105"
@@ -418,6 +420,14 @@ useEffect(() => {
                 <div className="text-white font-medium">Security</div>
                 <div className="text-gray-400 text-sm">Change password</div>
               </Link>
+              <Link
+  to="/academic-profile"
+  className="group p-4 rounded-xl border border-white/10 hover:border-white/30 transition-all duration-300 hover:bg-white/5 text-center"
+>
+  <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">🏫</div>
+  <div className="text-white font-medium">Edit</div>
+  <div className="text-gray-400 text-sm">Academic Profile</div>
+</Link>
 
               {(userData.role === 'TEACHER' || userData.role === 'ADMIN') && (
                 <Link

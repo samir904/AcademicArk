@@ -10,6 +10,8 @@ import NotificationBanner from "../COMPONENTS/NotificationBanner";
 import { MovingBorderButton } from "../COMPONENTS/MovingBorderButton";
 import { MovingBorderLoginButton } from "../COMPONENTS/MovingBorderLoginButton";
 import MilestoneBanner from "../COMPONENTS/MilestoneBanner";
+import { checkProfileCompletion } from '../REDUX/Slices/academicProfileSlice'; // ✨ NEW
+import AcademicProfileModal from '../COMPONENTS/AcademicProfileModal'; // ✨ NEW
 
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
@@ -251,6 +253,8 @@ const HomeLayout = ({ children }) => {
   const role = useSelector((state) => state?.auth?.role || "");
   const userData = useSelector((state) => state?.auth?.data);
   const loginMethod = useSelector((state) => state?.auth?.loginMethod);
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
   // useEffect(() => {
   //     // Only fetch profile if not already logged in and no token check is in progress
   //     if (!isLoggedIn && !userData?._id) {
@@ -433,6 +437,12 @@ const HomeLayout = ({ children }) => {
 
     return baseItems;
   };
+// ✨ NEW: Check academic profile on mount
+  useEffect(() => {
+    if (isLoggedIn) {
+      dispatch(checkProfileCompletion());
+    }
+  }, [isLoggedIn, dispatch]);
 
   return (
     <>
@@ -847,7 +857,8 @@ const HomeLayout = ({ children }) => {
 
         {/* Main Content */}
         <main className="pt-20 md:pt-20 pb-20 md:pb-0">{children}</main>
-
+{/* ✨ NEW: Add Academic Profile Modal */}
+      <AcademicProfileModal />
         {/* 🎨 AMAZING Spotify-Style Bottom Navigation - Redesigned */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-40">
           {/* Gradient Background Blur */}

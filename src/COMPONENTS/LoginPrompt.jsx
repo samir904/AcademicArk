@@ -94,7 +94,7 @@ export default function LoginPrompt({ action = "access this feature" }) {
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="group w-full px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 text-white rounded-xl font-semibold transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-between shadow-lg"
+            className="group w-full px-6 py-3 bg-gradient-to-r from-white to-gray-100 hover:from-gray-50 hover:to-white text-black  rounded-full font-semibold transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-between shadow-lg"
           >
             <div className="flex items-center space-x-2">
               <GoogleIcon className="w-5 h-5" />

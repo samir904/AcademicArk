@@ -28,6 +28,12 @@ const WebsiteIcon = ({ className }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
   </svg>
 );
+// ✨ NEW: Academic Icon
+const AcademicIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+  </svg>
+);
 
 export default function PublicProfile() {
   const { userId } = useParams();
@@ -151,7 +157,61 @@ const formatDate = (dateString) => {
               </div>
             </div>
           </div>
+  {/* ✨ NEW: Academic Profile Section */}
+          {publicProfile.academicProfile?.isCompleted && (
+            <div className="bg-gradient-to-br from-indigo-900/50 to-purple-900/30 backdrop-blur-xl border border-purple-400/30 rounded-2xl p-6 mb-8">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center space-x-2">
+                <AcademicIcon className="w-6 h-6" />
+                <span>Academic Profile</span>
+              </h2>
+              
+              <div className="grid md:grid-cols-3 gap-4">
+                {/* Semester */}
+                <div className="flex items-center space-x-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-blue-400 flex items-center justify-center text-blue-400">
+                    <span className="text-lg font-semibold">{publicProfile.academicProfile.semester}</span>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-400">Semester</div>
+                    <div className="text-white font-medium">Sem {publicProfile.academicProfile.semester}</div>
+                  </div>
+                </div>
 
+                {/* College */}
+                <div className="flex items-center space-x-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="w-10 h-10 rounded-full bg-purple-500/20 border border-purple-400 flex items-center justify-center">
+                    <span className="text-lg">🏫</span>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-400">College</div>
+                    <div className="text-white font-medium text-sm" title={publicProfile.academicProfile.college?.name}>
+                      {publicProfile.academicProfile.college?.name?.substring(0, 20)}...
+                    </div>
+                  </div>
+                </div>
+
+                {/* Branch */}
+                <div className="flex items-center space-x-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="w-10 h-10 rounded-full bg-green-500/20 border border-green-400 flex items-center justify-center">
+                    <span className="text-lg">📚</span>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-400">Branch</div>
+                    <div className="text-white font-medium">{publicProfile.academicProfile.branch}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* College Info Badge */}
+              {publicProfile.academicProfile.college?.isPredefined === false && (
+                <div className="mt-4 p-3 rounded-lg bg-blue-500/10 border border-blue-400/30">
+                  <p className="text-xs text-blue-300">
+                    ℹ️ Custom college - Pending verification
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
           {/* Social Links */}
           {socialLinks.length > 0 && (
             <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8">

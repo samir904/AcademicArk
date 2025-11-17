@@ -20,6 +20,8 @@ import HomeLayout from "../../LAYOUTS/Homelayout";
 import { Link } from "react-router-dom";
 import AdminLogs from "./AdminLogs";
 import Analytics from "./Analytics";
+import AdminColleges from "./AdminColleges";
+import { getAcademicAnalytics } from "../../REDUX/Slices/academicProfileSlice";
 
 // Icons
 const UsersIcon = ({ className }) => (
@@ -117,6 +119,12 @@ const SearchIcon = ({ className }) => (
     />
   </svg>
 );
+const AcademicIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+  </svg>
+);
+
 
 export default function AdminDashboard() {
   const dispatch = useDispatch();
@@ -136,7 +144,8 @@ export default function AdminDashboard() {
     adminLogs, // ✅ ADD THIS
     adminLogsPagination, // ✅ ADD THIS
   } = useSelector((state) => state.admin);
-
+// ✨ ADD THIS - Get analytics from academicProfileSlice
+const { analytics } = useSelector((state) => state.academicProfile);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [userSearch, setUserSearch] = useState("");
   const [noteSearch, setNoteSearch] = useState("");
@@ -193,6 +202,9 @@ export default function AdminDashboard() {
       dispatch(getAllUsers({ page: userPage, search: userSearch }));
     } else if (activeTab === "notes") {
       dispatch(getAllNotesAdmin({ page: notePage, search: noteSearch }));
+    } else if (activeTab === "academic") {
+      // ✨ NEW: Fetch academic data
+      dispatch(getAcademicAnalytics())
     } else if (activeTab === "logs") {
       // ✅ ADD THIS
       dispatch(getAdminLogs({ days: 7, page: 1 })); // ✅ ADD THIS
@@ -266,22 +278,25 @@ export default function AdminDashboard() {
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard", "analytics", "users", "notes", "logs"].map(
+              {["dashboard", "analytics", "users", "notes", "academic", "colleges", "logs"].map(
                 (tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`py-4 px-2 border-b-2 transition-colors capitalize whitespace-nowrap ${
-                      activeTab === tab
-                        ? "border-blue-500 text-blue-400"
-                        : "border-transparent text-gray-400 hover:text-white"
-                    }`}
+                    className={`py-4 px-2 border-b-2 transition-colors capitalize whitespace-nowrap ${activeTab === tab
+                      ? "border-blue-500 text-blue-400"
+                      : "border-transparent text-gray-400 hover:text-white"
+                      }`}
                   >
                     {tab === "logs"
                       ? "Admin Logs"
                       : tab === "analytics"
-                      ? "Analytics"
-                      : tab}
+                        ? "Analytics"
+                        : tab === "academic"
+                          ? "Academic Data"
+                          : tab === "colleges"
+                            ? "College Approvals"
+                            : tab}
                   </button>
                 )
               )}
@@ -334,11 +349,10 @@ export default function AdminDashboard() {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => setAutoRefresh(!autoRefresh)}
-                      className={`px-3 py-1 rounded-lg text-sm ${
-                        autoRefresh
-                          ? "bg-green-500/20 text-green-400"
-                          : "bg-gray-700 text-gray-400"
-                      }`}
+                      className={`px-3 py-1 rounded-lg text-sm ${autoRefresh
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-gray-700 text-gray-400"
+                        }`}
                     >
                       {autoRefresh ? "● Live" : "○ Paused"}
                     </button>
@@ -365,13 +379,12 @@ export default function AdminDashboard() {
                     </div>
                     <div className="mt-3 h-2 bg-gray-700 rounded-full overflow-hidden">
                       <div
-                        className={`h-full transition-all duration-500 ${
-                          parseFloat(serverMetrics.cpu.usage ?? "--") > 80
-                            ? "bg-red-500"
-                            : parseFloat(serverMetrics.cpu.usage ?? "--") > 50
+                        className={`h-full transition-all duration-500 ${parseFloat(serverMetrics.cpu.usage ?? "--") > 80
+                          ? "bg-red-500"
+                          : parseFloat(serverMetrics.cpu.usage ?? "--") > 50
                             ? "bg-yellow-500"
                             : "bg-green-500"
-                        }`}
+                          }`}
                         style={{ width: `${serverMetrics.cpu.usage ?? "--"}%` }}
                       />
                     </div>
@@ -393,16 +406,15 @@ export default function AdminDashboard() {
                     </div>
                     <div className="mt-3 h-2 bg-gray-700 rounded-full overflow-hidden">
                       <div
-                        className={`h-full transition-all duration-500 ${
-                          parseFloat(serverMetrics.memory.percentage ?? "--") >
+                        className={`h-full transition-all duration-500 ${parseFloat(serverMetrics.memory.percentage ?? "--") >
                           80
-                            ? "bg-red-500"
-                            : parseFloat(
-                                serverMetrics.memory.percentage ?? "--"
-                              ) > 50
+                          ? "bg-red-500"
+                          : parseFloat(
+                            serverMetrics.memory.percentage ?? "--"
+                          ) > 50
                             ? "bg-yellow-500"
                             : "bg-green-500"
-                        }`}
+                          }`}
                         style={{
                           width: `${serverMetrics.memory.percentage ?? "--"}%`,
                         }}
@@ -584,13 +596,12 @@ export default function AdminDashboard() {
                                 </div>
                               </div>
                               <div
-                                className={`px-2 py-1 rounded text-xs font-medium ${
-                                  user.role === "ADMIN"
-                                    ? "bg-red-500/20 text-red-400"
-                                    : user.role === "TEACHER"
+                                className={`px-2 py-1 rounded text-xs font-medium ${user.role === "ADMIN"
+                                  ? "bg-red-500/20 text-red-400"
+                                  : user.role === "TEACHER"
                                     ? "bg-blue-500/20 text-blue-400"
                                     : "bg-green-500/20 text-green-400"
-                                }`}
+                                  }`}
                               >
                                 {user.role}
                               </div>
@@ -637,11 +648,10 @@ export default function AdminDashboard() {
                     <div className="bg-gray-800/50 rounded-xl p-6">
                       <div className="text-gray-400 text-sm mb-2">Growth</div>
                       <div
-                        className={`text-3xl font-bold ${
-                          parseFloat(weeklyComparison.growth) >= 0
-                            ? "text-green-400"
-                            : "text-red-400"
-                        }`}
+                        className={`text-3xl font-bold ${parseFloat(weeklyComparison.growth) >= 0
+                          ? "text-green-400"
+                          : "text-red-400"
+                          }`}
                       >
                         {weeklyComparison.growth > 0 ? "+" : ""}
                         {weeklyComparison.growth}%
@@ -751,12 +761,12 @@ export default function AdminDashboard() {
                                 <td className="py-3 text-center text-gray-400 text-sm">
                                   {log.peakTime
                                     ? new Date(log.peakTime).toLocaleTimeString(
-                                        "en-US",
-                                        {
-                                          hour: "2-digit",
-                                          minute: "2-digit",
-                                        }
-                                      )
+                                      "en-US",
+                                      {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      }
+                                    )
                                     : "—"}
                                 </td>
                               </tr>
@@ -780,7 +790,7 @@ export default function AdminDashboard() {
                         New Users (Last 7 days)
                       </h4>
                       {recentActivity.recentUsers &&
-                      recentActivity.recentUsers.length > 0 ? (
+                        recentActivity.recentUsers.length > 0 ? (
                         <ul>
                           {recentActivity.recentUsers.map((u) => (
                             <li
@@ -807,7 +817,7 @@ export default function AdminDashboard() {
                         New Notes (Last 7 days)
                       </h4>
                       {recentActivity.recentNotes &&
-                      recentActivity.recentNotes.length > 0 ? (
+                        recentActivity.recentNotes.length > 0 ? (
                         <ul>
                           {recentActivity.recentNotes.map((n) => (
                             <li
@@ -1210,13 +1220,12 @@ export default function AdminDashboard() {
                           </td>
                           <td className="py-4 px-6 text-center">
                             <span
-                              className={`px-2 py-1 rounded-full text-xs ${
-                                note.category === "Notes"
-                                  ? "bg-blue-500/20 text-blue-400"
-                                  : note.category === "PYQ"
+                              className={`px-2 py-1 rounded-full text-xs ${note.category === "Notes"
+                                ? "bg-blue-500/20 text-blue-400"
+                                : note.category === "PYQ"
                                   ? "bg-red-500/20 text-red-400"
                                   : "bg-yellow-500/20 text-yellow-400"
-                              }`}
+                                }`}
                             >
                               {note.category}
                             </span>
@@ -1289,6 +1298,140 @@ export default function AdminDashboard() {
               <Analytics />
             </div>
           )}
+          {/* Academic Data Tab */}
+          {/* Academic Data Tab */}
+{activeTab === "academic" && analytics && (
+  <div className="space-y-6">
+    {/* Header */}
+    <div className="bg-gradient-to-r from-indigo-900 to-purple-900 p-6 rounded-2xl">
+      <h2 className="text-2xl font-bold text-white mb-2">Academic Data</h2>
+      <p className="text-indigo-200">User academic profile analytics</p>
+    </div>
+
+    {/* Profile Completion Stats */}
+    {analytics.profileCompletionStats && (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-green-900/20 to-gray-800/30 border border-green-500/20 rounded-2xl p-6">
+          <p className="text-gray-400 text-sm mb-2">Completed Profiles</p>
+          <p className="text-4xl font-bold text-green-400">
+            {analytics.profileCompletionStats.completed}
+          </p>
+          <p className="text-gray-500 text-xs mt-2">users</p>
+        </div>
+        <div className="bg-gradient-to-br from-blue-900/20 to-gray-800/30 border border-blue-500/20 rounded-2xl p-6">
+          <p className="text-gray-400 text-sm mb-2">Total Users</p>
+          <p className="text-4xl font-bold text-blue-400">
+            {analytics.profileCompletionStats.total}
+          </p>
+          <p className="text-gray-500 text-xs mt-2">registered</p>
+        </div>
+        <div className="bg-gradient-to-br from-purple-900/20 to-gray-800/30 border border-purple-500/20 rounded-2xl p-6">
+          <p className="text-gray-400 text-sm mb-2">Completion Rate</p>
+          <p className="text-4xl font-bold text-purple-400">
+            {analytics.profileCompletionStats.percentage}%
+          </p>
+          <p className="text-gray-500 text-xs mt-2">completion</p>
+        </div>
+      </div>
+    )}
+
+    {/* Semester Distribution */}
+    {analytics.semesterDistribution && analytics.semesterDistribution.length > 0 && (
+      <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-white/10 rounded-2xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Semester Distribution</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+          {analytics.semesterDistribution.map((item, idx) => (
+            <div key={idx} className="bg-gray-800/50 rounded-lg p-3 text-center">
+              <p className="text-gray-400 text-xs mb-1">Sem {item.semester}</p>
+              <p className="text-2xl font-bold text-blue-400">{item.count}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {/* College Distribution */}
+    {analytics.collegeDistribution && analytics.collegeDistribution.length > 0 && (
+      <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-white/10 rounded-2xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">College Distribution</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-left py-3 px-4 text-gray-400">College</th>
+                <th className="text-center py-3 px-4 text-gray-400">Users</th>
+                <th className="text-center py-3 px-4 text-gray-400">Type</th>
+                <th className="text-center py-3 px-4 text-gray-400">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {analytics.collegeDistribution.map((item, idx) => (
+                <tr key={idx} className="border-b border-white/5 hover:bg-white/5">
+                  <td className="py-3 px-4 text-white">{item.college.substring(0, 30)}</td>
+                  <td className="py-3 px-4 text-center text-blue-400 font-semibold">{item.count}</td>
+                  <td className="py-3 px-4 text-center">
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      item.isPredefined ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'
+                    }`}>
+                      {item.isPredefined ? 'Predefined' : 'Custom'}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      item.isApproved ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                    }`}>
+                      {item.isApproved ? '✓ Approved' : '⚠ Pending'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+
+    {/* Pending Custom Colleges */}
+    {analytics.pendingCustomColleges && analytics.pendingCustomColleges.length > 0 && (
+      <div className="bg-gradient-to-br from-yellow-900/20 to-gray-800/30 border border-yellow-500/20 rounded-2xl p-6">
+        <h3 className="text-lg font-semibold text-yellow-400 mb-4">
+          Pending Custom Colleges ({analytics.pendingCustomColleges.length})
+        </h3>
+        <div className="space-y-2">
+          {analytics.pendingCustomColleges.map((item, idx) => (
+            <div key={idx} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
+              <span className="text-white">{item.college}</span>
+              <span className="text-yellow-400 font-semibold">{item.count} users</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {/* Branch Distribution */}
+    {analytics.branchDistribution && analytics.branchDistribution.length > 0 && (
+      <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-white/10 rounded-2xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Branch Distribution</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {analytics.branchDistribution.map((item, idx) => (
+            <div key={idx} className="bg-gray-800/50 rounded-lg p-4 border border-white/5">
+              <p className="text-gray-400 text-sm mb-2">{item.branch}</p>
+              <p className="text-3xl font-bold text-green-400">{item.count}</p>
+              <p className="text-gray-500 text-xs mt-1">users</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+)}
+
+          {/* College Approvals Tab */}
+{activeTab === "colleges" && (
+  <AdminColleges />
+)}
+
+
         </div>
       </div>
     </HomeLayout>

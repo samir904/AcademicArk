@@ -7,6 +7,7 @@ import notificationReducer from "./Slices/notificationSlice.js";
 import analyticsReducer from "./Slices/analyticsSlice.js";
 import attendanceSliceReducer from "./Slices/attendanceSlice.js";
 import emailReducer from "./Slices/emailSlice.js";
+import academicProfileReducer from "./Slices/academicProfileSlice.js"
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
 // import studyPlannerSlice from "./Slices/studyPlanner.slice.js"
 const store = configureStore({
@@ -19,10 +20,11 @@ const store = configureStore({
     analytics: analyticsReducer,
     attendance: attendanceSliceReducer,
     email: emailReducer,
+    academicProfile: academicProfileReducer, // ✨ NEW - Add this line
     // studyBuddy: studyBuddySlice,  // ← ADD THIS
     // studyPlanner: studyPlannerSlice,  // ← ADD THIS
   },
-  //devTools:true //only when you are in dev enviroment ok
+  //devToolsa:true //only when you are in dev enviroment ok
 });
 
 export default store;

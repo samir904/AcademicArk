@@ -27,8 +27,8 @@ import GlobalLoginModal from "./COMPONENTS/GlobalLoginModal";
 // import StudyPlannerDetail from './PAGES/AI/StudyPlannerDetail';
 // import CookieWarning from './COMPONENTS/CookieWarning';
 // import AttendanceDashboard from './PAGES/Attendance/AttendanceDashboard';
-
 // 🟡 LAZY LOAD THESE (Medium priority)
+const EditAcademicProfile=React.lazy(()=>import("./PAGES/User/EditAcademicProfile"))
 const ForgotPassword = React.lazy(() => import("./PAGES/User/Forgotpassword"));
 const Resetpassword = React.lazy(() => import("./PAGES/User/Resetpassword"));
 const Profile = React.lazy(() => import("./PAGES/User/Profile"));
@@ -333,6 +333,16 @@ function App() {
           }
         />
         <Route
+        path="/academic-profile"
+        element={
+            <AuthGuard>
+              <Suspense fallback={<AppLoader />}>
+                <EditAcademicProfile />
+              </Suspense>
+            </AuthGuard>
+          }
+         />
+        <Route
           path="/change-password"
           element={
             <AuthGuard>
@@ -358,7 +368,7 @@ function App() {
             </Suspense>
           }
         />
-        // Add this route in your App.jsx
+        {/* // Add this route in your App.jsx */}
         <Route
           path="/notes/:id/read"
           element={
