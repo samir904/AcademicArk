@@ -397,6 +397,84 @@ useEffect(() => {
               </div>
             </div>
           </div>
+          {/* Academic Information Card */}
+{userData?.academicProfile?.isCompleted ? (
+  <div className="bg-gradient-to-br mt-8 from-indigo-900/20 to-purple-900/20 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6 mb-8">
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-2xl font-bold text-white flex items-center space-x-2">
+        <span>🎓</span>
+        <span>Academic Information</span>
+      </h2>
+      <Link
+        to="/academic-profile"
+        className="text-indigo-400 hover:text-indigo-300 text-sm font-medium"
+      >
+        Edit →
+      </Link>
+    </div>
+
+    <div className="grid  grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Semester */}
+      <div className="bg-black/40 rounded-lg p-4 border border-indigo-500/20">
+        <div className="text-sm text-gray-400 mb-2">Semester</div>
+        <div className="text-2xl font-bold text-indigo-400">
+          {userData.academicProfile.semester}
+        </div>
+        <div className="text-xs text-gray-500 mt-1">Current Semester</div>
+      </div>
+
+      {/* College */}
+      <div className="bg-black/40 rounded-lg p-4 border border-indigo-500/20">
+        <div className="text-sm text-gray-400 mb-2">College</div>
+        <div className="text-lg font-bold text-purple-400">
+          {userData.academicProfile.college?.name?.substring(0, 20)}
+          {userData.academicProfile.college?.name?.length > 20 ? '...' : ''}
+        </div>
+        <div className="text-xs text-gray-500 mt-1">
+          {userData.academicProfile.college?.isPredefined ? (
+            <span className="text-blue-400">✓ Verified</span>
+          ) : userData.academicProfile.college?.isApproved ? (
+            <span className="text-green-400">✓ Approved</span>
+          ) : (
+            <span className="text-yellow-400">⏳ Pending Review</span>
+          )}
+        </div>
+      </div>
+
+      {/* Branch */}
+      <div className="bg-black/40 rounded-lg p-4 border border-indigo-500/20">
+        <div className="text-sm text-gray-400 mb-2">Branch</div>
+        <div className="text-lg font-bold text-pink-400">
+          {userData.academicProfile.branch}
+        </div>
+        <div className="text-xs text-gray-500 mt-1">Field of Study</div>
+      </div>
+    </div>
+
+    {/* Last Updated */}
+    <div className="mt-4 pt-4 border-t border-indigo-500/10">
+      <div className="text-xs text-gray-400">
+        Last updated: {new Date(userData.academicProfile.lastUpdated).toLocaleDateString()}
+      </div>
+    </div>
+  </div>
+) : (
+  <div className="bg-gradient-to-br from-yellow-900/20 to-orange-900/20 backdrop-blur-xl border border-yellow-500/20 rounded-2xl p-6 mb-8">
+    <div className="flex items-center justify-between">
+      <div>
+        <h3 className="text-lg font-bold text-yellow-400 mb-2">Complete Your Academic Profile</h3>
+        <p className="text-gray-400 text-sm">Add your semester, college, and branch information</p>
+      </div>
+      <Link
+        to="/academic-profile"
+        className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap"
+      >
+        Complete Profile
+      </Link>
+    </div>
+  </div>
+)}
+
 
           {/* Quick Actions */}
           <div className="mt-8 bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
@@ -420,15 +498,6 @@ useEffect(() => {
                 <div className="text-white font-medium">Security</div>
                 <div className="text-gray-400 text-sm">Change password</div>
               </Link>
-              <Link
-  to="/academic-profile"
-  className="group p-4 rounded-xl border border-white/10 hover:border-white/30 transition-all duration-300 hover:bg-white/5 text-center"
->
-  <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">🏫</div>
-  <div className="text-white font-medium">Edit</div>
-  <div className="text-gray-400 text-sm">Academic Profile</div>
-</Link>
-
               {(userData.role === 'TEACHER' || userData.role === 'ADMIN') && (
                 <Link
                   to="/upload"
