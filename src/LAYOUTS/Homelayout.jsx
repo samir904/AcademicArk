@@ -81,21 +81,52 @@ const SearchIcon = ({ className, active }) => (
   </svg>
 );
 
-const LibraryIcon = ({ className, active }) => (
+const LibraryIcon = ({ className = "", active }) => (
   <svg
     className={className}
-    fill={active ? "currentColor" : "none"}
-    stroke="currentColor"
-    viewBox="0 0 24 24"
+    fill="none"
+    viewBox="0 0 32 32"
+    stroke={active ? "url(#library-gradient)" : "currentColor"}
+    strokeWidth={1.7}
+    xmlns="http://www.w3.org/2000/svg"
+    style={{
+      transition: "stroke 0.2s, box-shadow 0.2s",
+      filter: active
+        ? "drop-shadow(0 2px 6px rgba(87, 102, 218, .25))"
+        : undefined
+    }}
   >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={active ? 0 : 2}
-      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+    <defs>
+      <linearGradient id="library-gradient" x1="0" y1="16" x2="32" y2="16" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#7F9CF5" />
+        <stop offset="1" stopColor="#B794F4" />
+      </linearGradient>
+    </defs>
+    {/* Book (back, closed) */}
+    <rect x="4" y="6" width="8" height="20" rx="2.5"
+      fill={active ? "url(#library-gradient)" : "#232946"}
+      stroke={active ? "url(#library-gradient)" : "#A0AEC0"}
+      strokeWidth="2.2"
     />
+    {/* Book (front, open) */}
+    <rect x="12" y="6" width="16" height="20" rx="2.5"
+      fill={active ? "white" : "none"}
+      stroke={active ? "url(#library-gradient)" : "#A0AEC0"}
+      strokeWidth="2.2"
+    />
+    {/* Book lines */}
+    <line x1="16" y1="10" x2="24" y2="10"
+          stroke={active ? "#7F9CF5" : "#A0AEC0"}
+          strokeWidth="1.25"/>
+    <line x1="16" y1="14" x2="24" y2="14"
+          stroke={active ? "#7F9CF5" : "#A0AEC0"}
+          strokeWidth="1.25"/>
+    <line x1="16" y1="18" x2="24" y2="18"
+          stroke={active ? "#7F9CF5" : "#A0AEC0"}
+          strokeWidth="1.25"/>
   </svg>
 );
+
 
 const UploadIcon = ({ className, active }) => (
   <svg
