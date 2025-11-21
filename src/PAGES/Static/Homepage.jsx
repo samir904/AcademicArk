@@ -211,7 +211,7 @@ const Homepage = () => {
       </section>
     </BackgroundLines>
 
-<AdBanner />
+{/* <AdBanner /> */}
 
       {/* Stats Section - Enhanced with AKTU context */}
       <section 
