@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Linkedin,Heart, Twitter, Mail, ExternalLink } from 'lucide-react';
+import { Github, Linkedin,Sparkles,Heart, Twitter, Mail, ExternalLink } from 'lucide-react';
 import samir from '../../public/samir.jpg'
 
 function EnhancedFooter() {
@@ -8,7 +8,8 @@ function EnhancedFooter() {
     <footer className="bg-black border-t border-white/10 relative overflow-hidden">
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-900/5 to-purple-900/5"></div>
-
+{/* Grid pattern */}
+        {/* <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(0deg,transparent_24%,rgb(255,255,255)_25%,rgb(255,255,255)_26%,transparent_27%,transparent_74%,rgb(255,255,255)_75%,rgb(255,255,255)_76%,transparent_77%,transparent),linear-gradient(90deg,transparent_24%,rgb(255,255,255)_25%,rgb(255,255,255)_26%,transparent_27%,transparent_74%,rgb(255,255,255)_75%,rgb(255,255,255)_76%,transparent_77%,transparent)] bg-[length:50px_50px]"></div> */}
       {/* Main Content */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid md:grid-cols-4 gap-12">

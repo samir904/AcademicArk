@@ -7,7 +7,8 @@ import HomeLayout from '../../LAYOUTS/Homelayout';
 import CardRenderer from './CardRenderer';
 import { Link } from 'react-router-dom';
 import AdBanner from '../../COMPONENTS/AdBanner';
-// import RequestModal from '../../COMPONENTS/RequestModal';
+import RequestModal from '../../COMPONENTS/RequestModal';
+import { getAllRequests, upvoteRequest } from '../../REDUX/Slices/requestSlice';
 
 // Icon components
 const FilterIcon = ({ className }) => (
@@ -235,6 +236,20 @@ export default function Note() {
     };
     return configs[category] || configs['Notes'];
   };
+const { allRequests: popularRequests, loading: requestsLoading } = useSelector((state) => state.request);
+  // const [localFilters, setLocalFilters] = useState({ semester: 3 });
+
+  // Fetch popular requests for current semester
+  useEffect(() => {
+    if (localFilters.semester) {
+      dispatch(getAllRequests({
+        semester: localFilters.semester,
+        sortBy: 'upvotes',  // Show most upvoted
+        page: 1,
+        requestType: ''
+      }));
+    }
+  }, [localFilters.semester, dispatch]);
 
   return (
     <HomeLayout>
@@ -691,120 +706,294 @@ export default function Note() {
             </div>
           )}
 
-          {/* Enhanced Empty State with Global Search Suggestion */}
-          {!loading && localFilters.semester && filteredNotes.length === 0 && (
-            <div className="text-center py-20 px-4">
-              {/* Icon */}
-              <div className="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <BookIcon className="w-12 h-12 text-gray-400" />
-              </div>
-
-              {/* Main Message */}
-              <h3 className="text-2xl font-bold text-white mb-3">
-                No Resources Found
-              </h3>
-
-              {/* Detailed Context */}
-              <p className="text-gray-400 mb-2 max-w-2xl mx-auto">
-                No notes found for <span className="text-blue-400 font-semibold">Semester {localFilters.semester}</span>
-                {localFilters.subject && (
-                  <> in <span className="text-purple-400 font-semibold">{localFilters.subject}</span></>
-                )}
-                {searchTerm && (
-                  <> matching <span className="text-green-400 font-semibold">"{searchTerm}"</span></>
-                )}.
-              </p>
-
-              {/* AKTU Subject Variation Explanation */}
-              <div className="max-w-3xl mx-auto mt-8 mb-8">
-                <div className="bg-gradient-to-br from-yellow-900/30 to-orange-900/20 border border-yellow-500/30 rounded-xl p-6 backdrop-blur-sm">
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                        <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="flex-1 text-left">
-                      <h4 className="text-lg font-semibold text-yellow-300 mb-2">
-                        📚 AKTU Subject Flexibility
-                      </h4>
-                      <p className="text-sm text-gray-300 leading-relaxed mb-3">
-                        AKTU allows you to choose some subjects per semester. For example, if you're studying
-                        <span className="text-blue-300 font-medium"> Digital Electronics</span> this semester,
-                        another student might study it in a different semester. However, notes and PYQs are organized
-                        by their <span className="text-purple-300 font-medium">official semester placement</span>.
-                      </p>
-                      <div className="flex items-center space-x-2 text-xs text-yellow-200 bg-yellow-900/30 px-3 py-2 rounded-lg">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                        </svg>
-                        <span>Can't find your current semester subjects? Try searching globally!</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-             {/* Action Buttons - UPDATED */}
-    <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
-      {/* Request Material Button - NEW PRIMARY CTA */}
+       {/* Enhanced Empty State with Popular Requests */}
+{!loading && localFilters.semester && filteredNotes.length === 0 && (
+  <div className="text-center py-12 px-4">
+    
+    {/* TOP: PROMINENT REQUEST BUTTON - MAIN CTA */}
+    <div className="mb-10">
       <button
         onClick={() => setShowRequestModal(true)}
-        className="group relative px-8 py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl font-semibold text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+        className="group relative mx-auto px-8 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 rounded-xl font-bold text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-3 mb-3"
       >
-        <div className="relative flex items-center space-x-3">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          <span>Request This Material</span>
-        </div>
+        <svg className="w-6 h-6 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Request This Material</span>
+        <svg className="w-5 h-5 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
       </button>
+      <p className="text-xs text-gray-500 mt-2">
+        Missing something? Let us know! We'll add it to our library.
+      </p>
+    </div>
 
-      {/* Search All Semesters */}
+    {/* Icon */}
+    <div className="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-600 rounded-full flex items-center justify-center mx-auto mb-6">
+      <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C6.5 6.253 2 10.771 2 16.5S6.5 26.747 12 26.747s10-4.518 10-10.247S17.5 6.253 12 6.253z" />
+      </svg>
+    </div>
+
+    {/* Main Message */}
+    <h3 className="text-2xl font-bold text-white mb-2">
+      No Resources Found Yet
+    </h3>
+
+    {/* Detailed Context */}
+    <p className="text-gray-400 mb-8 max-w-2xl mx-auto text-sm leading-relaxed">
+      We don't have notes for <span className="text-blue-400 font-semibold">Semester {localFilters.semester}</span>
+      {localFilters.subject && (
+        <> in <span className="text-purple-400 font-semibold">{localFilters.subject}</span></>
+      )}
+      {searchTerm && (
+        <> matching <span className="text-green-400 font-semibold">"{searchTerm}"</span></>
+      )} just yet.
+    </p>
+
+    {/* POPULAR REQUESTS SECTION - NEW FEATURE */}
+    <div className="max-w-4xl mx-auto mb-12">
+      <div className="text-left mb-6">
+        <h4 className="text-lg font-bold text-white mb-2">📋 Popular Requests for Semester {localFilters.semester}</h4>
+        <p className="text-xs text-gray-400">
+          Help the community by upvoting what you need. Popular requests get prioritized! ⬆️
+        </p>
+      </div>
+
+      {/* Popular Requests Grid */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {popularRequests && popularRequests.length > 0 ? (
+    popularRequests.map((request) => (
+      <div
+        key={request._id}
+        className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-5  text-left group"
+      >
+        {/* Header with Type Badge */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <h5 className="font-bold text-white group-hover:text-blue-300 transition mb-2">
+              {request.subject}
+            </h5>
+            <div className="flex gap-2 flex-wrap">
+              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                request.requestType === 'NOTES'
+                  ? 'bg-blue-500/20 text-blue-300'
+                  : request.requestType === 'PYQ'
+                  ? 'bg-purple-500/20 text-purple-300'
+                  : 'bg-pink-500/20 text-pink-300'
+              }`}>
+                {request.requestType === 'NOTES' ? '📖 Notes' : request.requestType === 'PYQ' ? '📄 PYQs' : '❓ Questions'}
+              </span>
+              <span className="text-xs bg-gray-700/40 text-gray-300 px-2 py-1 rounded-full">
+                {request.branch} • Sem {request.semester}
+              </span>
+            </div>
+          </div>
+
+          {/* Status Badge */}
+          {request.status === 'FULFILLED' && (
+            <div className="flex-shrink-0 ml-2">
+              <span className="inline-block bg-green-500/20 text-green-300 text-lg">✓</span>
+            </div>
+          )}
+        </div>
+
+        {/* Description */}
+        {request.description && (
+          <p className="text-xs text-gray-400 mb-4 line-clamp-2">
+            {request.description}
+          </p>
+        )}
+
+        {/* Upvote Button & Count */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => dispatch(upvoteRequest(request._id))}
+            disabled={request.hasUpvoted}
+            className={`flex-1 py-2 px-3 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+              request.hasUpvoted
+                ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50 cursor-not-allowed'
+                : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20 hover:border-blue-400/50'
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thumbs-up-icon lucide-thumbs-up"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/><path d="M7 10v12"/></svg>
+            <span>{request.upvoteCount}</span>
+          </button>
+        </div>
+
+        {/* Already Upvoted Badge */}
+        {request.hasUpvoted && (
+          <p className="text-xs text-blue-300 mb-4">✓ You've upvoted this</p>
+        )}
+
+        {/* REQUESTER INFO SECTION - With Avatar */}
+        <div className="border-t border-white/10 pt-4 flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1">
+            {/* Avatar Image */}
+            {request.requestedBy?.avatar?.secure_url ? (
+              <img
+                src={request.requestedBy.avatar.secure_url}
+                alt={request.requestedBy.fullName}
+                className="w-10 h-10 rounded-full object-cover border border-white/20 hover:border-white/40 transition"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center border border-white/20">
+                <span className="text-white font-bold text-sm">
+                  {request.requestedBy?.fullName?.charAt(0)?.toUpperCase() || 'A'}
+                </span>
+              </div>
+            )}
+
+            {/* Requester Name & Details */}
+            <div className="flex-1">
+              <p className="text-xs  capitalize font-semibold text-white">
+                {request.requestedBy?.fullName || 'Anonymous'}
+              </p>
+              <p className="text-xs text-gray-400">
+                {request.requestedBy?.academicProfile?.branch} • Sem {request.requestedBy?.academicProfile?.semester}
+              </p>
+            </div>
+          </div>
+
+          {/* Time Posted */}
+          <div className="text-right">
+            <p className="text-xs text-gray-500">
+              {new Date(request.createdAt).toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'short',
+                year:'numeric'
+              })}
+            </p>
+          </div>
+        </div>
+      </div>
+    ))
+  ) : (
+    <div className="col-span-2 text-center py-8">
+      <p className="text-gray-400 text-sm">No requests yet for this semester. Be the first to request! 🚀</p>
+    </div>
+  )}
+</div>
+
+
+      {/* View All Requests Link */}
+      <div className="mt-6">
+        <Link
+          to="/browse-requests"
+          className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-semibold text-sm group"
+        >
+          View all requests
+          <svg className="w-4 h-4 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </Link>
+      </div>
+    </div>
+
+    {/* HELPFUL INFO BOX */}
+    <div className="max-w-3xl mx-auto mb-8">
+      <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/30 border border-blue-500/40 rounded-xl p-6 backdrop-blur-sm">
+        <div className="flex items-start space-x-4">
+          <div className="flex-shrink-0">
+            <div className="w-12 h-12 bg-blue-500/30 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5h.01" />
+              </svg>
+            </div>
+          </div>
+
+          <div className="flex-1 text-left">
+            <h4 className="text-lg font-semibold text-blue-300 mb-2">
+              💡 Can't Find Your Subject?
+            </h4>
+            <p className="text-sm text-gray-300 leading-relaxed mb-3">
+              AKTU allows flexibility in subject selection per semester. Your desired subject might be in a different semester. Check the popular requests above - if someone else needs it too, upvote to help prioritize!
+            </p>
+            
+            <div className="space-y-2 text-xs">
+              <div className="flex items-start space-x-2">
+                <span className="text-green-400 font-bold mt-0.5">✓</span>
+                <span className="text-gray-300"><span className="text-green-300 font-semibold">Upvote requests</span> - Show what's in demand</span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <span className="text-blue-400 font-bold mt-0.5">→</span>
+                <span className="text-gray-300"><span className="text-blue-300 font-semibold">Request new material</span> - Add to community wishlist</span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <span className="text-purple-400 font-bold mt-0.5">♦</span>
+                <span className="text-gray-300"><span className="text-purple-300 font-semibold">Browse all requests</span> - See what others need</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* ACTION BUTTONS */}
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
       <Link
         to="/search"
-        className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition"
+        className="group flex-1 sm:flex-none px-6 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-blue-500/50 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2"
       >
-        <div className="flex items-center space-x-2">
-          <SearchIcon className="w-5 h-5" />
-          <span>Search All Semesters</span>
-        </div>
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <span>Search All Semesters</span>
+      </Link>
+
+      <Link
+        to="/notes"
+        className="group flex-1 sm:flex-none px-6 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-purple-500/50 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C6.5 6.253 2 10.771 2 16.5S6.5 26.747 12 26.747s10-4.518 10-10.247S17.5 6.253 12 6.253z" />
+        </svg>
+        <span>Browse Library</span>
       </Link>
     </div>
 
-              {/* Additional Help Text */}
-              <div className="max-w-xl mx-auto">
-                <p className="text-sm text-gray-500 mb-4">
-                  💡 <span className="text-gray-400">Pro Tip:</span> Use the global search to find notes from any semester,
-                  especially for elective subjects that might be taught in different semesters.
-                </p>
+    {/* QUICK ACTIONS GRID */}
+    <div className="mb-6">
+      <p className="text-xs text-gray-500 mb-3">⚡ Quick Actions</p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Link to="/search">
+          <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/10 border border-blue-500/30 hover:border-blue-500/60 rounded-lg p-4 text-center transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 cursor-pointer">
+            <div className="text-3xl mb-2">🔍</div>
+            <div className="text-sm font-semibold text-blue-300 mb-1">Advanced Search</div>
+            <div className="text-xs text-gray-500">Find across all semesters</div>
+          </div>
+        </Link>
 
-                {/* Quick Actions Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
-                  <Link to={"/search"}>
-                    <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3 text-center hover:border-blue-500/30 transition-colors cursor-pointer">
-                      <div className="text-2xl mb-1">🔍</div>
-                      <div className="text-xs text-gray-400">Advanced Search</div>
-                    </div>
-                  </Link>
-                  <Link to={"/notes"}>
-                    <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3 text-center hover:border-purple-500/30 transition-colors cursor-pointer">
-                      <div className="text-2xl mb-1">📖</div>
-                      <div className="text-xs text-gray-400">Browse All Subjects</div>
-                    </div>
-                  </Link>
-                  <Link to={"/notes"}>
-                    <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3 text-center hover:border-pink-500/30 transition-colors cursor-pointer">
-                      <div className="text-2xl mb-1">📝</div>
-                      <div className="text-xs text-gray-400">View All PYQs</div>
-                    </div>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
+        <Link to="/notes">
+          <div className="bg-gradient-to-br from-purple-900/30 to-purple-900/10 border border-purple-500/30 hover:border-purple-500/60 rounded-lg p-4 text-center transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 cursor-pointer">
+            <div className="text-3xl mb-2">📚</div>
+            <div className="text-sm font-semibold text-purple-300 mb-1">Browse All Subjects</div>
+            <div className="text-xs text-gray-500">Explore full library</div>
+          </div>
+        </Link>
+
+        <button
+          onClick={() => setShowRequestModal(true)}
+          className="bg-gradient-to-br from-pink-900/30 to-pink-900/10 border border-pink-500/30 hover:border-pink-500/60 rounded-lg p-4 text-center transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/20 cursor-pointer w-full"
+        >
+          <div className="text-3xl mb-2">📝</div>
+          <div className="text-sm font-semibold text-pink-300 mb-1">Request Material</div>
+          <div className="text-xs text-gray-500">Add to library</div>
+        </button>
+      </div>
+    </div>
+
+    {/* PRO TIP */}
+    <div className="max-w-lg mx-auto pt-4 border-t border-gray-800">
+      <p className="text-xs text-gray-500 leading-relaxed">
+        <span className="text-yellow-400 font-bold">💡 Pro Tip:</span> The more people upvote a request, the faster our team works to add it! Start with popular requests and help your community get the materials they need.
+      </p>
+    </div>
+  </div>
+)}
+
+
 
           {/* Enhanced Semester Selection Prompt */}
           {!loading && !localFilters.semester && (
@@ -858,12 +1047,12 @@ export default function Note() {
           {/* <AdBanner /> */}
         </div>
         {/* Request Modal */}
-{/* <RequestModal
+<RequestModal
   isOpen={showRequestModal}
   onClose={() => setShowRequestModal(false)}
   defaultSemester={localFilters.semester}
   defaultSubject={localFilters.subject}
-/> */}
+/>
 
       </div>
     </HomeLayout>
