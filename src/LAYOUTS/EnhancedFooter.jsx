@@ -199,19 +199,19 @@ function EnhancedFooter() {
                 <span className="text-white font-semibold">Samir Suman</span>
               </div>
               
-              {/* <p className="text-gray-500 text-sm max-w-2xl mx-auto">
-                Empowering the next generation of learners through accessible, high-quality educational resources and a supportive community.
-              </p> */}
+              <p className="text-gray-500 text-sm max-w-2xl mx-auto">
+                {/* Empowering the next generation of learners through accessible, high-quality educational resources and a supportive community. */}
+              </p>
 
               {/* Version & Status */}
-              {/* <div className="flex items-center justify-center gap-6 pt-4">
+              <div className="flex items-center justify-center gap-6 pt-4">
                 <span className="text-xs text-gray-600">v1.0.0</span>
-                <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                {/* <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
                 <span className="text-xs text-green-400 flex items-center gap-1">
-                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                  <span className="w-2 h-2 bg-green-400 rounded-full "></span>
                   System Operational
-                </span>
-              </div> */}
+                </span> */}
+              </div>
             </div>
         </div>
       </div>
