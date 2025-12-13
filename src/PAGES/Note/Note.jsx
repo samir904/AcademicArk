@@ -7,7 +7,7 @@ import HomeLayout from '../../LAYOUTS/Homelayout';
 import CardRenderer from './CardRenderer';
 import { Link } from 'react-router-dom';
 import AdBanner from '../../COMPONENTS/AdBanner';
-import RequestModal from '../../COMPONENTS/RequestModal';
+// import RequestModal from '../../COMPONENTS/RequestModal';
 
 // Icon components
 const FilterIcon = ({ className }) => (
