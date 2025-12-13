@@ -22,7 +22,7 @@ import AdminLogs from "./AdminLogs";
 import Analytics from "./Analytics";
 import AdminColleges from "./AdminColleges";
 import { getAcademicAnalytics } from "../../REDUX/Slices/academicProfileSlice";
-import AdminRequests from "./AdminRequests";
+// import AdminRequests from "./AdminRequests";
 
 // Icons
 const UsersIcon = ({ className }) => (
@@ -1433,8 +1433,8 @@ const { analytics } = useSelector((state) => state.academicProfile);
 {activeTab === "colleges" && (
   <AdminColleges />
 )}
-
-{activeTab === "requests" && <AdminRequests />}
+{/* 
+{activeTab === "requests" && <AdminRequests />} */}
 
 
 
