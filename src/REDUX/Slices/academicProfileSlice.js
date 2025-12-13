@@ -57,7 +57,7 @@ export const approveCustomCollege = createAsyncThunk(
     async (collegeName, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.post(
-                '/admin/approve-college',
+                '/user/colleges/approve',
                 { collegeName }
             );
             showToast.success(`College "${collegeName}" approved!`);

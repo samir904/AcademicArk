@@ -12,6 +12,7 @@ import { MovingBorderLoginButton } from "../COMPONENTS/MovingBorderLoginButton";
 import MilestoneBanner from "../COMPONENTS/MilestoneBanner";
 import { checkProfileCompletion } from '../REDUX/Slices/academicProfileSlice'; // ✨ NEW
 import AcademicProfileModal from '../COMPONENTS/AcademicProfileModal'; // ✨ NEW
+import EnhancedFooter from "./EnhancedFooter";
 
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
@@ -977,7 +978,7 @@ const HomeLayout = ({ children }) => {
         </div>
 
         {/* Enhanced Footer */}
-        <footer className="bg-black border-t border-white/10 mb-16 md:mb-0 relative overflow-hidden">
+        {/* <footer className="bg-black border-t border-white/10 mb-16 md:mb-0 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-900/5 to-purple-900/5"></div>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
             <div className="grid md:grid-cols-4 gap-12">
@@ -1058,7 +1059,8 @@ const HomeLayout = ({ children }) => {
               </p>
             </div>
           </div>
-        </footer>
+        </footer> */}
+        <EnhancedFooter/>
       </div>
     </>
   );

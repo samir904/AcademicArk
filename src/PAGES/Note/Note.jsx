@@ -7,6 +7,7 @@ import HomeLayout from '../../LAYOUTS/Homelayout';
 import CardRenderer from './CardRenderer';
 import { Link } from 'react-router-dom';
 import AdBanner from '../../COMPONENTS/AdBanner';
+import RequestModal from '../../COMPONENTS/RequestModal';
 
 // Icon components
 const FilterIcon = ({ className }) => (
@@ -40,6 +41,10 @@ const CloseIcon = ({ className }) => (
 );
 
 export default function Note() {
+
+  const[showRequestModal,setShowRequestModal]=useState(false);
+
+
   const dispatch = useDispatch();
   const { notes, loading, totalNotes, filters } = useSelector(state => state.note);
 
@@ -742,42 +747,32 @@ export default function Note() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
-                {/* Primary CTA - Global Search */}
-                <Link
-                  to="/search"
-                  className="group relative px-8 py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl font-semibold text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
-                >
-                  {/* Animated Background */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+             {/* Action Buttons - UPDATED */}
+    <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+      {/* Request Material Button - NEW PRIMARY CTA */}
+      <button
+        onClick={() => setShowRequestModal(true)}
+        className="group relative px-8 py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl font-semibold text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+      >
+        <div className="relative flex items-center space-x-3">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Request This Material</span>
+        </div>
+      </button>
 
-                  {/* Content */}
-                  <div className="relative flex items-center space-x-3">
-                    <SearchIcon className="w-5 h-5" />
-                    <span>Search All Semesters</span>
-                    <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </div>
-
-                  {/* Glow Effect */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="absolute inset-0 bg-white/20 blur-xl"></div>
-                  </div>
-                </Link>
-
-                {/* Secondary CTA - Clear Filters */}
-                <button
-                  onClick={handleClearFilters}
-                  className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl font-medium border border-gray-700 hover:border-gray-600 transition-all duration-200 flex items-center space-x-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  <span>Reset Filters</span>
-                </button>
-              </div>
+      {/* Search All Semesters */}
+      <Link
+        to="/search"
+        className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition"
+      >
+        <div className="flex items-center space-x-2">
+          <SearchIcon className="w-5 h-5" />
+          <span>Search All Semesters</span>
+        </div>
+      </Link>
+    </div>
 
               {/* Additional Help Text */}
               <div className="max-w-xl mx-auto">
@@ -862,6 +857,14 @@ export default function Note() {
           )}
           {/* <AdBanner /> */}
         </div>
+        {/* Request Modal */}
+{/* <RequestModal
+  isOpen={showRequestModal}
+  onClose={() => setShowRequestModal(false)}
+  defaultSemester={localFilters.semester}
+  defaultSubject={localFilters.subject}
+/> */}
+
       </div>
     </HomeLayout>
   );

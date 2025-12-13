@@ -64,8 +64,8 @@ const Homepage = () => {
 
   const stats = [
     { number: '200+', label: 'AKTU Study Materials' },
-    { number: '50+', label: 'AKTU PYQ Papers' },
-    { number: '500+', label: 'AKTU Students' },
+    { number: '100+', label: 'AKTU PYQ Papers' },
+    { number: '1000+', label: 'AKTU Students' },
     { number: '2025', label: 'Updated Syllabus' }
   ];
 
@@ -205,7 +205,7 @@ const Homepage = () => {
 
           {/* Trust indicator */}
           <p className="text-sm text-gray-500 mt-8">
-            Trusted by 500+ AKTU students • Updated regularly
+            Trusted by 1k+ AKTU students • Updated regularly
           </p>
         </div>
       </section>
