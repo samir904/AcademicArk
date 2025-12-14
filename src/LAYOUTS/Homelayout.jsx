@@ -477,7 +477,16 @@ const [showFeedback, setShowFeedback] = useState(false);
       dispatch(checkProfileCompletion());
     }
   }, [isLoggedIn, dispatch]);
+ const [showFeedbackText, setShowFeedbackText] = useState(true);
+ 
+  // ✅ Hide feedback text after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowFeedbackText(false);
+    }, 5000); // 5 seconds
 
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <>
       {/* Notification banner - rendered independently */}
@@ -758,7 +767,9 @@ const [showFeedback, setShowFeedback] = useState(false);
                 {/* ✨ NEW: Floating Feedback Button with Text (Desktop Only) */}
 <div className="hidden md:flex flex-col items-end gap-3 fixed bottom-6 right-6 z-40">
   {/* Feedback Text - Desktop Only */}
-  <div className="bg-gradient-to-r from-blue-600/90 to-purple-600/90 backdrop-blur-xl rounded-2xl px-5 py-3 shadow-xl border border-white/10">
+ {/* Feedback Text - Desktop Only - Auto Hide with Fade Out */}
+{showFeedbackText && (
+  <div className="bg-gradient-to-r from-blue-600/90 to-purple-600/90 backdrop-blur-xl rounded-2xl px-5 py-3 shadow-xl border border-white/10 animate-fade-out">
     <p className="text-sm font-semibold text-white whitespace-nowrap">
       Help us improve 🚀
     </p>
@@ -766,6 +777,8 @@ const [showFeedback, setShowFeedback] = useState(false);
       Send us your feedback
     </p>
   </div>
+)}
+
 
   {/* Feedback Button */}
   <button
@@ -786,6 +799,7 @@ const [showFeedback, setShowFeedback] = useState(false);
     💬
 </button>
 
+                
 
                 {/* ✨ NEW: Feedback Form Modal */}
                 <FeedbackForm 
@@ -1107,3 +1121,12 @@ const [showFeedback, setShowFeedback] = useState(false);
 };
 
 export default HomeLayout;
+
+{/* <button
+                    onClick={() => setShowFeedback(true)}
+                    className="fixed bottom-35 md:bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg flex items-center justify-center text-white text-2xl hover:scale-110 transition-transform z-40"
+                    title="Send Feedback"
+                >
+                    💬
+                </button> */}
+                
