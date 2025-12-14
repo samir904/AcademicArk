@@ -23,6 +23,7 @@ import Analytics from "./Analytics";
 import AdminColleges from "./AdminColleges";
 import { getAcademicAnalytics } from "../../REDUX/Slices/academicProfileSlice";
  import AdminRequests from "./AdminRequests";
+import AdminFeedback from "./AdminFeedback";
 
 // Icons
 const UsersIcon = ({ className }) => (
@@ -279,7 +280,7 @@ const { analytics } = useSelector((state) => state.academicProfile);
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard", "analytics", "users", "notes", "academic", "colleges", "logs","requests"].map(
+              {["dashboard", "analytics", "users", "notes", "academic", "colleges", "logs","requests", "feedback"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -299,7 +300,10 @@ const { analytics } = useSelector((state) => state.academicProfile);
                             ? "College Approvals"
                             :tab==='requests'
                             ?'notes requests'
-                            : tab}
+                             : tab === "feedback"
+                                                ? "Feedback"
+                                                : tab}
+                            
                   </button>
                 )
               )}
@@ -1435,6 +1439,8 @@ const { analytics } = useSelector((state) => state.academicProfile);
 )}
 
 {activeTab === "requests" && <AdminRequests />}
+{/* Feedback Tab */}
+{activeTab === "feedback" && <AdminFeedback />}
 
 
 

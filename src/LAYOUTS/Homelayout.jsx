@@ -13,6 +13,7 @@ import MilestoneBanner from "../COMPONENTS/MilestoneBanner";
 import { checkProfileCompletion } from '../REDUX/Slices/academicProfileSlice'; // ✨ NEW
 import AcademicProfileModal from '../COMPONENTS/AcademicProfileModal'; // ✨ NEW
 import EnhancedFooter from "./EnhancedFooter";
+import FeedbackForm from "../COMPONENTS/FeedbackForm";
 
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
@@ -271,7 +272,8 @@ const HomeLayout = ({ children }) => {
   //     <div className="absolute bottom-1 left-1 w-1 h-1 bg-cyan-500 rounded-full animate-pulse delay-1500"></div>
   //   </Link>
   // );
-
+const [showFeedback, setShowFeedback] = useState(false);
+    
   const [isScrolled, setIsScrolled] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -492,6 +494,7 @@ const HomeLayout = ({ children }) => {
             background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
           }}
         />
+        
 
         {/* Desktop Header */}
         <header
@@ -751,7 +754,20 @@ const HomeLayout = ({ children }) => {
     )}
   </div>
 </header>
+ {/* ✨ NEW: Floating Feedback Button */}
+                <button
+                    onClick={() => setShowFeedback(true)}
+                    className="fixed bottom-35 md:bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg flex items-center justify-center text-white text-2xl hover:scale-110 transition-transform z-40"
+                    title="Send Feedback"
+                >
+                    💬
+                </button>
 
+                {/* ✨ NEW: Feedback Form Modal */}
+                <FeedbackForm 
+                    isOpen={showFeedback} 
+                    onClose={() => setShowFeedback(false)} 
+                />
 {/* 📱 FIXED Side Drawer Menu - Separate from Header */}
 {showMobileMenu && isLoggedIn && (
   <>
@@ -897,7 +913,7 @@ const HomeLayout = ({ children }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent backdrop-blur-3xl" />
 
           {/* Rounded Top Border with Glow */}
-          <div className="absolute -top-1 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full" />
+          {/* <div className="absolute -top-1 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full" /> */}
 
           {/* Main Navigation Container */}
           <div className="relative rounded-t-3xl border-t border-white/10 shadow-2xl">
