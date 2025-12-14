@@ -405,7 +405,7 @@ const EmailCampaigns = () => {
                     })
                   }
                   min="10"
-                  max="300"
+                  max="500"
                   className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
