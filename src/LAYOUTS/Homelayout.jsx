@@ -755,13 +755,37 @@ const [showFeedback, setShowFeedback] = useState(false);
   </div>
 </header>
  {/* ✨ NEW: Floating Feedback Button */}
-                <button
-                    onClick={() => setShowFeedback(true)}
-                    className="fixed bottom-35 md:bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg flex items-center justify-center text-white text-2xl hover:scale-110 transition-transform z-40"
-                    title="Send Feedback"
-                >
-                    💬
-                </button>
+                {/* ✨ NEW: Floating Feedback Button with Text (Desktop Only) */}
+<div className="hidden md:flex flex-col items-end gap-3 fixed bottom-6 right-6 z-40">
+  {/* Feedback Text - Desktop Only */}
+  <div className="bg-gradient-to-r from-blue-600/90 to-purple-600/90 backdrop-blur-xl rounded-2xl px-5 py-3 shadow-xl border border-white/10">
+    <p className="text-sm font-semibold text-white whitespace-nowrap">
+      Help us improve 🚀
+    </p>
+    <p className="text-xs text-white/80 whitespace-nowrap">
+      Send us your feedback
+    </p>
+  </div>
+
+  {/* Feedback Button */}
+  <button
+    onClick={() => setShowFeedback(true)}
+    className="w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg flex items-center justify-center text-white text-2xl hover:scale-110 transition-transform"
+    title="Send Feedback"
+  >
+    💬
+  </button>
+</div>
+
+{/* ✨ Mobile Feedback Button - Small Version */}
+<button
+    onClick={() => setShowFeedback(true)}
+    className="md:hidden fixed bottom-34 right-6 w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg flex items-center justify-center text-white text-xl hover:scale-110 transition-transform z-40"
+    title="Send Feedback"
+>
+    💬
+</button>
+
 
                 {/* ✨ NEW: Feedback Form Modal */}
                 <FeedbackForm 
