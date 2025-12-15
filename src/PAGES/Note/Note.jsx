@@ -462,7 +462,7 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
 
 
             {/* Message when no semester selected */}
-            {!localFilters.semester && (
+            {/* {!localFilters.semester && (
               <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-yellow-500/30 rounded-2xl p-12 text-center mb-8">
                 <div className="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-4xl">👆</span>
@@ -472,7 +472,14 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
                   Choose your semester above to see available subjects and study materials
                 </p>
               </div>
-            )}
+            )} */}
+            {!localFilters.semester && (
+  <div className="mb-6 text-center py-3 px-4 bg-yellow-500/5 border border-yellow-500/20 rounded-lg">
+    <p className="text-sm text-yellow-300 font-medium mb-1">👆 Select a semester first</p>
+    <p className="text-xs text-slate-400">Materials will appear once you choose</p>
+  </div>
+)}
+
 
 
             {/* Spotify-style OR divider */}
