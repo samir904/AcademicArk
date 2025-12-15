@@ -255,52 +255,39 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
     <HomeLayout>
       <div className="min-h-screen bg-black text-white">
         {/* Hero Section - Enhanced for AKTU */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900">
-          {/* Subtle Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 to-purple-900/30"></div>
+     <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900">
+  {/* Subtle Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 to-purple-900/30"></div>
 
-          <div className="relative max-w-5xl mx-auto px-6 py-20 text-center">
-            {/* AKTU Logo & Badge */}
-            <div className="inline-flex items-center justify-center mb-6 space-x-4">
-              <img src={aktulogo} alt="AKTU Logo" loading='lazy' className="w-14 rounded-4xl h-14" />
-              <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-lg font-bold px-3 py-1 rounded-full">
-                AKTU Resources
-              </div>
-            </div>
+  <div className="relative max-w-5xl mx-auto px-6 py-8 text-center">
+    {/* Logo & Badge - Compact */}
+    <div className="inline-flex items-center justify-center mb-3 space-x-2">
+      <img src={aktulogo} alt="AKTU Logo" loading="lazy" className="w-10 h-10 rounded-full" />
+      <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+        AKTU
+      </div>
+    </div>
 
-            {/* Main Title */}
-            <h1 className="text-4xl md:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300 mb-4">
-              AKTU Notes, PYQs & Important Questions
-            </h1>
+    {/* Title - Very Compact */}
+    <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">
+      AKTU Notes, PYQs & Questions
+    </h1>
 
-            {/* Supporting Tagline */}
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
-              Your one-stop portal for semester‐wise subject notes, previous year question papers,
-              and curated important questions—officially organized by AKTU syllabus.
-            </p>
+    {/* Tagline - One Liner */}
+    <p className="text-sm text-gray-400 max-w-xl mx-auto mb-4">
+      Semester-wise notes, PYQ papers & important questions
+    </p>
 
-            {/* Key Feature Highlights */}
-            <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <div className="flex items-center space-x-3">
-                <BookIcon className="w-7 h-7 text-blue-400" />
-                <span className="text-lg text-gray-200">Semester‐wise subject Notes</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <svg className="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 3v4a2 2 0 002 2h4" />
-                </svg>
-                <span className="text-lg text-gray-200">Previous Year Question Papers</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <svg className="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
-                <span className="text-lg text-gray-200">Curated Important Questions</span>
-              </div>
-            </div>
-          </div>
-        </div>
+    {/* Features - Single Row */}
+    <div className="flex flex-wrap justify-center gap-3 text-xs">
+      <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full">📚 Notes</span>
+      <span className="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full">📄 PYQs</span>
+      <span className="bg-pink-500/20 text-pink-300 px-3 py-1 rounded-full">⭐ Questions</span>
+    </div>
+  </div>
+</div>
+
+
 
         {/* Filters Section */}
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -371,130 +358,108 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
             </div>
 
             {/* STEP 2: Filters (Only show when semester is selected) */}
-            {localFilters.semester && (
-              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                      <FilterIcon className="w-5 h-5 text-purple-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white">Step 2: Filter Resources</h3>
-                      <p className="text-sm text-gray-400">
-                        Showing Semester {localFilters.semester} - {subjectsBySemester[localFilters.semester]?.length || 0} subjects available
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleClearFilters}
-                    className="text-sm text-gray-400 hover:text-white transition-colors flex items-center space-x-2 group"
-                  >
-                    <CloseIcon className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
-                    <span>Reset All</span>
-                  </button>
-                </div>
+     {/* STEP 2: Filters - Modern Cards */}
+{localFilters.semester && (
+  <div className="mb-6 space-y-3">
+    {/* Header with Reset */}
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <FilterIcon className="w-4 h-4 text-purple-400" />
+        <span className="text-sm font-semibold text-white">
+          Filter Semester {localFilters.semester}
+        </span>
+        <span className="text-xs text-slate-500">
+          ({subjectsBySemester[localFilters.semester]?.length || 0} subjects)
+        </span>
+      </div>
+      {(localFilters.subject || localFilters.category || localFilters.uploadedBy) && (
+        <button
+          onClick={handleClearFilters}
+          className="text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors flex items-center gap-1"
+        >
+          <CloseIcon className="w-3 h-3" />
+          Clear All
+        </button>
+      )}
+    </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  {/* Subject Filter */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Subject
-                      <span className="ml-2 text-xs text-blue-400">
-                        ({subjectsBySemester[localFilters.semester]?.length || 0} available)
-                      </span>
-                    </label>
-                    <select
-                      value={localFilters.subject}
-                      onChange={(e) => handleFilterChange('subject', e.target.value)}
-                      className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option className='bg-gray-900' value="">All Subjects in Semester {localFilters.semester}</option>
-                      {(subjectsBySemester[localFilters.semester] || []).map(subject => (
-                        <option className='bg-gray-900' key={subject} value={subject}>
-                          {subject}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+    {/* Filter Controls - Responsive Grid */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+      {/* Subject */}
+      <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5">
+        <label className="text-xs text-slate-400 font-semibold block mb-1">Subject</label>
+        <select
+          value={localFilters.subject}
+          onChange={(e) => handleFilterChange('subject', e.target.value)}
+          className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option className="bg-gray-900" value="">
+            All Subjects
+          </option>
+          {(subjectsBySemester[localFilters.semester] || []).map((subject) => (
+            <option className="bg-gray-900" key={subject} value={subject}>
+              {subject}
+            </option>
+          ))}
+        </select>
+        {localFilters.subject && (
+          <p className="text-xs text-blue-400 mt-1.5 px-2 py-1 bg-blue-500/10 rounded">
+            📌 {localFilters.subject}
+          </p>
+        )}
+      </div>
 
-                  {/* Category Filter */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
-                    <select
-                      value={localFilters.category}
-                      onChange={(e) => handleFilterChange('category', e.target.value)}
-                      className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option className='bg-gray-900' value="">All Materials</option>
-                      <option className='bg-gray-900' value="Notes">📚 Study Notes</option>
-                      <option className='bg-gray-900' value="Important Question">⭐ Important Questions</option>
-                      <option className='bg-gray-900' value="PYQ">📄 Previous Year Questions</option>
-                      <option className='bg-gray-900' value="Handwritten Notes">✏️ Handwritten Notes</option>
-                    </select>
-                  </div>
+      {/* Category */}
+      <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5">
+        <label className="text-xs text-slate-400 font-semibold block mb-1">Type</label>
+        <select
+          value={localFilters.category}
+          onChange={(e) => handleFilterChange('category', e.target.value)}
+          className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option className="bg-gray-900" value="">
+            All Materials
+          </option>
+          <option className="bg-gray-900" value="Notes">📚 Study Notes</option>
+          <option className="bg-gray-900" value="Important Question">⭐ Important Q's</option>
+          <option className="bg-gray-900" value="PYQ">📄 Previous Year Q's</option>
+          <option className="bg-gray-900" value="Handwritten Notes">✏️ Handwritten</option>
+        </select>
+        {localFilters.category && (
+          <p className="text-xs text-purple-400 mt-1.5 px-2 py-1 bg-purple-500/10 rounded">
+            ✓ {localFilters.category}
+          </p>
+        )}
+      </div>
 
-                  {/* Uploader Filter */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Contributor</label>
-                    <select
-                      value={localFilters.uploadedBy}
-                      onChange={(e) => handleFilterChange('uploadedBy', e.target.value)}
-                      className="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option className='bg-gray-900' value="">All Contributors</option>
-                      {uniqueUploaders.map(uploader => (
-                        <option className='bg-gray-900' key={uploader.id} value={uploader.id}>
-                          {uploader.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+      {/* Contributor */}
+      <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5">
+        <label className="text-xs text-slate-400 font-semibold block mb-1">By</label>
+        <select
+          value={localFilters.uploadedBy}
+          onChange={(e) => handleFilterChange('uploadedBy', e.target.value)}
+          className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option className="bg-gray-900" value="">
+            All Contributors
+          </option>
+          {uniqueUploaders.map((uploader) => (
+            <option className="bg-gray-900" key={uploader.id} value={uploader.id}>
+              {uploader.name}
+            </option>
+          ))}
+        </select>
+        {localFilters.uploadedBy && (
+          <p className="text-xs text-green-400 mt-1.5 px-2 py-1 bg-green-500/10 rounded">
+            👤 {uniqueUploaders.find((u) => u.id === localFilters.uploadedBy)?.name}
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+)}
 
-                {/* Search Bar */}
-                {/* <div className="relative">
-                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder={`Search in Semester ${localFilters.semester}...`}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div> */}
 
-                {/* Active Filters Display */}
-                {(localFilters.subject || localFilters.category || localFilters.uploadedBy) && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="text-sm text-gray-400">Active filters:</span>
-                    {localFilters.subject && (
-                      <span className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-sm text-blue-400 flex items-center space-x-2">
-                        <span>{localFilters.subject}</span>
-                        <button onClick={() => handleFilterChange('subject', '')} className="hover:text-blue-300">
-                          <CloseIcon className="w-3 h-3" />
-                        </button>
-                      </span>
-                    )}
-                    {localFilters.category && (
-                      <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-sm text-purple-400 flex items-center space-x-2">
-                        <span>{localFilters.category}</span>
-                        <button onClick={() => handleFilterChange('category', '')} className="hover:text-purple-300">
-                          <CloseIcon className="w-3 h-3" />
-                        </button>
-                      </span>
-                    )}
-                    {localFilters.uploadedBy && (
-                      <span className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full text-sm text-green-400 flex items-center space-x-2">
-                        <span>{uniqueUploaders.find(u => u.id === localFilters.uploadedBy)?.name}</span>
-                        <button onClick={() => handleFilterChange('uploadedBy', '')} className="hover:text-green-300">
-                          <CloseIcon className="w-3 h-3" />
-                        </button>
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Message when no semester selected */}
             {!localFilters.semester && (
@@ -542,67 +507,78 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
 {!loading && localFilters.semester && (
   <div className="mb-8">
     {/* Stats Cards */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      {/* Total Resources Card */}
-      <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-2xl p-6 hover:border-blue-500/50 transition-all">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-sm mb-1">Total Resources</p>
-            <p className="text-3xl font-bold text-blue-400">{totalNotes}</p>
-          </div>
-          <span className="text-4xl">📊</span>
-        </div>
+  {/* Stats Cards - Compact Version */}
+<div className="mb-8 space-y-3">
+  {/* Total Resources - Featured Card */}
+  <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-blue-100 text-xs font-semibold uppercase tracking-wider mb-1">Total Resources</p>
+        <p className="text-3xl font-bold text-white">{totalNotes}</p>
       </div>
-
-      {/* Category Cards */}
-      {Object.entries(categoryStats).map(([category, count]) => {
-        const config = getCategoryConfig(category);
-        const isActive = localFilters.category === category;
-
-        return (
-          <button
-            key={category}
-            onClick={() => handleFilterChange('category', category)}
-            className={`
-              relative rounded-2xl p-6 transition-all duration-300 transform hover:scale-105
-              ${isActive
-                ? `bg-gradient-to-br ${config.gradient} border-transparent shadow-xl scale-105`
-                : `bg-gradient-to-br from-gray-900/40 to-gray-800/30 border ${config.borderColor} hover:border-white/30`
-              }
-            `}
-          >
-            <div className="flex items-center justify-between">
-              <div className="text-left">
-                <p className={`text-sm font-medium mb-1 ${isActive ? 'text-white/80' : 'text-gray-400'}`}>
-                  {category}
-                </p>
-                <p className={`text-3xl font-bold ${isActive ? 'text-white' : config.textColor}`}>
-                  {count}
-                </p>
-              </div>
-              <span className="text-4xl">{config.icon}</span>
-            </div>
-
-            {/* Clear button if active */}
-            {isActive && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleFilterChange('category', '');
-                }}
-                className="absolute top-2 right-2 p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                title="Clear filter"
-              >
-                <CloseIcon className="w-4 h-4 text-white" />
-              </button>
-            )}
-          </button>
-        );
-      })}
+      <span className="text-5xl opacity-30">📊</span>
     </div>
+  </div>
+
+  {/* Category Stats - Inline Compact */}
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+    {Object.entries(categoryStats).map(([category, count]) => {
+      const config = getCategoryConfig(category);
+      const isActive = localFilters.category === category;
+
+      return (
+        <button
+          key={category}
+          onClick={() => handleFilterChange('category', category)}
+          className={`
+            relative rounded-lg p-3 transition-all duration-300 transform hover:scale-105 group
+            ${isActive
+              ? `bg-gradient-to-br ${config.gradient} border-transparent shadow-lg scale-105`
+              : `bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-600`
+            }
+          `}
+        >
+          {/* Icon and Count */}
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">{config.icon}</span>
+            <div className="text-left flex-1">
+              <p className={`text-xs font-medium mb-0.5 ${isActive ? 'text-white/90' : 'text-slate-400'}`}>
+                {category}
+              </p>
+              <p className={`text-xl font-bold ${isActive ? 'text-white' : config.textColor}`}>
+                {count}
+              </p>
+            </div>
+          </div>
+
+          {/* Clear button if active */}
+          {isActive && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleFilterChange('category', '');
+              }}
+              className="absolute -top-2 -right-2 p-1 bg-red-500/80 hover:bg-red-600 rounded-full transition-colors shadow-md"
+              title="Clear filter"
+            >
+              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          )}
+        </button>
+      );
+    })}
+  </div>
+</div>
+
+
+
+
+
 
     {/* Active Filter Badge */}
-    {localFilters.category && (
+    {/* {localFilters.category && (
       <div className="mb-6 p-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-xl flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <span>Filtering by:</span>
@@ -618,7 +594,7 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
           <span>Clear</span>
         </button>
       </div>
-    )}
+    )} */}
 
     {/* Contributors Filter - Simple Version */}
     {notes && notes.length > 0 && (
