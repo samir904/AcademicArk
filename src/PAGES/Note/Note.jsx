@@ -452,7 +452,7 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
                 </div>
 
                 {/* Search Bar */}
-                <div className="relative">
+                {/* <div className="relative">
                   <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
@@ -461,7 +461,7 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                </div>
+                </div> */}
 
                 {/* Active Filters Display */}
                 {(localFilters.subject || localFilters.category || localFilters.uploadedBy) && (
@@ -538,8 +538,8 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
             </div> */}
           </div>
 
-         {/* ✨ REDESIGNED: Simple Stats Section */}
-{localFilters.semester && (
+ {/* ✨ REDESIGNED: Simple Stats Section - ONLY SHOW WHEN LOADED */} 
+{!loading && localFilters.semester && (
   <div className="mb-8">
     {/* Stats Cards */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -694,17 +694,55 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
   </div>
 )}
 
+
           {/* Loading State */}
-          {loading && (
-            <div className="flex justify-center items-center py-20">
-              <div className="relative">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-blue-500"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <BookIcon className="w-6 h-6 text-blue-500" />
-                </div>
-              </div>
-            </div>
-          )}
+        {loading && (
+  <div className="space-y-6 py-8">
+    {/* Header Skeleton */}
+    <div className="space-y-3">
+      <div className="h-8 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-3/4 animate-pulse"></div>
+      <div className="h-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-1/2 animate-pulse"></div>
+    </div>
+
+    {/* Search Bar Skeleton */}
+    <div className="h-12 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl animate-pulse"></div>
+
+    {/* Filter Buttons Skeleton */}
+    <div className="flex gap-3 flex-wrap">
+      {[1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="h-10 bg-gradient-to-r from-slate-700 to-slate-600 rounded-full w-24 animate-pulse"
+        ></div>
+      ))}
+    </div>
+
+    {/* Cards Skeleton */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div
+          key={i}
+          className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden border border-slate-700/50 p-4 space-y-4"
+        >
+          {/* Thumbnail Skeleton */}
+          <div className="h-40 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg animate-pulse"></div>
+
+          {/* Title Skeleton */}
+          <div className="h-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-5/6 animate-pulse"></div>
+
+          {/* Subtitle Skeleton */}
+          <div className="h-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-4/6 animate-pulse"></div>
+
+          {/* Button Skeleton */}
+          <div className="pt-2">
+            <div className="h-10 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg animate-pulse"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
 
        {/* Enhanced Empty State with Popular Requests */}
 {!loading && localFilters.semester && filteredNotes.length === 0 && (
