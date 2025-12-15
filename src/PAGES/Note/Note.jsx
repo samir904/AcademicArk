@@ -307,7 +307,7 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
             </div>
 
             {/* STEP 1: Select Semester FIRST */}
-            <div className="mb-8">
+            <div className="mb-8 hidden md:block  ">
               <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-2xl p-6">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
@@ -356,6 +356,52 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
                 </div>
               </div>
             </div>
+            {/* STEP 1: Select Semester */}
+<div className="mb-6 md:hidden ">
+  <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-lg p-3">
+    {/* Header */}
+    <div className="flex items-center gap-2 mb-3">
+      <span className="text-lg">🎓</span>
+      <div className="flex-1">
+        <h3 className="text-sm font-semibold text-white">Select Semester</h3>
+        <p className="text-xs text-gray-400">Choose your current semester</p>
+      </div>
+    </div>
+
+    {/* Semester Buttons - Compact Grid */}
+    <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1.5">
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
+        <button
+          key={sem}
+          onClick={() => {
+            handleFilterChange('semester', sem);
+            handleFilterChange('subject', '');
+          }}
+          className={`
+            relative p-2 rounded-lg border transition-all duration-300 transform hover:scale-105 text-center
+            ${localFilters.semester === sem
+              ? 'bg-gradient-to-br from-blue-600 to-purple-600 border-transparent shadow-lg scale-105'
+              : 'bg-gray-900/40 border-gray-700/50 hover:border-blue-500/50'
+            }
+          `}
+        >
+          <div className={`text-lg font-bold ${localFilters.semester === sem ? 'text-white' : 'text-gray-300'}`}>
+            {sem}
+          </div>
+
+          {localFilters.semester === sem && (
+            <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+          )}
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
+
 
             {/* STEP 2: Filters (Only show when semester is selected) */}
      {/* STEP 2: Filters - Modern Cards */}
