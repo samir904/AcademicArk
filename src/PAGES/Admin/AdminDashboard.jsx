@@ -24,6 +24,7 @@ import AdminColleges from "./AdminColleges";
 import { getAcademicAnalytics } from "../../REDUX/Slices/academicProfileSlice";
  import AdminRequests from "./AdminRequests";
 import AdminFeedback from "./AdminFeedback";
+import RetentionTab from "./RetentionTab";
 
 // Icons
 const UsersIcon = ({ className }) => (
@@ -280,7 +281,7 @@ const { analytics } = useSelector((state) => state.academicProfile);
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard", "analytics", "users", "notes", "academic", "colleges", "logs","requests", "feedback"].map(
+              {["dashboard","retention", "analytics", "users", "notes", "academic", "colleges", "logs","requests", "feedback"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -301,7 +302,9 @@ const { analytics } = useSelector((state) => state.academicProfile);
                             :tab==='requests'
                             ?'notes requests'
                              : tab === "feedback"
-                                                ? "Feedback"
+                                                ? "feedback"
+                                                : tab === "retention"
+                                                ? "retention"
                                                 : tab}
                             
                   </button>
@@ -1442,7 +1445,8 @@ const { analytics } = useSelector((state) => state.academicProfile);
 {/* Feedback Tab */}
 {activeTab === "feedback" && <AdminFeedback />}
 
-
+{/* Retention Tab - NEW */}
+        {activeTab === 'retention' && <RetentionTab />}
 
         </div>
       </div>

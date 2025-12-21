@@ -176,7 +176,116 @@ export const getAdminLogs = createAsyncThunk(
     }
 );
 
+/**
+ * Get overall retention metrics
+ * Returns: retention rate, churn rate, active users, new users, cohort data
+ */
+export const getRetentionMetrics = createAsyncThunk(
+  '/admin/getRetentionMetrics',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get('/admin/retention-metrics');
+      return res.data;
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to get retention metrics';
+      showToast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
 
+/**
+ * Get churn analysis (users who left)
+ * @param {number} days - Days to analyze (default: 30)
+ */
+export const getChurnAnalysis = createAsyncThunk(
+  '/admin/getChurnAnalysis',
+  async (days = 30, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get(`/admin/churn-analysis?days=${days}`);
+      return res.data;
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to get churn analysis';
+      showToast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+/**
+ * Get user lifetime value metrics
+ * Returns: avg session duration, avg engagement, avg user lifetime
+ */
+export const getUserLifetimeValue = createAsyncThunk(
+  '/admin/getUserLifetimeValue',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get('/admin/ltv-metrics');
+      return res.data;
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to get LTV metrics';
+      showToast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+/**
+ * Get all user cohorts
+ * Returns: Array of cohorts with retention data
+ */
+export const getAllCohorts = createAsyncThunk(
+  '/admin/getAllCohorts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get('/admin/retention/cohorts');
+      return res.data;
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to get cohorts';
+      showToast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+/**
+ * Calculate retention for a specific month
+ * @param {object} param - { year, month }
+ */
+export const calculateCohortRetention = createAsyncThunk(
+  '/admin/calculateCohortRetention',
+  async ({ year, month }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post(
+        `/admin/retention/calculate/${year}/${month}`
+      );
+      showToast.success('Cohort retention calculated successfully');
+      return res.data;
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to calculate cohort retention';
+      showToast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+/**
+ * Get specific cohort details with all users
+ * @param {string} cohortName - Cohort name (e.g., "Dec-2024")
+ */
+export const getCohortDetails = createAsyncThunk(
+  '/admin/getCohortDetails',
+  async (cohortName, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get(`/admin/retention/cohorts/${cohortName}`);
+      return res.data;
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to get cohort details';
+      showToast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
 
 const initialState = {
     loading: false,
@@ -194,8 +303,35 @@ const initialState = {
     trafficPattern: null,
     milestoneStats: { totalUsers: 0, totalNotes: 0, totalDownloads: 0 },
     adminLogs: [],
-    adminLogsPagination: null
-
+    adminLogsPagination: null,
+    // ========== NEW: RETENTION STATE ==========
+  retentionMetrics: {
+    retentionRate: '0%',
+    churnRate: '0%',
+    usersStartOfMonth: 0,
+    newUsersThisMonth: 0,
+    activeUsersThisMonth: 0,
+    cohorts: []
+  },
+  churnAnalysis: {
+    period: '30 days',
+    totalUsers: 0,
+    activeUsers: 0,
+    churnedUsers: 0,
+    churnRate: '0%',
+    atRiskCount: 0,
+    atRiskUsers: []
+  },
+  ltv: {
+    avgSessionDuration: 0,
+    avgEngagement: 0,
+    avgUserLifetime: 0,
+    estimatedLTV: 'N/A'
+  },
+  cohorts: [],
+  selectedCohort: null,
+  retentionLoading: false,
+  retentionError: null
 };
 
 const adminSlice = createSlice({
@@ -212,7 +348,14 @@ const adminSlice = createSlice({
         clearNotes: (state) => {
             state.notes = [];
             state.notesPagination = null;
-        }
+        },
+        clearRetentionError: (state) => {
+      state.retentionError = null;
+    },
+    clearCohorts: (state) => {
+      state.cohorts = [];
+      state.selectedCohort = null;
+    }
     },
     extraReducers: (builder) => {
         builder
@@ -365,11 +508,95 @@ const adminSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
+            .addCase(getRetentionMetrics.pending, (state) => {
+        state.retentionLoading = true;
+        state.retentionError = null;
+      })
+      .addCase(getRetentionMetrics.fulfilled, (state, action) => {
+        state.retentionLoading = false;
+        state.retentionMetrics = action.payload.data;
+      })
+      .addCase(getRetentionMetrics.rejected, (state, action) => {
+        state.retentionLoading = false;
+        state.retentionError = action.payload;
+      })
 
+      // ========== NEW: CHURN ANALYSIS ==========
+      .addCase(getChurnAnalysis.pending, (state) => {
+        state.retentionLoading = true;
+        state.retentionError = null;
+      })
+      .addCase(getChurnAnalysis.fulfilled, (state, action) => {
+        state.retentionLoading = false;
+        state.churnAnalysis = action.payload.data;
+      })
+      .addCase(getChurnAnalysis.rejected, (state, action) => {
+        state.retentionLoading = false;
+        state.retentionError = action.payload;
+      })
+
+      // ========== NEW: USER LIFETIME VALUE ==========
+      .addCase(getUserLifetimeValue.pending, (state) => {
+        state.retentionLoading = true;
+        state.retentionError = null;
+      })
+      .addCase(getUserLifetimeValue.fulfilled, (state, action) => {
+        state.retentionLoading = false;
+        state.ltv = action.payload.data;
+      })
+      .addCase(getUserLifetimeValue.rejected, (state, action) => {
+        state.retentionLoading = false;
+        state.retentionError = action.payload;
+      })
+
+      // ========== NEW: GET ALL COHORTS ==========
+      .addCase(getAllCohorts.pending, (state) => {
+        state.retentionLoading = true;
+        state.retentionError = null;
+      })
+      .addCase(getAllCohorts.fulfilled, (state, action) => {
+        state.retentionLoading = false;
+        state.cohorts = action.payload.data;
+      })
+      .addCase(getAllCohorts.rejected, (state, action) => {
+        state.retentionLoading = false;
+        state.retentionError = action.payload;
+      })
+
+      // ========== NEW: CALCULATE COHORT ==========
+      .addCase(calculateCohortRetention.pending, (state) => {
+        state.retentionLoading = true;
+        state.retentionError = null;
+      })
+      .addCase(calculateCohortRetention.fulfilled, (state, action) => {
+        state.retentionLoading = false;
+        // Add new cohort to beginning of list
+        if (action.payload.data.cohort) {
+          state.cohorts = [action.payload.data.cohort, ...state.cohorts];
+        }
+      })
+      .addCase(calculateCohortRetention.rejected, (state, action) => {
+        state.retentionLoading = false;
+        state.retentionError = action.payload;
+      })
+
+      // ========== NEW: GET COHORT DETAILS ==========
+      .addCase(getCohortDetails.pending, (state) => {
+        state.retentionLoading = true;
+        state.retentionError = null;
+      })
+      .addCase(getCohortDetails.fulfilled, (state, action) => {
+        state.retentionLoading = false;
+        state.selectedCohort = action.payload.data;
+      })
+      .addCase(getCohortDetails.rejected, (state, action) => {
+        state.retentionLoading = false;
+        state.retentionError = action.payload;
+      });
 
 
     }
 });
 
-export const { clearError, clearUsers, clearNotes } = adminSlice.actions;
+export const { clearError, clearUsers, clearNotes, clearRetentionError, clearCohorts } = adminSlice.actions;
 export default adminSlice.reducer;

@@ -14,9 +14,7 @@ const BookmarkIcon = ({ className, filled }) => (
 );
 
 const DownloadIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-  </svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
 );
 
 const StarIcon = ({ className, filled }) => (
@@ -234,7 +232,7 @@ export default function PyqCard({ note }) {
     </div>
     
     {/* Actions */}
-    <div className="flex gap-2 pt-2">
+    {/* <div className="flex gap-2 pt-2">
       <Link
         to={`/notes/${note._id}`}
         className="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white py-2 px-4 rounded-lg text-sm font-bold transition-all text-center"
@@ -253,7 +251,39 @@ export default function PyqCard({ note }) {
           <DownloadIcon className="w-4 h-4" />
         )}
       </button>
-    </div>
+    </div> */}
+    <div className="flex gap-2 pt-2">
+  <Link
+    to={`/notes/${note._id}`}
+    className="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 active:from-cyan-700 active:to-blue-700 text-white py-2.5 px-4 rounded-full text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
+  >
+    <span>View Details</span>
+    <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    </svg>
+  </Link>
+
+  <button
+    onClick={handleDownload}
+    disabled={isDownloading}
+    className="px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white rounded-full transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 flex items-center justify-center gap-2"
+    aria-label="Download note"
+    aria-busy={isDownloading}
+  >
+    {isDownloading ? (
+      <>
+        <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
+        <span className="text-xs">Downloading...</span>
+      </>
+    ) : (
+      <>
+        <DownloadIcon className="w-4 h-4" />
+        <span className="text-xs hidden sm:inline">Download</span>
+      </>
+    )}
+  </button>
+</div>
+
   </div>
 </div>
 
