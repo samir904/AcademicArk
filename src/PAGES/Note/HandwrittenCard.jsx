@@ -247,7 +247,7 @@ export default function HandwrittenCard({ note }) {
           <div className="flex gap-2 pt-2">
             <Link
               to={`/notes/${note._id}`}
-              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-green-500 active:from-green-700 active:to-green-700 text-white py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-500"
+              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-green-500 active:from-green-700 active:to-green-700 text-white py-2.5 px-4 rounded-full text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-500"
             >
               <span>View Details</span>
               <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,7 +258,7 @@ export default function HandwrittenCard({ note }) {
             <button
               onClick={handleDownload}
               disabled={isDownloading}
-              className="px-4 py-2.5 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-500 flex items-center justify-center gap-2"
+              className="px-4 py-2.5 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white rounded-full transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-500 flex items-center justify-center gap-2"
               aria-label="Download important note"
               aria-busy={isDownloading}
             >
