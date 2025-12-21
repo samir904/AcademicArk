@@ -249,7 +249,7 @@ export default function HandwrittenCard({ note }) {
               to={`/notes/${note._id}`}
               className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-green-500 active:from-green-700 active:to-green-700 text-white py-2.5 px-4 rounded-full text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-500"
             >
-              <span>View Details</span>
+              <span className='font-bold text-sm' >View Details</span>
               <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -265,12 +265,12 @@ export default function HandwrittenCard({ note }) {
               {isDownloading ? (
                 <>
                   <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
-                  <span className="text-xs">Downloading...</span>
+                  <span className="text-xs font-bold hidden sm:inline ">Downloading...</span>
                 </>
               ) : (
                 <>
                   <DownloadIcon className="w-4 h-4" />
-                  <span className="text-xs hidden sm:inline">Download</span>
+                  <span className="text-xs font-bold hidden sm:inline">Download</span>
                 </>
               )}
             </button>
