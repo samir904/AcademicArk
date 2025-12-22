@@ -5,6 +5,7 @@ import { toggleBookmark, downloadnote, addRating } from '../../REDUX/Slices/note
 import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
 import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
+import { usePDFDownload } from '../../hooks/usePDFDownload.js';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -39,7 +40,11 @@ const FlameIcon = ({ className }) => (
     <path d="M17.66 11.2C17.43 10.9 17.15 10.64 16.89 10.38C16.22 9.78 15.46 9.35 14.82 8.72C13.33 7.26 13 4.85 13.95 3C13.76 3.13 13.59 3.28 13.43 3.44C11.25 5.34 11.24 8.28 12.24 10.44C12.95 11.87 14.43 12.38 15.18 13.78C15.27 13.94 15.35 14.12 15.41 14.3C15.56 14.99 15.52 15.72 15.3 16.39C15.05 17.18 14.56 17.95 13.89 18.53C13.44 18.90 12.94 19.21 12.41 19.44C11.88 19.68 11.32 19.85 10.75 19.93C9.97 20.06 9.17 20.05 8.39 19.89C7.61 19.73 6.87 19.42 6.2 18.99C5.54 18.57 4.95 18.03 4.46 17.4C3.85 16.63 3.43 15.75 3.21 14.82C2.99 13.89 2.98 12.92 3.18 11.98C3.39 11.04 3.81 10.15 4.4 9.4C4.99 8.65 5.75 8.05 6.6 7.63C7.45 7.21 8.37 6.98 9.31 6.96C10.25 6.94 11.18 7.13 12.04 7.52C12.90 7.91 13.67 8.49 14.3 9.22C14.93 9.95 15.40 10.82 15.68 11.75C15.81 12.21 15.87 12.69 15.87 13.17C15.87 13.64 15.81 14.12 15.68 14.58C15.42 15.48 14.92 16.29 14.24 16.93Z" />
   </svg>
 );
-
+const CheckIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+  </svg>
+);
 export default function ImportantCard({ note }) {
   const dispatch = useDispatch();
   const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
@@ -61,6 +66,10 @@ export default function ImportantCard({ note }) {
   const [userRating, setUserRating] = useState(0);
   const [userReview, setUserReview] = useState('');
 
+  
+  const { downloadPDF, downloading } = usePDFDownload();
+  const downloadState = downloading[note._id];
+  
   // Handlers
   const handleBookmark = (e) => {
     e.preventDefault();
@@ -78,7 +87,7 @@ export default function ImportantCard({ note }) {
     dispatch(toggleBookmark(note._id));
   };
 
-  const handleDownload = (e) => {
+  const handleDownload =async (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
@@ -100,10 +109,27 @@ export default function ImportantCard({ note }) {
     });
 
     dispatch(downloadnote({ noteId: note._id, title: note.title }));
+  // Download to IndexedDB
+  const success = await downloadPDF({
+    id: note._id,
+    url: note.fileDetails.secure_url, // Make sure your note has this field
+    title: note.title,
+    subject: note.subject,
+    courseCode: note.course,
+    semester: note.semester,
+    university: note.university,
+    uploadedBy: note.uploadedBy,
+  });
 
+  if (success) {
+    // Show review modal after successful download
     setTimeout(() => {
       setShowReviewModal(true);
     }, 500);
+  }
+    // setTimeout(() => {
+    //   setShowReviewModal(true);
+    // }, 500);
   };
 
   const submitRating = () => {
@@ -269,7 +295,7 @@ export default function ImportantCard({ note }) {
     </svg>
   </Link>
 
-  <button
+  {/* <button
     onClick={handleDownload}
     disabled={isDownloading}
     className="px-4 py-2.5 bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white rounded-full transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-500 flex items-center justify-center gap-2"
@@ -287,7 +313,49 @@ export default function ImportantCard({ note }) {
         <span className="text-xs font-bold  hidden sm:inline">Download</span>
       </>
     )}
-  </button>
+  </button> */}
+ <button
+  onClick={handleDownload}
+  disabled={downloadState?.status === 'starting'}
+  className={`px-4 py-2.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-500 ${
+    downloadState?.status === 'error' 
+      ? 'bg-red-600 hover:bg-red-500 text-white'
+      : downloadState?.status === 'complete' || downloadState?.status === 'exists'
+      ? 'bg-green-600 hover:bg-green-500 text-white'
+      : 'bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
+  }`}
+  aria-label="Download note"
+  aria-busy={downloadState?.status === 'starting'}
+>
+  {downloadState?.status === 'complete' ? (
+    <>
+      <CheckIcon className="w-4 h-4 text-white" />
+      <span>Downloaded</span>
+    </>
+  ) : downloadState?.status === 'exists' ? (
+    <>
+      <CheckIcon className="w-4 h-4 text-white" />
+      <span>Already Downloaded</span>
+    </>
+  ) : downloadState?.status === 'starting' ? (
+    <>
+      <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
+      <span>Downloading...</span>
+    </>
+  ) : downloadState?.status === 'error' ? (
+    <>
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>Retry</span>
+    </>
+  ) : (
+    <>
+      <DownloadIcon className="w-4 h-4" />
+      <span>Download</span>
+    </>
+  )}
+</button>
 </div>
 
   </div>

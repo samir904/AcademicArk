@@ -5,6 +5,7 @@ import { toggleBookmark, downloadnote, addRating } from '../../REDUX/Slices/note
 import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
 import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
+import { usePDFDownload } from '../../hooks/usePDFDownload.js';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -34,7 +35,11 @@ const TargetIcon = ({ className }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
   </svg>
 );
-
+const CheckIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+  </svg>
+);
 export default function PyqCard({ note }) {
   const dispatch = useDispatch();
   const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
@@ -56,6 +61,9 @@ export default function PyqCard({ note }) {
   const [userRating, setUserRating] = useState(0);
   const [userReview, setUserReview] = useState('');
 
+const { downloadPDF, downloading } = usePDFDownload();
+const downloadState = downloading[note._id];
+
   // Handlers
   const handleBookmark = (e) => {
     e.preventDefault();
@@ -73,7 +81,7 @@ export default function PyqCard({ note }) {
     dispatch(toggleBookmark(note._id));
   };
 
-  const handleDownload = (e) => {
+  const handleDownload = async(e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
@@ -94,11 +102,28 @@ export default function PyqCard({ note }) {
     });
 
     dispatch(downloadnote({ noteId: note._id, title: note.title }));
+  // Download to IndexedDB
+  const success = await downloadPDF({
+    id: note._id,
+    url: note.fileDetails.secure_url, // Make sure your note has this field
+    title: note.title,
+    subject: note.subject,
+    courseCode: note.course,
+    semester: note.semester,
+    university: note.university,
+    uploadedBy: note.uploadedBy,
+  });
 
-    // Show review modal after download
+  if (success) {
+    // Show review modal after successful download
     setTimeout(() => {
       setShowReviewModal(true);
     }, 500);
+  }
+    // Show review modal after download
+    // setTimeout(() => {
+    //   setShowReviewModal(true);
+    // }, 500);
   };
 
   const submitRating = () => {
@@ -263,7 +288,7 @@ export default function PyqCard({ note }) {
     </svg>
   </Link>
 
-  <button
+  {/* <button
     onClick={handleDownload}
     disabled={isDownloading}
     className="px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white rounded-full transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 flex items-center justify-center gap-2"
@@ -281,7 +306,49 @@ export default function PyqCard({ note }) {
         <span className="text-xs hidden font-bold sm:inline">Download</span>
       </>
     )}
-  </button>
+  </button> */}
+          <button
+  onClick={handleDownload}
+  disabled={downloadState?.status === 'starting'}
+  className={`px-4 py-2.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 ${
+    downloadState?.status === 'error' 
+      ? 'bg-red-600 hover:bg-red-500 text-white'
+      : downloadState?.status === 'complete' || downloadState?.status === 'exists'
+      ? 'bg-green-600 hover:bg-green-500 text-white'
+      : 'bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
+  }`}
+  aria-label="Download note"
+  aria-busy={downloadState?.status === 'starting'}
+>
+  {downloadState?.status === 'complete' ? (
+    <>
+      <CheckIcon className="w-4 h-4 text-white" />
+      <span>Downloaded</span>
+    </>
+  ) : downloadState?.status === 'exists' ? (
+    <>
+      <CheckIcon className="w-4 h-4 text-white" />
+      <span>Already Downloaded</span>
+    </>
+  ) : downloadState?.status === 'starting' ? (
+    <>
+      <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
+      <span>Downloading...</span>
+    </>
+  ) : downloadState?.status === 'error' ? (
+    <>
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>Retry</span>
+    </>
+  ) : (
+    <>
+      <DownloadIcon className="w-4 h-4" />
+      <span>Download</span>
+    </>
+  )}
+</button>
 </div>
 
   </div>

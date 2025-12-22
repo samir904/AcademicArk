@@ -5,6 +5,7 @@ import { toggleBookmark, downloadnote, addRating } from '../../REDUX/Slices/note
 import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
 import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
+import { usePDFDownload } from '../../hooks/usePDFDownload.js';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -28,7 +29,11 @@ const CloseIcon = ({ className }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
-
+const CheckIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+  </svg>
+);
 export default function HandwrittenCard({ note }) {
   const dispatch = useDispatch();
   const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
@@ -50,6 +55,10 @@ export default function HandwrittenCard({ note }) {
   const [userRating, setUserRating] = useState(0);
   const [userReview, setUserReview] = useState('');
 
+  
+  const { downloadPDF, downloading } = usePDFDownload();
+  const downloadState = downloading[note._id];
+  
   // Handlers
   const handleBookmark = (e) => {
     e.preventDefault();
@@ -67,7 +76,7 @@ export default function HandwrittenCard({ note }) {
     dispatch(toggleBookmark(note._id));
   };
 
-  const handleDownload = (e) => {
+  const handleDownload =async (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
@@ -88,10 +97,27 @@ export default function HandwrittenCard({ note }) {
     });
 
     dispatch(downloadnote({ noteId: note._id, title: note.title }));
+  // Download to IndexedDB
+  const success = await downloadPDF({
+    id: note._id,
+    url: note.fileDetails.secure_url, // Make sure your note has this field
+    title: note.title,
+    subject: note.subject,
+    courseCode: note.course,
+    semester: note.semester,
+    university: note.university,
+    uploadedBy: note.uploadedBy,
+  });
 
+  if (success) {
+    // Show review modal after successful download
     setTimeout(() => {
       setShowReviewModal(true);
     }, 500);
+  }
+    // setTimeout(() => {
+    //   setShowReviewModal(true);
+    // }, 500);
   };
 
   const submitRating = () => {
@@ -255,7 +281,7 @@ export default function HandwrittenCard({ note }) {
               </svg>
             </Link>
           
-            <button
+            {/* <button
               onClick={handleDownload}
               disabled={isDownloading}
               className="px-4 py-2.5 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white rounded-full transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-500 flex items-center justify-center gap-2"
@@ -273,7 +299,49 @@ export default function HandwrittenCard({ note }) {
                   <span className="text-xs font-bold hidden sm:inline">Download</span>
                 </>
               )}
-            </button>
+            </button> */}
+            <button
+  onClick={handleDownload}
+  disabled={downloadState?.status === 'starting'}
+  className={`px-4 py-2.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 ${
+    downloadState?.status === 'error' 
+      ? 'bg-red-600 hover:bg-red-500 text-white'
+      : downloadState?.status === 'complete' || downloadState?.status === 'exists'
+      ? 'bg-green-600 hover:bg-green-500 text-white'
+      : 'bg-green-600 hover:bg-green-500 active:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
+  }`}
+  aria-label="Download note"
+  aria-busy={downloadState?.status === 'starting'}
+>
+  {downloadState?.status === 'complete' ? (
+    <>
+      <CheckIcon className="w-4 h-4 text-white" />
+      <span>Downloaded</span>
+    </>
+  ) : downloadState?.status === 'exists' ? (
+    <>
+      <CheckIcon className="w-4 h-4 text-white" />
+      <span>Already Downloaded</span>
+    </>
+  ) : downloadState?.status === 'starting' ? (
+    <>
+      <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
+      <span>Downloading...</span>
+    </>
+  ) : downloadState?.status === 'error' ? (
+    <>
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>Retry</span>
+    </>
+  ) : (
+    <>
+      <DownloadIcon className="w-4 h-4" />
+      <span>Download</span>
+    </>
+  )}
+</button>
           </div>
         </div>
       </div>

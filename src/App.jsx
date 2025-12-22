@@ -75,6 +75,8 @@ const HelpCenter = React.lazy(() => import("./PAGES/Static/HelpCenter"));
 const AboutDeveloper = React.lazy(() =>
   import("./PAGES/Static/AboutDeveloper")
 );
+const DownloadsPage = React.lazy(() => import("./PAGES/DownloadsPage"));
+
 const ComingSoon = React.lazy(() => import("./PAGES/Static/ComingSoon"));
 const BookIcon = ({ className }) => (
   <svg
@@ -234,6 +236,14 @@ function App() {
         <Route path="/admin/analytics" element={<Analytics />} />
         {/* <Route path="/admin/broadcast-email" element={<BroadcastEmail />} /> */}
         <Route path="/admin/campaigns" element={<EmailCampaigns />} />
+        <Route
+  path="/downloads"
+  element={
+    <Suspense fallback={<AppLoader />}>
+      <DownloadsPage />
+    </Suspense>
+  }
+/>
         <Route
           path="/attendance"
           element={

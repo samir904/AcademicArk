@@ -15,6 +15,7 @@ import AcademicProfileModal from '../COMPONENTS/AcademicProfileModal'; // ✨ NE
 import EnhancedFooter from "./EnhancedFooter";
 import FeedbackForm from "../COMPONENTS/FeedbackForm";
 import PWAInstallPrompt from "../COMPONENTS/PWAInstallPrompt";
+import OfflineModal from "../COMPONENTS/OfflineModal";
 
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
@@ -64,6 +65,10 @@ const LoginIcon = ({ className }) => (
   </svg>
 );
 
+const DownloadIcon = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+);
+
 const SearchIcon = ({ className, active }) => (
   <svg className={className} viewBox="0 0 24 24">
     {active ? (
@@ -85,49 +90,7 @@ const SearchIcon = ({ className, active }) => (
 );
 
 const LibraryIcon = ({ className = "", active }) => (
-  <svg
-    className={className}
-    fill="none"
-    viewBox="0 0 32 32"
-    stroke={active ? "url(#library-gradient)" : "currentColor"}
-    strokeWidth={1.7}
-    xmlns="http://www.w3.org/2000/svg"
-    style={{
-      transition: "stroke 0.2s, box-shadow 0.2s",
-      filter: active
-        ? "drop-shadow(0 2px 6px rgba(87, 102, 218, .25))"
-        : undefined
-    }}
-  >
-    <defs>
-      <linearGradient id="library-gradient" x1="0" y1="16" x2="32" y2="16" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#7F9CF5" />
-        <stop offset="1" stopColor="#B794F4" />
-      </linearGradient>
-    </defs>
-    {/* Book (back, closed) */}
-    <rect x="4" y="6" width="8" height="20" rx="2.5"
-      fill={active ? "url(#library-gradient)" : "#232946"}
-      stroke={active ? "url(#library-gradient)" : "#A0AEC0"}
-      strokeWidth="2.2"
-    />
-    {/* Book (front, open) */}
-    <rect x="12" y="6" width="16" height="20" rx="2.5"
-      fill={active ? "white" : "none"}
-      stroke={active ? "url(#library-gradient)" : "#A0AEC0"}
-      strokeWidth="2.2"
-    />
-    {/* Book lines */}
-    <line x1="16" y1="10" x2="24" y2="10"
-          stroke={active ? "#7F9CF5" : "#A0AEC0"}
-          strokeWidth="1.25"/>
-    <line x1="16" y1="14" x2="24" y2="14"
-          stroke={active ? "#7F9CF5" : "#A0AEC0"}
-          strokeWidth="1.25"/>
-    <line x1="16" y1="18" x2="24" y2="18"
-          stroke={active ? "#7F9CF5" : "#A0AEC0"}
-          strokeWidth="1.25"/>
-  </svg>
+ <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library-icon lucide-library"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>
 );
 
 
@@ -405,6 +368,8 @@ const [showFeedback, setShowFeedback] = useState(false);
       { name: "Library", path: "/notes", icon: "📚" },
       { name: "Search", path: "/search", icon: "📖" },
       { name: "Attendance", path: "/attendance", icon: "📊" }, // ✨ MOVED: Always show
+      { name: "Downloads", path: "/downloads", icon: "📥" }
+
       // {name:'Study Buddy', path:'/study-buddy',icon:''},
       // {name:'Study Planner',path:'/study-planner',icon:''}
     ];
@@ -449,6 +414,13 @@ const [showFeedback, setShowFeedback] = useState(false);
         icon: AttendanceIcon,
         label: "Attendance",
       }, // ✨ MOVED: Always show
+      {
+  name: "Downloads",
+  path: "/downloads",
+  icon: DownloadIcon,
+  label: "Downloads",
+}
+
     ];
 
     // Add role-specific navigation
@@ -490,6 +462,8 @@ const [showFeedback, setShowFeedback] = useState(false);
   }, []);
   return (
     <>
+    {/* <OfflineRedirect/> */}
+    <OfflineModal/>
     <PWAInstallPrompt />
       {/* Notification banner - rendered independently */}
       <NotificationBanner />
@@ -538,7 +512,7 @@ const [showFeedback, setShowFeedback] = useState(false);
               {/* Enhanced Desktop Navigation */}
               <div className="flex items-center space-x-2 bg-white/5 backdrop-blur-xl rounded-full p-2 border border-white/10">
                 {getNavigationItems()
-                  .slice(0, 8)
+                  .slice(0, 9)
                   .map((item) => (
                     <Link
                       key={item.name}
@@ -948,90 +922,54 @@ const [showFeedback, setShowFeedback] = useState(false);
 {/* ✨ NEW: Add Academic Profile Modal */}
       <AcademicProfileModal />
         {/* 🎨 AMAZING Spotify-Style Bottom Navigation - Redesigned */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40">
-          {/* Gradient Background Blur */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent backdrop-blur-3xl" />
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40">
+  {/* Background */}
+  <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900 to-transparent" />
 
-          {/* Rounded Top Border with Glow */}
-          {/* <div className="absolute -top-1 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full" /> */}
+  {/* Navigation */}
+  <div className="relative px-4 py-4 flex items-center justify-evenly">
+    {getMobileNavItems().map((item) => {
+      const IconComponent = item.icon;
+      const isActive = isActiveLink(item.path);
 
-          {/* Main Navigation Container */}
-          <div className="relative rounded-t-3xl border-t border-white/10 shadow-2xl">
-            {/* Inner container with smooth corners */}
-            <div className="px-3 py-3 rounded-t-3xl bg-gradient-to-b from-white/5 to-black/50">
-              {/* Navigation Items */}
-              <div className="flex items-center justify-evenly">
-                {getMobileNavItems().map((item, index) => {
-                  const IconComponent = item.icon;
-                  const isActive = isActiveLink(item.path);
-
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.path}
-                      className={`relative flex flex-col items-center justify-center p-3 rounded-2xl transition-all duration-300 group ${
-                        isActive
-                          ? "text-white"
-                          : "text-gray-500 hover:text-gray-300"
-                      }`}
-                    >
-                      {/* Active Background Glow */}
-                      {isActive && (
-                        <>
-                          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                          <div className="absolute -inset-2 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-all duration-300" />
-                        </>
-                      )}
-
-                      {/* Icon Container */}
-                      <div
-                        className={`relative p-2.5 rounded-xl transition-all duration-300 ${
-                          isActive
-                            ? "bg-gradient-to-br from-blue-500/40 to-purple-500/40"
-                            : "bg-white/5 group-hover:bg-white/10"
-                        }`}
-                      >
-                        <IconComponent
-                          className={`w-6 h-6 transition-all duration-300 ${
-                            isActive ? "scale-110" : "group-hover:scale-105"
-                          }`}
-                          active={isActive}
-                        />
-
-                        {/* Active Indicator Dot */}
-                        {/* {isActive && (
-                          <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse shadow-lg" />
-                        )} */}
-                      </div>
-
-                      {/* Label */}
-                      <span
-                        className={`text-xs font-bold mt-2 transition-all duration-300 ${
-                          isActive
-                            ? "text-white"
-                            : "text-gray-400 group-hover:text-gray-200"
-                        }`}
-                      >
-                        {item.label}
-                      </span>
-
-                      {/* Hover Effect Background */}
-                      {!isActive && (
-                        <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-
-              {/* Safe Area Bottom Padding */}
-              <div className="h-1" />
-            </div>
-
-            {/* Floating Shadow */}
-            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-3/4 h-4 bg-black/40 rounded-full blur-xl" />
+      return (
+        <Link
+          key={item.name}
+          to={item.path}
+          className={`flex flex-col items-center gap-2 transition-all duration-200`}
+        >
+          {/* Neumorphic Button */}
+          <div
+            className={`p-3 rounded-2xl transition-all duration-200 ${
+              isActive
+                ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg"
+                : "bg-gray-800 text-gray-500 shadow-md hover:bg-gray-700"
+            }`}
+            style={{
+              boxShadow: isActive
+                ? "0 8px 20px rgba(59, 130, 246, 0.3)"
+                : "0 4px 12px rgba(0, 0, 0, 0.5)"
+            }}
+          >
+            <IconComponent className="w-5 h-5" />
           </div>
-        </div>
+
+          {/* Label */}
+          <span className={`text-xs font-bold ${
+            isActive ? "text-white" : "text-gray-500"
+          }`}>
+            {item.label}
+          </span>
+        </Link>
+      );
+    })}
+  </div>
+
+  {/* Safe Area */}
+  <div className="h-2" />
+</div>
+
+
 
         {/* Enhanced Footer */}
         {/* <footer className="bg-black border-t border-white/10 mb-16 md:mb-0 relative overflow-hidden">
