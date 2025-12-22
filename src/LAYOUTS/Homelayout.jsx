@@ -14,6 +14,7 @@ import { checkProfileCompletion } from '../REDUX/Slices/academicProfileSlice'; /
 import AcademicProfileModal from '../COMPONENTS/AcademicProfileModal'; // ✨ NEW
 import EnhancedFooter from "./EnhancedFooter";
 import FeedbackForm from "../COMPONENTS/FeedbackForm";
+import PWAInstallPrompt from "../COMPONENTS/PWAInstallPrompt";
 
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
@@ -489,6 +490,7 @@ const [showFeedback, setShowFeedback] = useState(false);
   }, []);
   return (
     <>
+    <PWAInstallPrompt />
       {/* Notification banner - rendered independently */}
       <NotificationBanner />
 

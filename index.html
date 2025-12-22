@@ -8,7 +8,21 @@
    <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-     
+     <!-- ✨ PWA MANIFEST - ADD THIS -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- ✨ THEME COLOR - ADD THIS -->
+    <meta name="theme-color" content="#3b82f6" />
+    
+    <!-- ✨ APPLE WEB APP SUPPORT - ADD THIS -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="AcademicArk" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    
+    <!-- ✨ WINDOWS SUPPORT - ADD THIS -->
+    <meta name="msapplication-TileColor" content="#000000" />
+
 <meta name="google-site-verification" content="Vlgj2_2zV1h6tpxq4Z-TJLGhCONOwDCotYQCBS5_YUU" />
 <!-- ✨ ADD THIS: Google AdSense Code Snippet -->
    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9047304299228199"
@@ -18,5 +32,21 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <!-- ✨ SERVICE WORKER REGISTRATION - ADD THIS BEFORE CLOSING BODY -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('✅ Service Worker registered successfully');
+            })
+            .catch(error => {
+              console.log('❌ Service Worker registration failed:', error);
+            });
+        });
+      } else {
+        console.log('⚠️ Service Workers not supported');
+      }
+    </script>
   </body>
 </html>
