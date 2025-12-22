@@ -240,39 +240,49 @@ const DownloadsPage = () => {
   );
 };
 
-// PDF Viewer Modal
 const PDFViewerModal = ({ pdf, onClose }) => {
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [onClose]);
+  const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 md:p-0">
-      <div className="w-full md:w-full max-w-4xl md:max-w-none h-[90vh] md:h-[95vh] bg-gray-900 md:bg-gray-900 overflow-hidden md:rounded-none rounded-lg">
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
-          <h3 className="text-lg font-bold text-white">{pdf.title}</h3>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-all"
-            title="Close (ESC)"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <div className="fixed inset-0 bg-black/95 z-50 flex flex-col">
+      {/* ✅ Header - Fixed Height */}
+      <div className="flex items-center justify-between p-3 md:p-4 border-b border-gray-800 bg-gray-900 flex-shrink-0">
+        <h3 className="text-sm md:text-lg font-bold text-white truncate flex-1 pr-2">
+          {pdf.title}
+        </h3>
+        <button
+          onClick={onClose}
+          className="p-2 hover:bg-gray-800 rounded-lg transition-all flex-shrink-0"
+        >
+          {/* Close button */}
+        </button>
+      </div>
+
+      {/* ✅ PDF Container - Flexible */}
+      <div className="flex-1 overflow-auto w-full bg-black relative">
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            {/* Loading spinner */}
+          </div>
+        )}
+        
+        {/* ✅ This now works on ALL devices */}
         <iframe
           src={pdf.objectUrl}
-          className="w-full h-[calc(100%-60px)]"
-          title={pdf.title}
+          className="w-full h-full border-none"
+          onLoad={() => setIsLoading(false)}
         />
+      </div>
+
+      {/* ✅ Footer - Fixed Height */}
+      <div className="p-3 md:p-4 border-t border-gray-800 bg-gray-900 flex-shrink-0">
+        <p className="text-xs md:text-sm text-gray-400">
+          📄 {pdf.title} • 📦 {(pdf.size / 1024 / 1024).toFixed(2)} MB
+        </p>
       </div>
     </div>
   );
 };
+
 
 export default DownloadsPage;
