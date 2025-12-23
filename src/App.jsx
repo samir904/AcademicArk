@@ -22,6 +22,7 @@ import Analytics from "./PAGES/Admin/Analytics";
 // import { BroadcastEmail } from "./PAGES/Admin/BroadcastEmail";
 import EmailCampaigns from "./PAGES/Admin/EmailCampaigns";
 import GlobalLoginModal from "./COMPONENTS/GlobalLoginModal";
+import HomeLayout from "./LAYOUTS/Homelayout";
 // import StudyBuddy from './PAGES/AI/StudyBuddy';
 // import StudyPlanner from './PAGES/AI/StudyPlanner';
 // import StudyPlannerDetail from './PAGES/AI/StudyPlannerDetail';
@@ -94,53 +95,136 @@ const BookIcon = ({ className }) => (
   </svg>
 );
 
-const AppLoader = () => (
-  <div className="min-h-screen bg-black flex items-center justify-center relative">
-    {/* Background Orb */}
-    <div
-      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
-                    w-96 h-96 bg-gradient-to-r from-blue-500/10 via-purple-500/10
-                    to-pink-500/10 rounded-full blur-3xl animate-pulse"
-    ></div>
+// UPDATED APP LOADER - With Custom AcademicArk Logo
+const AppLoader = () => {
+  return (
+    
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-950 flex items-center justify-center relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0">
+        {/* Floating Orbs */}
+        {/* <div className="absolute top-20 left-10 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl animate-float delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-full blur-3xl animate-pulse"></div> */}
 
-    <div className="relative z-10 text-center">
-      {/* Main Spinner with Icon - Just like your reference */}
-      <div className="flex justify-center items-center mb-8">
-        <div className="relative">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-700 border-t-blue-500 "></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-8 h-8  rounded-lg flex items-center justify-center">
-              <BookIcon className="w-6 h-6 text-blue-500" />
+        {/* Grid Background */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.03)_1px,transparent_1px)] bg-[size:50px_50px] opacity-30"></div>
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 text-center px-4">
+        {/* Main Spinner Container */}
+        <div className="flex justify-center items-center mb-12">
+          <div className="relative">
+            {/* Outer rotating ring */}
+            {/* <div
+              className="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-500 border-r-purple-500 animate-spin"
+              style={{ animationDuration: "3s" }}
+            ></div> */}
+
+            {/* Middle rotating ring */}
+            {/* <div
+              className="absolute inset-3 rounded-full border-2 border-transparent border-b-blue-500 border-l-purple-500 animate-spin"
+              style={{
+                animationDuration: "4s",
+                animationDirection: "reverse",
+              }}
+            ></div> */}
+
+            {/* Main spinner */}
+            {/* <div className="w-24 h-24 rounded-full border-4 border-gray-700 border-t-blue-500 border-r-purple-500 animate-spin"></div> */}
+
+            {/* Inner glow */}
+            <div className="absolute inset-0 rounded-full border-2 border-blue-500/30 animate-pulse"></div>
+
+            {/* Center Icon - Custom AcademicArk Logo */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative group">
+                <div className="w-12 h-12 bg-gradient-to-br from-white to-gray-200 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/50 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                  <span className="text-black font-bold text-xl">A</span>
+                </div>
+                <div className="absolute -inset-1 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Logo/Title */}
+        <div className="space-y-4 mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold">
+            <span className="text-white">Academic</span>
+            <span className="ml-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
+              Ark
+            </span>
+          </h1>
+
+          {/* Subtitle */}
+          {/* <p className="text-gray-400 text-sm md:text-base font-light">
+            Preparing your learning experience
+            <span className="inline-flex ml-2 space-x-1">
+              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
+              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse delay-100"></span>
+              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse delay-200"></span>
+            </span>
+          </p> */}
+        </div>
+
+        {/* Progress Dots */}
+        <div className="flex justify-center space-x-3 mt-8">
+          <div
+            className="w-2.5 h-2.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-bounce"
+            style={{ animationDelay: "0s" }}
+          ></div>
+          <div
+            className="w-2.5 h-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-bounce"
+            style={{ animationDelay: "0.2s" }}
+          ></div>
+          <div
+            className="w-2.5 h-2.5 bg-gradient-to-r from-pink-500 to-blue-500 rounded-full animate-bounce"
+            style={{ animationDelay: "0.4s" }}
+          ></div>
+        </div>
+
+        {/* Loading Text */}
+        {/* <p className="text-gray-500 text-xs mt-8 font-mono">Loading...</p> */}
       </div>
 
-      {/* Text */}
-      <div className="space-y-2">
-        <h2 className="text-2xl font-light text-white">
-          Academic
-          <span
-            className="font-bold bg-gradient-to-r from-blue-400 
-                                  to-purple-400 bg-clip-text text-transparent"
-          >
-            Ark
-          </span>
-        </h2>
-        {/* <p className="text-gray-400">
-          Loading...
-        </p> */}
-      </div>
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
 
-      {/* Progress Dots */}
-      <div className="flex justify-center space-x-2 mt-6">
-        <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
-        <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse delay-300"></div>
-        <div className="w-3 h-3 bg-gradient-to-r from-pink-500 to-blue-500 rounded-full animate-pulse delay-600"></div>
-      </div>
+        @keyframes gradientShift {
+          0% { background-position: 200% 0; }
+          50% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+
+        .delay-100 {
+          animation-delay: 0.1s;
+        }
+
+        .delay-200 {
+          animation-delay: 0.2s;
+        }
+
+        .delay-300 {
+          animation-delay: 0.3s;
+        }
+
+        .delay-600 {
+          animation-delay: 0.6s;
+        }
+
+        .delay-1000 {
+          animation-delay: 1s;
+        }
+      `}</style>
     </div>
-  </div>
-);
+  );
+};
 
 function App() {
   const dispatch = useDispatch();
