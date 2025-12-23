@@ -947,7 +947,7 @@ const [showFeedback, setShowFeedback] = useState(false);
             className={`flex items-center justify-center p-3 rounded-full transition-all duration-200 ${
               isActive
                 ? "bg-gradient-to-r from-blue-600 to-cyan-500 shadow-lg scale-110"
-                : "bg-white/5 hover:bg-white/10"
+                : "bg-white/12 hover:bg-white/"
             }`}
           >
             <IconComponent className="w-5 h-5" />
@@ -959,9 +959,9 @@ const [showFeedback, setShowFeedback] = useState(false);
           </span>
 
           {/* Active Indicator Line */}
-          {isActive && (
+          {/* {isActive && (
             <div className="h-1 w-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mt-0.5" />
-          )}
+          )} */}
         </Link>
       );
     })}
