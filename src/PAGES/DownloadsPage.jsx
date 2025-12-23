@@ -3,11 +3,13 @@ import { getAllPDFs, deletePDF, getStorageUsage } from '../UTILS/pdfStorage';
 import HomeLayout from '../LAYOUTS/Homelayout';
 import DeleteConfirmModalPdf from '../COMPONENTS/DeleteConfirmModalPdf';
 
+
 const DownloadsPage = () => {
   const [pdfs, setPdfs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [storageUsage, setStorageUsage] = useState(null);
   const [selectedPDF, setSelectedPDF] = useState(null);
+
 
   // Delete Modal States
   const [deleteModal, setDeleteModal] = useState({
@@ -17,9 +19,11 @@ const DownloadsPage = () => {
     isDeleting: false,
   });
 
+
   useEffect(() => {
     loadPDFs();
   }, []);
+
 
   const loadPDFs = async () => {
     try {
@@ -38,6 +42,7 @@ const DownloadsPage = () => {
     }
   };
 
+
   // Open delete confirmation
   const openDeleteModal = (type, pdfId = null) => {
     setDeleteModal({
@@ -47,6 +52,7 @@ const DownloadsPage = () => {
       isDeleting: false,
     });
   };
+
 
   // Handle delete single PDF
   const handleDeleteSingle = async () => {
@@ -69,6 +75,7 @@ const DownloadsPage = () => {
       setDeleteModal(prev => ({ ...prev, isDeleting: false }));
     }
   };
+
 
   // Handle delete all PDFs
   const handleDeleteAll = async () => {
@@ -93,6 +100,7 @@ const DownloadsPage = () => {
     }
   };
 
+
   // Show toast notification
   const showToast = (message, type = 'success') => {
     const toast = document.createElement('div');
@@ -107,23 +115,21 @@ const DownloadsPage = () => {
     }, 3000);
   };
 
+
   const handleViewPDF = (pdf) => {
     const url = URL.createObjectURL(pdf.blob);
     setSelectedPDF({ ...pdf, objectUrl: url });
   };
 
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center pt-20">
-        <div className="text-center">
-          <div className="animate-spin mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader-icon lucide-loader"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>
-          </div>
-          <p className="text-gray-400">Loading downloads...</p>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
         </div>
-      </div>
     );
   }
+
 
   if (pdfs.length === 0) {
     return (
@@ -142,6 +148,7 @@ const DownloadsPage = () => {
     );
   }
 
+
   return (
     <HomeLayout>
       <div className="min-h-screen bg-black text-white pt-24 pb-12">
@@ -151,6 +158,7 @@ const DownloadsPage = () => {
             <h1 className="text-4xl font-bold mb-2">My Downloads</h1>
             <p className="text-gray-400">{pdfs.length} files • {storageUsage?.totalSizeMB} MB</p>
           </div>
+
 
           {/* Storage Info */}
           {storageUsage && (
@@ -170,6 +178,7 @@ const DownloadsPage = () => {
             </div>
           )}
 
+
           {/* PDF List */}
           <div className="grid gap-4">
             {pdfs.map((pdf) => (
@@ -177,25 +186,25 @@ const DownloadsPage = () => {
                 key={pdf.id} 
                 className="bg-gray-900/50 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-all"
               >
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div className="flex-1">
                     <h3 className="text-lg font-bold mb-2">{pdf.title}</h3>
-                    <div className="flex gap-4 text-sm text-gray-400">
+                    <div className="flex flex-wrap gap-4 text-sm text-gray-400">
                       <span>📚 {pdf.subject}</span>
                       <span>📦 {(pdf.size / 1024 / 1024).toFixed(2)} MB</span>
                       <span>📅 {new Date(pdf.downloadedAt).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  <div className="flex gap-2 ml-4">
+                  <div className="flex gap-2 w-full md:w-auto">
                     <button
                       onClick={() => handleViewPDF(pdf)}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-all"
+                      className="flex-1 md:flex-none px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-all"
                     >
                        View
                     </button>
                     <button
                       onClick={() => openDeleteModal('single', pdf.id)}
-                      className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition-all font-semibold"
+                      className="flex-1 md:flex-none px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition-all font-semibold"
                     >
                       Delete
                     </button>
@@ -206,10 +215,12 @@ const DownloadsPage = () => {
           </div>
         </div>
 
-        {/* PDF Viewer Modal */}
+
+        {/* PDF Viewer Modal - FIXED VERSION */}
         {selectedPDF && (
           <PDFViewerModal pdf={selectedPDF} onClose={() => setSelectedPDF(null)} />
         )}
+
 
         {/* Delete Confirmation Modal */}
         {deleteModal.show && (
@@ -240,8 +251,12 @@ const DownloadsPage = () => {
   );
 };
 
+
+// FIXED PDF VIEWER COMPONENT
 const PDFViewerModal = ({ pdf, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -251,48 +266,124 @@ const PDFViewerModal = ({ pdf, onClose }) => {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
+  // Fix PDF URL for proper loading
+  useEffect(() => {
+    if (pdf?.objectUrl) {
+      // Ensure URL has proper parameters for all devices
+      let url = pdf.objectUrl;
+      
+      // Add PDF.js viewer parameters
+      if (!url.includes('#')) {
+        url += '#view=FitH&toolbar=1&navpanes=0';
+      }
+      
+      setPdfUrl(url);
+    }
+  }, [pdf]);
+
+  const handleIframeError = () => {
+    setIsLoading(false);
+    setError('Failed to load PDF. Try opening in a new tab.');
+  };
+
+  const handleIframeLoad = () => {
+    setIsLoading(false);
+    setError(null);
+  };
+
+  // Fallback: Open PDF in new tab if iframe fails
+  const openInNewTab = () => {
+    if (pdf?.objectUrl) {
+      window.open(pdf.objectUrl, '_blank');
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 md:p-0">
-      <div className="w-full h-screen md:h-[95vh]  bg-gray-900 rounded-lg md:rounded-none overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-800 bg-gray-900 flex-shrink-0">
-          <h3 className="text-sm md:text-lg font-bold text-white truncate pr-4">{pdf.title}</h3>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-all flex-shrink-0"
-            title="Close (ESC)"
-          >
-            <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-0">
+      {/* Container - Full screen on mobile, fixed height on desktop */}
+      <div className="w-full h-screen md:h-[95vh]  md:rounded-lg bg-gray-900 overflow-hidden flex flex-col">
+        
+        {/* Header - Fixed Height */}
+        <div className="flex items-center justify-between p-3 md:p-4 border-b border-gray-800 bg-gray-900 flex-shrink-0 h-14 md:h-16">
+          <h3 className="text-xs md:text-lg font-bold text-white truncate flex-1 pr-2">
+            {pdf?.title || 'PDF Viewer'}
+          </h3>
+          <div className="flex items-center gap-2">
+            {/* Open in New Tab Button */}
+            <button
+              onClick={openInNewTab}
+              className="p-2 hover:bg-gray-800 rounded-lg transition-all flex-shrink-0"
+              title="Open in New Tab"
+            >
+              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </button>
+            
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-800 rounded-lg transition-all flex-shrink-0"
+              title="Close (ESC)"
+            >
+              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {/* PDF Container */}
-        <div className="flex-1 overflow-auto w-full bg-black relative">
+        {/* PDF Container - Flexible Height */}
+        <div className="flex-1 overflow-auto w-full bg-black relative flex items-center justify-center">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
               <div className="text-center">
                 <div className="animate-spin mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="40" 
+                    height="40" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="white" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="1" fill="white"/><path d="M12 2v4M17 7l-2.8 2.8M20 12h-4M17 17l-2.8-2.8M12 20v-4M7 17l2.8-2.8M4 12h4M7 7l2.8 2.8"/>
                   </svg>
                 </div>
-                <p className="text-white text-sm">Loading PDF...</p>
+                <p className="text-white text-sm font-medium">Loading PDF...</p>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+              <div className="text-center bg-gray-900/90 p-6 rounded-lg max-w-sm mx-4">
+                <p className="text-white mb-4">{error}</p>
+                <button
+                  onClick={openInNewTab}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                >
+                  Open in New Tab
+                </button>
               </div>
             </div>
           )}
           
-          <iframe
-            src={pdf.objectUrl}
-            className="w-full h-full border-none"
-            title={pdf.title}
-            onLoad={() => setIsLoading(false)}
-            onError={() => {
-              setIsLoading(false);
-              console.error('Failed to load PDF');
-            }}
-          />
+          {pdfUrl && (
+            <iframe
+              key={pdfUrl}
+              src={pdfUrl}
+              className="w-full h-full border-none"
+              title={pdf?.title || 'PDF Viewer'}
+              onLoad={handleIframeLoad}
+              onError={handleIframeError}
+              allow="geolocation"
+              // sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+            />
+          )}
         </div>
       </div>
     </div>
