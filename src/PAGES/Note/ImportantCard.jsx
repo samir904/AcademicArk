@@ -337,7 +337,7 @@ export default function ImportantCard({ note }) {
       <CheckIcon className="w-4 h-4 text-white" />
       <span>Already Downloaded</span>
     </>
-  ) : downloadState?.status === 'starting' ? (
+  ) : downloadState?.status === 'starting'&& isDownloading ? (
     <>
       <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
       <span>Downloading...</span>
