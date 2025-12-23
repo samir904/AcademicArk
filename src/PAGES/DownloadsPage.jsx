@@ -252,11 +252,11 @@ const DownloadsPage = () => {
 };
 
 
-// FIXED PDF VIEWER COMPONENT
+// OPTIMIZED PDF VIEWER - Mobile "Open in Tab" button in center
 const PDFViewerModal = ({ pdf, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [pdfUrl, setPdfUrl] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -266,20 +266,14 @@ const PDFViewerModal = ({ pdf, onClose }) => {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
-  // Fix PDF URL for proper loading
+  // Handle window resize for mobile detection
   useEffect(() => {
-    if (pdf?.objectUrl) {
-      // Ensure URL has proper parameters for all devices
-      let url = pdf.objectUrl;
-      
-      // Add PDF.js viewer parameters
-      if (!url.includes('#')) {
-        url += '#view=FitH&toolbar=1&navpanes=0';
-      }
-      
-      setPdfUrl(url);
-    }
-  }, [pdf]);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleIframeError = () => {
     setIsLoading(false);
@@ -298,6 +292,9 @@ const PDFViewerModal = ({ pdf, onClose }) => {
     }
   };
 
+  // Get PDF URL
+  const pdfUrl = pdf?.objectUrl;
+
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-0">
       {/* Container - Full screen on mobile, fixed height on desktop */}
@@ -309,16 +306,18 @@ const PDFViewerModal = ({ pdf, onClose }) => {
             {pdf?.title || 'PDF Viewer'}
           </h3>
           <div className="flex items-center gap-2">
-            {/* Open in New Tab Button */}
-            <button
-              onClick={openInNewTab}
-              className="p-2 hover:bg-gray-800 rounded-lg transition-all flex-shrink-0"
-              title="Open in New Tab"
-            >
-              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </button>
+            {/* Open in New Tab Button - Desktop Only */}
+            {!isMobile && (
+              <button
+                onClick={openInNewTab}
+                className="p-2 hover:bg-gray-800 rounded-lg transition-all flex-shrink-0"
+                title="Open in New Tab"
+              >
+                <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </button>
+            )}
             
             {/* Close Button */}
             <button
@@ -359,20 +358,26 @@ const PDFViewerModal = ({ pdf, onClose }) => {
           )}
 
           {error && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
-              <div className="text-center bg-gray-900/90 p-6 rounded-lg max-w-sm mx-4">
-                <p className="text-white mb-4">{error}</p>
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
+              <div className="text-center bg-gray-900/95 p-6 rounded-xl max-w-sm mx-4 border border-gray-700">
+                <svg className="w-12 h-12 mx-auto mb-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-white mb-6 font-semibold text-sm">{error}</p>
                 <button
                   onClick={openInNewTab}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                  className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center gap-2"
                 >
-                  Open in New Tab
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span>Open in New Tab</span>
                 </button>
               </div>
             </div>
           )}
           
-          {pdfUrl && (
+          {pdfUrl && !error && (
             <iframe
               key={pdfUrl}
               src={pdfUrl}
@@ -381,8 +386,20 @@ const PDFViewerModal = ({ pdf, onClose }) => {
               onLoad={handleIframeLoad}
               onError={handleIframeError}
               allow="geolocation"
-              // sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
             />
+          )}
+
+          {/* Mobile Floating Action Button - Open in New Tab */}
+          {isMobile && !error && (
+            <button
+              onClick={openInNewTab}
+              className="absolute bottom-6 right-4 z-30 w-14 h-14 bg-gradient-to-r from-blue-600 to-blue-500 rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-all hover:scale-110 active:scale-95"
+              title="Open in New Tab"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </button>
           )}
         </div>
       </div>
