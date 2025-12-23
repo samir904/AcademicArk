@@ -389,17 +389,25 @@ const PDFViewerModal = ({ pdf, onClose }) => {
             />
           )}
 
-          {/* Mobile Floating Action Button - Open in New Tab */}
+         {/* Mobile Floating Action Button - Open in New Tab with Label */}
           {isMobile && !error && (
-            <button
-              onClick={openInNewTab}
-              className="absolute bottom-6 right-4 z-30 w-14 h-14 bg-gradient-to-r from-blue-600 to-blue-500 rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-all hover:scale-110 active:scale-95"
-              title="Open in New Tab"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </button>
+            <div className="absolute bottom-6 right-4 z-30 flex flex-col items-center gap-3">
+              {/* Text Label */}
+              <div className="bg-gray-800/95 backdrop-blur-sm px-3 py-1.5 rounded-lg text-white text-xs font-semibold whitespace-nowrap border border-gray-600 shadow-lg">
+                Open in New Tab
+              </div>
+              
+              {/* FAB Button */}
+              <button
+                onClick={openInNewTab}
+                className="w-14 h-14 bg-gradient-to-r from-blue-600 to-blue-500 rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-all hover:scale-110 active:scale-95"
+                title="Open in New Tab"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </button>
+            </div>
           )}
         </div>
       </div>
