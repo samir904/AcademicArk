@@ -21,86 +21,151 @@ function EnhancedFooter() {
        
 
 
-        {/* Links Section */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12 mb-12 md:mb-16">
-          
-          {/* Platform Links */}
-          <div>
-            <h3 className="text-white font-bold text-base md:text-lg mb-5 relative pb-2">
-              Platform
-              <div className="absolute bottom-0 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-            </h3>
-            <ul className="space-y-3">
-              {[
-                { name: "Browse Notes", path: "/notes" },
-                { name: "Downloads", path: "/downloads" },
-                { name: "AKTU Official", path: "https://aktu.ac.in/", external: true },
-              ].map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.path}
-                    target={link.external ? "_blank" : undefined}
-                    rel={link.external ? "noopener noreferrer" : undefined}
-                    className="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-flex items-center gap-2 group"
-                  >
-                    {link.name}
-                    {link.external && (
-                      <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                    )}
-                  </a>
-                </li>
-              ))}
-            </ul>
+        {/* Links Section - Desktop Grid / Mobile Collapse */}
+        <div className="mb-12 md:mb-16">
+          {/* Desktop View - Grid */}
+          <div className="hidden md:grid grid-cols-3 gap-12">
+            
+            {/* Platform Links */}
+            <div>
+              <h3 className="text-white font-bold text-lg mb-5 relative pb-2">
+                Platform
+                <div className="absolute bottom-0 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+              </h3>
+              <ul className="space-y-3">
+                {[
+                  { name: "Browse Notes", path: "/notes" },
+                  { name: "Downloads", path: "/downloads" },
+                  { name: "AKTU Official", path: "https://aktu.ac.in/", external: true },
+                ].map((link) => (
+                  <li key={link.name}>
+                    <a
+                      href={link.path}
+                      target={link.external ? "_blank" : undefined}
+                      rel={link.external ? "noopener noreferrer" : undefined}
+                      className="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-flex items-center gap-2 group"
+                    >
+                      {link.name}
+                      {link.external && (
+                        <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Support Links */}
+            <div>
+              <h3 className="text-white font-bold text-lg mb-5 relative pb-2">
+                Support
+                <div className="absolute bottom-0 left-0 w-8 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+              </h3>
+              <ul className="space-y-3">
+                {[
+                  { name: "Help Center", path: "/help" },
+                  { name: "Contact", path: "/contact" },
+                  { name: "Report Issue", path: "/report" },
+                ].map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      to={link.path}
+                      className="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-block"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Legal Links */}
+            <div>
+              <h3 className="text-white font-bold text-lg mb-5 relative pb-2">
+                Legal
+                <div className="absolute bottom-0 left-0 w-8 h-0.5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full"></div>
+              </h3>
+              <ul className="space-y-3">
+                {[
+                  { name: "Privacy Policy", path: "/privacy" },
+                  { name: "Terms of Service", path: "/terms" },
+                  { name: "About Developer", path: "/about-developer" },
+                ].map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      to={link.path}
+                      className="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-block"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
-
-          {/* Support Links */}
-          <div>
-            <h3 className="text-white font-bold text-base md:text-lg mb-5 relative pb-2">
-              Support
-              <div className="absolute bottom-0 left-0 w-8 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-            </h3>
-            <ul className="space-y-3">
-              {[
-                { name: "Help Center", path: "/help" },
-                { name: "Contact", path: "/contact" },
-                { name: "Report Issue", path: "/report" },
-              ].map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    className="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-block"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-
-          {/* Legal Links */}
-          <div>
-            <h3 className="text-white font-bold text-base md:text-lg mb-5 relative pb-2">
-              Legal
-              <div className="absolute bottom-0 left-0 w-8 h-0.5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full"></div>
-            </h3>
-            <ul className="space-y-3">
-              {[
-                { name: "Privacy Policy", path: "/privacy" },
-                { name: "Terms of Service", path: "/terms" },
-                { name: "About Developer", path: "/about-developer" },
-              ].map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    className="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-block"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {/* Mobile View - Collapsible Accordion */}
+          <div className="md:hidden space-y-3">
+            {[
+              {
+                title: "Platform",
+                gradient: "from-blue-500 to-purple-500",
+                links: [
+                  { name: "Browse Notes", path: "/notes" },
+                  { name: "Downloads", path: "/downloads" },
+                  { name: "AKTU Official", path: "https://aktu.ac.in/", external: true },
+                ]
+              },
+              {
+                title: "Support",
+                gradient: "from-purple-500 to-pink-500",
+                links: [
+                  { name: "Help Center", path: "/help" },
+                  { name: "Contact", path: "/contact" },
+                  { name: "Report Issue", path: "/report" },
+                ]
+              },
+              {
+                title: "Legal",
+                gradient: "from-pink-500 to-orange-500",
+                links: [
+                  { name: "Privacy Policy", path: "/privacy" },
+                  { name: "Terms of Service", path: "/terms" },
+                  { name: "About Developer", path: "/about-developer" },
+                ]
+              }
+            ].map((section, index) => (
+              <details key={section.title} className="group">
+                <summary className="cursor-pointer text-white font-bold text-base pb-2 relative flex items-center justify-between hover:text-gray-300 transition-colors">
+                  <span>{section.title}</span>
+                  <span className="text-xs text-gray-400 group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <ul className="space-y-2 pt-3 pl-2 border-l border-white/10">
+                  {section.links.map((link) => (
+                    <li key={link.name}>
+                      {link.external ? (
+                        <a
+                          href={link.path}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-400 hover:text-white text-sm transition-all duration-300 inline-flex items-center gap-2 group"
+                        >
+                          {link.name}
+                          <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                      ) : (
+                        <Link
+                          to={link.path}
+                          className="text-gray-400 hover:text-white text-sm transition-all duration-300 inline-block"
+                        >
+                          {link.name}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ))}
           </div>
         </div>
 

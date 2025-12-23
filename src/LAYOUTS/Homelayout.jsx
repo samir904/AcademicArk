@@ -922,12 +922,12 @@ const [showFeedback, setShowFeedback] = useState(false);
 {/* ✨ NEW: Add Academic Profile Modal */}
       <AcademicProfileModal />
         {/* 🎨 AMAZING Spotify-Style Bottom Navigation - Redesigned */}
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40">
+   <div className="md:hidden fixed bottom-0 left-0 right-0 z-40">
   {/* Background */}
-  <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900 to-transparent" />
+  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/95 to-transparent" />
 
-  {/* Navigation */}
-  <div className="relative px-4 py-4 flex items-center justify-evenly">
+  {/* Navigation Container */}
+  <div className="relative px-3 py-4 flex items-center justify-evenly">
     {getMobileNavItems().map((item) => {
       const IconComponent = item.icon;
       const isActive = isActiveLink(item.path);
@@ -936,38 +936,41 @@ const [showFeedback, setShowFeedback] = useState(false);
         <Link
           key={item.name}
           to={item.path}
-          className={`flex flex-col items-center gap-2 transition-all duration-200`}
+          className={`flex flex-col items-center gap-1.5 transition-all duration-200 ${
+            isActive
+              ? "text-white"
+              : "text-gray-500 hover:text-gray-300"
+          }`}
         >
-          {/* Neumorphic Button */}
+          {/* Icon Pill Background */}
           <div
-            className={`p-3 rounded-2xl transition-all duration-200 ${
+            className={`flex items-center justify-center p-3 rounded-full transition-all duration-200 ${
               isActive
-                ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg"
-                : "bg-gray-800 text-gray-500 shadow-md hover:bg-gray-700"
+                ? "bg-gradient-to-r from-blue-600 to-cyan-500 shadow-lg scale-110"
+                : "bg-white/5 hover:bg-white/10"
             }`}
-            style={{
-              boxShadow: isActive
-                ? "0 8px 20px rgba(59, 130, 246, 0.3)"
-                : "0 4px 12px rgba(0, 0, 0, 0.5)"
-            }}
           >
             <IconComponent className="w-5 h-5" />
           </div>
 
           {/* Label */}
-          <span className={`text-xs font-bold ${
-            isActive ? "text-white" : "text-gray-500"
-          }`}>
+          <span className="text-xs font-bold mt-1">
             {item.label}
           </span>
+
+          {/* Active Indicator Line */}
+          {isActive && (
+            <div className="h-1 w-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mt-0.5" />
+          )}
         </Link>
       );
     })}
   </div>
 
   {/* Safe Area */}
-  <div className="h-2" />
+  <div className="h-1" />
 </div>
+
 
 
 
