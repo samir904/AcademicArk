@@ -200,8 +200,7 @@ function EnhancedFooter() {
                   </p>
                   
                   <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                    Building AcademicArk to revolutionize how students share and access study notes. 
-                    Passionate about creating impactful educational technology for Indian colleges.
+                     Creating the easiest way for students to share and discover notes.
                   </p>
 
                   {/* Social Links */}
