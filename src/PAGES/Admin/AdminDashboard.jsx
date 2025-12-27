@@ -25,6 +25,9 @@ import { getAcademicAnalytics } from "../../REDUX/Slices/academicProfileSlice";
  import AdminRequests from "./AdminRequests";
 import AdminFeedback from "./AdminFeedback";
 import RetentionTab from "./RetentionTab";
+import LoginLogsDisplay from "../../COMPONENTS/LoginLogsDisplay";
+import LoginAnalytics from "../../COMPONENTS/LoginAnalytics";
+import AdminSecurityDashboard from "../../COMPONENTS/AdminSecurityDashboard";
 
 // Icons
 const UsersIcon = ({ className }) => (
@@ -281,7 +284,7 @@ const { analytics } = useSelector((state) => state.academicProfile);
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard","retention", "analytics", "users", "notes", "academic", "colleges", "logs","requests", "feedback"].map(
+              {["dashboard", "users","loginLogs","loginanalytics", "notes", "academic", "colleges", "logs","requests", "feedback","Security","retention", "analytics"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -305,6 +308,12 @@ const { analytics } = useSelector((state) => state.academicProfile);
                                                 ? "feedback"
                                                 : tab === "retention"
                                                 ? "retention"
+                                                : tab === "loginLogs"
+                                                ? "User Logins"
+                                                : tab === "loginanalytics"
+                                                ? "Logins analytics"
+                                                : tab === "Security"
+                                                ? "Security"
                                                 : tab}
                             
                   </button>
@@ -1447,6 +1456,9 @@ const { analytics } = useSelector((state) => state.academicProfile);
 
 {/* Retention Tab - NEW */}
         {activeTab === 'retention' && <RetentionTab />}
+{activeTab === "loginLogs" && <LoginLogsDisplay />}
+{activeTab === "loginanalytics" && <LoginAnalytics />}
+{activeTab === "Security" && <AdminSecurityDashboard />}
 
         </div>
       </div>

@@ -6,6 +6,7 @@ import { getProfile } from '../../REDUX/Slices/authslice';
 import HomeLayout from '../../LAYOUTS/Homelayout';
 import {  getBackgroundTheme, useImageColors } from '../../hooks/useImageColors';
 import { setShowProfileModal } from '../../REDUX/Slices/academicProfileSlice'; // ✨ NEW
+// import UserSecurityPage from '../../COMPONENTS/UserSecurityPage';
 
 // Icon components
 const EditIcon = ({ className }) => (
@@ -474,6 +475,12 @@ useEffect(() => {
     </div>
   </div>
 )}
+
+{/* Security Section */}
+{/* <div className="mt-8">
+  <UserSecurityPage />
+</div> */}
+
 
 
           {/* Quick Actions */}
