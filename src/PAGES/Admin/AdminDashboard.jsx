@@ -28,6 +28,7 @@ import RetentionTab from "./RetentionTab";
 import LoginLogsDisplay from "../../COMPONENTS/LoginLogsDisplay";
 import LoginAnalytics from "../../COMPONENTS/LoginAnalytics";
 import AdminSecurityDashboard from "../../COMPONENTS/AdminSecurityDashboard";
+import LogsTab from "../../COMPONENTS/AdminDashboard/LogsTab/LogsTab";
 
 // Icons
 const UsersIcon = ({ className }) => (
@@ -284,7 +285,7 @@ const { analytics } = useSelector((state) => state.academicProfile);
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard", "users","loginLogs","loginanalytics", "notes", "academic", "colleges", "logs","requests", "feedback","Security","retention", "analytics"].map(
+              {["dashboard","requestlogs" ,"users","loginLogs","loginanalytics", "notes", "academic", "colleges", "logs","requests", "feedback","Security","retention", "analytics"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -314,6 +315,8 @@ const { analytics } = useSelector((state) => state.academicProfile);
                                                 ? "Logins analytics"
                                                 : tab === "Security"
                                                 ? "Security"
+                                                : tab === "requestlogs"
+                                                ? "Request Logs"
                                                 : tab}
                             
                   </button>
@@ -1459,7 +1462,7 @@ const { analytics } = useSelector((state) => state.academicProfile);
 {activeTab === "loginLogs" && <LoginLogsDisplay />}
 {activeTab === "loginanalytics" && <LoginAnalytics />}
 {activeTab === "Security" && <AdminSecurityDashboard />}
-
+{activeTab === 'requestlogs' && <LogsTab />}
         </div>
       </div>
     </HomeLayout>

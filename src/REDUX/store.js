@@ -11,7 +11,7 @@ import academicProfileReducer from "./Slices/academicProfileSlice.js"
  import requestReducer from "./Slices/requestSlice.js"
  import feedbackReducer from './Slices/feedbackSlice.js'
  import loginLogsReducer from './Slices/loginLogsSlice.js'; // ✅ ADD THIS IMPORT
-
+import logsReducer  from './Slices/logsSlice.js'
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
 // import studyPlannerSlice from "./Slices/studyPlanner.slice.js"
 const store = configureStore({
@@ -27,7 +27,8 @@ const store = configureStore({
     academicProfile: academicProfileReducer, // ✨ NEW - Add this line
     request: requestReducer,
     feedback: feedbackReducer,
-    loginLogs: loginLogsReducer
+    loginLogs: loginLogsReducer,
+    logs: logsReducer
     // studyBuddy: studyBuddySlice,  // ← ADD THIS
     // studyPlanner: studyPlannerSlice,  // ← ADD THIS
   },
