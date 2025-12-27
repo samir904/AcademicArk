@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authSliceReducer from "../REDUX/Slices/authslice.js";
-import noteSliceReducer from "../REDUX/Slices/noteslice.js";
-import adminSliceReducer from "../REDUX/Slices/adminSlice.js";
-import searchReducer from "../REDUX/Slices/searchSlice.js";
+import authSliceReducer from "./Slices/authslice.js";
+import noteSliceReducer from "./Slices/noteslice.js";
+import adminSliceReducer from "./Slices/adminSlice.js";
+import searchReducer from "./Slices/searchSlice.js";
 import notificationReducer from "./Slices/notificationSlice.js";
 import analyticsReducer from "./Slices/analyticsSlice.js";
 import attendanceSliceReducer from "./Slices/attendanceSlice.js";
@@ -11,7 +11,7 @@ import academicProfileReducer from "./Slices/academicProfileSlice.js"
  import requestReducer from "./Slices/requestSlice.js"
  import feedbackReducer from './Slices/feedbackSlice.js'
  import loginLogsReducer from './Slices/loginLogsSlice.js'; // ✅ ADD THIS IMPORT
- import logsReducer from '../REDUX/Slices/logsSlice.js'
+ import logsReducer from './Slices/logsSlice.js'
 // import logsReducer  from './Slices/logsSlice.js'
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
 // import studyPlannerSlice from "./Slices/studyPlanner.slice.js"
