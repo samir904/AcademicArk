@@ -285,7 +285,7 @@ const { analytics } = useSelector((state) => state.academicProfile);
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard","requestlogs" ,"users","loginLogs","loginanalytics", "notes", "academic", "colleges", "logs","requests", "feedback","Security","retention", "analytics"].map(
+              {["dashboard","requestlogs" ,"users","loginLogs","loginanalytics", "notes", "academic", "colleges", "logs","requests", "feedback","Security","retention"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -297,8 +297,8 @@ const { analytics } = useSelector((state) => state.academicProfile);
                   >
                     {tab === "logs"
                       ? "Admin Logs"
-                      : tab === "analytics"
-                        ? "Analytics"
+                      // : tab === "analytics"
+                      //   ? "Analytics"
                         : tab === "academic"
                           ? "Academic Data"
                           : tab === "colleges"
