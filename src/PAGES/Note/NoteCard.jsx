@@ -369,85 +369,131 @@ const downloadState = downloading[note._id];
 </div>
 
 
-      {/* ✨ REVIEW MODAL - After Download */}
-      {showReviewModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
-            
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Rate This Note</h2>
-              <button
-                onClick={() => {
-                  setShowReviewModal(false);
-                  setUserRating(0);
-                  setUserReview('');
-                }}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
-              >
-                <CloseIcon className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
+     {/* ✨ IMPROVED REVIEW MODAL - Conditional & Motivational */}
+{showReviewModal && (
+  <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+    <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
+      
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-white">Rate This Note</h2>
+        <button
+          onClick={() => {
+            setShowReviewModal(false);
+            setUserRating(0);
+            setUserReview('');
+          }}
+          className="p-2 hover:bg-white/10 rounded-full transition-colors"
+        >
+          <CloseIcon className="w-5 h-5 text-gray-400" />
+        </button>
+      </div>
 
-            {/* Rating Stars */}
-            <div className="mb-6">
-              <label className="block text-sm text-gray-300 mb-3">Your Rating</label>
-              <div className="flex justify-center space-x-2">
-                {[1, 2, 3, 4, 5].map(star => (
-                  <button
-                    key={star}
-                    onClick={() => setUserRating(star)}
-                    className="transition-all hover:scale-125"
-                  >
-                    <StarIcon 
-                      className={`w-8 h-8 ${
-                        star <= userRating 
-                          ? 'text-yellow-400' 
-                          : 'text-gray-600 hover:text-gray-500'
-                      }`}
-                      filled={star <= userRating}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Review Text */}
-            <div className="mb-6">
-              <label className="block text-sm text-gray-300 mb-2">Your Review (Optional)</label>
-              <textarea
-                value={userReview}
-                onChange={(e) => setUserReview(e.target.value)}
-                placeholder="Share your thoughts about this note..."
-                className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                rows={3}
+      {/* Rating Stars Section - Always Visible */}
+      <div className="mb-8">
+        <label className="block text-sm text-gray-300 mb-3 font-medium">
+          How helpful was this note?
+        </label>
+        <div className="flex justify-center space-x-3">
+          {[1, 2, 3, 4, 5].map(star => (
+            <button
+              key={star}
+              onClick={() => setUserRating(star)}
+              className="transition-all hover:scale-125 group"
+            >
+              <StarIcon 
+                className={`w-10 h-10 transition-all ${
+                  star <= userRating 
+                    ? 'text-yellow-400 drop-shadow-lg' 
+                    : 'text-gray-600 group-hover:text-yellow-300'
+                }`}
+                filled={star <= userRating}
               />
-            </div>
+            </button>
+          ))}
+        </div>
+        
+        {/* Star Rating Description */}
+        {userRating > 0 && (
+          <div className="mt-3 text-center">
+            <p className="text-sm text-gray-400">
+              {userRating === 1 && "Need improvement"}
+              {userRating === 2 && "Could be better"}
+              {userRating === 3 && "Good note"}
+              {userRating === 4 && "Very helpful"}
+              {userRating === 5 && "Excellent! 🌟"}
+            </p>
+          </div>
+        )}
+      </div>
 
-            {/* Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowReviewModal(false);
-                  setUserRating(0);
-                  setUserReview('');
-                  setShowShareModal(true);
-                }}
-                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
-              >
-                Skip
-              </button>
-              <button
-                onClick={submitRating}
-                disabled={userRating === 0}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-lg font-bold transition-all disabled:opacity-50"
-              >
-                Submit Review
-              </button>
-            </div>
+      {/* Review Text Area - ONLY APPEARS AFTER RATING */}
+      {userRating > 0 && (
+        <div className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          {/* Motivational Message */}
+          <div className="mb-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <p className="text-sm text-blue-300 leading-relaxed">
+              <span className="font-semibold">💡 Help other students!</span> Your review helps peers find the best notes quickly.
+            </p>
+          </div>
+
+          {/* Review Input */}
+          <label className="block text-sm text-gray-300 mb-2 font-medium">
+            Your Review <span className="text-gray-500">(Optional but appreciated!)</span>
+          </label>
+          <textarea
+            value={userReview}
+            onChange={(e) => setUserReview(e.target.value)}
+            placeholder="Was this clear? Any tips for improvement? Help future students..."
+            className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition-all"
+            rows={3}
+          />
+          
+          {/* Character Counter */}
+          <div className="mt-2 text-right text-xs text-gray-500">
+            {userReview.length}/200 characters
           </div>
         </div>
       )}
+
+      {/* Buttons */}
+      <div className="flex gap-3">
+        <button
+          onClick={() => {
+            setShowReviewModal(false);
+            setUserRating(0);
+            setUserReview('');
+            setShowShareModal(true);
+          }}
+          className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+        >
+          Skip for now
+        </button>
+        
+        {/* Submit Button - Enabled After Rating */}
+        <button
+          onClick={submitRating}
+          disabled={userRating === 0}
+          className={`flex-1 px-4 py-2 font-bold rounded-lg transition-all ${
+            userRating === 0
+              ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50'
+              : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/50'
+          }`}
+        >
+          {userRating === 0 ? 'Rate first' : userReview ? 'Submit Review' : 'Submit Rating'}
+        </button>
+      </div>
+
+      {/* Footer Tip */}
+      {userRating > 0 && !userReview && (
+        <p className="text-xs text-gray-500 text-center mt-3">
+          💡 Tip: Adding a review takes 30 seconds but helps hundreds!
+        </p>
+      )}
+    </div>
+  </div>
+)}
+
 
       {/* ✨ SHARE MODAL - After Review */}
       {showShareModal && (
