@@ -431,11 +431,11 @@ const downloadState = downloading[note._id];
       {userRating > 0 && (
         <div className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
           {/* Motivational Message */}
-          <div className="mb-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+          {/* <div className="mb-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
             <p className="text-sm text-blue-300 leading-relaxed">
               <span className="font-semibold">💡 Help other students!</span> Your review helps peers find the best notes quickly.
             </p>
-          </div>
+          </div> */}
 
           {/* Review Input */}
           <label className="block text-sm text-gray-300 mb-2 font-medium">

@@ -362,88 +362,149 @@ export default function ImportantCard({ note }) {
 </div>
 
 
-      {/* ✨ REVIEW MODAL */}
-      {showReviewModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
-            
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Rate This Question</h2>
-              <button
-                onClick={() => {
-                  setShowReviewModal(false);
-                  setUserRating(0);
-                  setUserReview('');
-                }}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
-              >
-                <CloseIcon className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
+      {/* ✨ SMART REVIEW MODAL FOR IMPORTANT QUESTIONS - Conditional & Motivational */}
+{showReviewModal && (
+  <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+    <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
+      
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-white">Rate This Question</h2>
+        <button
+          onClick={() => {
+            setShowReviewModal(false);
+            setUserRating(0);
+            setUserReview('');
+          }}
+          className="p-2 hover:bg-white/10 rounded-full transition-colors"
+        >
+          <CloseIcon className="w-5 h-5 text-gray-400" />
+        </button>
+      </div>
 
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                <FlameIcon className="w-8 h-8 text-white" />
-              </div>
-              <p className="text-sm text-gray-400">Help others by rating this important question</p>
-            </div>
+      {/* Flame Icon - Always Visible */}
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse">
+          <FlameIcon className="w-8 h-8 text-white" />
+        </div>
+        <p className="text-sm text-gray-400">Help students by rating this important question</p>
+      </div>
 
-            <div className="mb-6">
-              <label className="block text-sm text-gray-300 mb-3">Your Rating</label>
-              <div className="flex justify-center space-x-2">
-                {[1, 2, 3, 4, 5].map(star => (
-                  <button
-                    key={star}
-                    onClick={() => setUserRating(star)}
-                    className="transition-all hover:scale-125"
-                  >
-                    <StarIcon 
-                      className={`w-8 h-8 ${
-                        star <= userRating 
-                          ? 'text-yellow-400' 
-                          : 'text-gray-600 hover:text-gray-500'
-                      }`}
-                      filled={star <= userRating}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-sm text-gray-300 mb-2">Your Review (Optional)</label>
-              <textarea
-                value={userReview}
-                onChange={(e) => setUserReview(e.target.value)}
-                placeholder="Share your thoughts..."
-                className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
-                rows={3}
+      {/* Rating Stars Section - Always Visible */}
+      <div className="mb-8">
+        <label className="block text-sm text-gray-300 mb-4 font-medium">
+          How important is this question?
+        </label>
+        <div className="flex justify-center space-x-3">
+          {[1, 2, 3, 4, 5].map(star => (
+            <button
+              key={star}
+              onClick={() => setUserRating(star)}
+              className="transition-all hover:scale-125 group"
+            >
+              <StarIcon 
+                className={`w-10 h-10 transition-all ${
+                  star <= userRating 
+                    ? 'text-yellow-400 drop-shadow-lg' 
+                    : 'text-gray-600 group-hover:text-yellow-300'
+                }`}
+                filled={star <= userRating}
               />
-            </div>
+            </button>
+          ))}
+        </div>
+        
+        {/* Star Rating Description */}
+        {userRating > 0 && (
+          <div className="mt-4 text-center animate-in fade-in duration-300">
+            <p className="text-sm font-medium text-yellow-400">
+              {userRating === 1 && "Not very important 😐"}
+              {userRating === 2 && "Somewhat important 👍"}
+              {userRating === 3 && "Important ⭐"}
+              {userRating === 4 && "Very important 🔥"}
+              {userRating === 5 && "Highly important! 🚀"}
+            </p>
+          </div>
+        )}
+      </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowReviewModal(false);
-                  setUserRating(0);
-                  setUserReview('');
-                  setShowShareModal(true);
-                }}
-                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
-              >
-                Skip
-              </button>
-              <button
-                onClick={submitRating}
-                disabled={userRating === 0}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-lg font-bold transition-all disabled:opacity-50"
-              >
-                Submit
-              </button>
-            </div>
+      {/* Review Text Area - ONLY APPEARS AFTER RATING */}
+      {userRating > 0 && (
+        <div className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          {/* Motivational Message */}
+          {/* <div className="mb-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+            <p className="text-sm text-yellow-300 leading-relaxed">
+              <span className="font-semibold">💡 Help your peers!</span> Your review helps students identify frequently asked questions and prioritize important topics for exams and interviews.
+            </p>
+          </div> */}
+
+          {/* Review Input */}
+          <label className="block text-sm text-gray-300 mb-2 font-medium">
+            Your Review <span className="text-gray-500">(Optional but valuable!)</span>
+          </label>
+          <textarea
+            value={userReview}
+            onChange={(e) => setUserReview(e.target.value)}
+            placeholder="Why is this question important? What topics does it cover? Frequently asked in interviews/exams?..."
+            className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none transition-all"
+            rows={3}
+          />
+          
+          {/* Character Counter */}
+          <div className="mt-2 flex items-center justify-between text-xs">
+            <span className="text-gray-500">Share why this question matters</span>
+            <span className="text-gray-500">{userReview.length}/250</span>
           </div>
         </div>
       )}
+
+      {/* Buttons */}
+      <div className="flex gap-3 mt-8">
+        <button
+          onClick={() => {
+            setShowReviewModal(false);
+            setUserRating(0);
+            setUserReview('');
+            setShowShareModal(true);
+          }}
+          className="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium"
+        >
+          Skip for now
+        </button>
+        
+        {/* Submit Button - Enabled After Rating */}
+        <button
+          onClick={submitRating}
+          disabled={userRating === 0}
+          className={`flex-1 px-4 py-2.5 font-bold rounded-lg transition-all ${
+            userRating === 0
+              ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50'
+              : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white hover:shadow-lg hover:shadow-yellow-500/50'
+          }`}
+        >
+          {userRating === 0 ? 'Select rating' : userReview ? 'Submit Review' : 'Submit Rating'}
+        </button>
+      </div>
+
+      {/* Footer Tips */}
+      {userRating > 0 && (
+        <div className="mt-4 text-center">
+          {!userReview && (
+            <p className="text-xs text-gray-500">
+              💡 Tip: Adding a review (30 seconds) helps peers ace their exams & interviews! 🎯
+            </p>
+          )}
+          {userReview && (
+            <p className="text-xs text-yellow-400">
+              ✅ Great! Your insights will help many students prepare better.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
 
       {/* ✨ SHARE MODAL */}
       {showShareModal && (
