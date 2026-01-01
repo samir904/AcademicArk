@@ -24,11 +24,12 @@ import AdminColleges from "./AdminColleges";
 import { getAcademicAnalytics } from "../../REDUX/Slices/academicProfileSlice";
  import AdminRequests from "./AdminRequests";
 import AdminFeedback from "./AdminFeedback";
-import RetentionTab from "./RetentionTab";
+// import RetentionTab from "./RetentionTab";
 import LoginLogsDisplay from "../../COMPONENTS/LoginLogsDisplay";
 import LoginAnalytics from "../../COMPONENTS/LoginAnalytics";
 import AdminSecurityDashboard from "../../COMPONENTS/AdminSecurityDashboard";
 import LogsTab from "../../COMPONENTS/AdminDashboard/LogsTab/LogsTab";
+import RetentionTab from "../../COMPONENTS/Admin/RetentionAnalytics/RetentionTab";
 
 // Icons
 const UsersIcon = ({ className }) => (

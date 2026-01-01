@@ -12,6 +12,7 @@ import academicProfileReducer from "./Slices/academicProfileSlice.js"
  import feedbackReducer from './Slices/feedbackSlice.js'
  import loginLogsReducer from './Slices/loginLogsSlice.js'; // ✅ ADD THIS IMPORT
  import logsReducer from './Slices/logsSlice.js'
+ import retentionReducer from './Slices/retention.slice.js'
 // import logsReducer  from './Slices/logsSlice.js'
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
 // import studyPlannerSlice from "./Slices/studyPlanner.slice.js"
@@ -29,7 +30,8 @@ const store = configureStore({
     request: requestReducer,
     feedback: feedbackReducer,
     loginLogs: loginLogsReducer,
-    logs: logsReducer
+    logs: logsReducer,
+    retention:retentionReducer
     // studyBuddy: studyBuddySlice,  // ← ADD THIS
     // studyPlanner: studyPlannerSlice,  // ← ADD THIS
   },
