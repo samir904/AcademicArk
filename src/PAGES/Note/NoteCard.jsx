@@ -194,7 +194,7 @@ const downloadState = downloading[note._id];
           )}
         </div>
         
-        <h3 className="text-lg font-bold capitalize text-indigo-100 line-clamp-2 group-hover:text-indigo-50 transition-colors">
+        <h3 className="text-lg font-bold capitalize text-indigo-100 line-clamp-1 group-hover:text-indigo-50 transition-colors">
           {note.title}
         </h3>
         
@@ -259,112 +259,77 @@ const downloadState = downloading[note._id];
       </Link>
     </div>
     
-   <div className="flex gap-2 pt-2">
-  <Link
-    to={`/notes/${note._id}`}
-    className="flex-1 bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-500 hover:to-teal-500 active:from-indigo-700 active:to-teal-700 text-white py-2.5 px-4 rounded-full text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
-  >
-    <span className='text-sm font-bold' >View Details</span>
-    <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-    </svg>
-  </Link>
+  
+{/* Action Buttons - READ NOW AS PRIMARY + Download */}
+          <div className="flex flex-col gap-3 pt-2">
+            {/* READ NOW - Primary Action (Full Width) */}
+            <Link
+              to={`/notes/${note._id}/read`}
+              className="w-full bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-500 hover:to-teal-500 active:from-indigo-700 active:to-teal-700 text-white py-2.5 px-4 rounded-full text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>View</span>
+            </Link>
 
-  {/* <button
-    onClick={handleDownload}
-    disabled={isDownloading}
-    className="px-4 py-2.5 bg-indigo-600  hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-full transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 flex items-center justify-center gap-2"
-    aria-label="Download note"
-    aria-busy={isDownloading}
-  >
-    {isDownloading ? (
-      <>
-        <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
-        <span className="text-xs font-bold hidden sm:inline ">Downloading...</span>
-      </>
-    ) : (
-      <>
-        <DownloadIcon className="w-4 h-4" />
-        <span className="text-xs font-bold hidden sm:inline">Download</span>
-      </>
-    )}
-  </button> */}
-{/* // Update button: */}
-{/* <button
-  onClick={handleDownload}
-  disabled={downloadState?.status === 'starting'}
-  className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-full transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 flex items-center justify-center gap-2"
->
-  {downloadState?.status === 'complete' ? (
-    <>
-      <CheckIcon className="w-4 h-4 text-green-400" />
-      <span className="text-xs font-bold hidden sm:inline">Downloaded</span>
-    </>
-  ) : downloadState?.status === 'starting' ? (
-    <>
-      <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
-      <span className="text-xs font-bold hidden sm:inline">Downloading...</span>
-    </>
-  ) : downloadState?.status === 'error' ? (
-    <>
-      <span className="text-xs font-bold hidden sm:inline">Retry</span>
-    </>
-  ) : downloadState?.status === 'exists' ? (
-    <>
-      <CheckIcon className="w-4 h-4 text-green-400" />
-      <span className="text-xs font-bold hidden sm:inline">Already Downloaded</span>
-    </>
-  ) : (
-    <>
-      <DownloadIcon className="w-4 h-4" />
-      <span className="text-xs font-bold hidden sm:inline">Download</span>
-    </>
-  )}
-</button> */}
-<button
-  onClick={handleDownload}
-  disabled={downloadState?.status === 'starting'}
-  className={`px-4 py-2.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 ${
-    downloadState?.status === 'error' 
-      ? 'bg-red-600 hover:bg-red-500 text-white'
-      : downloadState?.status === 'complete' || downloadState?.status === 'exists'
-      ? 'bg-green-600 hover:bg-green-500 text-white'
-      : 'bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
-  }`}
-  aria-label="Download note"
-  aria-busy={downloadState?.status === 'starting'}
->
-  {downloadState?.status === 'complete' ? (
-    <>
-      <CheckIcon className="w-4 h-4 text-white" />
-      <span>Downloaded</span>
-    </>
-  ) : downloadState?.status === 'exists' ? (
-    <>
-      <CheckIcon className="w-4 h-4 text-white" />
-      <span>Already Downloaded</span>
-    </>
-  ) : downloadState?.status === 'starting' && isDownloading ? (
-    <>
-      <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
-      <span>Downloading...</span>
-    </>
-  ) : downloadState?.status === 'error' ? (
-    <>
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>Retry</span>
-    </>
-  ) : (
-    <>
-      <DownloadIcon className="w-4 h-4" />
-      <span>Download</span>
-    </>
-  )}
-</button>
-</div>
+            {/* Secondary Actions - Download + View Details */}
+            <div className="flex gap-2">
+             
 
+              {/* View Details Button */}
+              <Link
+                to={`/notes/${note._id}`}
+                className="flex-1 bg-indigo-700 hover:bg-indigo-600 active:bg-indigo-800 text-white py-2.5 px-3 rounded-full text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
+              >
+                <span className="hidden sm:inline">Details</span>
+                <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+               {/* Download Button */}
+              <button
+                onClick={handleDownload}
+                disabled={downloadState?.status === 'starting'}
+                className={`flex-1 px-3 py-2.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl font-bold text-xl sm:text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 ${
+                  downloadState?.status === 'error' 
+                    ? 'bg-red-600 hover:bg-red-500 text-white'
+                    : downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                    ? 'bg-green-600 hover:bg-green-500 text-white'
+                    : 'bg-teal-600 hover:bg-teal-500 active:bg-teal-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
+                }`}
+                aria-label="Download note"
+                aria-busy={downloadState?.status === 'starting'}
+              >
+                {downloadState?.status === 'complete' ? (
+                  <>
+                    <CheckIcon className="w-4 h-4 text-white" />
+                    <span className="hidden sm:inline">Downloaded</span>
+                  </>
+                ) : downloadState?.status === 'exists' ? (
+                  <>
+                    <CheckIcon className="w-4 h-4 text-white" />
+                    <span className="hidden sm:inline">Saved</span>
+                  </>
+                ) : downloadState?.status === 'starting' && isDownloading ? (
+                  <>
+                    <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
+                    <span className="hidden sm:inline">Downloading...</span>
+                  </>
+                ) : downloadState?.status === 'error' ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="hidden sm:inline">Retry</span>
+                  </>
+                ) : (
+                  <>
+                    <DownloadIcon className="w-4 h-4" />
+                    <span className="hidden sm:inline">Download</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
   </div>
 </div>
 

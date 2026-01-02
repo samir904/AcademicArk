@@ -22,9 +22,8 @@ const BookmarkIcon = ({ className, filled }) => (
 );
 
 const DownloadIcon = ({ className }) => (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-    </svg>
+     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+
 );
 
 const StarIcon = ({ className, filled }) => (
@@ -405,7 +404,7 @@ export default function NoteDetail() {
                                 {/* 🔥 READ BUTTON - Primary Action */}
                                 <Link
                                     to={`/notes/${currentNote._id}/read`}
-                                    className={`w-full bg-gradient-to-r ${theme.gradient}     text-white py-3 px-6 rounded-xl font-medium  transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105`}>
+                                    className={`w-full bg-gradient-to-r ${theme.gradient}     text-white py-3 px-6 rounded-full font-medium  transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105`}>
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                     </svg>
@@ -415,7 +414,7 @@ export default function NoteDetail() {
                                 <button
                                     onClick={handleDownload}
                                     disabled={isDownloading}
-                                    className={`w-full bg-gradient-to-r ${theme.gradient} text-white py-3 px-6 rounded-xl font-medium hover:opacity-90 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
+                                    className={`w-full bg-gradient-to-r ${theme.gradient} text-white py-3 px-6 rounded-full font-medium hover:opacity-90 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
                                 >
                                     {isDownloading ? (
                                         <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
@@ -431,7 +430,7 @@ export default function NoteDetail() {
                                 <button
                                     onClick={handleBookmark}
                                     disabled={isBookmarking}
-                                    className={`w-full border-2 ${theme.borderColor} text-white py-3 px-6 rounded-xl font-medium hover:bg-white/5 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
+                                    className={`w-full border-2 ${theme.borderColor} text-white py-3 px-6 rounded-full font-medium hover:bg-white/5 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50`}
                                 >
                                     {isBookmarking ? (
                                         <div className="animate-spin rounded-full h-5 w-5 border-2 border-yellow-400 border-t-transparent"></div>
@@ -451,7 +450,7 @@ export default function NoteDetail() {
                                 {canEditNote && (
                                     <Link
                                         to={`/update-note/${currentNote._id}`}
-                                        className="w-full bg-green-600/20 border border-green-500/30 text-green-300 py-3 px-6 rounded-xl font-medium hover:bg-green-600/30 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
+                                        className="w-full bg-green-600/20 border border-green-500/30 text-green-300 py-3 px-6 rounded-full font-medium hover:bg-green-600/30 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
                                     >
                                         <EditIcon className="w-5 h-5" />
                                         <span>Update Note</span>
@@ -462,7 +461,7 @@ export default function NoteDetail() {
                                 {canDeleteNote && (
                                     <button
                                         onClick={() => setShowDeleteModal(true)}
-                                        className="w-full bg-red-600/20 border border-red-500/30 text-red-300 py-3 px-6 rounded-xl font-medium hover:bg-red-600/30 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
+                                        className="w-full bg-red-600/20 border border-red-500/30 text-red-300 py-3 px-6 rounded-full font-medium hover:bg-red-600/30 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
                                     >
                                         <TrashIcon className="w-5 h-5" />
                                         <span>Delete Note</span>
@@ -474,7 +473,7 @@ export default function NoteDetail() {
                                     <button
                                         onClick={handleRating}
                                         disabled={rating}
-                                        className="w-full bg-white/10 border border-white/20 text-white py-3 px-6 rounded-xl font-medium hover:bg-white/20 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50"
+                                        className="w-full bg-white/10 border border-white/20 text-white py-3 px-6 rounded-full font-medium hover:bg-white/20 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 disabled:opacity-50"
                                     >
                                         <StarIcon className="w-5 h-5 text-yellow-400" />
                                         <span>{userExistingRating ? 'Update Rating' : 'Rate This'}</span>
@@ -805,7 +804,7 @@ export default function NoteDetail() {
                         </div>
                     </div>
                 )}
-        <AdBanner/>
+        {/* <AdBanner/> */}
             </div>
         </HomeLayout>
     );
