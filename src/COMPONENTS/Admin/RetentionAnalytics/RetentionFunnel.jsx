@@ -60,7 +60,7 @@ const RetentionFunnel = () => {
       <div>
         <h3 className="text-xl font-bold text-white mb-2">7-Stage Retention Funnel</h3>
         <p className="text-sm text-gray-400">
-          Total Users: <span className="text-blue-400 font-semibold">{safeGet(funnel.totalUsers, 0)}</span>
+          Total Users: <span className="text-blue-400 font-semibold">{safeGetFloat(funnel.totalUsers, 0)}</span>
         </p>
       </div>
 
@@ -69,12 +69,12 @@ const RetentionFunnel = () => {
         {stages.map((stage, index) => {
           // Calculate percentage - use stage.percentage if available, otherwise calculate
           const percentage = stage.percentage || calculatePercentage(
-            safeGet(stage.usersCompleted, 0), 
+            safeGetFloat(stage.usersCompleted, 0), 
             safeGet(funnel.totalUsers, 0)
           );
-          const usersCompleted = safeGet(stage.usersCompleted, 0);
-          const dropoff = safeGet(stage.dropoffFromPrevious, 0);
-          const avgDays = safeGet(stage.avgDaysSinceRegistration, 0);
+          const usersCompleted = safeGetFloat(stage.usersCompleted, 0);
+          const dropoff = safeGetFloat(stage.dropoffFromPrevious, 0);
+          const avgDays = safeGetFloat(stage.avgDaysSinceRegistration, 0);
 
           return (
             <div key={stage.stage} className="space-y-2">

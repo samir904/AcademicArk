@@ -1,14 +1,10 @@
-// src/PAGES/Note/ReadNote.jsx
+// src/PAGES/Note/ReadNote.jsx - UPDATED WITH DOWNLOAD BUTTON
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { getNote, toggleBookmark, clearCurrentNote } from '../../REDUX/Slices/noteslice';
+import { useNoteDownload } from '../../hooks/useNoteDownload';
 
-const BookIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-  </svg>
-);
 const ReadNote = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -17,6 +13,10 @@ const ReadNote = () => {
   const { currentNote, loading, bookmarking, error } = useSelector(state => state.note);
   const user = useSelector(state => state.auth.data);
   const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
+  
+  // Download hook
+  const { triggerDownload, downloadingState } = useNoteDownload();
+  const thisDownload = downloadingState[currentNote?._id];
   
   // Reading states
   const [readingTime, setReadingTime] = useState(0);
@@ -28,6 +28,12 @@ const ReadNote = () => {
 
   // Get PDF URL
   const pdfUrl = currentNote?.fileDetails?.secure_url;
+
+  // Build PDF viewer URL with hidden toolbar
+  const buildPdfViewerUrl = (url) => {
+    if (!url) return '';
+    return `${url}#toolbar=0&navpanes=0&scrollbar=1&zoom=page-fit`;
+  };
 
   // Get theme colors based on category
   const getTheme = () => {
@@ -117,35 +123,36 @@ const ReadNote = () => {
     dispatch(toggleBookmark(currentNote._id));
   };
 
+  // Handle download
+  const handleDownload = async () => {
+    await triggerDownload(currentNote);
+  };
+
   // Loading state
- if (loading) {
-  return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="relative h-12 w-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-blue-500"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <svg
-            className="w-6 h-6 text-blue-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-            />
-          </svg>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="relative h-12 w-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-blue-500"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <svg
+              className="w-6 h-6 text-blue-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              />
+            </svg>
+          </div>
         </div>
       </div>
-      {/* <p className="text-center text-gray-400 mt-4 ml-4">
-        Loading reading mode...
-      </p> */}
-    </div>
-  );
-}
-
+    );
+  }
 
   // Error state
   if (error || !currentNote || !pdfUrl) {
@@ -229,6 +236,53 @@ const ReadNote = () => {
 
               {/* Right side - Controls */}
               <div className="flex items-center space-x-3">
+                {/* Download Button */}
+                <button
+                  onClick={handleDownload}
+                  disabled={thisDownload?.status === 'starting'}
+                  className={`px-3 py-2 rounded-xl transition-all duration-300 border flex items-center space-x-2 ${
+                    thisDownload?.status === 'complete' || thisDownload?.status === 'exists'
+                      ? 'bg-green-600/80 border-green-500/60 text-white hover:bg-green-500'
+                      : thisDownload?.status === 'starting'
+                      ? 'bg-blue-600/80 border-blue-500/60 text-white cursor-wait'
+                      : 'bg-white/10 border-white/10 hover:bg-white/20 text-white'
+                  }`}
+                  title={thisDownload?.status === 'complete' ? 'Downloaded successfully' : 'Download PDF'}
+                >
+                  {thisDownload?.status === 'starting' ? (
+                    <>
+                      <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />
+                      <span className="text-xs font-semibold hidden sm:inline">Downloading...</span>
+                    </>
+                  ) : thisDownload?.status === 'complete' ? (
+                    <>
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-xs font-semibold hidden sm:inline">Downloaded</span>
+                    </>
+                  ) : thisDownload?.status === 'exists' ? (
+                    <>
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-xs font-semibold hidden sm:inline">Already Downloaded</span>
+                    </>
+                  ) : thisDownload?.status === 'error' ? (
+                    <>
+                      <svg className="w-4 h-4 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-xs font-semibold hidden sm:inline">Retry</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+                      <span className="text-xs font-semibold hidden sm:inline">Download</span>
+                    </>
+                  )}
+                </button>
+
                 {/* Bookmark */}
                 <button
                   onClick={handleBookmark}
@@ -320,26 +374,50 @@ const ReadNote = () => {
             <div className="flex-1 flex items-center justify-center p-4 overflow-auto">
               <div className="w-full h-full bg-white rounded-lg shadow-2xl overflow-hidden relative">
                 <iframe
-                  src={`${pdfUrl}#view=FitH&toolbar=1&navpanes=0&scrollbar=1&zoom=page-fit`}
+                  src={buildPdfViewerUrl(pdfUrl)}
                   className="w-full h-full border-0"
                   title={currentNote?.title}
                   style={{ minHeight: '100%' }}
                 />
                 
-                {/* Fallback: Open in New Tab button */}
+                {/* Custom Download Button (replaces "Open in New Tab") */}
                 <div className="absolute bottom-4 right-4 z-10">
-                  <a
-                    href={pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-black/70 text-white px-3 py-2 rounded-lg text-sm hover:bg-black/80 transition-colors flex items-center space-x-1"
+                  <button
+                    onClick={handleDownload}
+                    disabled={thisDownload?.status === 'starting'}
+                    className={`text-white px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center space-x-1 font-semibold border ${
+                      thisDownload?.status === 'complete' || thisDownload?.status === 'exists'
+                        ? 'bg-green-600/90 hover:bg-green-500/90 border-green-500/60'
+                        : thisDownload?.status === 'starting'
+                        ? 'bg-blue-600/90 border-blue-500/60 cursor-wait'
+                        : 'bg-black/80 hover:bg-black/90 border-white/30 hover:border-white/50'
+                    }`}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    <span>Open in New Tab</span>
-                  </a>
+                    {thisDownload?.status === 'starting' ? (
+                      <>
+                        <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />
+                        <span>Downloading...</span>
+                      </>
+                    ) : thisDownload?.status === 'complete' || thisDownload?.status === 'exists' ? (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>{thisDownload?.status === 'complete' ? 'Downloaded' : 'Already Downloaded'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+                        <span>Download PDF</span>
+                      </>
+                    )}
+                  </button>
                 </div>
+
+                {/* Helper text */}
+                {/* <div className="absolute bottom-16 right-4 bg-black/70 text-white text-xs px-3 py-2 rounded-lg border border-white/20 max-w-xs z-10">
+                  ℹ️ Use the Download button to  this note!
+                </div> */}
               </div>
             </div>
           </div>
@@ -392,6 +470,56 @@ const ReadNote = () => {
                 </button>
               </div>
 
+              {/* Download Section */}
+              <div className="bg-gradient-to-br from-indigo-900/30 to-blue-900/20 backdrop-blur-xl border border-indigo-500/20 rounded-xl p-4">
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+                  Download PDF
+                </h3>
+                {/* <p className="text-xs text-gray-300 mb-3">
+                  Download this note to your device
+                </p> */}
+                <button 
+                  onClick={handleDownload}
+                  disabled={thisDownload?.status === 'starting'}
+                  className={`w-full py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
+                    thisDownload?.status === 'complete' || thisDownload?.status === 'exists'
+                      ? 'bg-green-600/20 border border-green-500/30 text-green-300 hover:bg-green-600/30'
+                      : thisDownload?.status === 'starting'
+                      ? 'bg-blue-600/20 border border-blue-500/30 text-blue-300 cursor-wait'
+                      : 'bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/30'
+                  }`}
+                >
+                  {thisDownload?.status === 'starting' ? (
+                    <>
+                      <div className="w-4 h-4 animate-spin border-2 border-current border-t-transparent rounded-full" />
+                      <span>Downloading...</span>
+                    </>
+                  ) : thisDownload?.status === 'complete' ? (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Downloaded!</span>
+                    </>
+                  ) : thisDownload?.status === 'exists' ? (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Already Downloaded</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v16h16M12 8v8m0 0l-3-3m3 3l3-3" />
+                      </svg>
+                      <span>Download Now</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
               {/* Study Tools */}
               <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/20 backdrop-blur-xl border border-purple-500/20 rounded-xl p-4">
                 <h3 className="text-lg font-semibold text-white mb-3">Study Tools</h3>
@@ -421,10 +549,8 @@ const ReadNote = () => {
       {/* Mobile Speed Dial Navigation */}
       {isMobile && !isFullscreen && (
         <>
-          {/* Speed Dial FAB */}
           <div className="fixed bottom-6 right-4 z-50">
             <div className="relative">
-              {/* Main FAB */}
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
                 className={`w-14 h-14 bg-gradient-to-r ${theme.gradient} rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300 ${showMobileMenu ? 'rotate-45 scale-110' : 'hover:scale-110'}`}
@@ -434,9 +560,26 @@ const ReadNote = () => {
                 </svg>
               </button>
 
-              {/* Speed Dial Menu Items */}
               {showMobileMenu && (
                 <div className="absolute bottom-16 right-0 space-y-3">
+                  {/* Download */}
+                  <button
+                    onClick={() => {
+                      handleDownload();
+                      setShowMobileMenu(false);
+                    }}
+                    className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white transform transition-all duration-300 animate-fade-in-up ${
+                      thisDownload?.status === 'complete' || thisDownload?.status === 'exists'
+                        ? 'bg-green-600'
+                        : 'bg-indigo-600'
+                    }`}
+                    style={{ animationDelay: '0.1s' }}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v16h16M12 8v8m0 0l-3-3m3 3l3-3" />
+                    </svg>
+                  </button>
+
                   {/* Study Tools */}
                   <button
                     onClick={() => {
@@ -444,7 +587,7 @@ const ReadNote = () => {
                       setShowMobileMenu(false);
                     }}
                     className="w-12 h-12 bg-purple-600 rounded-full shadow-lg flex items-center justify-center text-white transform transition-all duration-300 animate-fade-in-up"
-                    style={{ animationDelay: '0.1s' }}
+                    style={{ animationDelay: '0.2s' }}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -460,26 +603,12 @@ const ReadNote = () => {
                     className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white transform transition-all duration-300 animate-fade-in-up ${
                       isBookmarked ? 'bg-yellow-600' : 'bg-blue-600'
                     }`}
-                    style={{ animationDelay: '0.2s' }}
+                    style={{ animationDelay: '0.3s' }}
                   >
                     <svg className="w-5 h-5" fill={isBookmarked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                     </svg>
                   </button>
-
-                  {/* Open in New Tab */}
-                  <a
-                    href={pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setShowMobileMenu(false)}
-                    className="w-12 h-12 bg-green-600 rounded-full shadow-lg flex items-center justify-center text-white transform transition-all duration-300 animate-fade-in-up"
-                    style={{ animationDelay: '0.3s' }}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
 
                   {/* Fullscreen */}
                   <button
@@ -507,7 +636,7 @@ const ReadNote = () => {
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowStudyTools(false)}></div>
           <div className="relative w-full bg-gray-900 rounded-t-3xl p-6 animate-slide-up">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white">Study Tools</h2>
+              <h2 className="text-xl font-bold text-white">Study Tools & Download</h2>
               <button 
                 onClick={() => setShowStudyTools(false)}
                 className="p-2 bg-white/10 rounded-lg"
@@ -541,6 +670,55 @@ const ReadNote = () => {
               </div>
             </div>
 
+            {/* Download Section */}
+            <div className="bg-gradient-to-br from-indigo-900/30 to-blue-900/20 border border-indigo-500/20 rounded-xl p-4 mb-6">
+              <h3 className="text-lg font-semibold text-white mb-2 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+                Download This Note
+              </h3>
+              {/* <p className="text-xs text-gray-300 mb-3">Support this resource by downloading!</p> */}
+              <button
+                onClick={() => {
+                  handleDownload();
+                  setShowStudyTools(false);
+                }}
+                disabled={thisDownload?.status === 'starting'}
+                className={`w-full py-3 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
+                  thisDownload?.status === 'complete' || thisDownload?.status === 'exists'
+                    ? 'bg-green-600 text-white hover:bg-green-500'
+                    : thisDownload?.status === 'starting'
+                    ? 'bg-blue-600 text-white cursor-wait'
+                    : 'bg-indigo-600 text-white hover:bg-indigo-500'
+                }`}
+              >
+                {thisDownload?.status === 'starting' ? (
+                  <>
+                    <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />
+                    <span>Downloading...</span>
+                  </>
+                ) : thisDownload?.status === 'complete' ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Downloaded!</span>
+                  </>
+                ) : thisDownload?.status === 'exists' ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Already Downloaded</span>
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+                    <span>Download PDF</span>
+                  </>
+                )}
+              </button>
+            </div>
+
             {/* Quick Notes */}
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-white mb-3">Quick Notes</h3>
@@ -570,18 +748,6 @@ const ReadNote = () => {
                 </svg>
                 <span>{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
               </button>
-              
-              <a
-                href={pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 bg-blue-500/20 border border-blue-500/30 text-blue-300 rounded-lg transition-colors flex items-center justify-center space-x-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                <span>Open in Tab</span>
-              </a>
             </div>
           </div>
         </div>
