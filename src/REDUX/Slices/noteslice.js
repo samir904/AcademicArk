@@ -175,6 +175,14 @@ export const downloadnote = createAsyncThunk("/note/downloadNote", async ({ note
     }
 });
 
+export const incrementViewCount = createAsyncThunk("/note/incrementView", async (noteId) => {
+    try {
+        const res = await axiosInstance.get(`/notes/${noteId}/view`);
+        return res.data;
+    } catch (e) {
+        console.error('View increment error:', e);
+    }
+});
 
 
 
@@ -182,18 +190,13 @@ export const downloadnote = createAsyncThunk("/note/downloadNote", async ({ note
 const noteSlice = createSlice({
     name: "note",
     initialState,
-    reducers: {
-        //clear current note
+   reducers: {
         clearCurrentNote: (state) => {
             state.currentNote = null;
         },
-
-        //set filters
         setFilters: (state, action) => {
             state.filters = { ...state.filters, ...action.payload };
         },
-
-        //clear filters
         clearFilters: (state) => {
             state.filters = {
                 subject: "",
@@ -203,21 +206,38 @@ const noteSlice = createSlice({
                 category: ""
             };
         },
-
-        //clear error
         clearError: (state) => {
             state.error = null;
         },
-
-        //clear notes (for logout)
         clearNotes: (state) => {
             state.notes = [];
             state.currentNote = null;
             state.totalNotes = 0;
             state.error = null;
+        },
+        
+        // ✅ ADD THIS REDUCER
+        updateNoteViews: (state, action) => {
+            const { noteId, views } = action.payload;
+            
+            // Update in notes array (for NoteCard display)
+            const index = state.notes.findIndex(note => note._id === noteId);
+            if (index !== -1) {
+                state.notes[index] = {
+                    ...state.notes[index],
+                    views: views
+                };
+            }
+            
+            // Update currentNote if same
+            if (state.currentNote?._id === noteId) {
+                state.currentNote = {
+                    ...state.currentNote,
+                    views: views
+                };
+            }
         }
     },
-
     extraReducers: (builder) => {
         builder
             //register note
@@ -264,6 +284,11 @@ const noteSlice = createSlice({
                 state.loading = false;
                 state.error = action?.payload || "Failed to fetch note!";
                 state.currentNote = null; // Clear current note on error
+                // ✅ Also update in notes array
+                const index = state.notes.findIndex(n => n._id === action?.payload?.data?._id);
+                if (index !== -1) {
+                    state.notes[index] = action?.payload?.data;
+                }
             })
 
             // In your noteSlice.js - fix the updateNote extraReducer
@@ -421,7 +446,8 @@ export const {
     setFilters,
     clearFilters,
     clearError,
-    clearNotes
+    clearNotes,
+    updateNoteViews  // ✅ EXPORT THIS
 } = noteSlice.actions;
 
 //export reducer

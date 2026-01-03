@@ -228,6 +228,12 @@ const downloadState = downloading[note._id];
     {/* Stats */}
     <div className="flex items-center justify-between text-xs text-cyan-300/80 pt-2 border-t border-cyan-500/20">
       <div className="flex items-center space-x-3">
+             {/* Views Count */}
+    <div className="flex items-center space-x-1">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+
+      <span>{note.views || 0} views</span>
+    </div>
         <div className="flex items-center space-x-1">
           <DownloadIcon className="w-4 h-4" />
           <span>{note.downloads || 0} downloads</span>
