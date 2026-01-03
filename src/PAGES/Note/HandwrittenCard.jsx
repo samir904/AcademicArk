@@ -184,7 +184,7 @@ export default function HandwrittenCard({ note }) {
       )}
     </div>
 
-    <h3 className="text-lg font-bold capitalize text-green-100 line-clamp-2 group-hover:text-green-50 transition-colors">
+    <h3 className="text-lg font-bold capitalize text-green-100 line-clamp-1 group-hover:text-green-50 transition-colors">
       {note.title}
     </h3>
 

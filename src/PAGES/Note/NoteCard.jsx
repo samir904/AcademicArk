@@ -195,53 +195,52 @@ export default function NoteCard({ note }) {
         {/* Content */}
         <div className="relative p-6 space-y-4">
 
-         {/* Header */}
-<div className="flex items-start justify-between gap-3 min-w-0">
-  <div className="flex-1 min-w-0">
-    {/* Category & Rating Badges */}
-    <div className="flex items-center space-x-2 mb-2 flex-wrap gap-1">
-      <span className="px-2 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-bold rounded-full border border-indigo-400/30 flex-shrink-0">
-        {note.category}
-      </span>
-      {note.rating?.length > 0 && (
-        <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1 border border-teal-400/30 flex-shrink-0">
-          <StarIcon className="w-3 h-3" filled />
-          <span>{avgRating}</span>
-        </span>
-      )}
-    </div>
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3 min-w-0">
+            <div className="flex-1 min-w-0">
+              {/* Category & Rating Badges */}
+              <div className="flex items-center space-x-2 mb-2 flex-wrap gap-1">
+                <span className="px-2 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-bold rounded-full border border-indigo-400/30 flex-shrink-0">
+                  {note.category}
+                </span>
+                {note.rating?.length > 0 && (
+                  <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1 border border-teal-400/30 flex-shrink-0">
+                    <StarIcon className="w-3 h-3" filled />
+                    <span>{avgRating}</span>
+                  </span>
+                )}
+              </div>
 
-    {/* Title */}
-    <h3 className="text-lg font-bold capitalize text-indigo-100 line-clamp-2 group-hover:text-indigo-50 transition-colors">
-      {note.title}
-    </h3>
+              {/* Title */}
+              <h3 className="text-lg font-bold capitalize text-indigo-100 line-clamp-1 group-hover:text-indigo-50 transition-colors">
+                {note.title}
+              </h3>
 
-    {/* Metadata - FIXED */}
-    <div className="flex items-center space-x-2 mt-2 text-xs text-indigo-300/80 min-w-0 overflow-hidden">
-      <span className="truncate">{note.subject}</span>
-      <span className="flex-shrink-0">•</span>
-      <span className="flex-shrink-0 whitespace-nowrap">Sem {note.semester}</span>
-      <span className="flex-shrink-0">•</span>
-      <span className="truncate">{note.university}</span>
-    </div>
-  </div>
+              {/* Metadata - FIXED */}
+              <div className="flex items-center space-x-2 mt-2 text-xs text-indigo-300/80 min-w-0 overflow-hidden">
+                <span className="truncate">{note.subject}</span>
+                <span className="flex-shrink-0">•</span>
+                <span className="flex-shrink-0 whitespace-nowrap">Sem {note.semester}</span>
+                <span className="flex-shrink-0">•</span>
+                <span className="truncate">{note.university}</span>
+              </div>
+            </div>
 
-  {/* Bookmark Button - FIXED */}
-  <button
-    onClick={handleBookmark}
-    disabled={isBookmarking}
-    className="p-2 rounded-full hover:bg-indigo-500/20 transition-all flex-shrink-0"
-  >
-    <BookmarkIcon
-      className={`w-5 h-5 transition-all ${
-        isBookmarked
-          ? 'text-teal-400 scale-110'
-          : 'text-indigo-300 hover:text-teal-400'
-      }`}
-      filled={isBookmarked}
-    />
-  </button>
-</div>
+            {/* Bookmark Button - FIXED */}
+            <button
+              onClick={handleBookmark}
+              disabled={isBookmarking}
+              className="p-2 rounded-full hover:bg-indigo-500/20 transition-all flex-shrink-0"
+            >
+              <BookmarkIcon
+                className={`w-5 h-5 transition-all ${isBookmarked
+                    ? 'text-teal-400 scale-110'
+                    : 'text-indigo-300 hover:text-teal-400'
+                  }`}
+                filled={isBookmarked}
+              />
+            </button>
+          </div>
 
 
           {/* Description */}
@@ -321,10 +320,10 @@ export default function NoteCard({ note }) {
                 onClick={handleDownload}
                 disabled={downloadState?.status === 'starting'}
                 className={`flex-1 px-3 py-2.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl font-bold text-sm sm:text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 ${downloadState?.status === 'error'
-                    ? 'bg-red-600 hover:bg-red-500 text-white'
-                    : downloadState?.status === 'complete' && !isDownloading || downloadState?.status === 'exists'
-                      ? 'bg-green-600 hover:bg-green-500 text-white'
-                      : 'bg-teal-600 hover:bg-teal-500 active:bg-teal-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
+                  ? 'bg-red-600 hover:bg-red-500 text-white'
+                  : downloadState?.status === 'complete' && !isDownloading || downloadState?.status === 'exists'
+                    ? 'bg-green-600 hover:bg-green-500 text-white'
+                    : 'bg-teal-600 hover:bg-teal-500 active:bg-teal-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
                   }`}
                 aria-label="Download note"
                 aria-busy={downloadState?.status === 'starting'}
@@ -398,8 +397,8 @@ export default function NoteCard({ note }) {
                   >
                     <StarIcon
                       className={`w-10 h-10 transition-all ${star <= userRating
-                          ? 'text-yellow-400 drop-shadow-lg'
-                          : 'text-gray-600 group-hover:text-yellow-300'
+                        ? 'text-yellow-400 drop-shadow-lg'
+                        : 'text-gray-600 group-hover:text-yellow-300'
                         }`}
                       filled={star <= userRating}
                     />
@@ -469,8 +468,8 @@ export default function NoteCard({ note }) {
                 onClick={submitRating}
                 disabled={userRating === 0}
                 className={`flex-1 px-4 py-2 font-bold rounded-lg transition-all ${userRating === 0
-                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50'
-                    : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/50'
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50'
+                  : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/50'
                   }`}
               >
                 {userRating === 0 ? 'Rate first' : userReview ? 'Submit Review' : 'Submit Rating'}
