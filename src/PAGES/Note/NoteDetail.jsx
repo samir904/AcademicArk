@@ -7,6 +7,7 @@ import HomeLayout from '../../LAYOUTS/Homelayout';
 import LoginPrompt from '../../COMPONENTS/LoginPrompt';
 import AdSidebar from '../../COMPONENTS/AdSidebar';
 import AdBanner from '../../COMPONENTS/AdBanner';
+import NoteViewers from '../../COMPONENTS/Note/NoteViewers';
 
 // Icon components
 const ArrowLeftIcon = ({ className }) => (
@@ -555,6 +556,13 @@ export default function NoteDetail() {
                             {categoryContent && categoryContent}
 
 
+{/* ✅ NOTE VIEWERS SECTION */}
+{currentNote.viewedBy && currentNote.viewedBy.length > 0 && (
+    <NoteViewers 
+        viewedBy={currentNote.viewedBy}
+        totalViews={currentNote.views}
+    />
+)}
 
 
                             {/* Reviews */}

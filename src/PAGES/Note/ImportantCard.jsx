@@ -182,50 +182,47 @@ export default function ImportantCard({ note }) {
   {/* Content */}
   <div className="relative p-6 space-y-4">
     
-    {/* Header */}
-    <div className="flex items-start justify-between">
-      <div className="flex-1">
-        <div className="flex items-center space-x-2 mb-2">
-          <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs font-bold rounded-full border border-orange-400/30">
-            ⭐ Important
-          </span>
-          {note.rating?.length > 0 && (
-            <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1 border border-yellow-400/30">
-              <StarIcon className="w-3 h-3" filled />
-              <span>{avgRating}</span>
-            </span>
-          )}
-        </div>
-        
-        <h3 className="text-lg font-bold capitalize text-orange-100 line-clamp-1 group-hover:text-orange-50 transition-colors">
-          {note.title}
-        </h3>
-        
-         <div className="flex items-center space-x-2 mt-2 text-xs text-orange-300/80 truncate overflow-hidden min-w-0">
-                <span className="capitalize truncate">{note.subject}</span>
-                <span className="flex-shrink-0">•</span>
-                <span className="whitespace-nowrap flex-shrink-0">Sem {note.semester}</span>
-                <span className="flex-shrink-0">•</span>
-                <span className="truncate">{note.university}</span>
-              </div>
-
-      </div>
-      
-      <button
-        onClick={handleBookmark}
-        disabled={isBookmarking}
-        className="p-2 rounded-full hover:bg-orange-500/20 transition-all"
-      >
-        <BookmarkIcon 
-          className={`w-5 h-5 transition-all ${
-            isBookmarked 
-              ? 'text-amber-400 scale-110' 
-              : 'text-orange-300 hover:text-amber-400'
-          }`}
-          filled={isBookmarked}
-        />
-      </button>
+   <div className="flex items-start justify-between gap-3 min-w-0">
+  <div className="flex-1 min-w-0">
+    <div className="flex items-center space-x-2 mb-2 flex-wrap gap-1">
+      <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs font-bold rounded-full border border-orange-400/30 flex-shrink-0">
+        ⭐ Important
+      </span>
+      {note.rating?.length > 0 && (
+        <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1 border border-yellow-400/30 flex-shrink-0">
+          <StarIcon className="w-3 h-3" filled />
+          <span>{avgRating}</span>
+        </span>
+      )}
     </div>
+
+    <h3 className="text-lg font-bold capitalize text-orange-100 line-clamp-2 group-hover:text-orange-50 transition-colors">
+      {note.title}
+    </h3>
+
+    <div className="flex items-center space-x-2 mt-2 text-xs text-orange-300/80 min-w-0 overflow-hidden">
+      <span className="capitalize truncate">{note.subject}</span>
+      <span className="flex-shrink-0">•</span>
+      <span className="flex-shrink-0 whitespace-nowrap">Sem {note.semester}</span>
+      <span className="flex-shrink-0">•</span>
+      <span className="truncate">{note.university}</span>
+    </div>
+  </div>
+
+  <button
+    onClick={handleBookmark}
+    disabled={isBookmarking}
+    className="p-2 rounded-full hover:bg-orange-500/20 transition-all flex-shrink-0"
+  >
+    <BookmarkIcon
+      className={`w-5 h-5 transition-all ${
+        isBookmarked ? 'text-amber-400 scale-110' : 'text-orange-300 hover:text-amber-400'
+      }`}
+      filled={isBookmarked}
+    />
+  </button>
+</div>
+
     
     {/* Description */}
     <p className="text-sm text-orange-200/90 line-clamp-1 leading-relaxed">
