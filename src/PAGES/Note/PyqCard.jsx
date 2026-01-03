@@ -101,7 +101,7 @@ const downloadState = downloading[note._id];
       value: note._id,
     });
 
-    dispatch(downloadnote({ noteId: note._id, title: note.title }));
+    await dispatch(downloadnote({ noteId: note._id, title: note.title }));
   // Download to IndexedDB
   const success = await downloadPDF({
     id: note._id,
@@ -297,7 +297,7 @@ const downloadState = downloading[note._id];
                 to={`/notes/${note._id}`}
                 className="flex-1 bg-cyan-700 hover:bg-cyan-600 active:bg-cyan-800 text-white py-2.5 px-3 rounded-full text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
               >
-                <span className="hidden sm:inline">Details</span>
+                <span >Details</span>
                 <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -306,42 +306,42 @@ const downloadState = downloading[note._id];
               <button
                 onClick={handleDownload}
                 disabled={downloadState?.status === 'starting'}
-                className={`flex-1 px-3 py-2.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl font-bold text-xl sm:text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 ${
+                className={`flex-1 px-3 py-2.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl font-bold text-sm sm:text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 ${
                   downloadState?.status === 'error' 
                     ? 'bg-red-600 hover:bg-red-500 text-white'
-                    : downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                    : downloadState?.status === 'complete'&& !isDownloading || downloadState?.status === 'exists'
                     ? 'bg-green-600 hover:bg-green-500 text-white'
                     : 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
                 }`}
                 aria-label="Download note"
                 aria-busy={downloadState?.status === 'starting'}
               >
-                {downloadState?.status === 'complete' ? (
+                {downloadState?.status === 'complete' && !isDownloading? (
                   <>
                     <CheckIcon className="w-4 h-4 text-white" />
-                    <span className="hidden sm:inline">Downloaded</span>
+                    <span >Downloaded</span>
                   </>
                 ) : downloadState?.status === 'exists' ? (
                   <>
                     <CheckIcon className="w-4 h-4 text-white" />
-                    <span className="hidden sm:inline">Saved</span>
+                    <span >Saved</span>
                   </>
-                ) : downloadState?.status === 'starting' && isDownloading ? (
+                ) : downloadState?.status === 'starting' || isDownloading ? (
                   <>
                     <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
-                    <span className="hidden sm:inline">Downloading...</span>
+                    <span >Downloading...</span>
                   </>
                 ) : downloadState?.status === 'error' ? (
                   <>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="hidden sm:inline">Retry</span>
+                    <span >Retry</span>
                   </>
                 ) : (
                   <>
                     <DownloadIcon className="w-4 h-4" />
-                    <span className="hidden sm:inline">Download</span>
+                    <span>Download</span>
                   </>
                 )}
               </button>
