@@ -22,7 +22,7 @@ import AdminLogs from "./AdminLogs";
 import Analytics from "./Analytics";
 import AdminColleges from "./AdminColleges";
 import { getAcademicAnalytics } from "../../REDUX/Slices/academicProfileSlice";
- import AdminRequests from "./AdminRequests";
+import AdminRequests from "./AdminRequests";
 import AdminFeedback from "./AdminFeedback";
 // import RetentionTab from "./RetentionTab";
 import LoginLogsDisplay from "../../COMPONENTS/LoginLogsDisplay";
@@ -133,6 +133,10 @@ const AcademicIcon = ({ className }) => (
   </svg>
 );
 
+const EyeIcon= ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>);
+
+
 
 export default function AdminDashboard() {
   const dispatch = useDispatch();
@@ -152,8 +156,8 @@ export default function AdminDashboard() {
     adminLogs, // ✅ ADD THIS
     adminLogsPagination, // ✅ ADD THIS
   } = useSelector((state) => state.admin);
-// ✨ ADD THIS - Get analytics from academicProfileSlice
-const { analytics } = useSelector((state) => state.academicProfile);
+  // ✨ ADD THIS - Get analytics from academicProfileSlice
+  const { analytics } = useSelector((state) => state.academicProfile);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [userSearch, setUserSearch] = useState("");
   const [noteSearch, setNoteSearch] = useState("");
@@ -286,7 +290,7 @@ const { analytics } = useSelector((state) => state.academicProfile);
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard","requestlogs" ,"users","loginLogs","loginanalytics", "notes", "academic", "colleges", "logs","requests", "feedback","Security","retention"].map(
+              {["dashboard", "requestlogs", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback", "Security", "retention"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -300,26 +304,26 @@ const { analytics } = useSelector((state) => state.academicProfile);
                       ? "Admin Logs"
                       // : tab === "analytics"
                       //   ? "Analytics"
-                        : tab === "academic"
-                          ? "Academic Data"
-                          : tab === "colleges"
-                            ? "College Approvals"
-                            :tab==='requests'
-                            ?'notes requests'
-                             : tab === "feedback"
-                                                ? "feedback"
-                                                : tab === "retention"
-                                                ? "retention"
-                                                : tab === "loginLogs"
-                                                ? "User Logins"
-                                                : tab === "loginanalytics"
-                                                ? "Logins analytics"
-                                                : tab === "Security"
-                                                ? "Security"
-                                                : tab === "requestlogs"
-                                                ? "Request Logs"
-                                                : tab}
-                            
+                      : tab === "academic"
+                        ? "Academic Data"
+                        : tab === "colleges"
+                          ? "College Approvals"
+                          : tab === 'requests'
+                            ? 'notes requests'
+                            : tab === "feedback"
+                              ? "feedback"
+                              : tab === "retention"
+                                ? "retention"
+                                : tab === "loginLogs"
+                                  ? "User Logins"
+                                  : tab === "loginanalytics"
+                                    ? "Logins analytics"
+                                    : tab === "Security"
+                                      ? "Security"
+                                      : tab === "requestlogs"
+                                        ? "Request Logs"
+                                        : tab}
+
                   </button>
                 )
               )}
@@ -346,6 +350,14 @@ const { analytics } = useSelector((state) => state.academicProfile);
                   value={dashboardStats.totalNotes}
                   color="text-green-400"
                   bgColor="bg-green-900/20"
+                />
+                {/* ✅ ADD THIS - Total Views Card */}
+                <StatCard
+                  icon={EyeIcon}
+                  title="Total Views"
+                  value={dashboardStats.totalViews}
+                  color="text-cyan-400"
+                  bgColor="bg-cyan-900/20"
                 />
                 <StatCard
                   icon={DownloadIcon}
@@ -1323,147 +1335,145 @@ const { analytics } = useSelector((state) => state.academicProfile);
           )}
           {/* Academic Data Tab */}
           {/* Academic Data Tab */}
-{activeTab === "academic" && analytics && (
-  <div className="space-y-6">
-    {/* Header */}
-    <div className="bg-gradient-to-r from-indigo-900 to-purple-900 p-6 rounded-2xl">
-      <h2 className="text-2xl font-bold text-white mb-2">Academic Data</h2>
-      <p className="text-indigo-200">User academic profile analytics</p>
-    </div>
+          {activeTab === "academic" && analytics && (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-indigo-900 to-purple-900 p-6 rounded-2xl">
+                <h2 className="text-2xl font-bold text-white mb-2">Academic Data</h2>
+                <p className="text-indigo-200">User academic profile analytics</p>
+              </div>
 
-    {/* Profile Completion Stats */}
-    {analytics.profileCompletionStats && (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-green-900/20 to-gray-800/30 border border-green-500/20 rounded-2xl p-6">
-          <p className="text-gray-400 text-sm mb-2">Completed Profiles</p>
-          <p className="text-4xl font-bold text-green-400">
-            {analytics.profileCompletionStats.completed}
-          </p>
-          <p className="text-gray-500 text-xs mt-2">users</p>
-        </div>
-        <div className="bg-gradient-to-br from-blue-900/20 to-gray-800/30 border border-blue-500/20 rounded-2xl p-6">
-          <p className="text-gray-400 text-sm mb-2">Total Users</p>
-          <p className="text-4xl font-bold text-blue-400">
-            {analytics.profileCompletionStats.total}
-          </p>
-          <p className="text-gray-500 text-xs mt-2">registered</p>
-        </div>
-        <div className="bg-gradient-to-br from-purple-900/20 to-gray-800/30 border border-purple-500/20 rounded-2xl p-6">
-          <p className="text-gray-400 text-sm mb-2">Completion Rate</p>
-          <p className="text-4xl font-bold text-purple-400">
-            {analytics.profileCompletionStats.percentage}%
-          </p>
-          <p className="text-gray-500 text-xs mt-2">completion</p>
-        </div>
-      </div>
-    )}
+              {/* Profile Completion Stats */}
+              {analytics.profileCompletionStats && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-gradient-to-br from-green-900/20 to-gray-800/30 border border-green-500/20 rounded-2xl p-6">
+                    <p className="text-gray-400 text-sm mb-2">Completed Profiles</p>
+                    <p className="text-4xl font-bold text-green-400">
+                      {analytics.profileCompletionStats.completed}
+                    </p>
+                    <p className="text-gray-500 text-xs mt-2">users</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-900/20 to-gray-800/30 border border-blue-500/20 rounded-2xl p-6">
+                    <p className="text-gray-400 text-sm mb-2">Total Users</p>
+                    <p className="text-4xl font-bold text-blue-400">
+                      {analytics.profileCompletionStats.total}
+                    </p>
+                    <p className="text-gray-500 text-xs mt-2">registered</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-900/20 to-gray-800/30 border border-purple-500/20 rounded-2xl p-6">
+                    <p className="text-gray-400 text-sm mb-2">Completion Rate</p>
+                    <p className="text-4xl font-bold text-purple-400">
+                      {analytics.profileCompletionStats.percentage}%
+                    </p>
+                    <p className="text-gray-500 text-xs mt-2">completion</p>
+                  </div>
+                </div>
+              )}
 
-    {/* Semester Distribution */}
-    {analytics.semesterDistribution && analytics.semesterDistribution.length > 0 && (
-      <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-white/10 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Semester Distribution</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-          {analytics.semesterDistribution.map((item, idx) => (
-            <div key={idx} className="bg-gray-800/50 rounded-lg p-3 text-center">
-              <p className="text-gray-400 text-xs mb-1">Sem {item.semester}</p>
-              <p className="text-2xl font-bold text-blue-400">{item.count}</p>
+              {/* Semester Distribution */}
+              {analytics.semesterDistribution && analytics.semesterDistribution.length > 0 && (
+                <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-white/10 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Semester Distribution</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+                    {analytics.semesterDistribution.map((item, idx) => (
+                      <div key={idx} className="bg-gray-800/50 rounded-lg p-3 text-center">
+                        <p className="text-gray-400 text-xs mb-1">Sem {item.semester}</p>
+                        <p className="text-2xl font-bold text-blue-400">{item.count}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* College Distribution */}
+              {analytics.collegeDistribution && analytics.collegeDistribution.length > 0 && (
+                <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-white/10 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">College Distribution</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-white/10">
+                          <th className="text-left py-3 px-4 text-gray-400">College</th>
+                          <th className="text-center py-3 px-4 text-gray-400">Users</th>
+                          <th className="text-center py-3 px-4 text-gray-400">Type</th>
+                          <th className="text-center py-3 px-4 text-gray-400">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {analytics.collegeDistribution.map((item, idx) => (
+                          <tr key={idx} className="border-b border-white/5 hover:bg-white/5">
+                            <td className="py-3 px-4 text-white">{item.college.substring(0, 30)}</td>
+                            <td className="py-3 px-4 text-center text-blue-400 font-semibold">{item.count}</td>
+                            <td className="py-3 px-4 text-center">
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${item.isPredefined ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'
+                                }`}>
+                                {item.isPredefined ? 'Predefined' : 'Custom'}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${item.isApproved ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                                }`}>
+                                {item.isApproved ? '✓ Approved' : '⚠ Pending'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Pending Custom Colleges */}
+              {analytics.pendingCustomColleges && analytics.pendingCustomColleges.length > 0 && (
+                <div className="bg-gradient-to-br from-yellow-900/20 to-gray-800/30 border border-yellow-500/20 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-yellow-400 mb-4">
+                    Pending Custom Colleges ({analytics.pendingCustomColleges.length})
+                  </h3>
+                  <div className="space-y-2">
+                    {analytics.pendingCustomColleges.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
+                        <span className="text-white">{item.college}</span>
+                        <span className="text-yellow-400 font-semibold">{item.count} users</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Branch Distribution */}
+              {analytics.branchDistribution && analytics.branchDistribution.length > 0 && (
+                <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-white/10 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Branch Distribution</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {analytics.branchDistribution.map((item, idx) => (
+                      <div key={idx} className="bg-gray-800/50 rounded-lg p-4 border border-white/5">
+                        <p className="text-gray-400 text-sm mb-2">{item.branch}</p>
+                        <p className="text-3xl font-bold text-green-400">{item.count}</p>
+                        <p className="text-gray-500 text-xs mt-1">users</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      </div>
-    )}
-
-    {/* College Distribution */}
-    {analytics.collegeDistribution && analytics.collegeDistribution.length > 0 && (
-      <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-white/10 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">College Distribution</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/10">
-                <th className="text-left py-3 px-4 text-gray-400">College</th>
-                <th className="text-center py-3 px-4 text-gray-400">Users</th>
-                <th className="text-center py-3 px-4 text-gray-400">Type</th>
-                <th className="text-center py-3 px-4 text-gray-400">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {analytics.collegeDistribution.map((item, idx) => (
-                <tr key={idx} className="border-b border-white/5 hover:bg-white/5">
-                  <td className="py-3 px-4 text-white">{item.college.substring(0, 30)}</td>
-                  <td className="py-3 px-4 text-center text-blue-400 font-semibold">{item.count}</td>
-                  <td className="py-3 px-4 text-center">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      item.isPredefined ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'
-                    }`}>
-                      {item.isPredefined ? 'Predefined' : 'Custom'}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      item.isApproved ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                    }`}>
-                      {item.isApproved ? '✓ Approved' : '⚠ Pending'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    )}
-
-    {/* Pending Custom Colleges */}
-    {analytics.pendingCustomColleges && analytics.pendingCustomColleges.length > 0 && (
-      <div className="bg-gradient-to-br from-yellow-900/20 to-gray-800/30 border border-yellow-500/20 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-yellow-400 mb-4">
-          Pending Custom Colleges ({analytics.pendingCustomColleges.length})
-        </h3>
-        <div className="space-y-2">
-          {analytics.pendingCustomColleges.map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-              <span className="text-white">{item.college}</span>
-              <span className="text-yellow-400 font-semibold">{item.count} users</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
-
-    {/* Branch Distribution */}
-    {analytics.branchDistribution && analytics.branchDistribution.length > 0 && (
-      <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-white/10 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Branch Distribution</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {analytics.branchDistribution.map((item, idx) => (
-            <div key={idx} className="bg-gray-800/50 rounded-lg p-4 border border-white/5">
-              <p className="text-gray-400 text-sm mb-2">{item.branch}</p>
-              <p className="text-3xl font-bold text-green-400">{item.count}</p>
-              <p className="text-gray-500 text-xs mt-1">users</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
-  </div>
-)}
+          )}
 
           {/* College Approvals Tab */}
-{activeTab === "colleges" && (
-  <AdminColleges />
-)}
+          {activeTab === "colleges" && (
+            <AdminColleges />
+          )}
 
-{activeTab === "requests" && <AdminRequests />}
-{/* Feedback Tab */}
-{activeTab === "feedback" && <AdminFeedback />}
+          {activeTab === "requests" && <AdminRequests />}
+          {/* Feedback Tab */}
+          {activeTab === "feedback" && <AdminFeedback />}
 
-{/* Retention Tab - NEW */}
-        {activeTab === 'retention' && <RetentionTab />}
-{activeTab === "loginLogs" && <LoginLogsDisplay />}
-{activeTab === "loginanalytics" && <LoginAnalytics />}
-{activeTab === "Security" && <AdminSecurityDashboard />}
-{activeTab === 'requestlogs' && <LogsTab />}
+          {/* Retention Tab - NEW */}
+          {activeTab === 'retention' && <RetentionTab />}
+          {activeTab === "loginLogs" && <LoginLogsDisplay />}
+          {activeTab === "loginanalytics" && <LoginAnalytics />}
+          {activeTab === "Security" && <AdminSecurityDashboard />}
+          {activeTab === 'requestlogs' && <LogsTab />}
         </div>
       </div>
     </HomeLayout>
