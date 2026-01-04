@@ -6,6 +6,7 @@ import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
 import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 import { usePDFDownload } from '../../hooks/usePDFDownload.js';
+import ViewersModal from '../../COMPONENTS/Note/ViewersModal.jsx';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -63,6 +64,7 @@ export default function PyqCard({ note }) {
 
   const { downloadPDF, downloading } = usePDFDownload();
   const downloadState = downloading[note._id];
+  const [showViewersModal, setShowViewersModal] = useState(false);
 
   // Handlers
   const handleBookmark = (e) => {
@@ -206,7 +208,15 @@ export default function PyqCard({ note }) {
                 <span className="truncate">{note.university}</span>
               </div>
             </div>
-
+            {/* ✨ View Stats Button - NEW */}
+            <button
+              onClick={() => setShowViewersModal(true)}
+              className="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/30 text-cyan-300 rounded-full text-xs font-semibold transition-all flex items-center space-x-1 flex-shrink-0"
+              title="View detailed statistics"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
+              <span>Stats</span>
+            </button>
             {/* Bookmark Button - FIXED */}
             <button
               onClick={handleBookmark}
@@ -215,8 +225,8 @@ export default function PyqCard({ note }) {
             >
               <BookmarkIcon
                 className={`w-5 h-5 transition-all ${isBookmarked
-                    ? 'text-blue-400 scale-110'
-                    : 'text-cyan-300 hover:text-blue-400'
+                  ? 'text-blue-400 scale-110'
+                  : 'text-cyan-300 hover:text-blue-400'
                   }`}
                 filled={isBookmarked}
               />
@@ -317,10 +327,10 @@ export default function PyqCard({ note }) {
                 onClick={handleDownload}
                 disabled={downloadState?.status === 'starting'}
                 className={`flex-1 px-3 py-2.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl font-bold text-sm sm:text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 ${downloadState?.status === 'error'
-                    ? 'bg-red-600 hover:bg-red-500 text-white'
-                    : downloadState?.status === 'complete' && !isDownloading || downloadState?.status === 'exists'
-                      ? 'bg-green-600 hover:bg-green-500 text-white'
-                      : 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
+                  ? 'bg-red-600 hover:bg-red-500 text-white'
+                  : downloadState?.status === 'complete' && !isDownloading || downloadState?.status === 'exists'
+                    ? 'bg-green-600 hover:bg-green-500 text-white'
+                    : 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
                   }`}
                 aria-label="Download note"
                 aria-busy={downloadState?.status === 'starting'}
@@ -401,8 +411,8 @@ export default function PyqCard({ note }) {
                   >
                     <StarIcon
                       className={`w-10 h-10 transition-all ${star <= userRating
-                          ? 'text-yellow-400 drop-shadow-lg'
-                          : 'text-gray-600 group-hover:text-yellow-300'
+                        ? 'text-yellow-400 drop-shadow-lg'
+                        : 'text-gray-600 group-hover:text-yellow-300'
                         }`}
                       filled={star <= userRating}
                     />
@@ -473,8 +483,8 @@ export default function PyqCard({ note }) {
                 onClick={submitRating}
                 disabled={userRating === 0}
                 className={`flex-1 px-4 py-2.5 font-bold rounded-lg transition-all ${userRating === 0
-                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50'
-                    : 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white hover:shadow-lg hover:shadow-cyan-500/50'
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50'
+                  : 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white hover:shadow-lg hover:shadow-cyan-500/50'
                   }`}
               >
                 {userRating === 0 ? 'Select rating' : userReview ? 'Submit Review' : 'Submit Rating'}
@@ -582,6 +592,13 @@ export default function PyqCard({ note }) {
           </div>
         </div>
       )}
+       {/* ✅ VIEWERS MODAL */}
+      <ViewersModal
+        isOpen={showViewersModal}
+        viewers={note.viewedBy || []}
+        totalViews={note.views || 0}
+        onClose={() => setShowViewersModal(false)}
+      />
     </>
   );
 }

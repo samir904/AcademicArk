@@ -6,6 +6,7 @@ import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
 import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 import { usePDFDownload } from '../../hooks/usePDFDownload.js';
+import ViewersModal from '../../COMPONENTS/Note/ViewersModal.jsx';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -55,6 +56,7 @@ export default function HandwrittenCard({ note }) {
   const [userRating, setUserRating] = useState(0);
   const [userReview, setUserReview] = useState('');
 
+   const [showViewersModal, setShowViewersModal] = useState(false);
   
   const { downloadPDF, downloading } = usePDFDownload();
   const downloadState = downloading[note._id];
@@ -196,7 +198,15 @@ export default function HandwrittenCard({ note }) {
       <span className="truncate">{note.university}</span>
     </div>
   </div>
-
+ {/* ✨ View Stats Button - NEW */}
+            <button
+              onClick={() => setShowViewersModal(true)}
+              className="px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 text-green-300 rounded-full text-xs font-semibold transition-all flex items-center space-x-1 flex-shrink-0"
+              title="View detailed statistics"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
+              <span>Stats</span>
+            </button>
   <button
     onClick={handleBookmark}
     disabled={isBookmarking}
@@ -567,6 +577,13 @@ export default function HandwrittenCard({ note }) {
           </div>
         </div>
       )}
+       {/* ✅ VIEWERS MODAL */}
+      <ViewersModal
+        isOpen={showViewersModal}
+        viewers={note.viewedBy || []}
+        totalViews={note.views || 0}
+        onClose={() => setShowViewersModal(false)}
+      />
     </>
   );
 }
