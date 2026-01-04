@@ -210,14 +210,14 @@ export default function ImportantCard({ note }) {
     </div>
   </div>
 {/* ✨ View Stats Button - NEW */}
-            <button
+            {/* <button
               onClick={() => setShowViewersModal(true)}
               className="px-3 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-400/30 text-orange-300 rounded-full text-xs font-semibold transition-all flex items-center space-x-1 flex-shrink-0"
               title="View detailed statistics"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
               <span>Stats</span>
-            </button>
+            </button> */}
   <button
     onClick={handleBookmark}
     disabled={isBookmarking}

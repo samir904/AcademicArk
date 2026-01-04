@@ -557,12 +557,12 @@ export default function NoteDetail() {
 
 
 {/* ✅ NOTE VIEWERS SECTION */}
-{currentNote.viewedBy && currentNote.viewedBy.length > 0 && (
+{/* {currentNote.viewedBy && currentNote.viewedBy.length > 0 && (
     <NoteViewers 
         viewedBy={currentNote.viewedBy}
         totalViews={currentNote.views}
     />
-)}
+)} */}
 
 
                             {/* Reviews */}
