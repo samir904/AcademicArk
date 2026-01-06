@@ -228,14 +228,14 @@ export default function NoteCard({ note }) {
               </div>
             </div>
             {/* ✨ View Stats Button - NEW */}
-            {/* <button
+            <button
               onClick={() => setShowViewersModal(true)}
               className="px-3 py-1.5 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/30 text-indigo-300 rounded-full text-xs font-semibold transition-all flex items-center space-x-1 flex-shrink-0"
               title="View detailed statistics"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
               <span>Stats</span>
-            </button> */}
+            </button>
             {/* Bookmark Button - FIXED */}
             <button
               onClick={handleBookmark}
@@ -581,6 +581,7 @@ export default function NoteCard({ note }) {
       {/* ✅ VIEWERS MODAL */}
       <ViewersModal
         isOpen={showViewersModal}
+        noteId={note._id}  // ✅ Make sure this is passed!
         viewers={note.viewedBy || []}
         totalViews={note.views || 0}
         onClose={() => setShowViewersModal(false)}

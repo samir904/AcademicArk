@@ -7,6 +7,17 @@ import { showToast } from "../../HELPERS/Toaster";
 const initialState = {
     notes: [],
     currentNote: null,
+    viewers: {
+        data: [],
+        pagination: {
+            current_page: 1,
+            total_pages: 0,
+            total_viewers: 0,
+            viewers_per_page: 20
+        },
+        loading: false,
+        error: null
+    },
     totalNotes: 0,
     loading: false,
     uplodaing: false,
@@ -183,6 +194,24 @@ export const incrementViewCount = createAsyncThunk("/note/incrementView", async 
         console.error('View increment error:', e);
     }
 });
+// ✅ THUNK - Define ONCE only!
+export const getNoteViewers = createAsyncThunk(
+    "note/getNoteViewers",
+    async ({ noteId, page = 1, limit = 20 }, { rejectWithValue }) => {
+        try {
+            console.log('📤 THUNK: Fetching viewers for noteId:', noteId);
+            const res = await axiosInstance.get(
+                `/notes/${noteId}/viewers?page=${page}&limit=${limit}`
+            );
+            console.log('✅ THUNK: Response received:', res.data);
+            return res.data;
+        } catch (error) {
+            console.error('❌ THUNK: Error:', error.message);
+            return rejectWithValue(error?.response?.data?.message || "Failed to fetch viewers");
+        }
+    }
+);
+
 
 
 
@@ -236,10 +265,37 @@ const noteSlice = createSlice({
                     views: views
                 };
             }
+        },
+        // ✅ NEW: Clear viewers
+        clearViewers: (state) => {
+            state.viewers = {
+                data: [],
+                pagination: initialState.viewers.pagination,
+                loading: false,
+                error: null
+            };
         }
     },
     extraReducers: (builder) => {
         builder
+        // ============================================
+            // ✅ NEW: GET NOTE VIEWERS
+            // ============================================
+            .addCase(getNoteViewers.pending, (state) => {
+                state.viewers.loading = true;
+                state.viewers.error = null;
+            })
+            .addCase(getNoteViewers.fulfilled, (state, action) => {
+                state.viewers.loading = false;
+                state.viewers.data = action.payload.data.viewers;
+                state.viewers.pagination = action.payload.data.pagination;
+            })
+            .addCase(getNoteViewers.rejected, (state, action) => {
+                state.viewers.loading = false;
+                state.viewers.error = action.payload || "Failed to fetch viewers";
+                state.viewers.data = [];
+            })
+
             //register note
             .addCase(registerNote.pending, (state) => {
                 state.uplodaing = true;
@@ -447,7 +503,8 @@ export const {
     clearFilters,
     clearError,
     clearNotes,
-    updateNoteViews  // ✅ EXPORT THIS
+    updateNoteViews , // ✅ EXPORT THIS
+    clearViewers  // ✅ NEW
 } = noteSlice.actions;
 
 //export reducer
