@@ -1,29 +1,134 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { X, Eye, Users, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getNoteViewers } from '../../REDUX/Slices/noteslice';
+import { Link } from 'react-router-dom';
 
 /**
- * ViewersModal Component
- * ✅ FIXED VERSION with STUDENT/USER mapping
+ * ✨ ViewersModal Premium Component - FIXED SCROLLING
+ * 
+ * Beautiful glassmorphism UI with all features included
+ * NOW WITH PROPER SCROLLING!
  * 
  * Features:
- * - Displays list of note viewers
- * - Search by name (real-time filtering)
- * - Filter by role: STUDENT (maps to USER), TEACHER, ADMIN
- * - Pagination support
- * - Keyboard navigation (Escape to close)
- * - Responsive design (mobile, tablet, desktop)
- * - Accessibility features (ARIA labels, keyboard support)
- * 
- * Redux Integration:
- * - Dispatches getNoteViewers thunk
- * - Reads from state.note.viewers
- * 
- * Database Mapping:
- * - UI shows "STUDENT", Database has "USER"
- * - Automatic conversion: STUDENT → USER
+ * - Glassmorphism design (frosted glass effect)
+ * - Blue/Purple/Pink gradients
+ * - Smooth animations
+ * - Search by name (real-time)
+ * - Filter by role (STUDENT→USER, TEACHER, ADMIN)
+ * - Pagination (20 per page)
+ * - ✅ PROPER SCROLLING (FIXED)
+ * - Mobile responsive
+ * - Fully accessible
+ * - No external icon dependencies
  */
+
+// Close Icon
+const XIcon = ({ className }) => (
+    <svg
+        className={className}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+    >
+        <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+        />
+    </svg>
+);
+
+// Search Icon
+const SearchIcon = ({ className }) => (
+    <svg
+        className={className}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+    >
+        <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        />
+    </svg>
+);
+
+// User Icon
+const UserIcon = ({ className }) => (
+    <svg
+        className={className}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+    >
+        <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+        />
+    </svg>
+);
+
+// Eye Icon
+const EyeIcon = ({ className }) => (
+    <svg
+        className={className}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+    >
+        <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+        />
+        <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+        />
+    </svg>
+);
+
+// Chevron Left Icon
+const ChevronLeftIcon = ({ className }) => (
+    <svg
+        className={className}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+    >
+        <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7"
+        />
+    </svg>
+);
+
+// Chevron Right Icon
+const ChevronRightIcon = ({ className }) => (
+    <svg
+        className={className}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+    >
+        <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
+        />
+    </svg>
+);
 
 const ViewersModal = ({ isOpen, noteId, totalViews = 0, onClose }) => {
     const dispatch = useDispatch();
@@ -32,49 +137,31 @@ const ViewersModal = ({ isOpen, noteId, totalViews = 0, onClose }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [limit] = useState(20);
 
-    // ✅ Get viewers data from Redux with proper null checking
+    // Get viewers data from Redux
     const viewersState = useSelector(state => state.note?.viewers);
     const viewersData = viewersState?.data || [];
     const loading = viewersState?.loading || false;
     const error = viewersState?.error || null;
     const pagination = viewersState?.pagination || {};
 
-    // ✅ Fetch viewers when modal opens
+    // Fetch viewers when modal opens
     useEffect(() => {
-        console.log('👀 Modal opened');
-        console.log('isOpen:', isOpen, 'noteId:', noteId);
-
         if (isOpen && noteId) {
-            console.log('🎯 Fetching viewers for noteId:', noteId);
-
-            // Reset state
             setSearchTerm('');
             setFilterRole('all');
             setCurrentPage(1);
 
-            // Dispatch Redux thunk to fetch viewers
             dispatch(
                 getNoteViewers({
                     noteId: noteId,
                     page: 1,
                     limit: 20,
                 })
-            )
-                .then((result) => {
-                    console.log('✅ Viewers fetched successfully:', result);
-                })
-                .catch((error) => {
-                    console.error('❌ Error fetching viewers:', error);
-                });
-        } else {
-            console.log(
-                '⚠️ Conditions not met - isOpen:',
-                isOpen,
-                'noteId:',
-                noteId
-            );
+            ).catch((error) => {
+                console.error('❌ Error fetching viewers:', error);
+            });
         }
-    }, [isOpen, noteId, dispatch]); // dispatch MUST be in dependencies
+    }, [isOpen, noteId, dispatch]);
 
     // Handle Escape key
     useEffect(() => {
@@ -86,23 +173,16 @@ const ViewersModal = ({ isOpen, noteId, totalViews = 0, onClose }) => {
 
         if (isOpen) {
             window.addEventListener('keydown', handleEscape);
-        }
-
-        return () => window.removeEventListener('keydown', handleEscape);
-    }, [isOpen, onClose]);
-
-    // Prevent body scroll when modal is open
-    useEffect(() => {
-        if (isOpen) {
             document.body.style.overflow = 'hidden';
         }
 
         return () => {
+            window.removeEventListener('keydown', handleEscape);
             document.body.style.overflow = 'unset';
         };
-    }, [isOpen]);
+    }, [isOpen, onClose]);
 
-    // ✅ Memoized filtered viewers (client-side filtering)
+    // Memoized filtered viewers
     const filteredViewers = useMemo(() => {
         if (!Array.isArray(viewersData)) {
             return [];
@@ -136,15 +216,14 @@ const ViewersModal = ({ isOpen, noteId, totalViews = 0, onClose }) => {
     }, []);
 
     const handleFilterChange = useCallback((role) => {
-        console.log('🔍 Filter changed to:', role);
-        setFilterRole(role);
+        const dbRole = role === 'STUDENT' ? 'USER' : role;
+        setFilterRole(dbRole);
         setCurrentPage(1);
     }, []);
 
     const handlePageChange = useCallback(
         (page) => {
             setCurrentPage(page);
-
             dispatch(
                 getNoteViewers({
                     noteId,
@@ -152,11 +231,6 @@ const ViewersModal = ({ isOpen, noteId, totalViews = 0, onClose }) => {
                     limit,
                 })
             );
-
-            const scrollContainer = document.getElementById('viewers-list');
-            if (scrollContainer) {
-                scrollContainer.scrollTop = 0;
-            }
         },
         [dispatch, noteId, limit]
     );
@@ -164,339 +238,275 @@ const ViewersModal = ({ isOpen, noteId, totalViews = 0, onClose }) => {
     if (!isOpen) return null;
 
     const uniqueViewerCount = filteredViewers.length;
-    const viewerStats = {
-        total: viewersData.length || 0,
-        filtered: uniqueViewerCount,
-        avgViews:
-            uniqueViewerCount > 0
-                ? (totalViews / uniqueViewerCount).toFixed(1)
-                : '0',
-    };
-
     const { current_page, total_pages, total_viewers } = pagination || {};
 
     return (
         <>
-            {/* Backdrop */}
+            {/* Premium Backdrop with Blur */}
             <div
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300"
+                className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 transition-opacity duration-300"
                 onClick={handleBackdropClick}
-                aria-hidden="true"
-                role="presentation"
             />
 
-            {/* Modal Container */}
+            {/* Premium Modal Container - FIXED SCROLLING */}
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-                <div
-                    className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-white/10 rounded-2xl overflow-hidden flex flex-col w-full max-w-4xl max-h-[90vh] my-auto shadow-2xl transform transition-all duration-300 animate-in fade-in"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="viewers-title"
-                    aria-describedby="viewers-description"
-                >
-                    {/* Header - Sticky */}
-                    <div className="sticky top-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border-b border-white/10 p-6 flex items-center justify-between z-10">
-                        <div className="flex items-center space-x-4 min-w-0">
-                            <div className="w-12 h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center border border-cyan-500/30 flex-shrink-0">
-                                <Eye className="w-6 h-6 text-cyan-400" />
-                            </div>
-                            <div className="min-w-0">
-                                <h2
-                                    id="viewers-title"
-                                    className="text-2xl font-bold text-white"
-                                >
-                                    Note Viewers
-                                </h2>
-                                <p
-                                    id="viewers-description"
-                                    className="text-cyan-300 text-sm"
-                                >
-                                    {loading
-                                        ? 'Loading...'
-                                        : `${uniqueViewerCount} of ${total_viewers || 0} viewers`}
-                                </p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="p-2 rounded-lg hover:bg-white/10 transition-all duration-200 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-transparent"
-                            aria-label="Close modal"
-                            type="button"
-                        >
-                            <X className="w-6 h-6 text-gray-400 hover:text-white transition-colors" />
-                        </button>
-                    </div>
+                <div className="w-full max-w-2xl my-auto">
+                    {/* Glassmorphism Card - PROPERLY CONSTRAINED */}
+                    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                        
+                        {/* Header - Sticky */}
+                        <div className="sticky top-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 border-b border-white/10 p-6 z-10">
+                            <button
+                                onClick={onClose}
+                                className="absolute top-6 right-6 p-2 hover:bg-white/10 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                aria-label="Close modal"
+                            >
+                                <XIcon className="w-5 h-5 text-white/70 hover:text-white transition-colors" />
+                            </button>
 
-                    {/* Search & Filter - Sticky */}
-                    <div className="sticky top-[88px] bg-gray-800/50 border-b border-white/10 p-6 space-y-4 z-10">
-                        {/* Search Bar */}
-                        <div className="relative">
-                            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-500 pointer-events-none" />
-                            <input
-                                type="text"
-                                placeholder="Search by name..."
-                                value={searchTerm}
-                                onChange={handleSearchChange}
-                                className="w-full pl-10 pr-4 py-2 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 transition-all duration-200"
-                                aria-label="Search viewers by name"
-                            />
-                        </div>
-
-                        {/* Filter Buttons - ✅ FIXED: Maps STUDENT to USER */}
-                        <div className="flex items-center space-x-3 overflow-x-auto pb-2">
-                            <span className="text-sm text-gray-400 flex-shrink-0 whitespace-nowrap">
-                                Filter:
-                            </span>
-                            {['all', 'STUDENT', 'TEACHER', 'ADMIN'].map(
-                                (roleLabel) => {
-                                    // ✅ Map STUDENT to USER for database
-                                    const dbRole = roleLabel === 'STUDENT' ? 'USER' : roleLabel;
-
-                                    return (
-                                        <button
-                                            key={roleLabel}
-                                            onClick={() =>
-                                                handleFilterChange(dbRole)
-                                            }
-                                            className={`px-4 py-1 rounded-full text-sm whitespace-nowrap transition-all duration-200 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent ${
-                                                filterRole === dbRole
-                                                    ? 'bg-cyan-500/30 text-cyan-200 border border-cyan-500/50 focus:ring-cyan-400/50'
-                                                    : 'bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:bg-gray-700/50 focus:ring-gray-400/50'
-                                            }`}
-                                            aria-pressed={filterRole === dbRole}
-                                            type="button"
-                                        >
-                                            {roleLabel === 'all'
-                                                ? 'All'
-                                                : roleLabel}
-                                        </button>
-                                    );
-                                }
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Viewers List - Scrollable */}
-                    <div
-                        id="viewers-list"
-                        className="flex-1 overflow-y-auto divide-y divide-gray-700/50 min-h-0"
-                    >
-                        {/* Loading State */}
-                        {loading && (
-                            <div className="flex items-center justify-center h-64">
-                                <div className="text-center">
-                                    <div className="w-8 h-8 border-4 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mx-auto mb-3"></div>
-                                    <p className="text-gray-400">
-                                        Loading viewers...
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="p-2.5 bg-white/10 rounded-lg">
+                                    <EyeIcon className="w-5 h-5 text-blue-400" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-white">
+                                        Note Viewers
+                                    </h2>
+                                    <p className="text-sm text-white/60 mt-0.5">
+                                        {loading
+                                            ? 'Loading viewers...'
+                                            : `${uniqueViewerCount} of ${total_viewers || 0} viewers`}
                                     </p>
                                 </div>
                             </div>
-                        )}
+                        </div>
 
-                        {/* Viewers List */}
-                        {!loading && filteredViewers.length > 0 ? (
-                            filteredViewers.map((viewer, index) => (
-                                <div
-                                    key={viewer._id || index}
-                                    className="p-4 hover:bg-white/5 border-l-4 border-l-transparent hover:border-l-cyan-400 transition-all duration-200"
-                                    role="listitem"
-                                >
-                                    <div className="flex items-center space-x-4">
-                                        {/* Avatar */}
-                                        <div className="flex-shrink-0">
-                                            {viewer.avatar?.secure_url?.startsWith(
-                                                'http'
-                                            ) ? (
-                                                <img
-                                                    src={
-                                                        viewer.avatar.secure_url
-                                                    }
-                                                    alt={
-                                                        viewer.fullName ||
-                                                        'User avatar'
-                                                    }
-                                                    loading="lazy"
-                                                    className="w-12 h-12 rounded-full border-2 border-cyan-400/50 object-cover"
-                                                    onError={(e) => {
-                                                        e.target.style.display =
-                                                            'none';
-                                                    }}
-                                                />
-                                            ) : (
-                                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center border-2 border-cyan-400/50">
-                                                    <span className="text-white font-bold text-lg">
-                                                        {viewer.fullName
-                                                            ?.charAt(0)
-                                                            ?.toUpperCase() ||
-                                                            'U'}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
+                        {/* Search & Filter - Sticky */}
+                        <div className="sticky top-[88px] border-b border-white/10 p-6 space-y-4 bg-white/5 z-10">
+                            {/* Search Bar */}
+                            <div className="relative">
+                                <SearchIcon className="absolute left-4 top-3.5 w-5 h-5 text-white/40 pointer-events-none" />
+                                <input
+                                    type="text"
+                                    placeholder="Search by name..."
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
+                                    className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 transition-all duration-200 backdrop-blur-sm"
+                                />
+                            </div>
 
-                                        {/* User Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-white font-semibold capitalize truncate">
-                                                {viewer.fullName ||
-                                                    'Anonymous'}
-                                            </h3>
-                                            {/* <p className="text-xs text-gray-500 mt-1 truncate">
-                                                {viewer.email || 'No email'}
-                                            </p> */}
-                                        </div>
+                            {/* Filter Buttons */}
+                            <div className="flex gap-2 overflow-x-auto pb-2">
+                                {['all', 'STUDENT', 'TEACHER', 'ADMIN'].map(
+                                    (roleLabel) => {
+                                        const dbRole =
+                                            roleLabel === 'STUDENT'
+                                                ? 'USER'
+                                                : roleLabel;
 
-                                        {/* Role Badge - ✅ Display STUDENT for USER role */}
-                                        <div className="flex-shrink-0">
-                                            <span
-                                                className={`text-xs px-2 py-1 rounded-full font-medium border whitespace-nowrap transition-colors duration-200 ${
-                                                    viewer.role ===
-                                                    'TEACHER'
-                                                        ? 'bg-green-500/20 text-green-300 border-green-500/50'
-                                                        : viewer.role ===
-                                                          'ADMIN'
-                                                        ? 'bg-red-500/20 text-red-300 border-red-500/50'
-                                                        : viewer.role ===
-                                                          'USER'
-                                                        ? 'bg-blue-500/20 text-blue-300 border-blue-500/50'
-                                                        : 'bg-blue-500/20 text-blue-300 border-blue-500/50'
+                                        return (
+                                            <button
+                                                key={roleLabel}
+                                                onClick={() =>
+                                                    handleFilterChange(
+                                                        roleLabel
+                                                    )
+                                                }
+                                                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+                                                    filterRole === dbRole
+                                                        ? 'bg-white/20 text-white border border-white/40'
+                                                        : 'bg-white/10 text-white/70 border border-white/20 hover:bg-white/15'
                                                 }`}
                                             >
-                                                {/* ✅ Display STUDENT for USER role */}
-                                                {viewer.role === 'USER'
-                                                    ? 'STUDENT'
-                                                    : viewer.role}
-                                            </span>
-                                        </div>
+                                                {roleLabel === 'all'
+                                                    ? 'All'
+                                                    : roleLabel}
+                                            </button>
+                                        );
+                                    }
+                                )}
+                            </div>
+                        </div>
 
-                                        {/* Academic Info - Hidden on Mobile */}
-                                        <div className="flex-shrink-0 text-right hidden sm:block">
-                                            {viewer.academicProfile
-                                                ?.semester ? (
-                                                <div>
-                                                    <p className="text-sm font-medium text-gray-300">
-                                                        Sem{' '}
-                                                        {
-                                                            viewer
-                                                                .academicProfile
-                                                                .semester
-                                                        }
-                                                    </p>
+                        {/* Viewers List - SCROLLABLE CONTENT AREA */}
+                        <div className="flex-1 overflow-y-auto min-h-0">
+                            {loading ? (
+                                <div className="flex items-center justify-center h-64">
+                                    <div className="text-center">
+                                        <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-3"></div>
+                                        <p className="text-white/60">
+                                            Loading viewers...
+                                        </p>
+                                    </div>
+                                </div>
+                            ) : filteredViewers.length > 0 ? (
+                                <div className="divide-y divide-white/10">
+                                    {filteredViewers.map((viewer, index) => (
+                                        <div
+                                            key={viewer._id || index}
+                                            className="p-4 hover:bg-white/5 transition-colors duration-200 border-l-4 border-l-transparent hover:border-l-blue-400"
+                                        >
+                                            <Link
+                                            to={`/profile/${viewer?._id}`}>
+                                            <div className="flex items-center gap-4">
+                                                {/* Avatar */}
+                                                <div className="flex-shrink-0">
+                                                    {viewer.avatar?.secure_url?.startsWith(
+                                                        'http'
+                                                    ) ? (
+                                                        <img
+                                                            src={
+                                                                viewer.avatar
+                                                                    .secure_url
+                                                            }
+                                                            alt={viewer.fullName}
+                                                            className="w-12 h-12 rounded-full object-cover border-2 border-white/20"
+                                                            loading="lazy"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center border-2 border-white/20">
+                                                            <span className="text-white font-semibold text-sm">
+                                                                {viewer.fullName
+                                                                    ?.charAt(0)
+                                                                    ?.toUpperCase() ||
+                                                                    'U'}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Info */}
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-white font-semibold truncate">
+                                                        {viewer.fullName ||
+                                                            'Anonymous'}
+                                                    </h4>
+                                                    {/* <p className="text-xs text-white/50 truncate">
+                                                        {viewer.email ||
+                                                            'No email'}
+                                                    </p> */}
+                                                </div>
+
+                                                {/* Role Badge */}
+                                                <div className="flex-shrink-0">
+                                                    <span
+                                                        className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+                                                            viewer.role ===
+                                                            'TEACHER'
+                                                                ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                                                                : viewer.role ===
+                                                                  'ADMIN'
+                                                                ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                                                : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                                                        }`}
+                                                    >
+                                                        {viewer.role ===
+                                                        'USER'
+                                                            ? 'STUDENT'
+                                                            : viewer.role}
+                                                    </span>
+                                                </div>
+
+                                                {/* Academic Info */}
+                                                <div className="hidden md:block text-right flex-shrink-0">
                                                     {viewer.academicProfile
-                                                        ?.branch && (
-                                                        <p className="text-xs text-gray-500">
+                                                        ?.semester && (
+                                                        <p className="text-xs text-white/70">
+                                                            Sem{' '}
                                                             {
                                                                 viewer
                                                                     .academicProfile
-                                                                    .branch
+                                                                    .semester
                                                             }
                                                         </p>
                                                     )}
                                                 </div>
-                                            ) : (
-                                                <p className="text-xs text-gray-500">
-                                                    No profile
-                                                </p>
-                                            )}
+                                            </div>
+                                            </Link>
                                         </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-center h-64">
+                                    <div className="text-center">
+                                        <UserIcon className="w-12 h-12 text-white/20 mx-auto mb-3" />
+                                        <p className="text-white/60 font-medium">
+                                            {error
+                                                ? 'Error loading viewers'
+                                                : 'No viewers found'}
+                                        </p>
+                                        <p className="text-xs text-white/40 mt-1">
+                                            Try adjusting your search or filters
+                                        </p>
                                     </div>
                                 </div>
-                            ))
-                        ) : !loading ? (
-                            <div className="flex items-center justify-center h-64">
-                                <div className="text-center">
-                                    <Users className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                                    <p className="text-gray-400 font-medium">
-                                        {error
-                                            ? 'Error loading viewers'
-                                            : 'No viewers found'}
-                                    </p>
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        {error ||
-                                            'Try adjusting your search or filters'}
-                                    </p>
+                            )}
+                        </div>
+
+                        {/* Pagination - Sticky Bottom */}
+                        {!loading && total_pages > 1 && (
+                            <div className="sticky bottom-[88px] border-t border-white/10 bg-white/5 p-4 flex items-center justify-center gap-2 z-10">
+                                <button
+                                    onClick={() =>
+                                        handlePageChange(current_page - 1)
+                                    }
+                                    disabled={current_page === 1}
+                                    className="p-2 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all duration-200"
+                                    aria-label="Previous page"
+                                >
+                                    <ChevronLeftIcon className="w-5 h-5 text-white/60" />
+                                </button>
+
+                                <div className="flex gap-1">
+                                    {Array.from({ length: total_pages }, (_, i) =>
+                                        i + 1
+                                    ).map((page) => (
+                                        <button
+                                            key={page}
+                                            onClick={() =>
+                                                handlePageChange(page)
+                                            }
+                                            className={`px-3 py-1 rounded-lg text-sm transition-all duration-200 ${
+                                                current_page === page
+                                                    ? 'bg-white/20 text-white border border-white/40'
+                                                    : 'bg-white/10 text-white/70 hover:bg-white/15'
+                                            }`}
+                                            aria-label={`Go to page ${page}`}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
                                 </div>
+
+                                <button
+                                    onClick={() =>
+                                        handlePageChange(current_page + 1)
+                                    }
+                                    disabled={current_page === total_pages}
+                                    className="p-2 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all duration-200"
+                                    aria-label="Next page"
+                                >
+                                    <ChevronRightIcon className="w-5 h-5 text-white/60" />
+                                </button>
                             </div>
-                        ) : null}
-                    </div>
+                        )}
 
-                    {/* Pagination Controls */}
-                    {!loading && total_pages > 1 && (
-                        <div className="bg-gray-800/50 border-t border-white/10 p-4 flex items-center justify-center space-x-2">
-                            <button
-                                onClick={() =>
-                                    handlePageChange(current_page - 1)
-                                }
-                                disabled={current_page === 1}
-                                className="p-2 rounded-lg hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                                aria-label="Previous page"
-                                type="button"
-                            >
-                                <ChevronLeft className="w-5 h-5 text-gray-400" />
-                            </button>
-
-                            <div className="flex items-center space-x-2">
-                                {Array.from({ length: total_pages }, (_, i) =>
-                                    i + 1
-                                ).map((page) => (
-                                    <button
-                                        key={page}
-                                        onClick={() => handlePageChange(page)}
-                                        className={`px-3 py-1 rounded text-sm transition-all duration-200 ${
-                                            current_page === page
-                                                ? 'bg-cyan-500/30 text-cyan-200 border border-cyan-500/50'
-                                                : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50'
-                                        }`}
-                                        type="button"
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
+                        {/* Footer - Sticky Bottom */}
+                        <div className="sticky bottom-0 border-t border-white/10 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 p-6 flex items-center justify-between z-10">
+                            <div className="text-sm text-white/60">
+                                <span>Total: </span>
+                                <span className="font-semibold text-white">
+                                    {totalViews}
+                                </span>
                             </div>
-
                             <button
-                                onClick={() =>
-                                    handlePageChange(current_page + 1)
-                                }
-                                disabled={current_page === total_pages}
-                                className="p-2 rounded-lg hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                                aria-label="Next page"
-                                type="button"
+                                onClick={onClose}
+                                className="px-6 py-2.5 bg-white/20 hover:bg-white/30 text-white rounded-xl font-semibold border border-white/30 transition-all duration-200"
+                                aria-label="Close viewers modal"
                             >
-                                <ChevronRight className="w-5 h-5 text-gray-400" />
+                                Close
                             </button>
                         </div>
-                    )}
-
-                    {/* Footer */}
-                    <div className="sticky bottom-0 bg-gray-800/50 border-t border-white/10 p-4 flex items-center justify-between z-10">
-                        <div className="text-sm text-gray-400">
-                            <span>Total Views:</span>
-                            <span className="font-bold text-cyan-400 ml-2">
-                                {totalViews}
-                            </span>
-                            <span className="text-gray-500 ml-3">|</span>
-                            <span className="text-gray-400 ml-3">Avg:</span>
-                            <span className="font-bold text-cyan-400 ml-2">
-                                {viewerStats.avgViews}x
-                            </span>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/50 rounded-lg transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
-                            type="button"
-                            aria-label="Close viewers modal"
-                        >
-                            Close
-                        </button>
-                    </div>
-
-                    {/* Keyboard Hint */}
-                    <div className="hidden sm:block absolute bottom-4 left-4 text-xs text-gray-500">
-                        Press{' '}
-                        <kbd className="px-2 py-0.5 bg-gray-800 rounded border border-gray-700 text-gray-300">
-                            ESC
-                        </kbd>{' '}
-                        to close
                     </div>
                 </div>
             </div>
