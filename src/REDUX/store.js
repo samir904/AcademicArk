@@ -13,6 +13,9 @@ import academicProfileReducer from "./Slices/academicProfileSlice.js"
  import loginLogsReducer from './Slices/loginLogsSlice.js'; // ✅ ADD THIS IMPORT
  import logsReducer from './Slices/logsSlice.js'
  import retentionReducer from './Slices/retention.slice.js'
+ import mongoDbHealthSlice from './Slices/mongoDbHealthSlice.js'
+ import redisHealthSlice from './Slices/redisHealthSlice.js'
+ import queryMetricsReducer from './Slices/queryMetricsSlice.js'
 // import logsReducer  from './Slices/logsSlice.js'
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
 // import studyPlannerSlice from "./Slices/studyPlanner.slice.js"
@@ -31,7 +34,10 @@ const store = configureStore({
     feedback: feedbackReducer,
     loginLogs: loginLogsReducer,
     logs: logsReducer,
-    retention:retentionReducer
+    retention:retentionReducer,
+    queryMetrics: queryMetricsReducer, 
+    mongodbHealth: mongoDbHealthSlice,
+    redisHealth: redisHealthSlice
     // studyBuddy: studyBuddySlice,  // ← ADD THIS
     // studyPlanner: studyPlannerSlice,  // ← ADD THIS
   },

@@ -30,6 +30,9 @@ import LoginAnalytics from "../../COMPONENTS/LoginAnalytics";
 import AdminSecurityDashboard from "../../COMPONENTS/AdminSecurityDashboard";
 import LogsTab from "../../COMPONENTS/AdminDashboard/LogsTab/LogsTab";
 import RetentionTab from "../../COMPONENTS/Admin/RetentionAnalytics/RetentionTab";
+import MongoDBHealth from "../../COMPONENTS/Admin/MongoDBHealth";
+import RedisHealth from "../../COMPONENTS/Admin/RedisHealth";
+import QueryMetricsDisplay from "../../COMPONENTS/Admin/QueryMetricsDisplay";
 
 // Icons
 const UsersIcon = ({ className }) => (
@@ -133,8 +136,8 @@ const AcademicIcon = ({ className }) => (
   </svg>
 );
 
-const EyeIcon= ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>);
+const EyeIcon = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>);
 
 
 
@@ -290,7 +293,7 @@ export default function AdminDashboard() {
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard", "requestlogs", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback", "Security", "retention"].map(
+              {["dashboard", "requestlogs", "querymetrics", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback", "Security", "retention"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -322,7 +325,9 @@ export default function AdminDashboard() {
                                       ? "Security"
                                       : tab === "requestlogs"
                                         ? "Request Logs"
-                                        : tab}
+                                        : tab === "querymetrics"
+                                          ? "Query Metrics"
+                                          : tab}
 
                   </button>
                 )
@@ -510,6 +515,11 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
+              {/* MongoDB Database Health Section */}
+              <MongoDBHealth autoRefresh={autoRefresh} />
+              {/* Redis Cache Health Section */}
+              <RedisHealth autoRefresh={autoRefresh} />
+
 
               {/* Recent Errors */}
               {serverMetrics.errors.recent.length > 0 && (
@@ -1474,6 +1484,8 @@ export default function AdminDashboard() {
           {activeTab === "loginanalytics" && <LoginAnalytics />}
           {activeTab === "Security" && <AdminSecurityDashboard />}
           {activeTab === 'requestlogs' && <LogsTab />}
+          {/* Query Metrics Tab - NEW */}
+{activeTab === "querymetrics" && <QueryMetricsDisplay />} 
         </div>
       </div>
     </HomeLayout>
