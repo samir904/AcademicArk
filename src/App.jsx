@@ -29,7 +29,7 @@ import HomeLayout from "./LAYOUTS/Homelayout";
 // import CookieWarning from './COMPONENTS/CookieWarning';
 // import AttendanceDashboard from './PAGES/Attendance/AttendanceDashboard';
 // 🟡 LAZY LOAD THESE (Medium priority)
-const EditAcademicProfile=React.lazy(()=>import("./PAGES/User/EditAcademicProfile"))
+const EditAcademicProfile = React.lazy(() => import("./PAGES/User/EditAcademicProfile"))
 const ForgotPassword = React.lazy(() => import("./PAGES/User/Forgotpassword"));
 const Resetpassword = React.lazy(() => import("./PAGES/User/Resetpassword"));
 const Profile = React.lazy(() => import("./PAGES/User/Profile"));
@@ -40,6 +40,11 @@ const NoteDetail = React.lazy(() => import("./PAGES/Note/NoteDetail"));
 const ReadNote = React.lazy(() => import("./PAGES/Note/ReadNote"));
 const UploadNote = React.lazy(() => import("./PAGES/Note/UploadNote"));
 const UpdateNote = React.lazy(() => import("./PAGES/Note/UpdateNote"));
+const UploadVideoLecture = React.lazy(() => import("./PAGES/video/UploadVideoLecture"));
+import VideoWatch from './PAGES/video/VideoWatch'
+import LeaderboardPage from "./PAGES/LeaderboardPage";
+// //import VideoUploadForm from "./COMPONENTS/Admin/VideoUploadForm";
+// import UploadVideoLecture from "./PAGES/video/UploadVideoLecture";
 const AdvancedSearch = React.lazy(() =>
   import("./PAGES/Search/AdvancedSearch")
 );
@@ -98,7 +103,7 @@ const BookIcon = ({ className }) => (
 // UPDATED APP LOADER - With Custom AcademicArk Logo
 const AppLoader = () => {
   return (
-    
+
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-950 flex items-center justify-center relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0">
@@ -321,13 +326,13 @@ function App() {
         {/* <Route path="/admin/broadcast-email" element={<BroadcastEmail />} /> */}
         <Route path="/admin/campaigns" element={<EmailCampaigns />} />
         <Route
-  path="/downloads"
-  element={
-    <Suspense fallback={<AppLoader />}>
-      <DownloadsPage />
-    </Suspense>
-  }
-/>
+          path="/downloads"
+          element={
+            <Suspense fallback={<AppLoader />}>
+              <DownloadsPage />
+            </Suspense>
+          }
+        />
         <Route
           path="/attendance"
           element={
@@ -371,6 +376,7 @@ function App() {
             </AuthGuard>
           }
         />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
         {/* 🟡 Lazy Routes */}
         <Route
           path="/forgot-password"
@@ -427,15 +433,15 @@ function App() {
           }
         />
         <Route
-        path="/academic-profile"
-        element={
+          path="/academic-profile"
+          element={
             <AuthGuard>
               <Suspense fallback={<AppLoader />}>
                 <EditAcademicProfile />
               </Suspense>
             </AuthGuard>
           }
-         />
+        />
         <Route
           path="/change-password"
           element={
@@ -491,6 +497,27 @@ function App() {
             </AuthGuard>
           }
         />
+        <Route
+          path="/upload/video"
+          element={
+            <AuthGuard requiredRole={["TEACHER", "ADMIN"]}>
+              <Suspense fallback={<AppLoader />}>
+                <UploadVideoLecture />
+              </Suspense>
+            </AuthGuard>
+          }
+        />
+        <Route
+          path='/video/:videoId'
+          element={
+            <AuthGuard>
+              <Suspense fallback={<AppLoader />}>
+                <VideoWatch />
+              </Suspense>
+            </AuthGuard>
+          }
+        />
+
         <Route
           path="/search"
           element={

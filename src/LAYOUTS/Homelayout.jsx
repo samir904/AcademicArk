@@ -16,7 +16,7 @@ import EnhancedFooter from "./EnhancedFooter";
 import FeedbackForm from "../COMPONENTS/FeedbackForm";
 import PWAInstallPrompt from "../COMPONENTS/PWAInstallPrompt";
 import OfflineModal from "../COMPONENTS/OfflineModal";
-
+import { Trophy } from "lucide-react";
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -69,6 +69,9 @@ const DownloadIcon = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
 );
 
+const TrophyIcon=()=>{
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trophy-icon lucide-trophy"><path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978"/><path d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978"/><path d="M18 9h1.5a1 1 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"/><path d="M6 9H4.5a1 1 0 0 1 0-5H6"/></svg>
+}
 const SearchIcon = ({ className, active }) => (
   <svg className={className} viewBox="0 0 24 24">
     {active ? (
@@ -367,6 +370,7 @@ const [showFeedback, setShowFeedback] = useState(false);
       { name: "Home", path: "/", icon: "🏠" },
       { name: "Library", path: "/notes", icon: "📚" },
       { name: "Search", path: "/search", icon: "📖" },
+      { name: "Leaderboard", path: "/leaderboard", icon: "🏆" },  // ✨ NEW
       { name: "Attendance", path: "/attendance", icon: "📊" }, // ✨ MOVED: Always show
       { name: "Downloads", path: "/downloads", icon: "📥" }
 
@@ -409,16 +413,22 @@ const [showFeedback, setShowFeedback] = useState(false);
         label: "Library",
       },
       {
+    name: "Leaderboard",  // ✨ NEW
+    path: "/leaderboard",
+    icon: Trophy,  // or import LeaderboardIcon if you have one
+    label: "Board",
+  },
+      {
         name: "Attendance",
         path: "/attendance",
         icon: AttendanceIcon,
-        label: "Attendance",
+        label: "Attend",
       }, // ✨ MOVED: Always show
       {
   name: "Downloads",
   path: "/downloads",
   icon: DownloadIcon,
-  label: "Downloads",
+  label: "Download",
 }
 
     ];
@@ -430,7 +440,7 @@ const [showFeedback, setShowFeedback] = useState(false);
           name: "Dashboard",
           path: "/admin",
           icon: DashboardIcon,
-          label: "Dashboard",
+          label: "Dash",
         });
       } else if (role === "TEACHER") {
         baseItems.push({
@@ -512,7 +522,7 @@ const [showFeedback, setShowFeedback] = useState(false);
               {/* Enhanced Desktop Navigation */}
               <div className="flex items-center space-x-2 bg-white/5 backdrop-blur-xl rounded-full p-2 border border-white/10">
                 {getNavigationItems()
-                  .slice(0, 9)
+                  .slice(0, 10)
                   .map((item) => (
                     <Link
                       key={item.name}
@@ -640,6 +650,15 @@ const [showFeedback, setShowFeedback] = useState(false);
                             >
                               <UploadIcon className="w-5 h-5" />
                               <span>Upload Notes</span>
+                            </Link>
+                          )}
+                           {(role === "TEACHER" || role === "ADMIN") && (
+                            <Link
+                              to="/upload/video"
+                              className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+                            >
+                              <UploadIcon className="w-5 h-5" />
+                              <span>Upload video</span>
                             </Link>
                           )}
                           {role === "ADMIN" && (
@@ -880,6 +899,17 @@ const [showFeedback, setShowFeedback] = useState(false);
             <span className="text-sm font-medium">Upload Notes</span>
           </Link>
         )}
+        {/* Upload video - Teachers & Admins */}
+        {(role === "TEACHER" || role === "ADMIN") && (
+          <Link
+            to="/upload/video"
+            onClick={() => setShowMobileMenu(false)}
+            className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+          >
+            <UploadIcon className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+            <span className="text-sm font-medium">Upload video</span>
+          </Link>
+        )}
 
         {/* Admin Dashboard - Admins Only */}
         {role === "ADMIN" && (
@@ -968,92 +998,6 @@ const [showFeedback, setShowFeedback] = useState(false);
   {/* Safe Area */}
   <div className="h-2" />
 </div>
-
-
-
-        {/* Enhanced Footer */}
-        {/* <footer className="bg-black border-t border-white/10 mb-16 md:mb-0 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/5 to-purple-900/5"></div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-            <div className="grid md:grid-cols-4 gap-12">
-              <div className="md:col-span-2 space-y-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-white to-gray-200 rounded-2xl flex items-center justify-center shadow-lg">
-                    <span className="text-black font-bold text-xl">A</span>
-                  </div>
-                  <div>
-                    <span className="font-bold text-2xl text-white">
-                      AcademicArk
-                    </span>
-                    <div className="text-sm text-gray-400">
-                      Excellence in Learning
-                    </div>
-                  </div>
-                </div>
-                <p className="text-gray-400 text-lg max-w-md leading-relaxed">
-                  Empowering students with study materials curated for univrsity
-                  exam. Your journey to academic excellence starts here.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-white font-bold text-lg mb-6 relative">
-                  Platform
-                  <div className="absolute -bottom-2 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-                </h3>
-                <ul className="space-y-4">
-                  {[
-                    { name: "Browse Notes", path: "/notes" },
-                    { name: "search", path: "/search" },
-                    { name: "AKTU", path: "https://aktu.ac.in/" },
-                    { name: "Coming Soon", path: "/coming-soon" },
-                  ].map((link) => (
-                    <li key={link.name}>
-                      <Link
-                        to={link.path}
-                        className="text-gray-400 hover:text-white transition-all duration-300 hover:translate-x-1 inline-block"
-                      >
-                        {link.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-white font-bold text-lg mb-6 relative">
-                  Support
-                  <div className="absolute -bottom-2 left-0 w-8 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-                </h3>
-                <ul className="space-y-4">
-                  {[
-                    { name: "Help Center", path: "/help" },
-                    { name: "Contact", path: "/contact" },
-                    { name: "Privacy", path: "/privacy" },
-                    { name: "Terms", path: "/terms" },
-                    { name: "About Developer", path: "/about-developer" },
-                  ].map((link) => (
-                    <li key={link.name}>
-                      <Link
-                        to={link.path}
-                        className="text-gray-400 hover:text-white transition-all duration-300 hover:translate-x-1 inline-block"
-                      >
-                        {link.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className="mt-16 pt-8 border-t border-white/10">
-              <p className="text-gray-500 text-sm text-center">
-                © 2025 AcademicArk. All rights reserved. Built with{" "}
-                <span className="animate-pulse">❤️</span> by Samir Suman.
-              </p>
-            </div>
-          </div>
-        </footer> */}
         <EnhancedFooter/>
       </div>
     </>

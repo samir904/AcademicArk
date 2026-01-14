@@ -33,6 +33,7 @@ import RetentionTab from "../../COMPONENTS/Admin/RetentionAnalytics/RetentionTab
 import MongoDBHealth from "../../COMPONENTS/Admin/MongoDBHealth";
 import RedisHealth from "../../COMPONENTS/Admin/RedisHealth";
 import QueryMetricsDisplay from "../../COMPONENTS/Admin/QueryMetricsDisplay";
+// import AdminVideoManager from "../../COMPONENTS/Admin/AdminVideoManager";
 
 // Icons
 const UsersIcon = ({ className }) => (
@@ -327,6 +328,8 @@ export default function AdminDashboard() {
                                         ? "Request Logs"
                                         : tab === "querymetrics"
                                           ? "Query Metrics"
+                                          // : tab === "videos"
+                                          // ? "videos"
                                           : tab}
 
                   </button>
@@ -1486,6 +1489,8 @@ export default function AdminDashboard() {
           {activeTab === 'requestlogs' && <LogsTab />}
           {/* Query Metrics Tab - NEW */}
 {activeTab === "querymetrics" && <QueryMetricsDisplay />} 
+{/* {activeTab === "videos" && <AdminVideoManager />}  */}
+
         </div>
       </div>
     </HomeLayout>

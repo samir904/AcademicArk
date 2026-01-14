@@ -1,5 +1,5 @@
 // src/pages/Note.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllNotes, setFilters, clearFilters } from '../../REDUX/Slices/noteslice';
 import aktulogo from "../../../public/download.jpeg";
@@ -9,6 +9,9 @@ import { Link } from 'react-router-dom';
 import AdBanner from '../../COMPONENTS/AdBanner';
 import RequestModal from '../../COMPONENTS/RequestModal';
 import { getAllRequests, upvoteRequest } from '../../REDUX/Slices/requestSlice';
+import { getAllVideoLectures } from '../../REDUX/Slices/videoLecture.slice'; // ✨ NEW
+import { selectVideoLectureData } from '../../REDUX/Slices/videoLecture.slice';
+import { shallowEqual } from 'react-redux';
 
 // Icon components
 const FilterIcon = ({ className }) => (
@@ -43,17 +46,21 @@ const CloseIcon = ({ className }) => (
 
 export default function Note() {
 
-  const[showRequestModal,setShowRequestModal]=useState(false);
+  const [showRequestModal, setShowRequestModal] = useState(false);
 
 
   const dispatch = useDispatch();
   const { notes, loading, totalNotes, filters } = useSelector(state => state.note);
+  // ✨ UPDATED: Get notes AND videos from Redux
+  // In your component:
+const { allVideos: videos, loading: videoLoading } = useSelector(selectVideoLectureData);
 
   const [localFilters, setLocalFilters] = useState({
     semester: filters.semester || '',
     subject: filters.subject || '',
     category: filters.category || '',
     uploadedBy: filters.uploadedBy || '', // NEW
+    videoChapter: '', // ✨ NEW: For filtering videos by chapter
     university: filters.university || 'AKTU',
     course: filters.course || 'BTECH'
   });
@@ -67,6 +74,16 @@ export default function Note() {
           id: note.uploadedBy._id,
           name: note.uploadedBy.fullName || 'Unknown',
           avatar: note.uploadedBy.avatar
+        });
+      }
+    });
+    // ✨ NEW: From videos
+    videos?.forEach(video => {
+      if (video.uploadedBy?._id) {
+        uploaders.set(video.uploadedBy._id, {
+          id: video.uploadedBy._id,
+          name: video.uploadedBy.fullName || 'Unknown',
+          avatar: video.uploadedBy.avatar
         });
       }
     });
@@ -92,8 +109,7 @@ export default function Note() {
     ],
     3: [
       'data structure', 'digital electronics',
-      'computer organization and architecture', 'python programming', 'discrete structures & theory of logic',
-      "technical communication",
+      'computer organization and architecture', 'python programming', 
       "discrete structures & theory of logic", "mathematics-iv", "technical communication"
     ],
     4: [
@@ -135,6 +151,9 @@ export default function Note() {
       );
       dispatch(setFilters(filterParams));
       dispatch(getAllNotes(filterParams));
+      // ✨ NEW: Fetch videos for this semester
+      dispatch(getAllVideoLectures({ semester: localFilters.semester }));
+
     }
   }, [localFilters, dispatch]);
 
@@ -148,6 +167,7 @@ export default function Note() {
       subject: '',
       category: '',
       uploadedBy: '', // NEW
+      videoChapter: '', // ✨ NEW: Reset chapter filter too
       university: 'AKTU',
       course: 'BTECH'
     };
@@ -169,28 +189,58 @@ export default function Note() {
 
     return matchesSearch && matchesUploader;
   }) || [];
+  // ✨ NEW: Filter videos
+  const filteredVideos = videos?.filter(video => {
+    const matchesSearch =
+      video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      video.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      video.subject.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesChapter = !localFilters.videoChapter ||
+      video.chapterNumber === parseInt(localFilters.videoChapter);
 
+    const matchesUploader = !localFilters.uploadedBy ||
+      video.uploadedBy?._id === localFilters.uploadedBy;
+
+    return matchesSearch && matchesChapter && matchesUploader;
+  }) || [];
   const getCategoryStats = () => {
     const stats = {};
     notes?.forEach(note => {
       stats[note.category] = (stats[note.category] || 0) + 1;
     });
+    // ✨ NEW: Add video count
+    if (videos && videos.length > 0) {
+      stats['Video'] = videos.length;
+    }
     return stats;
   };
 
   const categoryStats = getCategoryStats();
-
-  // Handle category selection with collapse/expand behavior
-  const handleCategoryClick = (category) => {
-    if (localFilters.category === category) {
-      // If clicking the same category, toggle collapse
-      setIsStatsCollapsed(!isStatsCollapsed);
-    } else {
-      // If clicking a different category, select it and expand
-      handleFilterChange('category', category);
-      setIsStatsCollapsed(false);
-    }
+  // Get unique chapters from filtered videos
+  const getUniqueChapters = () => {
+    const chapters = new Set();
+    videos?.forEach(video => {
+      if (video.chapterNumber) {
+        chapters.add(video.chapterNumber);
+      }
+    });
+    return Array.from(chapters).sort((a, b) => a - b);
   };
+
+  const uniqueChapters = getUniqueChapters();
+
+
+  // // Handle category selection with collapse/expand behavior
+  // const handleCategoryClick = (category) => {
+  //   if (localFilters.category === category) {
+  //     // If clicking the same category, toggle collapse
+  //     setIsStatsCollapsed(!isStatsCollapsed);
+  //   } else {
+  //     // If clicking a different category, select it and expand
+  //     handleFilterChange('category', category);
+  //     setIsStatsCollapsed(false);
+  //   }
+  // };
 
   // Handle clear category filter
   const handleClearCategory = () => {
@@ -232,11 +282,19 @@ export default function Note() {
         borderColor: 'border-green-500/30',
         bgGradient: 'from-green-900/90 to-teal-900/80',
         textColor: 'text-green-400'
+      },
+      'Video': { // ✨ NEW: Video category
+        icon: '🎬',
+        gradient: 'from-red-600 to-pink-500',
+        hoverGradient: 'hover:from-red-500 hover:to-pink-400',
+        borderColor: 'border-red-500/30',
+        bgGradient: 'from-red-900/90 to-pink-900/80',
+        textColor: 'text-red-400'
       }
     };
     return configs[category] || configs['Notes'];
   };
-const { allRequests: popularRequests, loading: requestsLoading } = useSelector((state) => state.request);
+  const { allRequests: popularRequests, loading: requestsLoading } = useSelector((state) => state.request);
   // const [localFilters, setLocalFilters] = useState({ semester: 3 });
 
   // Fetch popular requests for current semester
@@ -250,42 +308,152 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
       }));
     }
   }, [localFilters.semester, dispatch]);
+ // ✅ FIXED: displayResources with COMPLETE debugging
+const displayResources = useMemo(() => {
+  const category = localFilters.category?.trim();
+  const categoryLower = category?.toLowerCase();
+  
+  console.log('🎯 displayResources check:', {
+    category,
+    categoryLower,
+    isVideoCategory: categoryLower === 'video',
+    filteredVideos: filteredVideos?.length,
+    filteredNotes: filteredNotes?.length,
+    allVideos: videos?.length
+  });
+  
+  // ✨ If Video category selected → show FILTERED videos
+  if (categoryLower === 'video') {
+    console.log('✅ Returning videos:', filteredVideos);
+    return filteredVideos || [];
+  }
+  
+  // ✨ If no category selected → show all notes
+  if (!category) {
+    console.log('✅ No category, returning all notes');
+    return filteredNotes || [];
+  }
+  
+  // ✨ If specific category selected → exact match
+  const result = filteredNotes.filter(note => 
+    note.category?.toLowerCase() === categoryLower
+  );
+  console.log('✅ Filtering by category:', category, 'found:', result.length);
+  return result;
+}, [filteredNotes, filteredVideos, localFilters.category, localFilters]);
+
+// ✅ FIXED: Better category handler
+// const handleCategoryClick = (category) => {
+//   console.log('🎬 Category clicked:', category);
+  
+//   if (localFilters.category?.toLowerCase() === category.toLowerCase()) {
+//     // If clicking the same category, toggle collapse
+//     setIsStatsCollapsed(!isStatsCollapsed);
+//   } else {
+//     // If clicking a different category, select it and expand
+//     handleFilterChange('category', category);
+//     setIsStatsCollapsed(false);
+//   }
+// };
+
+// ✅ Ensure videos are being fetched when component mounts and category changes
+useEffect(() => {
+  console.log('📡 Fetching videos for semester:', localFilters.semester);
+  if (localFilters.semester) {
+    dispatch(getAllVideoLectures({ 
+      semester: localFilters.semester 
+    }));
+  }
+}, [localFilters.semester, dispatch]);
+const handleCategoryClick = (category) => {
+  console.log('=== CATEGORY CLICK DEBUG ===');
+  console.log('Clicked category:', category);
+  console.log('Current category:', localFilters.category);
+  console.log('Videos in Redux:', videos?.length);
+  console.log('Filtered videos:', filteredVideos?.length);
+  
+  if (localFilters.category?.toLowerCase() === category.toLowerCase()) {
+    setIsStatsCollapsed(!isStatsCollapsed);
+  } else {
+    handleFilterChange('category', category);
+    setIsStatsCollapsed(false);
+  }
+  
+  // After state updates
+  setTimeout(() => {
+    console.log('After filter change:');
+    console.log('New localFilters:', localFilters);
+  }, 0);
+};
+const getChapterStats = () => {
+  if (localFilters.category !== 'Video') return {};
+  
+  const videoMaterials = materials.filter(material => 
+    material.category === 'Video' && 
+    material.semester === localFilters.semester &&
+    (!localFilters.subject || material.subject === localFilters.subject)
+  );
+  
+  const stats = {};
+  videoMaterials.forEach(video => {
+    const chapter = video.chapter || 'Unknown';
+    stats[chapter] = (stats[chapter] || 0) + 1;
+  });
+  
+  return stats;
+};
+
+const getChapterConfig = (chapter) => {
+  const colors = [
+    { gradient: 'from-blue-600 to-blue-700', textColor: 'text-blue-300', icon: '📖' },
+    { gradient: 'from-purple-600 to-purple-700', textColor: 'text-purple-300', icon: '📚' },
+    { gradient: 'from-pink-600 to-pink-700', textColor: 'text-pink-300', icon: '💡' },
+    { gradient: 'from-green-600 to-green-700', textColor: 'text-green-300', icon: '🎯' },
+    { gradient: 'from-orange-600 to-orange-700', textColor: 'text-orange-300', icon: '⚡' },
+    { gradient: 'from-cyan-600 to-cyan-700', textColor: 'text-cyan-300', icon: '🔥' },
+    { gradient: 'from-indigo-600 to-indigo-700', textColor: 'text-indigo-300', icon: '✨' },
+    { gradient: 'from-rose-600 to-rose-700', textColor: 'text-rose-300', icon: '🌟' },
+  ];
+  
+  const index = (parseInt(chapter) - 1) % colors.length;
+  return colors[index];
+};
 
   return (
     <HomeLayout>
       <div className="min-h-screen bg-black text-white">
         {/* Hero Section - Enhanced for AKTU */}
-     <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900">
-  {/* Subtle Overlay */}
-  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 to-purple-900/30"></div>
+        <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900">
+          {/* Subtle Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 to-purple-900/30"></div>
 
-  <div className="relative max-w-5xl mx-auto px-6 py-8 text-center">
-    {/* Logo & Badge - Compact */}
-    <div className="inline-flex items-center justify-center mb-3 space-x-2">
-      <img src={aktulogo} alt="AKTU Logo" loading="lazy" className="w-10 h-10 rounded-full" />
-      <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-        AKTU
-      </div>
-    </div>
+          <div className="relative max-w-5xl mx-auto px-6 py-8 text-center">
+            {/* Logo & Badge - Compact */}
+            <div className="inline-flex items-center justify-center mb-3 space-x-2">
+              <img src={aktulogo} alt="AKTU Logo" loading="lazy" className="w-10 h-10 rounded-full" />
+              <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                AKTU
+              </div>
+            </div>
 
-    {/* Title - Very Compact */}
-    <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">
-      AKTU Notes, PYQs & Questions
-    </h1>
+            {/* Title - Very Compact */}
+            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">
+              AKTU Notes, PYQs & Questions
+            </h1>
 
-    {/* Tagline - One Liner */}
-    <p className="text-sm text-gray-400 max-w-xl mx-auto mb-4">
-      Semester-wise notes, PYQ papers & important questions
-    </p>
+            {/* Tagline - One Liner */}
+            <p className="text-sm text-gray-400 max-w-xl mx-auto mb-4">
+              Semester-wise notes, PYQ papers & important questions
+            </p>
 
-    {/* Features - Single Row */}
-    <div className="flex flex-wrap justify-center gap-3 text-xs">
-      <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full">📚 Notes</span>
-      <span className="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full">📄 PYQs</span>
-      <span className="bg-pink-500/20 text-pink-300 px-3 py-1 rounded-full">⭐ Questions</span>
-    </div>
-  </div>
-</div>
+            {/* Features - Single Row */}
+            <div className="flex flex-wrap justify-center gap-3 text-xs">
+              <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full">📚 Notes</span>
+              <span className="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full">📄 PYQs</span>
+              <span className="bg-pink-500/20 text-pink-300 px-3 py-1 rounded-full">⭐ Questions</span>
+            </div>
+          </div>
+        </div>
 
 
 
@@ -357,153 +525,177 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
               </div>
             </div>
             {/* STEP 1: Select Semester */}
-<div className="mb-6 md:hidden ">
-  <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-lg p-3">
-    {/* Header */}
-    <div className="flex items-center gap-2 mb-3">
-      <span className="text-lg">🎓</span>
-      <div className="flex-1">
-        <h3 className="text-sm font-semibold text-white">Select Semester</h3>
-        <p className="text-xs text-gray-400">Choose your current semester</p>
-      </div>
-    </div>
+            <div className="mb-6 md:hidden ">
+              <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-lg p-3">
+                {/* Header */}
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg">🎓</span>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-white">Select Semester</h3>
+                    <p className="text-xs text-gray-400">Choose your current semester</p>
+                  </div>
+                </div>
 
-    {/* Semester Buttons - Compact Grid */}
-    <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1.5">
-      {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-        <button
-          key={sem}
-          onClick={() => {
-            handleFilterChange('semester', sem);
-            handleFilterChange('subject', '');
-          }}
-          className={`
+                {/* Semester Buttons - Compact Grid */}
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1.5">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
+                    <button
+                      key={sem}
+                      onClick={() => {
+                        handleFilterChange('semester', sem);
+                        handleFilterChange('subject', '');
+                      }}
+                      className={`
             relative p-2 rounded-lg border transition-all duration-300 transform hover:scale-105 text-center
             ${localFilters.semester === sem
-              ? 'bg-gradient-to-br from-blue-600 to-purple-600 border-transparent shadow-lg scale-105'
-              : 'bg-gray-900/40 border-gray-700/50 hover:border-blue-500/50'
-            }
+                          ? 'bg-gradient-to-br from-blue-600 to-purple-600 border-transparent shadow-lg scale-105'
+                          : 'bg-gray-900/40 border-gray-700/50 hover:border-blue-500/50'
+                        }
           `}
-        >
-          <div className={`text-lg font-bold ${localFilters.semester === sem ? 'text-white' : 'text-gray-300'}`}>
-            {sem}
-          </div>
+                    >
+                      <div className={`text-lg font-bold ${localFilters.semester === sem ? 'text-white' : 'text-gray-300'}`}>
+                        {sem}
+                      </div>
 
-          {localFilters.semester === sem && (
-            <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
+                      {localFilters.semester === sem && (
+                        <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          )}
-        </button>
-      ))}
-    </div>
-  </div>
-</div>
 
 
             {/* STEP 2: Filters (Only show when semester is selected) */}
-     {/* STEP 2: Filters - Modern Cards */}
-{localFilters.semester && (
-  <div className="mb-6 space-y-3">
-    {/* Header with Reset */}
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <FilterIcon className="w-4 h-4 text-purple-400" />
-        <span className="text-sm font-semibold text-white">
-          Filter Semester {localFilters.semester}
-        </span>
-        <span className="text-xs text-slate-500">
-          ({subjectsBySemester[localFilters.semester]?.length || 0} subjects)
-        </span>
-      </div>
-      {(localFilters.subject || localFilters.category || localFilters.uploadedBy) && (
-        <button
-          onClick={handleClearFilters}
-          className="text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors flex items-center gap-1"
-        >
-          <CloseIcon className="w-3 h-3" />
-          Clear All
-        </button>
-      )}
-    </div>
+            {/* STEP 2: Filters - Modern Cards */}
+            {localFilters.semester && (
+              <div className="mb-6 space-y-3">
+                {/* Header with Reset */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FilterIcon className="w-4 h-4 text-purple-400" />
+                    <span className="text-sm font-semibold text-white">
+                      Filter Semester {localFilters.semester}
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      ({subjectsBySemester[localFilters.semester]?.length || 0} subjects)
+                    </span>
+                  </div>
+                  {(localFilters.subject || localFilters.category || localFilters.uploadedBy) && (
+                    <button
+                      onClick={handleClearFilters}
+                      className="text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors flex items-center gap-1"
+                    >
+                      <CloseIcon className="w-3 h-3" />
+                      Clear All
+                    </button>
+                  )}
+                </div>
 
-    {/* Filter Controls - Responsive Grid */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-      {/* Subject */}
-      <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5">
-        <label className="text-xs text-slate-400 font-semibold block mb-1">Subject</label>
-        <select
-          value={localFilters.subject}
-          onChange={(e) => handleFilterChange('subject', e.target.value)}
-          className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option className="bg-gray-900" value="">
-            All Subjects
-          </option>
-          {(subjectsBySemester[localFilters.semester] || []).map((subject) => (
-            <option className="bg-gray-900" key={subject} value={subject}>
-              {subject}
-            </option>
-          ))}
-        </select>
-        {localFilters.subject && (
-          <p className="text-xs text-blue-400 mt-1.5 px-2 py-1 bg-blue-500/10 rounded">
-            📌 {localFilters.subject}
-          </p>
-        )}
-      </div>
+                {/* Filter Controls - Responsive Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  {/* Subject */}
+                  <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5">
+                    <label className="text-xs text-slate-400 font-semibold block mb-1">Subject</label>
+                    <select
+                      value={localFilters.subject}
+                      onChange={(e) => handleFilterChange('subject', e.target.value)}
+                      className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option className="bg-gray-900" value="">
+                        All Subjects
+                      </option>
+                      {(subjectsBySemester[localFilters.semester] || []).map((subject) => (
+                        <option className="bg-gray-900" key={subject} value={subject}>
+                          {subject}
+                        </option>
+                      ))}
+                    </select>
+                    {localFilters.subject && (
+                      <p className="text-xs text-blue-400 mt-1.5 px-2 py-1 bg-blue-500/10 rounded">
+                        📌 {localFilters.subject}
+                      </p>
+                    )}
+                  </div>
 
-      {/* Category */}
-      <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5">
-        <label className="text-xs text-slate-400 font-semibold block mb-1">Type</label>
-        <select
-          value={localFilters.category}
-          onChange={(e) => handleFilterChange('category', e.target.value)}
-          className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option className="bg-gray-900" value="">
-            All Materials
-          </option>
-          <option className="bg-gray-900" value="Notes">📚 Study Notes</option>
-          <option className="bg-gray-900" value="Important Question">⭐ Important Q's</option>
-          <option className="bg-gray-900" value="PYQ">📄 Previous Year Q's</option>
-          <option className="bg-gray-900" value="Handwritten Notes">✏️ Handwritten</option>
-        </select>
-        {localFilters.category && (
-          <p className="text-xs text-purple-400 mt-1.5 px-2 py-1 bg-purple-500/10 rounded">
-            ✓ {localFilters.category}
-          </p>
-        )}
-      </div>
+                  {/* Category */}
+                  <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5">
+                    <label className="text-xs text-slate-400 font-semibold block mb-1">Type</label>
+                    <select
+                      value={localFilters.category}
+                      onChange={(e) => handleFilterChange('category', e.target.value)}
+                      className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option className="bg-gray-900" value="">
+                        All Materials
+                      </option>
+                      <option className="bg-gray-900" value="Notes">📚 Study Notes</option>
+                      <option className="bg-gray-900" value="Important Question">⭐ Important Q's</option>
+                      <option className="bg-gray-900" value="PYQ">📄 Previous Year Q's</option>
+                      <option className="bg-gray-900" value="Handwritten Notes">✏️ Handwritten</option>
+                      <option className="bg-gray-900" value="Video">🎬 Video Lectures</option>  {/* ✨ NEW */}
+                    </select>
+                    {localFilters.category && (
+                      <p className="text-xs text-purple-400 mt-1.5 px-2 py-1 bg-purple-500/10 rounded">
+                        ✓ {localFilters.category}
+                      </p>
+                    )}
+                     {/* ✨ NEW: Chapter Filter - ONLY SHOW WHEN VIDEO SELECTED */}
+              {localFilters.category === 'Video' && (
+                <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5 border-red-500/30">
+                  <label className="text-xs text-slate-400 font-semibold block mb-1">Chapter</label>
+                  <select
+                    value={localFilters.videoChapter}
+                    onChange={(e) => handleFilterChange('videoChapter', e.target.value)}
+                    className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                  >
+                    <option className="bg-gray-900" value="">All Chapters</option>
+                    {uniqueChapters.map((chapter) => (
+                      <option className="bg-gray-900" key={chapter} value={chapter}>
+                        Chapter {chapter}
+                      </option>
+                    ))}
+                  </select>
+                  {localFilters.videoChapter && (
+                    <p className="text-xs text-red-400 mt-1.5 px-2 py-1 bg-red-500/10 rounded">
+                      🎬 Chapter {localFilters.videoChapter}
+                    </p>
+                  )}
+                </div>
+              )}
+                  </div>
 
-      {/* Contributor */}
-      <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5">
-        <label className="text-xs text-slate-400 font-semibold block mb-1">By</label>
-        <select
-          value={localFilters.uploadedBy}
-          onChange={(e) => handleFilterChange('uploadedBy', e.target.value)}
-          className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option className="bg-gray-900" value="">
-            All Contributors
-          </option>
-          {uniqueUploaders.map((uploader) => (
-            <option className="bg-gray-900" key={uploader.id} value={uploader.id}>
-              {uploader.name}
-            </option>
-          ))}
-        </select>
-        {localFilters.uploadedBy && (
-          <p className="text-xs text-green-400 mt-1.5 px-2 py-1 bg-green-500/10 rounded">
-            👤 {uniqueUploaders.find((u) => u.id === localFilters.uploadedBy)?.name}
-          </p>
-        )}
-      </div>
-    </div>
-  </div>
-)}
+                  {/* Contributor */}
+                  <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5">
+                    <label className="text-xs text-slate-400 font-semibold block mb-1">By</label>
+                    <select
+                      value={localFilters.uploadedBy}
+                      onChange={(e) => handleFilterChange('uploadedBy', e.target.value)}
+                      className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option className="bg-gray-900" value="">
+                        All Contributors
+                      </option>
+                      {uniqueUploaders.map((uploader) => (
+                        <option className="bg-gray-900" key={uploader.id} value={uploader.id}>
+                          {uploader.name}
+                        </option>
+                      ))}
+                    </select>
+                    {localFilters.uploadedBy && (
+                      <p className="text-xs text-green-400 mt-1.5 px-2 py-1 bg-green-500/10 rounded">
+                        👤 {uniqueUploaders.find((u) => u.id === localFilters.uploadedBy)?.name}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
 
 
@@ -520,11 +712,11 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
               </div>
             )} */}
             {!localFilters.semester && (
-  <div className="mb-6 text-center py-3 px-4 bg-yellow-500/5 border border-yellow-500/20 rounded-lg">
-    <p className="text-sm text-yellow-300 font-medium mb-1">👆 Select a semester first</p>
-    <p className="text-xs text-slate-400">Materials will appear once you choose</p>
-  </div>
-)}
+              <div className="mb-6 text-center py-3 px-4 bg-yellow-500/5 border border-yellow-500/20 rounded-lg">
+                <p className="text-sm text-yellow-300 font-medium mb-1">👆 Select a semester first</p>
+                <p className="text-xs text-slate-400">Materials will appear once you choose</p>
+              </div>
+            )}
 
 
 
@@ -556,99 +748,75 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
             </div> */}
           </div>
 
- {/* ✨ REDESIGNED: Simple Stats Section - ONLY SHOW WHEN LOADED */} 
-{!loading && localFilters.semester && (
-  <div className="mb-8">
-    {/* Stats Cards */}
-  {/* Stats Cards - Compact Version */}
-<div className="mb-8 space-y-3">
-  {/* Total Resources - Featured Card */}
-  <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-blue-100 text-xs font-semibold uppercase tracking-wider mb-1">Total Resources</p>
-        <p className="text-3xl font-bold text-white">{totalNotes}</p>
-      </div>
-      <span className="text-5xl opacity-30">📊</span>
-    </div>
-  </div>
-
-  {/* Category Stats - Inline Compact */}
-  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-    {Object.entries(categoryStats).map(([category, count]) => {
-      const config = getCategoryConfig(category);
-      const isActive = localFilters.category === category;
-
-      return (
-        <button
-          key={category}
-          onClick={() => handleFilterChange('category', category)}
-          className={`
-            relative rounded-lg p-3 transition-all duration-300 transform hover:scale-105 group
-            ${isActive
-              ? `bg-gradient-to-br ${config.gradient} border-transparent shadow-lg scale-105`
-              : `bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-600`
-            }
-          `}
-        >
-          {/* Icon and Count */}
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">{config.icon}</span>
-            <div className="text-left flex-1">
-              <p className={`text-xs font-medium mb-0.5 ${isActive ? 'text-white/90' : 'text-slate-400'}`}>
-                {category}
-              </p>
-              <p className={`text-xl font-bold ${isActive ? 'text-white' : config.textColor}`}>
-                {count}
-              </p>
+            {/* ✨ UPDATED: Stats Section - Include Video Count */}
+      {!loading && !videoLoading && localFilters.semester && (
+        <div className="mb-8 space-y-3">
+          {/* Total Resources */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-xs font-semibold uppercase tracking-wider mb-1">Total Resources</p>
+                <p className="text-3xl font-bold text-white">
+                  {totalNotes + (videos?.length || 0)}  {/* ✨ NEW: Add video count */}
+                </p>
+              </div>
+              <span className="text-5xl opacity-30">📊</span>
             </div>
           </div>
 
-          {/* Clear button if active */}
-          {isActive && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleFilterChange('category', '');
-              }}
-              className="absolute -top-2 -right-2 p-1 bg-red-500/80 hover:bg-red-600 rounded-full transition-colors shadow-md"
-              title="Clear filter"
-            >
-              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
-          )}
-        </button>
-      );
-    })}
-  </div>
-</div>
+          {/* Category Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">  {/* ✨ UPDATED: 5 columns for Video */}
+            {Object.entries(categoryStats).map(([category, count]) => {
+              const config = getCategoryConfig(category);
+              const isActive = localFilters.category === category;
 
+              return (
+                <button
+                  key={category}
+                  onClick={() => {
+                    handleFilterChange('category', category);
+                    handleFilterChange('videoChapter', '');  // Reset chapter filter
+                  }}
+                  className={`
+                    relative rounded-lg p-3 transition-all duration-300 transform hover:scale-105 group
+                    ${isActive
+                      ? `bg-gradient-to-br ${config.gradient} border-transparent shadow-lg scale-105`
+                      : `bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-600`
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{config.icon}</span>
+                    <div className="text-left flex-1">
+                      <p className={`text-xs font-medium mb-0.5 ${isActive ? 'text-white/90' : 'text-slate-400'}`}>
+                        {category}
+                      </p>
+                      <p className={`text-xl font-bold ${isActive ? 'text-white' : config.textColor}`}>
+                        {count}
+                      </p>
+                    </div>
+                  </div>
 
-
-
-
-
-    {/* Active Filter Badge */}
-    {/* {localFilters.category && (
-      <div className="mb-6 p-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-xl flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <span>Filtering by:</span>
-          <span className="px-3 py-1 bg-blue-600 text-white rounded-full font-medium">
-            {localFilters.category}
-          </span>
-        </div>
-        <button
-          onClick={() => handleFilterChange('category', '')}
-          className="text-red-400 hover:text-red-300 text-sm flex items-center space-x-1"
-        >
-          <CloseIcon className="w-4 h-4" />
-          <span>Clear</span>
-        </button>
-      </div>
-    )} */}
-
+                  {isActive && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFilterChange('category', '');
+                        handleFilterChange('videoChapter', '');
+                      }}
+                      className="absolute -top-2 -right-2 p-1 bg-red-500/80 hover:bg-red-600 rounded-full transition-colors shadow-md"
+                      title="Clear filter"
+                    >
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          
     {/* Contributors Filter - Simple Version */}
     {notes && notes.length > 0 && (
       <div className="mb-8">
@@ -724,341 +892,342 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
 )}
 
 
+        
+
+
           {/* Loading State */}
-        {loading && (
-  <div className="space-y-6 py-8">
-    {/* Header Skeleton */}
-    <div className="space-y-3">
-      <div className="h-8 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-3/4 animate-pulse"></div>
-      <div className="h-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-1/2 animate-pulse"></div>
-    </div>
+          {loading && (
+            <div className="space-y-6 py-8">
+              {/* Header Skeleton */}
+              <div className="space-y-3">
+                <div className="h-8 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-3/4 animate-pulse"></div>
+                <div className="h-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-1/2 animate-pulse"></div>
+              </div>
 
-    {/* Search Bar Skeleton */}
-    <div className="h-12 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl animate-pulse"></div>
+              {/* Search Bar Skeleton */}
+              <div className="h-12 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl animate-pulse"></div>
 
-    {/* Filter Buttons Skeleton */}
-    <div className="flex gap-3 flex-wrap">
-      {[1, 2, 3, 4].map((i) => (
-        <div
-          key={i}
-          className="h-10 bg-gradient-to-r from-slate-700 to-slate-600 rounded-full w-24 animate-pulse"
-        ></div>
-      ))}
-    </div>
+              {/* Filter Buttons Skeleton */}
+              <div className="flex gap-3 flex-wrap">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="h-10 bg-gradient-to-r from-slate-700 to-slate-600 rounded-full w-24 animate-pulse"
+                  ></div>
+                ))}
+              </div>
 
-    {/* Cards Skeleton */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div
-          key={i}
-          className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden border border-slate-700/50 p-4 space-y-4"
-        >
-          {/* Thumbnail Skeleton */}
-          <div className="h-40 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg animate-pulse"></div>
+              {/* Cards Skeleton */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden border border-slate-700/50 p-4 space-y-4"
+                  >
+                    {/* Thumbnail Skeleton */}
+                    <div className="h-40 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg animate-pulse"></div>
 
-          {/* Title Skeleton */}
-          <div className="h-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-5/6 animate-pulse"></div>
+                    {/* Title Skeleton */}
+                    <div className="h-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-5/6 animate-pulse"></div>
 
-          {/* Subtitle Skeleton */}
-          <div className="h-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-4/6 animate-pulse"></div>
+                    {/* Subtitle Skeleton */}
+                    <div className="h-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-4/6 animate-pulse"></div>
 
-          {/* Button Skeleton */}
-          <div className="pt-2">
-            <div className="h-10 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg animate-pulse"></div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
-
-
-       {/* Enhanced Empty State with Popular Requests */}
-{!loading && localFilters.semester && filteredNotes.length === 0 && (
-  <div className="text-center py-12 px-4">
-    
-    {/* TOP: PROMINENT REQUEST BUTTON - MAIN CTA */}
-    <div className="mb-10">
-      <button
-        onClick={() => setShowRequestModal(true)}
-        className="group relative mx-auto px-8 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 rounded-xl font-bold text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-3 mb-3"
-      >
-        <svg className="w-6 h-6 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-        <span>Request This Material</span>
-        <svg className="w-5 h-5 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
-      </button>
-      <p className="text-xs text-gray-500 mt-2">
-        Missing something? Let us know! We'll add it to our library.
-      </p>
-    </div>
-
-    {/* Icon */}
-    <div className="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-600 rounded-full flex items-center justify-center mx-auto mb-6">
-      <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C6.5 6.253 2 10.771 2 16.5S6.5 26.747 12 26.747s10-4.518 10-10.247S17.5 6.253 12 6.253z" />
-      </svg>
-    </div>
-
-    {/* Main Message */}
-    <h3 className="text-2xl font-bold text-white mb-2">
-      No Resources Found Yet
-    </h3>
-
-    {/* Detailed Context */}
-    <p className="text-gray-400 mb-8 max-w-2xl mx-auto text-sm leading-relaxed">
-      We don't have notes for <span className="text-blue-400 font-semibold">Semester {localFilters.semester}</span>
-      {localFilters.subject && (
-        <> in <span className="text-purple-400 font-semibold">{localFilters.subject}</span></>
-      )}
-      {searchTerm && (
-        <> matching <span className="text-green-400 font-semibold">"{searchTerm}"</span></>
-      )} just yet.
-    </p>
-
-    {/* POPULAR REQUESTS SECTION - NEW FEATURE */}
-    <div className="max-w-4xl mx-auto mb-12">
-      <div className="text-left mb-6">
-        <h4 className="text-lg font-bold text-white mb-2">📋 Popular Requests for Semester {localFilters.semester}</h4>
-        <p className="text-xs text-gray-400">
-          Help the community by upvoting what you need. Popular requests get prioritized! ⬆️
-        </p>
-      </div>
-
-      {/* Popular Requests Grid */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  {popularRequests && popularRequests.length > 0 ? (
-    popularRequests.map((request) => (
-      <div
-        key={request._id}
-        className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-5  text-left group"
-      >
-        {/* Header with Type Badge */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <h5 className="font-bold text-white group-hover:text-blue-300 transition mb-2">
-              {request.subject}
-            </h5>
-            <div className="flex gap-2 flex-wrap">
-              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                request.requestType === 'NOTES'
-                  ? 'bg-blue-500/20 text-blue-300'
-                  : request.requestType === 'PYQ'
-                  ? 'bg-purple-500/20 text-purple-300'
-                  : 'bg-pink-500/20 text-pink-300'
-              }`}>
-                {request.requestType === 'NOTES' ? '📖 Notes' : request.requestType === 'PYQ' ? '📄 PYQs' : '❓ Questions'}
-              </span>
-              <span className="text-xs bg-gray-700/40 text-gray-300 px-2 py-1 rounded-full">
-                {request.branch} • Sem {request.semester}
-              </span>
-            </div>
-          </div>
-
-          {/* Status Badge */}
-          {request.status === 'FULFILLED' && (
-            <div className="flex-shrink-0 ml-2">
-              <span className="inline-block bg-green-500/20 text-green-300 text-lg">✓</span>
+                    {/* Button Skeleton */}
+                    <div className="pt-2">
+                      <div className="h-10 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-        </div>
 
-        {/* Description */}
-        {request.description && (
-          <p className="text-xs text-gray-400 mb-4 line-clamp-2">
-            {request.description}
-          </p>
-        )}
 
-        {/* Upvote Button & Count */}
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => dispatch(upvoteRequest(request._id))}
-            disabled={request.hasUpvoted}
-            className={`flex-1 py-2 px-3 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
-              request.hasUpvoted
-                ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50 cursor-not-allowed'
-                : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20 hover:border-blue-400/50'
-            }`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thumbs-up-icon lucide-thumbs-up"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/><path d="M7 10v12"/></svg>
-            <span>{request.upvoteCount}</span>
-          </button>
-        </div>
+          {/* Enhanced Empty State with Popular Requests */}
+     {!loading && !videoLoading && localFilters.semester && filteredNotes.length === 0 && displayResources.length === 0 && (
+            <div className="text-center py-12 px-4">
 
-        {/* Already Upvoted Badge */}
-        {request.hasUpvoted && (
-          <p className="text-xs text-blue-300 mb-4">✓ You've upvoted this</p>
-        )}
-
-        {/* REQUESTER INFO SECTION - With Avatar */}
-        <div className="border-t border-white/10 pt-4 flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1">
-            {/* Avatar Image */}
-            {request.requestedBy?.avatar?.secure_url ? (
-              <img
-                src={request.requestedBy.avatar.secure_url}
-                alt={request.requestedBy.fullName}
-                className="w-10 h-10 rounded-full object-cover border border-white/20 hover:border-white/40 transition"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center border border-white/20">
-                <span className="text-white font-bold text-sm">
-                  {request.requestedBy?.fullName?.charAt(0)?.toUpperCase() || 'A'}
-                </span>
+              {/* TOP: PROMINENT REQUEST BUTTON - MAIN CTA */}
+              <div className="mb-10">
+                <button
+                  onClick={() => setShowRequestModal(true)}
+                  className="group relative mx-auto px-8 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 rounded-xl font-bold text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-3 mb-3"
+                >
+                  <svg className="w-6 h-6 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Request This Material</span>
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </button>
+                <p className="text-xs text-gray-500 mt-2">
+                  Missing something? Let us know! We'll add it to our library.
+                </p>
               </div>
-            )}
 
-            {/* Requester Name & Details */}
-            <div className="flex-1">
-              <p className="text-xs  capitalize font-semibold text-white">
-                {request.requestedBy?.fullName || 'Anonymous'}
+              {/* Icon */}
+              <div className="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C6.5 6.253 2 10.771 2 16.5S6.5 26.747 12 26.747s10-4.518 10-10.247S17.5 6.253 12 6.253z" />
+                </svg>
+              </div>
+
+              {/* Main Message */}
+              <h3 className="text-2xl font-bold text-white mb-2">
+                No Resources Found Yet
+              </h3>
+
+              {/* Detailed Context */}
+              <p className="text-gray-400 mb-8 max-w-2xl mx-auto text-sm leading-relaxed">
+                We don't have notes for <span className="text-blue-400 font-semibold">Semester {localFilters.semester}</span>
+                {localFilters.subject && (
+                  <> in <span className="text-purple-400 font-semibold">{localFilters.subject}</span></>
+                )}
+                {searchTerm && (
+                  <> matching <span className="text-green-400 font-semibold">"{searchTerm}"</span></>
+                )} just yet.
               </p>
-              <p className="text-xs text-gray-400">
-                {request.requestedBy?.academicProfile?.branch} • Sem {request.requestedBy?.academicProfile?.semester}
-              </p>
-            </div>
-          </div>
 
-          {/* Time Posted */}
-          <div className="text-right">
-            <p className="text-xs text-gray-500">
-              {new Date(request.createdAt).toLocaleDateString('en-IN', {
-                day: 'numeric',
-                month: 'short',
-                year:'numeric'
-              })}
-            </p>
-          </div>
-        </div>
-      </div>
-    ))
-  ) : (
-    <div className="col-span-2 text-center py-8">
-      <p className="text-gray-400 text-sm">No requests yet for this semester. Be the first to request! 🚀</p>
-    </div>
-  )}
-</div>
+              {/* POPULAR REQUESTS SECTION - NEW FEATURE */}
+              <div className="max-w-4xl mx-auto mb-12">
+                <div className="text-left mb-6">
+                  <h4 className="text-lg font-bold text-white mb-2">📋 Popular Requests for Semester {localFilters.semester}</h4>
+                  <p className="text-xs text-gray-400">
+                    Help the community by upvoting what you need. Popular requests get prioritized! ⬆️
+                  </p>
+                </div>
+
+                {/* Popular Requests Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {popularRequests && popularRequests.length > 0 ? (
+                    popularRequests.map((request) => (
+                      <div
+                        key={request._id}
+                        className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-5  text-left group"
+                      >
+                        {/* Header with Type Badge */}
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <h5 className="font-bold text-white group-hover:text-blue-300 transition mb-2">
+                              {request.subject}
+                            </h5>
+                            <div className="flex gap-2 flex-wrap">
+                              <span className={`text-xs px-2 py-1 rounded-full font-medium ${request.requestType === 'NOTES'
+                                  ? 'bg-blue-500/20 text-blue-300'
+                                  : request.requestType === 'PYQ'
+                                    ? 'bg-purple-500/20 text-purple-300'
+                                    : 'bg-pink-500/20 text-pink-300'
+                                }`}>
+                                {request.requestType === 'NOTES' ? '📖 Notes' : request.requestType === 'PYQ' ? '📄 PYQs' : '❓ Questions'}
+                              </span>
+                              <span className="text-xs bg-gray-700/40 text-gray-300 px-2 py-1 rounded-full">
+                                {request.branch} • Sem {request.semester}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Status Badge */}
+                          {request.status === 'FULFILLED' && (
+                            <div className="flex-shrink-0 ml-2">
+                              <span className="inline-block bg-green-500/20 text-green-300 text-lg">✓</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Description */}
+                        {request.description && (
+                          <p className="text-xs text-gray-400 mb-4 line-clamp-2">
+                            {request.description}
+                          </p>
+                        )}
+
+                        {/* Upvote Button & Count */}
+                        <div className="flex items-center justify-between mb-4">
+                          <button
+                            onClick={() => dispatch(upvoteRequest(request._id))}
+                            disabled={request.hasUpvoted}
+                            className={`flex-1 py-2 px-3 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${request.hasUpvoted
+                                ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50 cursor-not-allowed'
+                                : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20 hover:border-blue-400/50'
+                              }`}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thumbs-up-icon lucide-thumbs-up"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /><path d="M7 10v12" /></svg>
+                            <span>{request.upvoteCount}</span>
+                          </button>
+                        </div>
+
+                        {/* Already Upvoted Badge */}
+                        {request.hasUpvoted && (
+                          <p className="text-xs text-blue-300 mb-4">✓ You've upvoted this</p>
+                        )}
+
+                        {/* REQUESTER INFO SECTION - With Avatar */}
+                        <div className="border-t border-white/10 pt-4 flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1">
+                            {/* Avatar Image */}
+                            {request.requestedBy?.avatar?.secure_url ? (
+                              <img
+                                src={request.requestedBy.avatar.secure_url}
+                                alt={request.requestedBy.fullName}
+                                className="w-10 h-10 rounded-full object-cover border border-white/20 hover:border-white/40 transition"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center border border-white/20">
+                                <span className="text-white font-bold text-sm">
+                                  {request.requestedBy?.fullName?.charAt(0)?.toUpperCase() || 'A'}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Requester Name & Details */}
+                            <div className="flex-1">
+                              <p className="text-xs  capitalize font-semibold text-white">
+                                {request.requestedBy?.fullName || 'Anonymous'}
+                              </p>
+                              <p className="text-xs text-gray-400">
+                                {request.requestedBy?.academicProfile?.branch} • Sem {request.requestedBy?.academicProfile?.semester}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Time Posted */}
+                          <div className="text-right">
+                            <p className="text-xs text-gray-500">
+                              {new Date(request.createdAt).toLocaleDateString('en-IN', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-2 text-center py-8">
+                      <p className="text-gray-400 text-sm">No requests yet for this semester. Be the first to request! 🚀</p>
+                    </div>
+                  )}
+                </div>
 
 
-      {/* View All Requests Link */}
-      <div className="mt-6">
-        <Link
-          to="/browse-requests"
-          className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-semibold text-sm group"
-        >
-          View all requests
-          <svg className="w-4 h-4 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </Link>
-      </div>
-    </div>
-
-    {/* HELPFUL INFO BOX */}
-    <div className="max-w-3xl mx-auto mb-8">
-      <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/30 border border-blue-500/40 rounded-xl p-6 backdrop-blur-sm">
-        <div className="flex items-start space-x-4">
-          <div className="flex-shrink-0">
-            <div className="w-12 h-12 bg-blue-500/30 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5h.01" />
-              </svg>
-            </div>
-          </div>
-
-          <div className="flex-1 text-left">
-            <h4 className="text-lg font-semibold text-blue-300 mb-2">
-              💡 Can't Find Your Subject?
-            </h4>
-            <p className="text-sm text-gray-300 leading-relaxed mb-3">
-              AKTU allows flexibility in subject selection per semester. Your desired subject might be in a different semester. Check the popular requests above - if someone else needs it too, upvote to help prioritize!
-            </p>
-            
-            <div className="space-y-2 text-xs">
-              <div className="flex items-start space-x-2">
-                <span className="text-green-400 font-bold mt-0.5">✓</span>
-                <span className="text-gray-300"><span className="text-green-300 font-semibold">Upvote requests</span> - Show what's in demand</span>
+                {/* View All Requests Link */}
+                <div className="mt-6">
+                  <Link
+                    to="/browse-requests"
+                    className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-semibold text-sm group"
+                  >
+                    View all requests
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
-              <div className="flex items-start space-x-2">
-                <span className="text-blue-400 font-bold mt-0.5">→</span>
-                <span className="text-gray-300"><span className="text-blue-300 font-semibold">Request new material</span> - Add to community wishlist</span>
+
+              {/* HELPFUL INFO BOX */}
+              <div className="max-w-3xl mx-auto mb-8">
+                <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/30 border border-blue-500/40 rounded-xl p-6 backdrop-blur-sm">
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-blue-500/30 rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5h.01" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div className="flex-1 text-left">
+                      <h4 className="text-lg font-semibold text-blue-300 mb-2">
+                        💡 Can't Find Your Subject?
+                      </h4>
+                      <p className="text-sm text-gray-300 leading-relaxed mb-3">
+                        AKTU allows flexibility in subject selection per semester. Your desired subject might be in a different semester. Check the popular requests above - if someone else needs it too, upvote to help prioritize!
+                      </p>
+
+                      <div className="space-y-2 text-xs">
+                        <div className="flex items-start space-x-2">
+                          <span className="text-green-400 font-bold mt-0.5">✓</span>
+                          <span className="text-gray-300"><span className="text-green-300 font-semibold">Upvote requests</span> - Show what's in demand</span>
+                        </div>
+                        <div className="flex items-start space-x-2">
+                          <span className="text-blue-400 font-bold mt-0.5">→</span>
+                          <span className="text-gray-300"><span className="text-blue-300 font-semibold">Request new material</span> - Add to community wishlist</span>
+                        </div>
+                        <div className="flex items-start space-x-2">
+                          <span className="text-purple-400 font-bold mt-0.5">♦</span>
+                          <span className="text-gray-300"><span className="text-purple-300 font-semibold">Browse all requests</span> - See what others need</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-start space-x-2">
-                <span className="text-purple-400 font-bold mt-0.5">♦</span>
-                <span className="text-gray-300"><span className="text-purple-300 font-semibold">Browse all requests</span> - See what others need</span>
+
+              {/* ACTION BUTTONS */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
+                <Link
+                  to="/search"
+                  className="group flex-1 sm:flex-none px-6 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-blue-500/50 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <span>Search All Semesters</span>
+                </Link>
+
+                <Link
+                  to="/notes"
+                  className="group flex-1 sm:flex-none px-6 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-purple-500/50 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C6.5 6.253 2 10.771 2 16.5S6.5 26.747 12 26.747s10-4.518 10-10.247S17.5 6.253 12 6.253z" />
+                  </svg>
+                  <span>Browse Library</span>
+                </Link>
+              </div>
+
+              {/* QUICK ACTIONS GRID */}
+              <div className="mb-6">
+                <p className="text-xs text-gray-500 mb-3">⚡ Quick Actions</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <Link to="/search">
+                    <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/10 border border-blue-500/30 hover:border-blue-500/60 rounded-lg p-4 text-center transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 cursor-pointer">
+                      <div className="text-3xl mb-2">🔍</div>
+                      <div className="text-sm font-semibold text-blue-300 mb-1">Advanced Search</div>
+                      <div className="text-xs text-gray-500">Find across all semesters</div>
+                    </div>
+                  </Link>
+
+                  <Link to="/notes">
+                    <div className="bg-gradient-to-br from-purple-900/30 to-purple-900/10 border border-purple-500/30 hover:border-purple-500/60 rounded-lg p-4 text-center transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 cursor-pointer">
+                      <div className="text-3xl mb-2">📚</div>
+                      <div className="text-sm font-semibold text-purple-300 mb-1">Browse All Subjects</div>
+                      <div className="text-xs text-gray-500">Explore full library</div>
+                    </div>
+                  </Link>
+
+                  <button
+                    onClick={() => setShowRequestModal(true)}
+                    className="bg-gradient-to-br from-pink-900/30 to-pink-900/10 border border-pink-500/30 hover:border-pink-500/60 rounded-lg p-4 text-center transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/20 cursor-pointer w-full"
+                  >
+                    <div className="text-3xl mb-2">📝</div>
+                    <div className="text-sm font-semibold text-pink-300 mb-1">Request Material</div>
+                    <div className="text-xs text-gray-500">Add to library</div>
+                  </button>
+                </div>
+              </div>
+
+              {/* PRO TIP */}
+              <div className="max-w-lg mx-auto pt-4 border-t border-gray-800">
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  <span className="text-yellow-400 font-bold">💡 Pro Tip:</span> The more people upvote a request, the faster our team works to add it! Start with popular requests and help your community get the materials they need.
+                </p>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* ACTION BUTTONS */}
-    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
-      <Link
-        to="/search"
-        className="group flex-1 sm:flex-none px-6 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-blue-500/50 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2"
-      >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <span>Search All Semesters</span>
-      </Link>
-
-      <Link
-        to="/notes"
-        className="group flex-1 sm:flex-none px-6 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-purple-500/50 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2"
-      >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C6.5 6.253 2 10.771 2 16.5S6.5 26.747 12 26.747s10-4.518 10-10.247S17.5 6.253 12 6.253z" />
-        </svg>
-        <span>Browse Library</span>
-      </Link>
-    </div>
-
-    {/* QUICK ACTIONS GRID */}
-    <div className="mb-6">
-      <p className="text-xs text-gray-500 mb-3">⚡ Quick Actions</p>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Link to="/search">
-          <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/10 border border-blue-500/30 hover:border-blue-500/60 rounded-lg p-4 text-center transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 cursor-pointer">
-            <div className="text-3xl mb-2">🔍</div>
-            <div className="text-sm font-semibold text-blue-300 mb-1">Advanced Search</div>
-            <div className="text-xs text-gray-500">Find across all semesters</div>
-          </div>
-        </Link>
-
-        <Link to="/notes">
-          <div className="bg-gradient-to-br from-purple-900/30 to-purple-900/10 border border-purple-500/30 hover:border-purple-500/60 rounded-lg p-4 text-center transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 cursor-pointer">
-            <div className="text-3xl mb-2">📚</div>
-            <div className="text-sm font-semibold text-purple-300 mb-1">Browse All Subjects</div>
-            <div className="text-xs text-gray-500">Explore full library</div>
-          </div>
-        </Link>
-
-        <button
-          onClick={() => setShowRequestModal(true)}
-          className="bg-gradient-to-br from-pink-900/30 to-pink-900/10 border border-pink-500/30 hover:border-pink-500/60 rounded-lg p-4 text-center transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/20 cursor-pointer w-full"
-        >
-          <div className="text-3xl mb-2">📝</div>
-          <div className="text-sm font-semibold text-pink-300 mb-1">Request Material</div>
-          <div className="text-xs text-gray-500">Add to library</div>
-        </button>
-      </div>
-    </div>
-
-    {/* PRO TIP */}
-    <div className="max-w-lg mx-auto pt-4 border-t border-gray-800">
-      <p className="text-xs text-gray-500 leading-relaxed">
-        <span className="text-yellow-400 font-bold">💡 Pro Tip:</span> The more people upvote a request, the faster our team works to add it! Start with popular requests and help your community get the materials they need.
-      </p>
-    </div>
-  </div>
-)}
+          )}
 
 
 
@@ -1102,24 +1271,47 @@ const { allRequests: popularRequests, loading: requestsLoading } = useSelector((
             </div>
           )}
 
-{/* <AdBanner /> */}
+          {/* <AdBanner /> */}
           {/* Notes Grid */}
-          {!loading && filteredNotes.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredNotes.map((note) => (
-                <CardRenderer key={note._id} note={note} />
-              ))}
-            </div>
-          )}
+        {/* Notes/Videos Grid - FIXED */}
+{displayResources && displayResources.length > 0 && (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    {displayResources.map((resource) => {
+      // ✅ FIXED: Better type detection
+      const isVideo = resource?.videoId || resource?.embedUrl || resource?.platform === 'YOUTUBE';
+      
+      return (
+        <CardRenderer 
+          key={resource._id} 
+          item={resource}
+          type={isVideo ? 'video' : 'note'} // ✅ Detect from resource properties
+          note={resource}
+        />
+      );
+    })}
+  </div>
+)}
+
+{/* Empty State - ADD THIS */}
+{!loading && !videoLoading && (!displayResources || displayResources.length === 0) && (
+  <div className="col-span-full text-center py-12">
+    <p className="text-gray-400 text-lg">
+      {localFilters.category === 'Video' 
+        ? 'No videos found for this semester'
+        : 'No resources found'}
+    </p>
+  </div>
+)}
+
           {/* <AdBanner /> */}
         </div>
         {/* Request Modal */}
-<RequestModal
-  isOpen={showRequestModal}
-  onClose={() => setShowRequestModal(false)}
-  defaultSemester={localFilters.semester}
-  defaultSubject={localFilters.subject}
-/>
+        <RequestModal
+          isOpen={showRequestModal}
+          onClose={() => setShowRequestModal(false)}
+          defaultSemester={localFilters.semester}
+          defaultSubject={localFilters.subject}
+        />
 
       </div>
     </HomeLayout>
