@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import axiosInstance from "../../HELPERS/axiosInstance";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5014/api/v1";
 
 // ============================================
 // ASYNC THUNKS
@@ -11,8 +11,8 @@ export const fetchLeaderboard = createAsyncThunk(
   "leaderboard/fetchLeaderboard",
   async ({ type = "TOP_STUDENTS", limit = 100 }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${BASE_URL}/leaderboards?type=${type}&limit=${limit}`,
+      const response = await axiosInstance.get(
+        `/leaderboards?type=${type}&limit=${limit}`,
         { withCredentials: true }
       );
       return {
@@ -31,8 +31,8 @@ export const fetchLeaderboardHistory = createAsyncThunk(
   "leaderboard/fetchHistory",
   async ({ type, days = 7 }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${BASE_URL}/leaderboards/history?type=${type}&days=${days}`,
+      const response = await axiosInstance.get(
+        `/leaderboards/history?type=${type}&days=${days}`,
         { withCredentials: true }
       );
       return response.data.data;
