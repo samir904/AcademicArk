@@ -52,7 +52,7 @@ const LeaderboardCard = ({ entry, isTopThree = false }) => {
 
       {/* Name & Details */}
       <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-medium text-white truncate">{displayName}</h4>
+        <h4 className="text-sm font-medium capitalize text-white truncate">{displayName}</h4>
         {/* <p className="text-xs text-[#B3B3B3] truncate">{entry.userEmail}</p> */}
       </div>
 
