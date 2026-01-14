@@ -109,7 +109,7 @@ const LeaderboardPage = () => {
                       <span>Metrics</span>
                     </div> */}
                     {/* <div className="w-20 text-xs font-medium text-[#B3B3B3] text-right">Points</div> */}
-                    <div className="w-20 text-xs font-medium text-[#B3B3B3] text-right">Trend</div>
+                    <div className="w-20 text-xs font-medium text-[#B3B3B3] ">Trend</div>
                   </div>
 
                   {/* Rows */}
