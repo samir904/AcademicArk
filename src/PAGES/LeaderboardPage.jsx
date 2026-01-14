@@ -105,9 +105,9 @@ const LeaderboardPage = () => {
                     <div className="w-8 text-xs font-medium text-[#B3B3B3] text-center">Rank</div>
                     <div className="w-10"></div>
                     <div className="flex-1 text-xs font-medium text-[#B3B3B3]">User</div>
-                    <div className="flex gap-4 text-xs font-medium text-[#B3B3B3]">
+                    {/* <div className="flex gap-4 text-xs font-medium text-[#B3B3B3]">
                       <span>Metrics</span>
-                    </div>
+                    </div> */}
                     {/* <div className="w-20 text-xs font-medium text-[#B3B3B3] text-right">Points</div> */}
                     <div className="w-20 text-xs font-medium text-[#B3B3B3] text-right">Trend</div>
                   </div>

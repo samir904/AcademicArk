@@ -1,10 +1,9 @@
 import React from 'react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown,Minus } from 'lucide-react';
 
 const LeaderboardCard = ({ entry, isTopThree = false }) => {
   const engagementPoints = entry.metrics.engagement || 0;
   const displayName = entry.userName || entry.noteTitle;
-
   // Get trend indicator - minimal
   const getTrendIcon = (trend, value) => {
     if (trend === 'UP') {
@@ -23,7 +22,7 @@ const LeaderboardCard = ({ entry, isTopThree = false }) => {
         </span>
       );
     }
-    return <span className="text-xs text-[#B3B3B3]">No change</span>;
+    return <span className="text-xs text-[#B3B3B3]"><Minus/></span>;
   };
 
   if (isTopThree) return null;
@@ -67,12 +66,12 @@ const LeaderboardCard = ({ entry, isTopThree = false }) => {
       </div> */}
 
       {/* Engagement Points */}
-      <div className="text-right flex-shrink-0 w-20">
+      {/* <div className="text-right flex-shrink-0 w-20">
         <p className="text-base font-semibold text-white">
           {engagementPoints.toLocaleString()}
         </p>
         <p className="text-xs text-[#B3B3B3]">points</p>
-      </div>
+      </div> */}
 
       {/* Trend */}
       <div className="w-20 text-right flex-shrink-0">

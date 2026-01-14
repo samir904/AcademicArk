@@ -80,15 +80,15 @@ const TopThreeRing = ({ entry, rank }) => {
       {/* <p className="text-gray-400 text-sm truncate">{entry.userEmail}</p> */}
 
       {/* Engagement Points */}
-      <div className="mt-4 bg-[#1F1F1F] rounded-lg p-4 border border-gray-700 backdrop-blur">
+      {/* <div className="mt-4 bg-[#1F1F1F] rounded-lg p-4 border border-gray-700 backdrop-blur">
         <p className="text-xs text-gray-400 uppercase tracking-wider">Engagement Points</p>
         <p className="text-3xl font-bold text-blue-400 mt-1">
           {engagementPoints.toLocaleString()}
         </p>
-        {/* <p className="text-xs text-gray-500 mt-2">
+        <p className="text-xs text-gray-500 mt-2">
           👁️ {entry.metrics.views} • 📥 {entry.metrics.downloads}
-        </p> */}
-      </div>
+        </p>
+      </div> */}
 
      {entry.trend && (
   <div
