@@ -786,13 +786,13 @@ const [showFeedback, setShowFeedback] = useState(false);
 </div>
 
 {/* ✨ Mobile Feedback Button - Small Version */}
-<button
+{/* <button
     onClick={() => setShowFeedback(true)}
     className="md:hidden fixed bottom-34 right-6 w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg flex items-center justify-center text-white text-xl hover:scale-110 transition-transform z-40"
     title="Send Feedback"
 >
     💬
-</button>
+</button> */}
 
                 
 
@@ -952,12 +952,11 @@ const [showFeedback, setShowFeedback] = useState(false);
 {/* ✨ NEW: Add Academic Profile Modal */}
       <AcademicProfileModal />
         {/* 🎨 AMAZING Spotify-Style Bottom Navigation - Redesigned */}
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40">
+   <div className="md:hidden fixed bottom-0 left-0 right-0 z-40">
   {/* Background */}
-  <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900 to-transparent" />
+  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-transparent" />
 
-  {/* Navigation */}
-  <div className="relative px-4 py-4 flex items-center justify-evenly">
+  <div className="relative px-4 py-3 flex items-center justify-evenly">
     {getMobileNavItems().map((item) => {
       const IconComponent = item.icon;
       const isActive = isActiveLink(item.path);
@@ -966,28 +965,27 @@ const [showFeedback, setShowFeedback] = useState(false);
         <Link
           key={item.name}
           to={item.path}
-          className={`flex flex-col items-center gap-2 transition-all duration-200`}
+          className="flex flex-col items-center gap-1.5"
         >
-          {/* Neumorphic Button */}
+          {/* Icon Container */}
           <div
-            className={`p-3 rounded-2xl transition-all duration-200 ${
-              isActive
-                ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg"
-                : "bg-gray-800 text-gray-500 shadow-md hover:bg-gray-700"
-            }`}
-            style={{
-              boxShadow: isActive
-                ? "0 8px 20px rgba(59, 130, 246, 0.3)"
-                : "0 4px 12px rgba(0, 0, 0, 0.5)"
-            }}
+            className={`
+              p-3 rounded-xl transition-all duration-200
+              ${isActive
+                ? "bg-white/10 text-white ring-1 ring-white/20"
+                : "bg-transparent text-gray-500"
+              }
+            `}
           >
             <IconComponent className="w-5 h-5" />
           </div>
 
           {/* Label */}
-          <span className={`text-xs font-bold ${
-            isActive ? "text-white" : "text-gray-500"
-          }`}>
+          <span
+            className={`text-[11px] font-medium tracking-wide ${
+              isActive ? "text-white" : "text-gray-500"
+            }`}
+          >
             {item.label}
           </span>
         </Link>
