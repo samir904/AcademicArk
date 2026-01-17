@@ -970,7 +970,7 @@ const [showFeedback, setShowFeedback] = useState(false);
           {/* Icon Container */}
           <div
             className={`
-              p-3 rounded-xl transition-all duration-200
+              p-3 rounded-full transition-all duration-200
               ${isActive
                 ? "bg-white/10 text-white ring-1 ring-white/20"
                 : "bg-transparent text-gray-500"

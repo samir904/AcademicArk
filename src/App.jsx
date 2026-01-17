@@ -458,9 +458,9 @@ function App() {
         <Route
           path="/notes"
           element={
-            <Suspense fallback={<AppLoader />}>
+            // <Suspense fallback={<AppLoader />}>
               <Note />
-            </Suspense>
+            // </Suspense>
           }
         />
         <Route
