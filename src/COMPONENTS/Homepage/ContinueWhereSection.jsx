@@ -32,7 +32,7 @@ export default function ContinueWhereSection({ continue: continueData }) {
     return (
         <div className="mb-16">
             {/* Hero card for continuing notes */}
-            <div className="bg-gradient-to-br from-[#0F0F0F] to-[#0A0A0A] border border-[#1F1F1F] rounded-2xl overflow-hidden hover:border-[#9CA3AF] transition-all duration-300">
+            <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl overflow-hidden hover:border-[#9CA3AF] transition-all duration-300">
                 {/* Top section - light label */}
                 <div className="px-8 md:px-12 py-4 border-b border-[#1F1F1F]">
                     <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-widest">
