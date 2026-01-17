@@ -1,4 +1,5 @@
 // RecommendedNotesSection.jsx
+import { CircleArrowDown, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function RecommendedNotesSection({ recommended }) {
@@ -42,9 +43,11 @@ export default function RecommendedNotesSection({ recommended }) {
                             </div> */}
 
                             {/* Stats */}
-                            <div className="flex gap-4 text-xs text-[#9CA3AF] mb-4 pb-4 border-b border-[#1F1F1F]">
+                            <div className="flex gap-2 text-xs text-[#9CA3AF] mb-4 pb-4 border-b border-[#1F1F1F]">
+                                 <span className="text-[#4B5563]"><CircleArrowDown className='w-4 h-4' /></span>
                                 <span>{note.downloads} downloads</span>
                                 <span>•</span>
+                                <span className="text-[#4B5563]"><Eye className='w-4 h-4' /></span>
                                 <span>{note.views} views</span>
                             </div>
 
