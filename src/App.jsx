@@ -9,7 +9,7 @@ import Homepage from "./PAGES/Static/Homepage";
 //import Signup from './PAGES/User/Signup';
 import PageNotFound from "./PAGES/Static/PageNotFound";
 import AuthChecker from "./COMPONENTS/AuthChecker";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "./HELPERS/Toaster";
 import { checkAuth } from "./REDUX/Slices/authslice";
 import LoginChoice from "./PAGES/User/LoginChoice";
@@ -43,6 +43,7 @@ const UpdateNote = React.lazy(() => import("./PAGES/Note/UpdateNote"));
 const UploadVideoLecture = React.lazy(() => import("./PAGES/video/UploadVideoLecture"));
 import VideoWatch from './PAGES/video/VideoWatch'
 import LeaderboardPage from "./PAGES/LeaderboardPage";
+import DynamicHome from "./PAGES/DynamicHome";
 // //import VideoUploadForm from "./COMPONENTS/Admin/VideoUploadForm";
 // import UploadVideoLecture from "./PAGES/video/UploadVideoLecture";
 const AdvancedSearch = React.lazy(() =>
@@ -309,6 +310,8 @@ function App() {
   //   script.crossOrigin = 'anonymous';
   //   document.head.appendChild(script);
   // }, []);
+  const isLoggedIn = useSelector(state => state?.auth?.isLoggedIn);
+// console.log("isloggedin",isLoggedIn)
   return (
     <div className="App">
       {/* <CookieWarning /> */}
@@ -316,7 +319,7 @@ function App() {
       <PageTracker /> {/* ← OUTSIDE Routes */}
       <Routes>
         {/* 🟢 Core Routes */}
-        <Route path="/" element={<Homepage />} />
+        <Route path="/" element={isLoggedIn ? <DynamicHome /> : <Homepage />} />
         <Route path="/signup" element={<SignupChoice />} />
         <Route path="/signup/email" element={<SignupEmail />} />
         <Route path="/login" element={<LoginChoice />} />

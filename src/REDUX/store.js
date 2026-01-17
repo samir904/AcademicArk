@@ -18,6 +18,7 @@ import academicProfileReducer from "./Slices/academicProfileSlice.js"
  import queryMetricsReducer from './Slices/queryMetricsSlice.js'
  import videoLectureReducer from './Slices/videoLecture.slice.js'
  import leaderboardReducer from './Slices/leaderboard.slice.js'
+ import homepageReducer from './Slices/homepageSlice.js'
 //  import videoReducer from './Slices/videoSlice.js'
 // import logsReducer  from './Slices/logsSlice.js'
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
@@ -43,6 +44,7 @@ const store = configureStore({
     redisHealth: redisHealthSlice,
     videoLecture: videoLectureReducer,
     leaderboard: leaderboardReducer,  // ✨ NEW
+    home:homepageReducer
     //  video: videoReducer,
     // studyBuddy: studyBuddySlice,  // ← ADD THIS
     // studyPlanner: studyPlannerSlice,  // ← ADD THIS
