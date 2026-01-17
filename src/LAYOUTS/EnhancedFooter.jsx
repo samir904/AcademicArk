@@ -170,78 +170,38 @@ function EnhancedFooter() {
         </div>
 
 
-        {/* Developer Card Section */}
-        <div className="border-t border-white/10 pt-8 md:pt-12 mb-8 md:mb-12">
-          <div className="max-w-2xl mx-auto">
-            <h3 className="text-center text-white font-bold text-lg mb-6">Meet the Creator</h3>
-            
-            {/* Developer Card */}
-            <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-2xl p-6 md:p-8 hover:border-white/20 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10">
-              
-              {/* Card Content - Flexbox for responsiveness */}
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                
-                {/* Developer Image */}
-                <div className="flex-shrink-0">
-                  <img
-                    src={samir}
-                    alt="Samir Suman"
-                    className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover border-2 border-gradient-to-r from-blue-500 to-purple-500 shadow-lg hover:shadow-purple-500/30 transition-shadow"
-                  />
-                </div>
+     {/* Developer Card Section */}
+<div className="border-t border-white/10 pt-8 md:pt-12 mb-8 md:mb-12">
+  <div className="max-w-lg mx-auto">
+    <div className="flex items-center gap-4">
+      {/* Developer Image */}
+      <img
+        src={samir}
+        alt="Samir Suman"
+        className="w-14 h-14 rounded-full object-cover border border-white/10 flex-shrink-0"
+      />
 
-                {/* Developer Info */}
-                <div className="flex-1 text-center md:text-left">
-                  <h4 className="text-white font-bold text-xl md:text-2xl mb-1">
-                    Samir Suman
-                  </h4>
-                  <p className="text-sm text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-semibold mb-2">
-                    Full Stack Developer
-                  </p>
-                  
-                  <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                     Creating the easiest way for students to share and discover notes.
-                  </p>
+      {/* Developer Info */}
+      <div className="flex-1 min-w-0">
+        <h4 className="text-white font-medium text-sm">Samir Suman</h4>
+        <p className="text-white/40 text-xs">Full Stack Developer</p>
+      </div>
 
-                  {/* Social Links */}
-                  <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
-                    <a
-                      href="https://github.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-all duration-300"
-                      title="GitHub"
-                    >
-                      <Github size={18} />
-                      <span className="absolute bottom-full mb-2 px-2 py-1 bg-white text-black text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">GitHub</span>
-                    </a>
-
-                    <a
-                      href="https://linkedin.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-all duration-300"
-                      title="LinkedIn"
-                    >
-                      <Linkedin size={18} />
-                      <span className="absolute bottom-full mb-2 px-2 py-1 bg-white text-black text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">LinkedIn</span>
-                    </a>
-
-                    <a
-                      href="mailto:your-email@example.com"
-                      className="group relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-all duration-300"
-                      title="Email"
-                    >
-                      <Mail size={18} />
-                      <span className="absolute bottom-full mb-2 px-2 py-1 bg-white text-black text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Email</span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      {/* Social Links */}
+      <div className="flex gap-2 flex-shrink-0">
+        <a href="https://github.com/samir904" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-white transition-colors">
+          <Github size={16} />
+        </a>
+        <a href="https://www.linkedin.com/in/samirsumanm/" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-white transition-colors">
+          <Linkedin size={16} />
+        </a>
+        <a href="mailto:sumansamir@gmail.com" className="text-white/30 hover:text-white transition-colors">
+          <Mail size={16} />
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
         {/* Bottom Divider */}
         <div className="border-t border-white/10 pt-8 md:pt-12">
           {/* Footer Bottom */}
