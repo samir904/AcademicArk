@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleBookmark, downloadnote, addRating } from '../../REDUX/Slices/noteslice.js';
-import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
 import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 import { usePDFDownload } from '../../hooks/usePDFDownload.js';
@@ -16,7 +15,11 @@ const BookmarkIcon = ({ className, filled }) => (
 );
 
 const DownloadIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 8v8" />
+    <path d="m8 12 4 4 4-4" />
+  </svg>
 );
 
 const StarIcon = ({ className, filled }) => (
@@ -25,24 +28,54 @@ const StarIcon = ({ className, filled }) => (
   </svg>
 );
 
+const EyeIcon = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const DotsIcon = ({ className }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <circle cx="12" cy="5" r="2" />
+    <circle cx="12" cy="12" r="2" />
+    <circle cx="12" cy="19" r="2" />
+  </svg>
+);
+
 const CloseIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
+
 const CheckIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
   </svg>
 );
+
+const ArrowIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+  </svg>
+);
+
+// ✨ HANDWRITTEN COLOR MAPPING
+const HANDWRITTEN_COLORS = {
+  accent: 'emerald-500',
+  bg: 'emerald-500/10',
+  border: 'emerald-500/30',
+  text: 'emerald-400',
+  borderClass: 'border-l-4 border-l-emerald-500'
+};
+
 export default function HandwrittenCard({ note }) {
   const dispatch = useDispatch();
-  const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
   const user = useSelector(state => state.auth.data);
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
+ const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
 
-  const isBookmarking = bookmarkingNotes.includes(note._id);
-  const isDownloading = downloadingNotes.includes(note._id);
   const isBookmarked = note.bookmarkedBy?.includes(user?._id);
 
   const avgRating = note.rating?.length
@@ -50,17 +83,32 @@ export default function HandwrittenCard({ note }) {
     : 0;
 
   // State
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showMenuDropdown, setShowMenuDropdown] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [userReview, setUserReview] = useState('');
+  const [showViewersModal, setShowViewersModal] = useState(false);
+  const [isCurrentlyDownloading, setIsCurrentlyDownloading] = useState(false);
+  const menuRef = useRef(null);
 
-   const [showViewersModal, setShowViewersModal] = useState(false);
-  
   const { downloadPDF, downloading } = usePDFDownload();
   const downloadState = downloading[note._id];
-  
+
+  // Close menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenuDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // Handlers
   const handleBookmark = (e) => {
     e.preventDefault();
@@ -78,9 +126,10 @@ export default function HandwrittenCard({ note }) {
     dispatch(toggleBookmark(note._id));
   };
 
-  const handleDownload =async (e) => {
+  const handleDownload = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    
     if (!isLoggedIn) {
       dispatch(setLoginModal({
         isOpen: true,
@@ -91,6 +140,9 @@ export default function HandwrittenCard({ note }) {
       }));
       return;
     }
+    
+     setIsCurrentlyDownloading(true);
+
     ReactGA.event({
       category: 'engagement',
       action: 'download_handwritten',
@@ -98,28 +150,32 @@ export default function HandwrittenCard({ note }) {
       value: note._id,
     });
 
-   await dispatch(downloadnote({ noteId: note._id, title: note.title }));
-  // Download to IndexedDB
-  const success = await downloadPDF({
-    id: note._id,
-    url: note.fileDetails.secure_url, // Make sure your note has this field
-    title: note.title,
-    subject: note.subject,
-    courseCode: note.course,
-    semester: note.semester,
-    university: note.university,
-    uploadedBy: note.uploadedBy,
-  });
+    await dispatch(downloadnote({ noteId: note._id, title: note.title }));
 
-  if (success) {
-    // Show review modal after successful download
-    setTimeout(() => {
-      setShowReviewModal(true);
-    }, 500);
-  }
-    // setTimeout(() => {
-    //   setShowReviewModal(true);
-    // }, 500);
+    const success = await downloadPDF({
+      id: note._id,
+      url: note.fileDetails.secure_url,
+      title: note.title,
+      subject: note.subject,
+      courseCode: note.course,
+      semester: note.semester,
+      university: note.university,
+      uploadedBy: note.uploadedBy,
+    });
+
+     if (success) {
+      // Smart delay: 500-800ms
+      const delay = 500 + Math.random() * 300;
+      setTimeout(() => {
+        setIsCurrentlyDownloading(false);
+        // Only show rating modal if user hasn't rated this note yet
+        // if (!hasRated) {
+          setShowReviewModal(true);
+        // }
+      }, delay);
+    } else {
+      setIsCurrentlyDownloading(false);
+    }
   };
 
   const submitRating = () => {
@@ -132,6 +188,7 @@ export default function HandwrittenCard({ note }) {
       setShowReviewModal(false);
       setUserRating(0);
       setUserReview('');
+      // Show share modal ONLY after rating submitted
       setTimeout(() => {
         setShowShareModal(true);
       }, 300);
@@ -144,8 +201,7 @@ export default function HandwrittenCard({ note }) {
 
     const shareLinks = {
       whatsapp: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`,
-      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      letter: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent('Check out these Handwritten Notes: ' + url)}`,
       link: url
     };
 
@@ -159,403 +215,331 @@ export default function HandwrittenCard({ note }) {
     setShowShareModal(false);
   };
 
+  const closeMenuDropdown = () => {
+    setShowMenuDropdown(false);
+  };
+
+  // Menu options
+  const menuOptions = [
+    { label: '⭐ Rate', action: () => { setShowReviewModal(true); closeMenuDropdown(); } },
+    { label: '👁️ Viewers', action: () => { setShowViewersModal(true); closeMenuDropdown(); } },
+    { label: '📄 Details', action: () => { window.location.href = `/notes/${note._id}`; } },
+    { label: '🔗 Share', action: () => { setShowShareModal(true); closeMenuDropdown(); } },
+  ];
+
   return (
     <>
-      {/* ✨ SIMPLIFIED HANDWRITTEN CARD - Same Design as NoteCard */}
-      {/* ✨ GREEN-EMERALD THEME FOR HANDWRITTEN */}
-      <div className="group bg-gradient-to-br from-green-950/50 to-emerald-950/50 backdrop-blur-xl border border-green-500/25 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-green-500/10 hover:scale-[1.02] transition-all duration-300 hover:border-green-400/40">
-
-        {/* Background Effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-green-900/10 to-emerald-900/10 opacity-30"></div>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-400/8 to-emerald-400/8 rounded-full blur-3xl"></div>
+      {/* ✨ HANDWRITTEN CARD - EMERALD THEME WITH LEFT BORDER */}
+      <div className={`group bg-neutral-950 border border-neutral-800 border-l-3 border-l-emerald-500/80 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
 
         {/* Content */}
-        <div className="relative p-6 space-y-4">
+        <div className="p-6 space-y-4">
 
-          <div className="flex items-start justify-between gap-3 min-w-0">
-  <div className="flex-1 min-w-0">
-    <div className="flex items-center space-x-2 mb-2 flex-wrap gap-1">
-      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs font-bold rounded-full border border-green-400/30 flex-shrink-0">
-        ✏️ Handwritten
-      </span>
-      {note.rating?.length > 0 && (
-        <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1 border border-yellow-400/30 flex-shrink-0">
-          <StarIcon className="w-3 h-3" filled />
-          <span>{avgRating}</span>
-        </span>
-      )}
-    </div>
-
-    <h3 className="text-lg font-bold capitalize text-green-100 line-clamp-1 group-hover:text-green-50 transition-colors">
-      {note.title}
-    </h3>
-
-    <div className="flex items-center space-x-2 mt-2 text-xs text-green-300/80 min-w-0 overflow-hidden">
-      <span className="capitalize truncate">{note.subject}</span>
-      <span className="flex-shrink-0">•</span>
-      <span className="flex-shrink-0 whitespace-nowrap">Sem {note.semester}</span>
-      <span className="flex-shrink-0">•</span>
-      <span className="truncate">{note.university}</span>
-    </div>
-  </div>
- {/* ✨ View Stats Button - NEW */}
-            <button
-              onClick={() => setShowViewersModal(true)}
-              className="px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 text-green-300 rounded-full text-xs font-semibold transition-all flex items-center space-x-1 flex-shrink-0"
-              title="View detailed statistics"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
-              <span>Stats</span>
-            </button>
-  <button
-    onClick={handleBookmark}
-    disabled={isBookmarking}
-    className="p-2 rounded-full hover:bg-green-500/20 transition-all flex-shrink-0"
-  >
-    <BookmarkIcon
-      className={`w-5 h-5 transition-all ${
-        isBookmarked ? 'text-emerald-400 scale-110' : 'text-green-300 hover:text-emerald-400'
-      }`}
-      filled={isBookmarked}
-    />
-  </button>
-</div>
-
-
-          {/* Description */}
-          <p className="text-sm text-green-200/90 line-clamp-1 leading-relaxed">
-            {note.description}
-          </p>
-
-          {/* Stats */}
-          <div className="flex items-center justify-between text-xs text-green-300/80 pt-2 border-t border-green-500/20 min-w-0">
-            <div className="flex items-center space-x-3 truncate overflow-hidden min-w-0">
-                   {/* Views Count */}
-    <div className="flex items-center space-x-1">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
-
-      <span>{note.views || 0} views</span>
-    </div>
-              <div className="flex items-center space-x-1">
-                <DownloadIcon className="w-4 h-4" />
-                <span>{note.downloads || 0} downloads</span>
+          {/* Header - Title + Bookmark + Menu */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              {/* Category Badge */}
+              <div className="mb-2">
+                <span style={{
+                  backgroundColor: `rgba(16, 185, 129, 0.1)`,
+                  color: `rgb(16, 185, 129)`
+                }} className="px-2.5 py-1  text-xs font-semibold rounded-full border border-emerald-600/30">
+                  ✏️ Handwritten
+                </span>
               </div>
+
+              {/* Title - ONLY Underline on Hover, Clickable */}
+              <Link
+                to={`/notes/${note._id}/read`}
+                className="block text-white capitalize font-semibold text-base line-clamp-2 hover:underline transition-all cursor-pointer"
+              >
+                {note.title}
+              </Link>
+            </div>
+
+            {/* Top Right: Bookmark + Menu Dots */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Bookmark Button */}
+              <button
+                onClick={handleBookmark}
+                className="p-2 hover:bg-neutral-900 rounded-lg transition-all"
+                title={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+              >
+                <BookmarkIcon
+                  className={`w-5 h-5 transition-all ${isBookmarked
+                    ? 'text-emerald-400 fill-current scale-110'
+                    : 'text-neutral-500 hover:text-neutral-300'
+                  }`}
+                  filled={isBookmarked}
+                />
+              </button>
+
+              {/* Three Dots Menu */}
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={() => setShowMenuDropdown(!showMenuDropdown)}
+                  className="p-2 hover:bg-neutral-900 rounded-lg transition-all cursor-pointer"
+                  title="More options"
+                >
+                  <DotsIcon className="w-5 h-5 text-neutral-500 hover:text-neutral-300" />
+                </button>
+
+                {/* Dropdown Menu - CLOSES ON OUTSIDE CLICK */}
+                {showMenuDropdown && (
+                  <div className="absolute right-0 mt-1 w-40 bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg z-50 overflow-hidden">
+                    {menuOptions.map((option, idx) => (
+                      <button
+                        key={idx}
+                        onClick={option.action}
+                        className="w-full px-4 py-2.5 text-left text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors border-b border-neutral-800 last:border-b-0 cursor-pointer"
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Metadata Line */}
+          <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
+            <span className="truncate">{note.subject}</span>
+            <span>•</span>
+            <span className="whitespace-nowrap">Sem {note.semester}</span>
+            <span>•</span>
+            <span className="truncate">{note.university}</span>
+          </div>
+
+          {/* Description - Optional */}
+          {note.description && (
+            <p className="text-sm capitalize text-neutral-400 line-clamp-1">
+              {note.description}
+            </p>
+          )}
+
+          {/* Stats Row */}
+          <div className="flex items-center justify-between pt-3 border-t border-neutral-800 gap-3">
+            {/* Left: Views, Downloads, Ratings */}
+            <div className="flex items-center gap-4 text-xs text-neutral-500 min-w-0">
+              {/* Views */}
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                <EyeIcon className="w-4 h-4" />
+                <span>{note.views || 0}</span>
+              </div>
+
+              {/* Downloads */}
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                <DownloadIcon className="w-4 h-4" />
+                <span>{note.downloads || 0}</span>
+              </div>
+
+              {/* Rating */}
               {note.rating?.length > 0 && (
-                <span>({note.rating.length} reviews)</span>
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                  <StarIcon className="w-4 h-4 text-amber-500" filled />
+                  <span>{avgRating}</span>
+                </div>
               )}
             </div>
 
+            {/* Right: Uploader Profile */}
             <Link
               to={`/profile/${note.uploadedBy?._id}`}
-              className="flex items-center space-x-1 hover:text-green-200 transition-colors"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0"
             >
               {note.uploadedBy?.avatar?.secure_url?.startsWith('http') ? (
                 <img
                   src={note.uploadedBy.avatar.secure_url}
                   alt={note.uploadedBy.fullName}
-                  className="w-4 h-4 rounded-full"
+                  className="w-5 h-5 rounded-full object-cover border border-neutral-700"
                 />
               ) : (
-                <div className="w-4 h-4 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
+                <div className="w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center text-xs text-white font-bold">
                   {note.uploadedBy?.fullName?.charAt(0) || 'U'}
                 </div>
               )}
-              <span className="capitalize text-xs truncate ">{note.uploadedBy?.fullName || 'Unknown'}</span>
+              <span className="text-xs text-neutral-500 truncate max-w-[100px]">
+                {note.uploadedBy?.fullName || 'Unknown'}
+              </span>
             </Link>
           </div>
 
-          {/* Actions */}
-          {/* <div className="flex gap-2 pt-2">
+          {/* Action Buttons - PRIMARY + DOWNLOAD ICON */}
+          <div className="flex gap-2 pt-4">
+            {/* Primary: View Button */}
             <Link
-              to={`/notes/${note._id}`}
-              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white py-2 px-4 rounded-lg text-sm font-bold transition-all text-center"
+              to={`/notes/${note._id}/read`}
+              style={{ backgroundColor: '#1F1F1F' }}
+              className="flex-1 px-4 py-2.5 hover:opacity-90 text-white rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700"
             >
-              View Details
+              <EyeIcon className="w-4 h-4" />
+              <span>View</span>
             </Link>
 
+            {/* Download Button */}
             <button
               onClick={handleDownload}
-              disabled={isDownloading}
-              className="px-4 py-2 bg-green-500/20 border border-green-400/30 text-green-300 rounded-lg hover:bg-green-500/30 hover:border-green-400/50 transition-all"
+              disabled={downloadState?.status === 'starting'|| isCurrentlyDownloading}
+              className={`px-3 py-3 border rounded-full font-semibold text-sm transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700 ${
+                downloadState?.status === 'error'
+                  ? 'border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10'
+                  : downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                  ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400'
+                  : downloadState?.status === 'starting'|| isCurrentlyDownloading
+                  ? 'border-neutral-600 bg-neutral-800/50 text-neutral-300 cursor-wait'
+                  : 'border-neutral-700 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-900'
+              }`}
+              aria-label="Download note"
+              aria-busy={downloadState?.status === 'starting'|| isCurrentlyDownloading}
+              title="Download Handwritten Notes"
             >
-              {isDownloading ? (
-                <div className="w-4 h-4 animate-spin border-2 border-green-400 border-t-transparent rounded-full"></div>
+              {downloadState?.status === 'complete' || downloadState?.status === 'exists' ? (
+                <CheckIcon className="w-4 h-4" />
+              ) : downloadState?.status === 'starting' || isCurrentlyDownloading ? (
+                <div className="w-4 h-4 animate-spin border-2 border-neutral-400 border-t-transparent rounded-full"></div>
+              ) : downloadState?.status === 'error' ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               ) : (
                 <DownloadIcon className="w-4 h-4" />
               )}
             </button>
-          </div> */}
-          
-          <div className="flex flex-col gap-3 pt-2">
-                      {/* READ NOW - Primary Action (Full Width) */}
-                      <Link
-                        to={`/notes/${note._id}/read`}
-                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 active:from-green-700 active:to-emerald-700 text-white py-2.5 px-4 rounded-full text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
-                        <span>View</span>
-                      </Link>
-          
-                      {/* Secondary Actions - Download + View Details */}
-                      <div className="flex gap-2">
-                       
-          
-                        {/* View Details Button */}
-                        <Link
-                          to={`/notes/${note._id}`}
-                          className="flex-1 bg-green-700 hover:bg-green-600 active:bg-green-800 text-white py-2.5 px-3 rounded-full text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
-                        >
-                          <span >Details</span>
-                          <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </Link>
-                         {/* Download Button */}
-                        <button
-                          onClick={handleDownload}
-                          disabled={downloadState?.status === 'starting'}
-                          className={`flex-1 px-3 py-2.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl font-bold text-sm sm:text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 ${
-                            downloadState?.status === 'error' 
-                              ? 'bg-red-600 hover:bg-red-500 text-white'
-                              : downloadState?.status === 'complete'&& !isDownloading  || downloadState?.status === 'exists'
-                              ? 'bg-green-600 hover:bg-green-500 text-white'
-                              : 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
-                          }`}
-                          aria-label="Download note"
-                          aria-busy={downloadState?.status === 'starting'}
-                        >
-                          {downloadState?.status === 'complete'&& !isDownloading  ? (
-                            <>
-                              <CheckIcon className="w-4 h-4 text-white" />
-                              <span >Downloaded</span>
-                            </>
-                          ) : downloadState?.status === 'exists' ? (
-                            <>
-                              <CheckIcon className="w-4 h-4 text-white" />
-                              <span>Saved</span>
-                            </>
-                          ) : downloadState?.status === 'starting' || isDownloading ? (
-                            <>
-                              <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
-                              <span>Downloading...</span>
-                            </>
-                          ) : downloadState?.status === 'error' ? (
-                            <>
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              <span>Retry</span>
-                            </>
-                          ) : (
-                            <>
-                              <DownloadIcon className="w-4 h-4" />
-                              <span>Download</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-        </div>
-      </div>
-
-   {/* ✨ SMART REVIEW MODAL FOR HANDWRITTEN NOTES - Conditional & Motivational */}
-{showReviewModal && (
-  <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-    <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
-      
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-white">Rate These Notes</h2>
-        <button
-          onClick={() => {
-            setShowReviewModal(false);
-            setUserRating(0);
-            setUserReview('');
-          }}
-          className="p-2 hover:bg-white/10 rounded-full transition-colors"
-        >
-          <CloseIcon className="w-5 h-5 text-gray-400" />
-        </button>
-      </div>
-
-      {/* Handwritten Notes Icon - Always Visible */}
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse">
-          <span className="text-3xl">✏️</span>
-        </div>
-        <p className="text-sm text-gray-400">Help classmates by rating these handwritten notes</p>
-      </div>
-
-      {/* Rating Stars Section - Always Visible */}
-      <div className="mb-8">
-        <label className="block text-sm text-gray-300 mb-4 font-medium">
-          How helpful are these notes?
-        </label>
-        <div className="flex justify-center space-x-3">
-          {[1, 2, 3, 4, 5].map(star => (
-            <button
-              key={star}
-              onClick={() => setUserRating(star)}
-              className="transition-all hover:scale-125 group"
-            >
-              <StarIcon 
-                className={`w-10 h-10 transition-all ${
-                  star <= userRating 
-                    ? 'text-green-400 drop-shadow-lg' 
-                    : 'text-gray-600 group-hover:text-green-300'
-                }`}
-                filled={star <= userRating}
-              />
-            </button>
-          ))}
-        </div>
-        
-        {/* Star Rating Description */}
-        {userRating > 0 && (
-          <div className="mt-4 text-center animate-in fade-in duration-300">
-            <p className="text-sm font-medium text-green-400">
-              {userRating === 1 && "Not very clear 😞"}
-              {userRating === 2 && "Could be better 😐"}
-              {userRating === 3 && "Good notes 👍"}
-              {userRating === 4 && "Very helpful 😊"}
-              {userRating === 5 && "Excellent! 🌟"}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Review Text Area - ONLY APPEARS AFTER RATING */}
-      {userRating > 0 && (
-        <div className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          {/* Motivational Message */}
-          {/* <div className="mb-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-            <p className="text-sm text-green-300 leading-relaxed">
-              <span className="font-semibold">💡 Help your classmates!</span> Your review helps students find clear, organized handwritten notes and study better.
-            </p>
-          </div> */}
-
-          {/* Review Input */}
-          <label className="block text-sm text-gray-300 mb-2 font-medium">
-            Your Review <span className="text-gray-500">(Optional but greatly appreciated!)</span>
-          </label>
-          <textarea
-            value={userReview}
-            onChange={(e) => setUserReview(e.target.value)}
-            placeholder="Are the notes clear? Well-organized? Any topics covered? Help others study..."
-            className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none transition-all"
-            rows={3}
-          />
-          
-          {/* Character Counter */}
-          <div className="mt-2 flex items-center justify-between text-xs">
-            <span className="text-gray-500">Share what makes these notes useful</span>
-            <span className="text-gray-500">{userReview.length}/250</span>
           </div>
         </div>
-      )}
-
-      {/* Buttons */}
-      <div className="flex gap-3 mt-8">
-        <button
-          onClick={() => {
-            setShowReviewModal(false);
-            setUserRating(0);
-            setUserReview('');
-            setShowShareModal(true);
-          }}
-          className="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium"
-        >
-          Skip for now
-        </button>
-        
-        {/* Submit Button - Enabled After Rating */}
-        <button
-          onClick={submitRating}
-          disabled={userRating === 0}
-          className={`flex-1 px-4 py-2.5 font-bold rounded-lg transition-all ${
-            userRating === 0
-              ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50'
-              : 'bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white hover:shadow-lg hover:shadow-green-500/50'
-          }`}
-        >
-          {userRating === 0 ? 'Select rating' : userReview ? 'Submit Review' : 'Submit Rating'}
-        </button>
       </div>
 
-      {/* Footer Tips */}
-      {userRating > 0 && (
-        <div className="mt-4 text-center">
-          {!userReview && (
-            <p className="text-xs text-gray-500">
-              💡 Tip: Adding a review (30 seconds) helps classmates choose the right notes! 📚
-            </p>
-          )}
-          {userReview && (
-            <p className="text-xs text-green-400">
-              ✅ Great! Your review will help classmates study better.
-            </p>
-          )}
-        </div>
-      )}
-    </div>
-  </div>
-)}
-
-
-      {/* ✨ SHARE MODAL */}
-      {showShareModal && (
+      {/* ✅ RATING MODAL - Shows ONLY After Successful Download */}
+      {showReviewModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
-
+          <div className="bg-neutral-950 border border-neutral-800 rounded-xl max-w-md w-full p-6 backdrop-blur-xl animate-in fade-in duration-300">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Share These Notes</h2>
+              <h2 className="text-xl font-bold text-white">Rate These Notes</h2>
               <button
-                onClick={() => setShowShareModal(false)}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                onClick={() => {
+                  setShowReviewModal(false);
+                  setUserRating(0);
+                  setUserReview('');
+                }}
+                className="p-2 hover:bg-neutral-900 rounded-lg transition-colors cursor-pointer"
               >
-                <CloseIcon className="w-5 h-5 text-gray-400" />
+                <CloseIcon className="w-5 h-5 text-neutral-400" />
               </button>
             </div>
 
-            <p className="text-gray-400 text-sm mb-6">Share with your friends! 📝✏️</p>
+            {/* Rating Stars */}
+            <div className="mb-6">
+              <label className="block text-sm text-neutral-300 mb-3 font-medium">How helpful are these notes?</label>
+              <div className="flex justify-center gap-2">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button
+                    key={star}
+                    onClick={() => setUserRating(star)}
+                    className="transition-all hover:scale-110 cursor-pointer"
+                  >
+                    <StarIcon
+                      className={`w-8 h-8 ${star <= userRating ? 'text-emerald-400 fill-current' : 'text-neutral-600 hover:text-neutral-400'}`}
+                      filled={star <= userRating}
+                    />
+                  </button>
+                ))}
+              </div>
+              {userRating > 0 && (
+                <p className="text-xs text-neutral-400 text-center mt-2">
+                  {userRating === 1 && "Not very clear"}
+                  {userRating === 2 && "Could be better"}
+                  {userRating === 3 && "Good notes"}
+                  {userRating === 4 && "Very helpful"}
+                  {userRating === 5 && "Excellent! 📚"}
+                </p>
+              )}
+            </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-6">
+            {/* Review Text - ONLY APPEARS AFTER RATING */}
+            {userRating > 0 && (
+              <div className="mb-6">
+                <textarea
+                  value={userReview}
+                  onChange={(e) => setUserReview(e.target.value.slice(0, 200))}
+                  placeholder="Your review (optional)..."
+                  className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-700 resize-none"
+                  rows={3}
+                />
+                <div className="text-right text-xs text-neutral-500 mt-1">{userReview.length}/200</div>
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setShowReviewModal(false);
+                  setUserRating(0);
+                  setUserReview('');
+                }}
+                className="flex-1 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 rounded-lg transition-colors text-sm cursor-pointer"
+              >
+                Skip
+              </button>
+              <button
+                onClick={submitRating}
+                disabled={userRating === 0}
+                className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-all cursor-pointer ${
+                  userRating === 0
+                    ? 'bg-neutral-900 text-neutral-600 cursor-not-allowed'
+                    : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                }`}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ SHARE MODAL - Shows ONLY After Rating Submitted */}
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-950 border border-neutral-800 rounded-xl max-w-md w-full p-6 backdrop-blur-xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white">Share These Notes</h2>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="p-2 hover:bg-neutral-900 rounded-lg transition-colors cursor-pointer"
+              >
+                <CloseIcon className="w-5 h-5 text-neutral-400" />
+              </button>
+            </div>
+
+            <p className="text-neutral-400 text-sm mb-6">Help your classmates study 📝</p>
+
+            <div className="space-y-2 mb-4">
               <button
                 onClick={() => handleShare('whatsapp')}
-                className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+                className="w-full py-2.5 px-4 border border-neutral-700 hover:border-neutral-600 hover:bg-neutral-900 text-neutral-300 rounded-lg text-sm font-medium transition-all cursor-pointer"
               >
-                <span>💬</span>
-                <span>WhatsApp</span>
-              </button>
-
-              <button
-                onClick={() => handleShare('twitter')}
-                className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
-              >
-                <span>𝕏</span>
-                <span>Twitter</span>
-              </button>
-
-              <button
-                onClick={() => handleShare('facebook')}
-                className="flex items-center justify-center space-x-2 bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
-              >
-                <span>f</span>
-                <span>Facebook</span>
+                💬 Share on WhatsApp
               </button>
 
               <button
                 onClick={() => handleShare('link')}
-                className="flex items-center justify-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+                className="w-full py-2.5 px-4 border border-neutral-700 hover:border-neutral-600 hover:bg-neutral-900 text-neutral-300 rounded-lg text-sm font-medium transition-all cursor-pointer"
               >
-                <span>🔗</span>
-                <span>Copy Link</span>
+                🔗 Copy Link
+              </button>
+
+              <button
+                onClick={() => handleShare('letter')}
+                className="w-full py-2.5 px-4 border border-neutral-700 hover:border-neutral-600 hover:bg-neutral-900 text-neutral-300 rounded-lg text-sm font-medium transition-all cursor-pointer"
+              >
+                ✉️ Share via Email
               </button>
             </div>
 
             <button
               onClick={() => setShowShareModal(false)}
-              className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+              className="w-full px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 rounded-lg transition-colors text-sm cursor-pointer"
             >
               Done
             </button>
@@ -563,24 +547,10 @@ export default function HandwrittenCard({ note }) {
         </div>
       )}
 
-      {/* Login Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="max-w-md w-full mx-4">
-            <LoginPrompt />
-            <button
-              onClick={() => setShowLoginModal(false)}
-              className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-       {/* ✅ VIEWERS MODAL */}
+      {/* ✅ VIEWERS MODAL */}
       <ViewersModal
         isOpen={showViewersModal}
-        noteId={note._id}  // ✅ Make sure this is passed!
+        noteId={note._id}
         viewers={note.viewedBy || []}
         totalViews={note.views || 0}
         onClose={() => setShowViewersModal(false)}

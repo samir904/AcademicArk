@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+// 🎪 FILE: FRONTEND/src/COMPONENTS/Note/NoteCard.jsx - FINAL REDESIGN (Smart, Non-Intrusive)
+
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleBookmark, downloadnote, addRating, incrementViewCount } from '../../REDUX/Slices/noteslice.js';
 import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
 import ReactGA from "react-ga4"
-import { setLoginModal } from '../../REDUX/Slices/authslice.js'; // ✅ Import this
+import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 import { usePDFDownload } from '../../hooks/usePDFDownload.js';
 import ViewersModal from '../../COMPONENTS/Note/ViewersModal.jsx';
+import { useEffect } from 'react';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -16,7 +19,11 @@ const BookmarkIcon = ({ className, filled }) => (
 );
 
 const DownloadIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10" /><path d="M12 8v8" /><path d="m8 12 4 4 4-4" /></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 8v8" />
+    <path d="m8 12 4 4 4-4" />
+  </svg>
 );
 
 const StarIcon = ({ className, filled }) => (
@@ -25,9 +32,18 @@ const StarIcon = ({ className, filled }) => (
   </svg>
 );
 
-const ShareIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C9.589 12.938 10 12.502 10 12c0-.502-.411-.938-1.316-1.342m0 2.684a3 3 0 110-2.684m9.032-6.348a9.01 9.01 0 010 12.696m0 0a9 9 0 11-12.696-12.696" />
+const EyeIcon = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const DotsIcon = ({ className }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <circle cx="12" cy="5" r="2" />
+    <circle cx="12" cy="12" r="2" />
+    <circle cx="12" cy="19" r="2" />
   </svg>
 );
 
@@ -43,6 +59,22 @@ const CheckIcon = ({ className }) => (
   </svg>
 );
 
+// ✨ CATEGORY COLOR MAPPING
+const CATEGORY_COLORS = {
+  'NOTES': { accent: 'indigo-500', bg: 'indigo-500/10', border: 'indigo-500/30', text: 'indigo-400' },
+  'PYQ': { accent: 'cyan-500', bg: 'cyan-500/10', border: 'cyan-500/30', text: 'cyan-400' },
+  'IMPORTANT_Q': { accent: 'amber-500', bg: 'amber-500/10', border: 'amber-500/30', text: 'amber-400' },
+  'HANDWRITTEN': { accent: 'emerald-500', bg: 'emerald-500/10', border: 'emerald-500/30', text: 'emerald-400' },
+};
+
+// ✨ MAPPING FOR TAILWIND DYNAMIC CLASSES
+const BORDER_COLORS = {
+  'indigo-500': 'border-l-indigo-500',
+  'cyan-500': 'border-l-cyan-500',
+  'amber-500': 'border-l-amber-500',
+  'emerald-500': 'border-l-emerald-500',
+};
+
 export default function NoteCard({ note }) {
   const dispatch = useDispatch();
   const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
@@ -50,25 +82,43 @@ export default function NoteCard({ note }) {
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
 
   const isBookmarking = bookmarkingNotes.includes(note._id);
-  const isDownloading = downloadingNotes.includes(note._id);
   const isBookmarked = note.bookmarkedBy?.includes(user?._id);
 
   const avgRating = note.rating?.length
     ? (note.rating.reduce((sum, r) => sum + r.rating, 0) / note.rating.length).toFixed(1)
     : 0;
 
+  // Get category colors
+  const categoryKey = note.category?.toUpperCase().replace(/\s+/g, '_') || 'NOTES';
+  const colors = CATEGORY_COLORS[categoryKey] || CATEGORY_COLORS['NOTES'];
+  const borderColorClass = BORDER_COLORS[colors.accent] || 'border-l-indigo-500';
+
   // State
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showMenuDropdown, setShowMenuDropdown] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [userReview, setUserReview] = useState('');
+  const [showViewersModal, setShowViewersModal] = useState(false);
+  const [hasRated, setHasRated] = useState(false);
+  const [isCurrentlyDownloading, setIsCurrentlyDownloading] = useState(false);
+  const menuRef = useRef(null);
 
   const { downloadPDF, downloading } = usePDFDownload();
   const downloadState = downloading[note._id];
-  const [showViewersModal, setShowViewersModal] = useState(false);
+ // Close menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenuDropdown(false);
+      }
+    };
 
-
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   // Handlers
   const handleBookmark = (e) => {
     e.preventDefault();
@@ -89,6 +139,7 @@ export default function NoteCard({ note }) {
   const handleDownload = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (!isLoggedIn) {
       dispatch(setLoginModal({
         isOpen: true,
@@ -100,6 +151,7 @@ export default function NoteCard({ note }) {
       return;
     }
 
+    setIsCurrentlyDownloading(true);
 
     ReactGA.event({
       category: 'engagement',
@@ -110,10 +162,9 @@ export default function NoteCard({ note }) {
 
     await dispatch(downloadnote({ noteId: note._id, title: note.title }));
 
-    // Download to IndexedDB
     const success = await downloadPDF({
       id: note._id,
-      url: note.fileDetails.secure_url, // Make sure your note has this field
+      url: note.fileDetails.secure_url,
       title: note.title,
       subject: note.subject,
       courseCode: note.course,
@@ -123,10 +174,17 @@ export default function NoteCard({ note }) {
     });
 
     if (success) {
-      // Show review modal after successful download
+      // Smart delay: 500-800ms
+      const delay = 500 + Math.random() * 300;
       setTimeout(() => {
+        setIsCurrentlyDownloading(false);
+        // Only show rating modal if user hasn't rated this note yet
+        // if (!hasRated) {
         setShowReviewModal(true);
-      }, 500);
+        // }
+      }, delay);
+    } else {
+      setIsCurrentlyDownloading(false);
     }
   };
 
@@ -137,30 +195,15 @@ export default function NoteCard({ note }) {
         rating: userRating,
         review: userReview
       }));
+      setHasRated(true);
       setShowReviewModal(false);
       setUserRating(0);
       setUserReview('');
-      // Show share modal
+      // Show share modal after rating
       setTimeout(() => {
         setShowShareModal(true);
       }, 300);
     }
-  };
-  const handleViewNote = async (noteId) => {
-    if (!isLoggedIn) {
-      dispatch(setLoginModal({ /* ... */ }));
-      return;
-    }
-
-    try {
-      // Call dedicated view increment API
-      await dispatch(incrementViewCount(noteId));
-    } catch (error) {
-      console.error('Error:', error);
-    }
-
-    // Navigate to read page
-    navigate(`/notes/${noteId}/read`);
   };
 
   const handleShare = (platform) => {
@@ -169,8 +212,7 @@ export default function NoteCard({ note }) {
 
     const shareLinks = {
       whatsapp: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`,
-      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      letter: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent('Check out this note: ' + url)}`,
       link: url
     };
 
@@ -184,379 +226,343 @@ export default function NoteCard({ note }) {
     setShowShareModal(false);
   };
 
+  const closeMenuDropdown = () => {
+    setShowMenuDropdown(false);
+  };
+
+  // Menu options
+  const menuOptions = [
+    { label: '⭐ Rate', action: () => { setShowReviewModal(true); closeMenuDropdown(); } },
+    { label: '👁️ Viewers', action: () => { setShowViewersModal(true); closeMenuDropdown(); } },
+    { label: '📄 Details', action: () => { window.location.href = `/notes/${note._id}`; } },
+    { label: '🔗 Share', action: () => { setShowShareModal(true); closeMenuDropdown(); } },
+  ];
+
   return (
     <>
-      {/* ✨ SIMPLIFIED NOTE CARD */}
-      {/* ✨ OPTION 2: Cool Teal-Indigo Theme */}
-      <div className="group bg-gradient-to-br from-indigo-950/50 to-teal-950/50 backdrop-blur-xl border border-indigo-500/25 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-indigo-500/10 hover:scale-[1.02] transition-all duration-300 hover:border-indigo-400/40">
-
-        {/* Background Effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/10 to-teal-900/10 opacity-30"></div>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-400/8 to-teal-400/8 rounded-full blur-3xl"></div>
+      {/* ✨ CLEAN ACADEMIC NOTE CARD - FINAL VERSION */}
+      <div className={`group bg-neutral-950 border border-neutral-800 ${borderColorClass} border-l-3 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
 
         {/* Content */}
-        <div className="relative p-6 space-y-4">
+        <div className="p-6 space-y-4">
 
-          {/* Header */}
-          <div className="flex items-start justify-between gap-3 min-w-0">
+          {/* Header - Title + Bookmark + Menu */}
+          <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              {/* Category & Rating Badges */}
-              <div className="flex items-center space-x-2 mb-2 flex-wrap gap-1">
-                <span className="px-2 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-bold rounded-full border border-indigo-400/30 flex-shrink-0">
-                  {note.category}
+              {/* Category Badge */}
+              <div className="mb-2">
+                <span
+                  style={{
+                    backgroundColor: "rgba(99, 102, 241, 0.1)", // indigo-500 with 10% opacity
+                    color: "rgb(99, 102, 241)"                  // indigo-500
+                  }}
+                  className="px-2.5 py-1 text-xs font-semibold rounded-full border border-indigo-600/30"
+                >
+                {note.category}
                 </span>
-                {note.rating?.length > 0 && (
-                  <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full flex items-center space-x-1 border border-teal-400/30 flex-shrink-0">
-                    <StarIcon className="w-3 h-3" filled />
-                    <span>{avgRating}</span>
-                  </span>
+
+              </div>
+
+              {/* Title - ONLY Underline on Hover, Clickable */}
+              <Link
+                to={`/notes/${note._id}/read`}
+                className="block text-white capitalize font-semibold text-base line-clamp-2 hover:underline transition-all cursor-pointer"
+              >
+                {note.title}
+              </Link>
+            </div>
+
+            {/* Top Right: Bookmark + Menu Dots */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Bookmark Button */}
+              <button
+                onClick={handleBookmark}
+                disabled={isBookmarking}
+                className="p-2 hover:bg-neutral-900 rounded-lg transition-all"
+                title={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+              >
+                <BookmarkIcon
+                  className={`w-5 h-5 transition-all ${isBookmarked
+                    ? 'text-amber-500 fill-current scale-110'
+                    : 'text-neutral-500 hover:text-neutral-300'
+                    }`}
+                  filled={isBookmarked}
+                />
+              </button>
+
+              {/* Three Dots Menu */}
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={() => setShowMenuDropdown(!showMenuDropdown)}
+                  className="p-2 hover:bg-neutral-900 rounded-lg transition-all cursor-pointer"
+                  title="More options"
+                >
+                  <DotsIcon className="w-5 h-5 text-neutral-500 hover:text-neutral-300" />
+                </button>
+
+                {/* Dropdown Menu */}
+                {showMenuDropdown && (
+                  <div className="absolute right-0 mt-1 w-40 bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg z-50 overflow-hidden">
+                    {menuOptions.map((option, idx) => (
+                      <button
+                        key={idx}
+                        onClick={option.action}
+                        className="w-full px-4 py-2.5 text-left text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors border-b border-neutral-800 last:border-b-0"
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
-
-              {/* Title */}
-              <h3 className="text-lg font-bold capitalize text-indigo-100 line-clamp-1 group-hover:text-indigo-50 transition-colors">
-                {note.title}
-              </h3>
-
-              {/* Metadata - FIXED */}
-              <div className="flex items-center space-x-2 mt-2 text-xs text-indigo-300/80 min-w-0 overflow-hidden">
-                <span className="truncate">{note.subject}</span>
-                <span className="flex-shrink-0">•</span>
-                <span className="flex-shrink-0 whitespace-nowrap">Sem {note.semester}</span>
-                <span className="flex-shrink-0">•</span>
-                <span className="truncate">{note.university}</span>
-              </div>
             </div>
-            {/* ✨ View Stats Button - NEW */}
-            <button
-              onClick={() => setShowViewersModal(true)}
-              className="px-3 py-1.5 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/30 text-indigo-300 rounded-full text-xs font-semibold transition-all flex items-center space-x-1 flex-shrink-0"
-              title="View detailed statistics"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
-              <span>Stats</span>
-            </button>
-            {/* Bookmark Button - FIXED */}
-            <button
-              onClick={handleBookmark}
-              disabled={isBookmarking}
-              className="p-2 rounded-full hover:bg-indigo-500/20 transition-all flex-shrink-0"
-            >
-              <BookmarkIcon
-                className={`w-5 h-5 transition-all ${isBookmarked
-                  ? 'text-teal-400 scale-110'
-                  : 'text-indigo-300 hover:text-teal-400'
-                  }`}
-                filled={isBookmarked}
-              />
-            </button>
           </div>
 
+          {/* Metadata Line */}
+          <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
+            <span className="truncate">{note.subject}</span>
+            <span>•</span>
+            <span className="whitespace-nowrap">Sem {note.semester}</span>
+            <span>•</span>
+            <span className="truncate">{note.university}</span>
+          </div>
 
-          {/* Description */}
-          <p className="text-sm text-indigo-200/90 line-clamp-1 leading-relaxed">
-            {note.description}
-          </p>
+          {/* Description - Optional */}
+          {note.description && (
+            <p className="text-sm capitalize text-neutral-400 line-clamp-1">
+              {note.description}
+            </p>
+          )}
 
-          {/* Stats */}
-          <div className="flex items-center justify-between text-xs text-indigo-300/80 pt-2 border-t border-indigo-500/20 gap-2 min-w-0">
-            <div className="flex items-center space-x-3 truncate overflow-hidden min-w-0">
-              {/* Views Count */}
-              <div className="flex items-center space-x-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
-
-                <span>{note.views || 0} views</span>
+          {/* Stats Row */}
+          <div className="flex items-center justify-between pt-3 border-t border-neutral-800 gap-3">
+            {/* Left: Views, Downloads, Ratings */}
+            <div className="flex items-center gap-4 text-xs text-neutral-500 min-w-0">
+              {/* Views */}
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                <EyeIcon className="w-4 h-4" />
+                <span>{note.views || 0}</span>
               </div>
 
-              {/* Downloads Count */}
-              <div className="flex items-center space-x-1">
+              {/* Downloads */}
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
                 <DownloadIcon className="w-4 h-4" />
-                <span>{note.downloads || 0} downloads</span>
+                <span>{note.downloads || 0}</span>
               </div>
 
-              {/* Reviews Count */}
+              {/* Rating */}
               {note.rating?.length > 0 && (
-                <span>({note.rating.length} reviews)</span>
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                  <StarIcon className="w-4 h-4 text-amber-500" filled />
+                  <span>{avgRating}</span>
+                </div>
               )}
             </div>
 
+            {/* Right: Uploader Profile */}
             <Link
               to={`/profile/${note.uploadedBy?._id}`}
-              className="flex items-center space-x-1 hover:text-indigo-200 transition-colors "
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0"
             >
               {note.uploadedBy?.avatar?.secure_url?.startsWith('http') ? (
                 <img
                   src={note.uploadedBy.avatar.secure_url}
                   alt={note.uploadedBy.fullName}
-                  className="w-4 h-4 rounded-full"
+                  className="w-5 h-5 rounded-full object-cover border border-neutral-700"
                 />
               ) : (
-                <div className="w-4 h-4 bg-gradient-to-br from-indigo-500 to-teal-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
+                <div className="w-5 h-5 bg-neutral-700 rounded-full flex items-center justify-center text-xs text-white font-bold">
                   {note.uploadedBy?.fullName?.charAt(0) || 'U'}
                 </div>
               )}
-              <span className="capitalize text-xs truncate">{note.uploadedBy?.fullName || 'Unknown'}</span>
+              <span className="text-xs text-neutral-500 truncate max-w-[100px]">
+                {note.uploadedBy?.fullName || 'Unknown'}
+              </span>
             </Link>
           </div>
 
-
-          {/* Action Buttons - READ NOW AS PRIMARY + Download */}
-          <div className="flex flex-col gap-3 pt-2">
-            {/* READ NOW - Primary Action (Full Width) */}
+          {/* Action Buttons - PRIMARY + DOWNLOAD ICON */}
+          <div className="flex gap-2 pt-4">
+            {/* Primary: View Button */}
             <Link
               to={`/notes/${note._id}/read`}
-              className="w-full bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-500 hover:to-teal-500 active:from-indigo-700 active:to-teal-700 text-white py-2.5 px-4 rounded-full text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
+              // style={{
+              //   backgroundColor: colors.accent === 'indigo-500' ? '#6366f1' : 
+              //                  colors.accent === 'cyan-500' ? '#06b6d4' :
+              //                  colors.accent === 'amber-500' ? '#f59e0b' :
+              //                  '#10b981'
+              // }}
+              className="flex-1  bg-[#1F1F1F] px-4 py-2.5 hover:opacity-90 text-white rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
+              <EyeIcon className="w-4 h-4" />
               <span>View</span>
             </Link>
 
-            {/* Secondary Actions - Download + View Details */}
-            <div className="flex gap-2">
-
-
-              {/* View Details Button */}
-              <Link
-                to={`/notes/${note._id}`}
-                className="flex-1 bg-indigo-700 hover:bg-indigo-600 active:bg-indigo-800 text-white py-2.5 px-3 rounded-full text-sm font-semibold transition-all duration-200 text-center flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
-              >
-                <span className="">Details</span>
-                <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            {/* Download Button - ICON ONLY */}
+            <button
+              onClick={handleDownload}
+              disabled={downloadState?.status === 'starting' || isCurrentlyDownloading}
+              className={`px-3 py-3 border rounded-full font-semibold text-sm transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700 ${downloadState?.status === 'error'
+                  ? 'border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10'
+                  : downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                    ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400'
+                    : downloadState?.status === 'starting' || isCurrentlyDownloading
+                      ? 'border-neutral-600 bg-neutral-800/50 text-neutral-300 cursor-wait'
+                      : 'border-neutral-700  text-neutral-300 hover:border-neutral-600 hover:bg-neutral-900'
+                }`}
+              aria-label="Download note"
+              aria-busy={downloadState?.status === 'starting' || isCurrentlyDownloading}
+              title="Download note"
+            >
+              {downloadState?.status === 'complete' || downloadState?.status === 'exists' ? (
+                <CheckIcon className="w-4 h-4" />
+              ) : downloadState?.status === 'starting' || isCurrentlyDownloading ? (
+                <div className="w-4 h-4 animate-spin border-2 border-neutral-400 border-t-transparent rounded-full"></div>
+              ) : downloadState?.status === 'error' ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-              </Link>
-              {/* Download Button */}
-              <button
-                onClick={handleDownload}
-                disabled={downloadState?.status === 'starting'}
-                className={`flex-1 px-3 py-2.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl font-bold text-sm sm:text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 ${downloadState?.status === 'error'
-                  ? 'bg-red-600 hover:bg-red-500 text-white'
-                  : downloadState?.status === 'complete' && !isDownloading || downloadState?.status === 'exists'
-                    ? 'bg-green-600 hover:bg-green-500 text-white'
-                    : 'bg-teal-600 hover:bg-teal-500 active:bg-teal-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
-                  }`}
-                aria-label="Download note"
-                aria-busy={downloadState?.status === 'starting'}
-              >
-                {downloadState?.status === 'complete' && !isDownloading ? (
-                  <>
-                    <CheckIcon className="w-4 h-4 text-white" />
-                    <span className="">Downloaded</span>
-                  </>
-                ) : downloadState?.status === 'exists' ? (
-                  <>
-                    <CheckIcon className="w-4 h-4 text-white" />
-                    <span className="">Saved</span>
-                  </>
-                ) : downloadState?.status === 'starting' || isDownloading ? (
-                  <>
-                    <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
-                    <span className="">Downloading...</span>
-                  </>
-                ) : downloadState?.status === 'error' ? (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="">Retry</span>
-                  </>
-                ) : (
-                  <>
-                    <DownloadIcon className="w-4 h-4" />
-                    <span className="">Download</span>
-                  </>
-                )}
-              </button>
-            </div>
+              ) : (
+                <DownloadIcon className="w-4 h-4" />
+              )}
+            </button>
           </div>
         </div>
       </div>
 
-
-      {/* ✨ IMPROVED REVIEW MODAL - Conditional & Motivational */}
+      {/* ✅ SMART REVIEW MODAL - Non-Intrusive */}
       {showReviewModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
-
-            {/* Header */}
+          <div className="bg-neutral-950 border border-neutral-800 rounded-xl max-w-md w-full p-6 backdrop-blur-xl">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Rate This Note</h2>
+              <h2 className="text-xl font-bold text-white">Rate This Note</h2>
               <button
                 onClick={() => {
                   setShowReviewModal(false);
                   setUserRating(0);
                   setUserReview('');
                 }}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="p-2 hover:bg-neutral-900 rounded-lg transition-colors cursor-pointer"
               >
-                <CloseIcon className="w-5 h-5 text-gray-400" />
+                <CloseIcon className="w-5 h-5 text-neutral-400" />
               </button>
             </div>
 
-            {/* Rating Stars Section - Always Visible */}
-            <div className="mb-8">
-              <label className="block text-sm text-gray-300 mb-3 font-medium">
-                How helpful was this note?
-              </label>
-              <div className="flex justify-center space-x-3">
+            {/* Rating Stars */}
+            <div className="mb-6">
+              <label className="block text-sm text-neutral-300 mb-3 font-medium">How helpful was this note?</label>
+              <div className="flex justify-center gap-2">
                 {[1, 2, 3, 4, 5].map(star => (
                   <button
                     key={star}
                     onClick={() => setUserRating(star)}
-                    className="transition-all hover:scale-125 group"
+                    className="transition-all hover:scale-110 cursor-pointer"
                   >
                     <StarIcon
-                      className={`w-10 h-10 transition-all ${star <= userRating
-                        ? 'text-yellow-400 drop-shadow-lg'
-                        : 'text-gray-600 group-hover:text-yellow-300'
-                        }`}
+                      className={`w-8 h-8 ${star <= userRating ? 'text-amber-400 fill-current' : 'text-neutral-600 hover:text-neutral-400'}`}
                       filled={star <= userRating}
                     />
                   </button>
                 ))}
               </div>
-
-              {/* Star Rating Description */}
               {userRating > 0 && (
-                <div className="mt-3 text-center">
-                  <p className="text-sm text-gray-400">
-                    {userRating === 1 && "Need improvement"}
-                    {userRating === 2 && "Could be better"}
-                    {userRating === 3 && "Good note"}
-                    {userRating === 4 && "Very helpful"}
-                    {userRating === 5 && "Excellent! 🌟"}
-                  </p>
-                </div>
+                <p className="text-xs text-neutral-400 text-center mt-2">
+                  {userRating === 1 && "Need improvement"}
+                  {userRating === 2 && "Could be better"}
+                  {userRating === 3 && "Good note"}
+                  {userRating === 4 && "Very helpful"}
+                  {userRating === 5 && "Excellent! ⭐"}
+                </p>
               )}
             </div>
 
-            {/* Review Text Area - ONLY APPEARS AFTER RATING */}
+            {/* Review Text */}
             {userRating > 0 && (
-              <div className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {/* Motivational Message */}
-                {/* <div className="mb-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-            <p className="text-sm text-blue-300 leading-relaxed">
-              <span className="font-semibold">💡 Help other students!</span> Your review helps peers find the best notes quickly.
-            </p>
-          </div> */}
-
-                {/* Review Input */}
-                <label className="block text-sm text-gray-300 mb-2 font-medium">
-                  Your Review <span className="text-gray-500">(Optional but appreciated!)</span>
-                </label>
+              <div className="mb-6">
                 <textarea
                   value={userReview}
-                  onChange={(e) => setUserReview(e.target.value)}
-                  placeholder="Was this clear? Any tips for improvement? Help future students..."
-                  className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition-all"
+                  onChange={(e) => setUserReview(e.target.value.slice(0, 200))}
+                  placeholder="Your review (optional)..."
+                  className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-700 resize-none"
                   rows={3}
                 />
-
-                {/* Character Counter */}
-                <div className="mt-2 text-right text-xs text-gray-500">
-                  {userReview.length}/200 characters
-                </div>
+                <div className="text-right text-xs text-neutral-500 mt-1">{userReview.length}/200</div>
               </div>
             )}
 
             {/* Buttons */}
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={() => {
                   setShowReviewModal(false);
                   setUserRating(0);
                   setUserReview('');
-                  setShowShareModal(true);
                 }}
-                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                className="flex-1 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 rounded-lg transition-colors text-sm cursor-pointer"
               >
                 Skip for now
               </button>
-
-              {/* Submit Button - Enabled After Rating */}
               <button
                 onClick={submitRating}
                 disabled={userRating === 0}
-                className={`flex-1 px-4 py-2 font-bold rounded-lg transition-all ${userRating === 0
-                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50'
-                  : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/50'
+                className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-all cursor-pointer ${userRating === 0
+                    ? 'bg-neutral-900 text-neutral-600 cursor-not-allowed'
+                    : 'bg-indigo-600 hover:bg-indigo-500 text-white'
                   }`}
               >
-                {userRating === 0 ? 'Rate first' : userReview ? 'Submit Review' : 'Submit Rating'}
+                Submit
               </button>
             </div>
-
-            {/* Footer Tip */}
-            {userRating > 0 && !userReview && (
-              <p className="text-xs text-gray-500 text-center mt-3">
-                💡 Tip: Adding a review takes 30 seconds but helps hundreds!
-              </p>
-            )}
           </div>
         </div>
       )}
 
-
-      {/* ✨ SHARE MODAL - After Review */}
+      {/* ✅ SHARE MODAL - Trust-Building Message */}
       {showShareModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 backdrop-blur-xl">
-
-            {/* Header */}
+          <div className="bg-neutral-950 border border-neutral-800 rounded-xl max-w-md w-full p-6 backdrop-blur-xl">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Share This Note</h2>
+              <h2 className="text-xl font-bold text-white">Thanks for Rating!</h2>
               <button
                 onClick={() => setShowShareModal(false)}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="p-2 hover:bg-neutral-900 rounded-lg transition-colors cursor-pointer"
               >
-                <CloseIcon className="w-5 h-5 text-gray-400" />
+                <CloseIcon className="w-5 h-5 text-neutral-400" />
               </button>
             </div>
 
-            {/* Share Message */}
-            <p className="text-gray-400 text-sm mb-6">
-              Help your friends by sharing this awesome note! 📚
+            {/* Trust-Building Message */}
+            <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
+              Help your friends prepare better with these notes. Sharing takes just a few seconds! 📚
             </p>
 
-            {/* Share Buttons */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
+            {/* Share Buttons - Minimal, Clear */}
+            <div className="space-y-2 mb-4">
               <button
                 onClick={() => handleShare('whatsapp')}
-                className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+                className="w-full py-2.5 px-4 border border-neutral-700 hover:border-neutral-600 hover:bg-neutral-900 text-neutral-300 rounded-lg text-sm font-medium transition-all cursor-pointer"
               >
-                <span>💬</span>
-                <span>WhatsApp</span>
-              </button>
-
-              <button
-                onClick={() => handleShare('twitter')}
-                className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
-              >
-                <span>𝕏</span>
-                <span>Twitter</span>
-              </button>
-
-              <button
-                onClick={() => handleShare('facebook')}
-                className="flex items-center justify-center space-x-2 bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
-              >
-                <span>f</span>
-                <span>Facebook</span>
+                💬 Share on WhatsApp
               </button>
 
               <button
                 onClick={() => handleShare('link')}
-                className="flex items-center justify-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-all hover:scale-105"
+                className="w-full py-2.5 px-4 border border-neutral-700 hover:border-neutral-600 hover:bg-neutral-900 text-neutral-300 rounded-lg text-sm font-medium transition-all cursor-pointer"
               >
-                <span>🔗</span>
-                <span>Copy Link</span>
+                🔗 Copy Link
+              </button>
+
+              <button
+                onClick={() => handleShare('letter')}
+                className="w-full py-2.5 px-4 border border-neutral-700 hover:border-neutral-600 hover:bg-neutral-900 text-neutral-300 rounded-lg text-sm font-medium transition-all cursor-pointer"
+              >
+                ✉️ Share via Email
               </button>
             </div>
 
-            {/* Close Button */}
             <button
               onClick={() => setShowShareModal(false)}
-              className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+              className="w-full px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 rounded-lg transition-colors text-sm cursor-pointer"
             >
               Done
             </button>
@@ -564,24 +570,10 @@ export default function NoteCard({ note }) {
         </div>
       )}
 
-      {/* Login Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="max-w-md w-full mx-4">
-            <LoginPrompt />
-            <button
-              onClick={() => setShowLoginModal(false)}
-              className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
       {/* ✅ VIEWERS MODAL */}
       <ViewersModal
         isOpen={showViewersModal}
-        noteId={note._id}  // ✅ Make sure this is passed!
+        noteId={note._id}
         viewers={note.viewedBy || []}
         totalViews={note.views || 0}
         onClose={() => setShowViewersModal(false)}
