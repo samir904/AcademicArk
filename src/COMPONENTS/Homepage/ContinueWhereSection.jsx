@@ -1,6 +1,6 @@
 // ContinueWhereSection.jsx
 import { Link } from 'react-router-dom';
-import {Eye,CircleArrowDown} from 'lucide-react'
+import {Eye,CircleArrowDown, Book} from 'lucide-react'
 export default function ContinueWhereSection({ continue: continueData }) {
     if (!continueData || continueData.type === 'EMPTY') {
         return null;
@@ -44,7 +44,7 @@ export default function ContinueWhereSection({ continue: continueData }) {
                 <div className="px-8 md:px-12 py-10 space-y-6">
                     {/* Subject tag */}
                     <div className="flex items-center gap-2">
-                        <span className="text-[#4B5563]">📘</span>
+                        <span className="text-[#4B5563]"><Book className='w-4 h-4'/></span>
                         <p className="text-[#9CA3AF] text-sm font-medium">
                             {note.subject}
                         </p>
