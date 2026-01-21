@@ -72,6 +72,22 @@ export const deleteBanner = createAsyncThunk(
   }
 );
 
+export const updateBanner = createAsyncThunk(
+  'notification/updateBanner',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.put(`/admin/banner/${id}`, data);
+      showToast.success('Banner updated successfully!');
+      return res.data;
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to update banner';
+      showToast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+
 const initialState = {
   loading: false,
   error: null,
@@ -133,7 +149,14 @@ const notificationSlice = createSlice({
         state.allBanners = state.allBanners.filter(
           (banner) => banner._id !== action.payload.bannerId
         );
-      });
+      })
+      .addCase(updateBanner.fulfilled, (state, action) => {
+        const index = state.allBanners.findIndex(b => b._id === action.payload.data._id);
+        if (index !== -1) {
+          state.allBanners[index] = action.payload.data;
+        }
+      })
+
   },
 });
 
