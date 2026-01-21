@@ -301,6 +301,59 @@ export const fetchOSBreakdown = createAsyncThunk(
   }
 );
 
+// Acquisition Tab
+export const fetchTrafficSources = createAsyncThunk(
+  "adminAnalytics/fetchTrafficSources",
+  async ({ range = "7" }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/admin/analytics/acquisition/sources?range=${range}`,
+        { withCredentials: true }
+      );
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch traffic sources"
+      );
+    }
+  }
+);
+
+export const fetchEntryPagesBySource = createAsyncThunk(
+  "adminAnalytics/fetchEntryPagesBySource",
+  async ({ range = "7" }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/admin/analytics/acquisition/entry-pages?range=${range}`,
+        { withCredentials: true }
+      );
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch entry pages"
+      );
+    }
+  }
+);
+
+export const fetchTopReferrers = createAsyncThunk(
+  "adminAnalytics/fetchTopReferrers",
+  async ({ range = "7" }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/admin/analytics/acquisition/referrers?range=${range}`,
+        { withCredentials: true }
+      );
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch top referrers"
+      );
+    }
+  }
+);
+
+
 // ============================================
 // INITIAL STATE
 // ============================================
@@ -381,6 +434,12 @@ const initialState = {
   deviceBreakdown: [],
   browserBreakdown: [],
   osBreakdown: [],
+
+    // Acquisition Tab
+  trafficSources: [],
+  entryPagesBySource: [],
+  topReferrers: [],
+
 
   // UI State
   activeTab: "overview",
@@ -671,6 +730,52 @@ const adminAnalyticsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       });
+
+          // ===== TRAFFIC SOURCES =====
+    builder
+      .addCase(fetchTrafficSources.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTrafficSources.fulfilled, (state, action) => {
+        state.loading = false;
+        state.trafficSources = action.payload;
+      })
+      .addCase(fetchTrafficSources.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // ===== ENTRY PAGES BY SOURCE =====
+    builder
+      .addCase(fetchEntryPagesBySource.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEntryPagesBySource.fulfilled, (state, action) => {
+        state.loading = false;
+        state.entryPagesBySource = action.payload;
+      })
+      .addCase(fetchEntryPagesBySource.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // ===== TOP REFERRERS =====
+    builder
+      .addCase(fetchTopReferrers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTopReferrers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.topReferrers = action.payload;
+      })
+      .addCase(fetchTopReferrers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
   }
 });
 

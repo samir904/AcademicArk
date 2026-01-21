@@ -8,6 +8,8 @@ import NotesTab from "./tabs/NotesTab";
 import FunnelTab from "./tabs/FunnelTab";
 import CTRTab from "./tabs/CTRTab";
 import DevicesTab from "./tabs/DevicesTab";
+import AcquisitionTab from './tabs/AcquisitionTab'
+
 
 const AdminAnalyticsDashboard = () => {
   const dispatch = useDispatch();
@@ -48,7 +50,8 @@ const AdminAnalyticsDashboard = () => {
       id: "devices",
       label: "🖥️ Devices",
       description: "Device & browser breakdown"
-    }
+    },
+    { id: "acquisition", label: "Acquisition", component: AcquisitionTab }, // ADD THIS LINE
   ];
 
   const timeRanges = [
@@ -74,6 +77,8 @@ const AdminAnalyticsDashboard = () => {
         return <CTRTab />;
       case "devices":
         return <DevicesTab />;
+        case "acquisition":
+        return <AcquisitionTab />;
       default:
         return <OverviewTab />;
     }
