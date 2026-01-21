@@ -19,7 +19,7 @@ import {
 import HomeLayout from "../../LAYOUTS/Homelayout";
 import { Link } from "react-router-dom";
 import AdminLogs from "./AdminLogs";
-import Analytics from "./Analytics";
+// import Analytics from "./Analytics";
 import AdminColleges from "./AdminColleges";
 import { getAcademicAnalytics } from "../../REDUX/Slices/academicProfileSlice";
 import AdminRequests from "./AdminRequests";
@@ -34,7 +34,7 @@ import MongoDBHealth from "../../COMPONENTS/Admin/MongoDBHealth";
 import RedisHealth from "../../COMPONENTS/Admin/RedisHealth";
 import QueryMetricsDisplay from "../../COMPONENTS/Admin/QueryMetricsDisplay";
 // import AdminVideoManager from "../../COMPONENTS/Admin/AdminVideoManager";
-
+import AnalyticsTab from "../../COMPONENTS/Admin/Analytics/AnalyticsTab";
 // Icons
 const UsersIcon = ({ className }) => (
   <svg
@@ -294,7 +294,7 @@ export default function AdminDashboard() {
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard", "requestlogs", "querymetrics", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback", "Security", "retention"].map(
+              {["dashboard","session", "requestlogs", "querymetrics", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback", "Security", "retention"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -328,6 +328,8 @@ export default function AdminDashboard() {
                                         ? "Request Logs"
                                         : tab === "querymetrics"
                                           ? "Query Metrics"
+                                          : tab === "session"
+                                          ? "Sesion Analytics"
                                           // : tab === "videos"
                                           // ? "videos"
                                           : tab}
@@ -1489,6 +1491,7 @@ export default function AdminDashboard() {
           {activeTab === 'requestlogs' && <LogsTab />}
           {/* Query Metrics Tab - NEW */}
 {activeTab === "querymetrics" && <QueryMetricsDisplay />} 
+{activeTab === "session" && <AnalyticsTab />} 
 {/* {activeTab === "videos" && <AdminVideoManager />}  */}
 
         </div>

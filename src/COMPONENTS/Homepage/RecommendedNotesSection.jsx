@@ -1,11 +1,19 @@
 // RecommendedNotesSection.jsx
 import { CircleArrowDown, Eye } from 'lucide-react';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { useSessionTracker } from "../Session/SessionTracker"; // adjust path
+import { useRef } from 'react';
 
 export default function RecommendedNotesSection({ recommended }) {
     if (!recommended.hasData) {
         return null;
     }
+  const { trackClickEvent } = useSessionTracker();
+    const sessionId = useSelector(
+  (state) => state.session.currentSession?.sessionId
+);
 
     return (
         <div className="mb-16">

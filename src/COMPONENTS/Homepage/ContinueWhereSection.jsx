@@ -1,10 +1,18 @@
 // ContinueWhereSection.jsx
 import { Link } from 'react-router-dom';
 import {Eye,CircleArrowDown, Book} from 'lucide-react'
+import { useEffect } from 'react';
+import { useSessionTracker } from "../Session/SessionTracker"; // adjust path
+import { useSelector } from "react-redux";
+import { useRef } from 'react';
 export default function ContinueWhereSection({ continue: continueData }) {
     if (!continueData || continueData.type === 'EMPTY') {
         return null;
     }
+    const { trackClickEvent } = useSessionTracker();
+    const sessionId = useSelector(
+  (state) => state.session.currentSession?.sessionId
+);
 
     // Handle suggestion type
     if (continueData.type === 'SUGGESTION') {

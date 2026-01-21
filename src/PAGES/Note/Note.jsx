@@ -12,6 +12,7 @@ import { getAllRequests, upvoteRequest } from '../../REDUX/Slices/requestSlice';
 import { getAllVideoLectures } from '../../REDUX/Slices/videoLecture.slice'; // ✨ NEW
 import { selectVideoLectureData } from '../../REDUX/Slices/videoLecture.slice';
 import { shallowEqual } from 'react-redux';
+import TrackedNoteCard from '../../COMPONENTS/Session/TrackedNoteCardWrapper';
 
 // Icon components
 const FilterIcon = ({ className }) => (
@@ -425,7 +426,7 @@ const getChapterConfig = (chapter) => {
         {/* Hero Section - Enhanced for AKTU */}
         <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900">
           {/* Subtle Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 to-purple-900/30"></div>
+          <div className="absolute inset-0 bg-[#1F1F1F]"></div>
 
           <div className="relative max-w-5xl mx-auto px-6 py-8 text-center">
             {/* Logo & Badge - Compact */}
@@ -781,7 +782,7 @@ const getChapterConfig = (chapter) => {
                     relative rounded-lg p-3 transition-all duration-300 transform hover:scale-105 group
                     ${isActive
                       ? `bg-gradient-to-br ${config.gradient} border-transparent shadow-lg scale-105`
-                      : `bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-600`
+                      : `bg-[#1F1F1F] hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-600`
                     }
                   `}
                 >
@@ -833,7 +834,7 @@ const getChapterConfig = (chapter) => {
               px-4 py-2 rounded-full font-medium transition-all
               ${!localFilters.uploadedBy
                 ? 'bg-blue-600 text-white shadow-lg'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                : 'bg-[#1F1F1F] text-gray-300 hover:bg-gray-700'
               }
             `}
           >
@@ -853,7 +854,7 @@ const getChapterConfig = (chapter) => {
                   px-4 py-2 rounded-full font-medium transition-all flex items-center space-x-2
                   ${isActive
                     ? 'bg-purple-600 text-white shadow-lg'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    : 'bg-[#1F1F1F] text-gray-300 hover:bg-gray-700'
                   }
                 `}
               >
@@ -1281,7 +1282,7 @@ const getChapterConfig = (chapter) => {
       const isVideo = resource?.videoId || resource?.embedUrl || resource?.platform === 'YOUTUBE';
       
       return (
-        <CardRenderer 
+        <TrackedNoteCard 
           key={resource._id} 
           item={resource}
           type={isVideo ? 'video' : 'note'} // ✅ Detect from resource properties

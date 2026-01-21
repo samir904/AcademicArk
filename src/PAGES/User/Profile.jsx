@@ -6,6 +6,7 @@ import { getProfile } from '../../REDUX/Slices/authslice';
 import HomeLayout from '../../LAYOUTS/Homelayout';
 import {  getBackgroundTheme, useImageColors } from '../../hooks/useImageColors';
 import { setShowProfileModal } from '../../REDUX/Slices/academicProfileSlice'; // ✨ NEW
+// import { EngagementWidget } from '../../COMPONENTS/Session/NoteInteractionTracker';
 // import UserSecurityPage from '../../COMPONENTS/UserSecurityPage';
 
 // Icon components
@@ -475,6 +476,8 @@ useEffect(() => {
     </div>
   </div>
 )}
+
+{/* <EngagementWidget /> Shows real-time engagement stats */}
 
 {/* Security Section */}
 {/* <div className="mt-8">

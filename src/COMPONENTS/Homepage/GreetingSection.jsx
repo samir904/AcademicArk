@@ -3,7 +3,7 @@ export default function GreetingSection({ greeting }) {
     return (
         <div className="mb-8 pt-4">
             {/* Main greeting - emotional anchor */}
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-3 tracking-tight">
+            <h1 className="text-5xl capitalize md:text-6xl font-bold text-white mb-3 tracking-tight">
                 {greeting.message}
             </h1>
             

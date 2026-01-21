@@ -7,6 +7,7 @@ const initialState = {
     isLoggedIn: localStorage.getItem('isLoggedIn') === 'true',
     authToken: localStorage.getItem('authToken') || "",  // ✅ ADD THIS LINE
     role: localStorage.getItem('role') || "",
+    // authChecked: false, // ✅ ADD THIS
     data: (() => {
         try {
             const data = localStorage.getItem("data");
@@ -571,10 +572,12 @@ const authSlice = createSlice({
                 state.data = user;
                 state.loading = false;
                 console.log('✅ Redux auth state updated');
+                // state.authChecked = true; // ✅ ADD THIS
             })
 
             .addCase(checkAuth.rejected, (state) => {
                 state.loading = false;
+                // state.authChecked = true; // ✅ ADD THIS
             })
 
         builder.addCase(getProfile.fulfilled, (state, action) => {

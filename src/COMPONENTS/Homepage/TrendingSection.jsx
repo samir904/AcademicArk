@@ -1,10 +1,19 @@
 // TrendingSection.jsx
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { useSessionTracker } from '../Session/SessionTracker';
+import { useEffect } from 'react';
+import { useRef } from 'react';
 
 export default function TrendingSection({ trending }) {
     if (!trending.hasData) {
         return null;
     }
+  const { trackClickEvent } = useSessionTracker();
+    const sessionId = useSelector(
+  (state) => state.session.currentSession?.sessionId
+);
+
 
     return (
         <div className="mb-12">

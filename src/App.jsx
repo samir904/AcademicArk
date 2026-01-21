@@ -44,6 +44,7 @@ const UploadVideoLecture = React.lazy(() => import("./PAGES/video/UploadVideoLec
 import VideoWatch from './PAGES/video/VideoWatch'
 import LeaderboardPage from "./PAGES/LeaderboardPage";
 import DynamicHome from "./PAGES/DynamicHome";
+import SessionTracker from "./COMPONENTS/Session/SessionTracker";
 // //import VideoUploadForm from "./COMPONENTS/Admin/VideoUploadForm";
 // import UploadVideoLecture from "./PAGES/video/UploadVideoLecture";
 const AdvancedSearch = React.lazy(() =>
@@ -317,6 +318,7 @@ function App() {
       {/* <CookieWarning /> */}
       <AuthChecker /> {/* ✅ Add this at the top */}
       <PageTracker /> {/* ← OUTSIDE Routes */}
+      <SessionTracker /> {/* ← ADD THIS - Will auto-track everything */}
       <Routes>
         {/* 🟢 Core Routes */}
         <Route path="/" element={isLoggedIn ? <DynamicHome /> : <Homepage />} />

@@ -6,6 +6,7 @@ import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 import { usePDFDownload } from '../../hooks/usePDFDownload.js';
 import ViewersModal from '../../COMPONENTS/Note/ViewersModal.jsx';
+import { useNoteTracking } from '../../COMPONENTS/Session/NoteInteractionTracker.jsx';  // ← ADD HERE
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -91,6 +92,7 @@ export default function HandwrittenCard({ note }) {
   const [showViewersModal, setShowViewersModal] = useState(false);
   const [isCurrentlyDownloading, setIsCurrentlyDownloading] = useState(false);
   const menuRef = useRef(null);
+const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNoteTracking();
 
   const { downloadPDF, downloading } = usePDFDownload();
   const downloadState = downloading[note._id];
@@ -113,6 +115,7 @@ export default function HandwrittenCard({ note }) {
   const handleBookmark = (e) => {
     e.preventDefault();
     e.stopPropagation();
+     trackBookmark(note._id);
     if (!isLoggedIn) {
       dispatch(setLoginModal({
         isOpen: true,
@@ -129,7 +132,7 @@ export default function HandwrittenCard({ note }) {
   const handleDownload = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+    trackDownload(note._id);
     if (!isLoggedIn) {
       dispatch(setLoginModal({
         isOpen: true,
@@ -180,6 +183,7 @@ export default function HandwrittenCard({ note }) {
 
   const submitRating = () => {
     if (userRating > 0) {
+      trackRate(note._id, userRating);
       dispatch(addRating({
         noteId: note._id,
         rating: userRating,
@@ -252,6 +256,11 @@ export default function HandwrittenCard({ note }) {
               <Link
                 to={`/notes/${note._id}/read`}
                 className="block text-white capitalize font-semibold text-base line-clamp-2 hover:underline transition-all cursor-pointer"
+                onClick={() => {
+              // ✅ ADD TRACKING - TWO LINES!
+              trackView(note._id, note.title);
+              trackClick(note._id);
+            }}
               >
                 {note.title}
               </Link>
@@ -372,6 +381,11 @@ export default function HandwrittenCard({ note }) {
               to={`/notes/${note._id}/read`}
               style={{ backgroundColor: '#1F1F1F' }}
               className="flex-1 px-4 py-2.5 hover:opacity-90 text-white rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700"
+              onClick={() => {
+              // ✅ ADD TRACKING - TWO LINES!
+              trackView(note._id, note.title);
+              trackClick(note._id);
+            }}
             >
               <EyeIcon className="w-4 h-4" />
               <span>View</span>

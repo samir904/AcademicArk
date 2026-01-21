@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { getNote, toggleBookmark, clearCurrentNote } from '../../REDUX/Slices/noteslice';
 import { useNoteDownload } from '../../hooks/useNoteDownload';
+import { useNoteTracking } from "../../COMPONENTS/Session/NoteInteractionTracker";
 
 const ReadNote = () => {
   const { id } = useParams();
@@ -25,6 +26,9 @@ const ReadNote = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [personalNotes, setPersonalNotes] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNoteTracking();
+  const [note, setNote] = useState(null);
 
   // Get PDF URL
   const pdfUrl = currentNote?.fileDetails?.secure_url;
@@ -120,13 +124,22 @@ const ReadNote = () => {
       navigate('/login');
       return;
     }
+    trackBookmark(currentNote._id);
     dispatch(toggleBookmark(currentNote._id));
   };
 
   // Handle download
   const handleDownload = async () => {
+    trackDownload(currentNote._id);
     await triggerDownload(currentNote);
   };
+
+  // useEffect(() => {
+  //   // When note loads
+  //   if (currentNote) {
+  //     trackView(currentNote._id, currentNote.title);
+  //   }
+  // }, [currentNote]);
 
   // Loading state
   if (loading) {
