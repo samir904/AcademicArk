@@ -18,7 +18,7 @@ export default function ContinueWhereSection({ continue: continueData }) {
     if (continueData.type === 'SUGGESTION') {
         return (
             <div className="mb-16">
-                <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl p-10 md:p-12 hover:border-[#9CA3AF] transition-all duration-300">
+                <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl p-10 md:p-12  transition-all duration-300">
                     <p className="text-[#9CA3AF] text-sm font-medium uppercase tracking-wider mb-3">
                         Start learning
                     </p>
@@ -40,7 +40,7 @@ export default function ContinueWhereSection({ continue: continueData }) {
     return (
         <div className="mb-16">
             {/* Hero card for continuing notes */}
-            <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl overflow-hidden hover:border-[#9CA3AF] transition-all duration-300">
+            <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl overflow-hidden  transition-all duration-300">
                 {/* Top section - light label */}
                 <div className="px-8 md:px-12 py-4 border-b border-[#1F1F1F]">
                     <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-widest">

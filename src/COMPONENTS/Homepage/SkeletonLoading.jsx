@@ -111,3 +111,73 @@ export function FullHomeSkeleton() {
         </div>
     );
 }
+
+
+// Leaderboard Skeleton
+export function LeaderboardSkeleton() {
+  return (
+    <div className="mb-16">
+      <div className="h-8 w-48 bg-[#1F1F1F] rounded-lg mb-8 animate-pulse"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-xl p-6 space-y-4 animate-pulse">
+            <div className="h-6 bg-[#1F1F1F] rounded w-full"></div>
+            <div className="h-4 bg-[#1F1F1F] rounded w-3/4"></div>
+            <div className="h-12 bg-[#1F1F1F] rounded"></div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="h-8 bg-[#1F1F1F] rounded"></div>
+              <div className="h-8 bg-[#1F1F1F] rounded"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Attendance Skeleton
+export function AttendanceSkeleton() {
+  return (
+    <div className="mb-16">
+      <div className="h-8 w-48 bg-[#1F1F1F] rounded-lg mb-8 animate-pulse"></div>
+      <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl p-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="flex flex-col items-center space-y-4 animate-pulse">
+            <div className="w-24 h-24 bg-[#1F1F1F] rounded-full"></div>
+            <div className="h-4 bg-[#1F1F1F] rounded w-24"></div>
+          </div>
+          <div className="space-y-4 animate-pulse">
+            <div className="h-16 bg-[#1F1F1F] rounded"></div>
+            <div className="h-16 bg-[#1F1F1F] rounded"></div>
+          </div>
+          <div className="space-y-4 animate-pulse">
+            <div className="h-16 bg-[#1F1F1F] rounded"></div>
+            <div className="h-10 bg-[#1F1F1F] rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Downloads Skeleton
+export function DownloadsSkeleton() {
+  return (
+    <div className="mb-16">
+      <div className="h-8 w-48 bg-[#1F1F1F] rounded-lg mb-8 animate-pulse"></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-xl p-6 space-y-3 animate-pulse">
+            <div className="h-4 bg-[#1F1F1F] rounded"></div>
+            <div className="h-8 bg-[#1F1F1F] rounded"></div>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-3">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-lg h-16 animate-pulse"></div>
+        ))}
+      </div>
+    </div>
+  );
+}

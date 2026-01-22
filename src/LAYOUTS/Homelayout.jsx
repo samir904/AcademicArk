@@ -370,8 +370,8 @@ const [showFeedback, setShowFeedback] = useState(false);
       { name: "Home", path: "/", icon: "🏠" },
       { name: "Library", path: "/notes", icon: "📚" },
       { name: "Search", path: "/search", icon: "📖" },
-      { name: "Leaderboard", path: "/leaderboard", icon: "🏆" },  // ✨ NEW
-      { name: "Attendance", path: "/attendance", icon: "📊" }, // ✨ MOVED: Always show
+      // { name: "Leaderboard", path: "/leaderboard", icon: "🏆" },  // ✨ NEW
+      // { name: "Attendance", path: "/attendance", icon: "📊" }, // ✨ MOVED: Always show
       { name: "Downloads", path: "/downloads", icon: "📥" }
 
       // {name:'Study Buddy', path:'/study-buddy',icon:''},
@@ -412,12 +412,12 @@ const [showFeedback, setShowFeedback] = useState(false);
         icon: LibraryIcon,
         label: "Library",
       },
-      {
-    name: "Leaderboard",  // ✨ NEW
-    path: "/leaderboard",
-    icon: Trophy,  // or import LeaderboardIcon if you have one
-    label: "Board",
-  },
+  //     {
+  //   name: "Leaderboard",  // ✨ NEW
+  //   path: "/leaderboard",
+  //   icon: Trophy,  // or import LeaderboardIcon if you have one
+  //   label: "Board",
+  // },
       {
         name: "Attendance",
         path: "/attendance",

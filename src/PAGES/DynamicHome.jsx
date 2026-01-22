@@ -6,18 +6,25 @@ import ContinueWhereSection from '../COMPONENTS/Homepage/ContinueWhereSection';
 import RecommendedNotesSection from '../COMPONENTS/Homepage/RecommendedNotesSection';
 import TrendingSection from '../COMPONENTS/Homepage/TrendingSection';
 import HomeLayout from '../LAYOUTS/Homelayout';
+// ⭐ ADD THESE IMPORTS
+import LeaderboardSection from '../COMPONENTS/Homepage/LeaderboardSection';
+import AttendanceSection from '../COMPONENTS/Homepage/AttendanceSection';
+import DownloadsSection from '../COMPONENTS/Homepage/DownloadsSection';
 import { BackgroundLines } from '../COMPONENTS/ui/background-lines';
 import {
     GreetingSkeleton,
     ContinueWhereSkeleton,
     RecommendedSkeleton,
     TrendingSkeleton,
+    DownloadsSkeleton,
+    AttendanceSkeleton,
+    LeaderboardSkeleton,
 } from '../COMPONENTS/Homepage/SkeletonLoading';
 
 
 export default function DynamicHome() {
     const dispatch = useDispatch();
-    const { greeting, continue: continueData, recommended, trending, loading, error } = useSelector(state => state.home);
+    const { greeting, continue: continueData, recommended, trending, loading, error,leaderboard,attendance, downloads } = useSelector(state => state.home);
     const { isCompleted } = useSelector(state => state.academicProfile);
     
     // ✨ Track if we're in refresh mode
@@ -108,6 +115,28 @@ export default function DynamicHome() {
                         ) : trending ? (
                             <TrendingSection trending={trending} />
                         ) : null}
+
+                        
+
+            {/* ⭐ Section 6: Attendance - NEW */}
+            {showSkeletons && !attendance ? (
+              <AttendanceSkeleton />
+            ) : attendance ? (
+              <AttendanceSection attendance={attendance} />
+            ) : null}
+
+            {/* ⭐ Section 7: Downloads - NEW */}
+            {showSkeletons && !downloads ? (
+              <DownloadsSkeleton />
+            ) : downloads ? (
+              <DownloadsSection downloads={downloads} />
+            ) : null}
+            {/* ⭐ Section 5: Leaderboard - NEW */}
+            {showSkeletons && !leaderboard ? (
+              <LeaderboardSkeleton />
+            ) : leaderboard ? (
+              <LeaderboardSection leaderboard={leaderboard} />
+            ) : null}
                     </div>
                 </BackgroundLines>
             </div>

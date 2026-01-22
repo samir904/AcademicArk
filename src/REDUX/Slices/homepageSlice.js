@@ -43,6 +43,11 @@ const initialState = {
     continue: null,
     recommended: null,
     trending: null,
+    // ⭐ ADD
+    attendance: null,
+    leaderboard: null,
+    downloads: null,
+
     isProfileComplete: false,
     loading: false,
     error: null
@@ -69,26 +74,30 @@ const homeSlice = createSlice({
                 state.recommended = action.payload.recommended;
                 state.trending = action.payload.trending;
                 state.isProfileComplete = action.payload.greeting.isProfileComplete;
+                // ⭐ ADD
+                state.attendance = action.payload.attendance;
+                state.leaderboard = action.payload.leaderboard;
+                state.downloads = action.payload.downloads;
             })
             .addCase(fetchPersonalizedHome.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             })
             .addCase(invalidateHomepageCache.pending, (state) => {
-    state.loading = true;
-    state.error = null;
-})
-.addCase(invalidateHomepageCache.fulfilled, (state, action) => {
-    state.loading = false;
-    state.greeting = action.payload.greeting;
-    state.continue = action.payload.continue;
-    state.recommended = action.payload.recommended;
-    state.trending = action.payload.trending;
-})
-.addCase(invalidateHomepageCache.rejected, (state, action) => {
-    state.loading = false;
-    state.error = action.payload;
-})
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(invalidateHomepageCache.fulfilled, (state, action) => {
+                state.loading = false;
+                state.greeting = action.payload.greeting;
+                state.continue = action.payload.continue;
+                state.recommended = action.payload.recommended;
+                state.trending = action.payload.trending;
+            })
+            .addCase(invalidateHomepageCache.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
 
     }
 });
