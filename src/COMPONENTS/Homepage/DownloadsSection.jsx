@@ -14,7 +14,7 @@ export default function DownloadsSection({ downloads }) {
           <Download className="w-8 h-8 text-purple-400 mx-auto mb-3" />
           <p className="text-[#9CA3AF] text-sm mb-4">No downloads yet</p>
           <Link to="/downloads">
-            <button className="inline-flex items-center gap-2 bg-[#9CA3AF] hover:bg-white text-black px-6 py-2 rounded-lg font-semibold transition-all text-sm">
+            <button className="inline-flex items-center gap-2 bg-[#9CA3AF] hover:bg-white text-black px-6 py-2 rounded-full font-semibold transition-all text-sm">
               Start Downloading Your First Note
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -80,7 +80,7 @@ export default function DownloadsSection({ downloads }) {
 
       <div className="mt-6">
         <Link to="/downloads">
-          <button className="w-full md:w-auto bg-[#9CA3AF] hover:bg-white text-black px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center gap-2">
+          <button className="w-full md:w-auto bg-[#9CA3AF] hover:bg-white text-black px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center gap-2">
             View All Downloads
             <ArrowRight className="w-4 h-4" />
           </button>

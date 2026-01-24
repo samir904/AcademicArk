@@ -21,7 +21,7 @@ export default function AttendanceSection({ attendance }) {
             Attendance information will be available once your attendance is tracked.
           </p>
           <Link to="/attendance">
-            <button className="w-full md:w-auto bg-[#9CA3AF] hover:bg-white text-black px-8 py-3 rounded-lg font-semibold transition-all duration-300 inline-flex items-center justify-center gap-2">
+            <button className="w-full md:w-auto bg-[#9CA3AF] hover:bg-white text-black px-8 py-3 rounded-full font-semibold transition-all duration-300 inline-flex items-center justify-center gap-2">
               Start Managing Attendance
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -136,7 +136,7 @@ export default function AttendanceSection({ attendance }) {
               </div>
             </div>
             <Link to="/attendance">
-              <button className="w-full bg-[#9CA3AF] hover:bg-white text-black px-4 py-2 rounded-lg font-semibold transition-all duration-300 text-sm">
+              <button className="w-full bg-[#9CA3AF] hover:bg-white text-black px-4 py-2 rounded-full font-semibold transition-all duration-300 text-sm">
                 View Details →
               </button>
             </Link>
