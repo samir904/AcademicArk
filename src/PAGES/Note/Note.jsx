@@ -790,8 +790,7 @@ export default function Note() {
           text-xs sm:text-sm font-semibold
           px-4 sm:px-5 py-2.5 sm:py-2
           rounded-full
-          bg-slate-100 text-slate-900
-          hover:bg-white
+          bg-[#9CA3AF] hover:bg-white text-black
           active:scale-[0.98]
           transition-all duration-200
           whitespace-nowrap
@@ -1443,8 +1442,7 @@ export default function Note() {
             px-5 py-2.5
             text-xs sm:text-sm font-semibold
             rounded-full
-            bg-slate-100 text-slate-900
-            hover:bg-white
+            bg-[#9CA3AF] hover:bg-white text-black
             active:scale-[0.98]
             transition-all duration-200
             whitespace-nowrap
