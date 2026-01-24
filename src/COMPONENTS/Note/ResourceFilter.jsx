@@ -627,7 +627,7 @@ export default function ResourceFilter({
           bg-[#9CA3AF] hover:bg-white text-black
           active:scale-[0.98]
           transition-all duration-200
-          whitespace-nowrap
+          whitespace-nowrap truncate
           focus:outline-none focus:ring-2 focus:ring-slate-400/40
           w-full sm:w-auto
         "
