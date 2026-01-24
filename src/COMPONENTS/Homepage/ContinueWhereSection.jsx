@@ -26,8 +26,8 @@ export default function ContinueWhereSection({ continue: continueData }) {
                         {continueData.message}
                     </h2>
                     <Link to={continueData.link || '/notes'}>
-                        <button className="bg-[#9CA3AF] hover:bg-white text-black px-8 py-3 rounded-lg font-semibold transition-all duration-300">
-                            {continueData.action}
+                        <button className="bg-[#9CA3AF] hover:bg-white text-black px-8 py-3 rounded-full font-semibold transition-all duration-300">
+                            {continueData.action} →
                         </button>
                     </Link>
                 </div>
