@@ -20,6 +20,7 @@ import academicProfileReducer from "./Slices/academicProfileSlice.js"
  import leaderboardReducer from './Slices/leaderboard.slice.js'
  import homepageReducer from './Slices/homepageSlice.js'
  import sessionReducer from './Slices/sessionSlice.js'
+ import plannerReducer from './Slices/plannerSlice.js'
  
 import adminAnalyticsReducer from './Slices/adminAnalyticsSlice.js'
 //  import videoReducer from './Slices/videoSlice.js'
@@ -49,6 +50,7 @@ const store = configureStore({
     leaderboard: leaderboardReducer,  // ✨ NEW
     home:homepageReducer,
     session: sessionReducer,
+    planner: plannerReducer,
     
     adminAnalytics:adminAnalyticsReducer
     //  video: videoReducer,

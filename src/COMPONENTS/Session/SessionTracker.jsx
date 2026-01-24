@@ -16,6 +16,7 @@ import {
   trackPageExit
 } from "../../REDUX/Slices/sessionSlice";
 import { useLocation } from "react-router-dom";
+import { clearActiveResource, getActiveResource } from "../../UTILS/activeResource";
 // import { showToast } from "../HELPERS/Toaster";
 
 /**
@@ -56,11 +57,11 @@ const useSessionTracker = () => {
   const lastPingRef = useRef(Date.now());
   const sessionStartedRef = useRef(false);
   const lastClickRef = useRef(0); // ✅ ADD THIS
-const homepageImpressionForVisitRef = useRef(false);
-const currentPageRef = useRef(null);
-const pageEnterTimeRef = useRef(null);
-const lastPageRef = useRef(null);
-const pageExitSentRef = useRef(false);
+  const homepageImpressionForVisitRef = useRef(false);
+  const currentPageRef = useRef(null);
+  const pageEnterTimeRef = useRef(null);
+  const lastPageRef = useRef(null);
+  const pageExitSentRef = useRef(false);
 
   const sessionId = useSelector(
     (state) => state.session.currentSession.sessionId
@@ -117,30 +118,39 @@ const pageExitSentRef = useRef(false);
   useEffect(() => {
     if (!sessionActive || !sessionId) return;
     const now = Date.now();
-  const newPage = mapPathToPageName(location.pathname);
-// 🛑 HARD BLOCK: same page
-  if (lastPageRef.current === newPage) return;
+    const newPage = mapPathToPageName(location.pathname);
+    // 🛑 HARD BLOCK: same page
+    if (lastPageRef.current === newPage) return;
 
-  // 🔴 CLOSE PREVIOUS PAGE
-  if (currentPageRef.current && pageEnterTimeRef.current) {
-    const timeSpent = Math.floor(
-      (now - pageEnterTimeRef.current) / 1000
-    );
-if (!pageExitSentRef.current) {
-  pageExitSentRef.current = true;
-    dispatch(trackPageExit({
-    sessionId,
-    pageName: currentPageRef.current,
-    timeSpent,
-  }));
-  }}
+    // 🔴 CLOSE PREVIOUS PAGE
+    if (currentPageRef.current && pageEnterTimeRef.current) {
+      const timeSpent = Math.floor(
+        (now - pageEnterTimeRef.current) / 1000
+      );
+      if (!pageExitSentRef.current) {
+        pageExitSentRef.current = true;
+        const activeResource = getActiveResource();
 
-  // 🟢 OPEN NEW PAGE
-  lastPageRef.current = newPage;
-  currentPageRef.current = newPage;
-  pageEnterTimeRef.current = now;
-  // 🔁 RESET page-exit guard for new page
-pageExitSentRef.current = false;
+        // console.log('active resource at page of sesion tracker when exting page at that time',activeResource)
+          // console.log('session tracker page active resource id',activeResource?.id)
+          // console.log('session tracker page active resource id',activeResource?.type)
+        dispatch(trackPageExit({
+          sessionId,
+          pageName: currentPageRef.current,
+          timeSpent,
+          resourceId: activeResource?.id || null,
+          resourceType: activeResource?.type || null
+        }));
+        clearActiveResource();
+      }
+    }
+
+    // 🟢 OPEN NEW PAGE
+    lastPageRef.current = newPage;
+    currentPageRef.current = newPage;
+    pageEnterTimeRef.current = now;
+    // 🔁 RESET page-exit guard for new page
+    pageExitSentRef.current = false;
     dispatch(
       trackPageView({
         sessionId,
@@ -154,16 +164,16 @@ pageExitSentRef.current = false;
     /* =====================================
      ✅ HOMEPAGE IMPRESSIONS (CORRECT PLACE)
      ===================================== */
-  // const newPage = mapPathToPageName(location.pathname);
+    // const newPage = mapPathToPageName(location.pathname);
 
-// 🔁 RESET when leaving homepage
-if (newPage !== "HOMEPAGE") {
-  homepageImpressionForVisitRef.current = false;
-}
+    // 🔁 RESET when leaving homepage
+    if (newPage !== "HOMEPAGE") {
+      homepageImpressionForVisitRef.current = false;
+    }
 
-// 🔥 FIRE ONCE PER HOMEPAGE VISIT
-if (newPage === "HOMEPAGE" && !homepageImpressionForVisitRef.current) {
-  homepageImpressionForVisitRef.current = true;
+    // 🔥 FIRE ONCE PER HOMEPAGE VISIT
+    if (newPage === "HOMEPAGE" && !homepageImpressionForVisitRef.current) {
+      homepageImpressionForVisitRef.current = true;
       dispatch(trackClickEvent({
         sessionId,
         clickType: "recommendedNote",
@@ -240,40 +250,44 @@ if (newPage === "HOMEPAGE" && !homepageImpressionForVisitRef.current) {
     };
   }, [sessionActive, sessionId, dispatch]);
 
- 
+
 
   // ✅ HANDLE UNLOAD (End session when leaving)
- useEffect(() => {
-  const handleUnload = () => {
-    if (!sessionActive || !currentPageRef.current) return;
+  useEffect(() => {
+    const handleUnload = () => {
+      if (!sessionActive || !currentPageRef.current) return;
 
-    const timeSpent = Math.floor(
-      (Date.now() - pageEnterTimeRef.current) / 1000
-    );
+      const timeSpent = Math.floor(
+        (Date.now() - pageEnterTimeRef.current) / 1000
+      );
 
-    if (!pageExitSentRef.current) {
-  pageExitSentRef.current = true;
+      if (!pageExitSentRef.current) {
+        pageExitSentRef.current = true;
+        const activeResource = getActiveResource();
 
-  navigator.sendBeacon(
-    "/session/track/page-exit",
-    JSON.stringify({
-      sessionId,
-      pageName: currentPageRef.current,
-      timeSpent,
-      isExitPage: true
-    })
-  );
-}
+        navigator.sendBeacon(
+          "/session/track/page-exit",
+          JSON.stringify({
+            sessionId,
+            pageName: currentPageRef.current,
+            timeSpent,
+            resourceId: activeResource?.id || null,
+            resourceType: activeResource?.type || null,
+            isExitPage: true
+          })
+        );
+      }
+      clearActiveResource();
 
-    navigator.sendBeacon(
-      "/session/end",
-      JSON.stringify({ sessionId })
-    );
-  };
+      navigator.sendBeacon(
+        "/session/end",
+        JSON.stringify({ sessionId })
+      );
+    };
 
-  window.addEventListener("beforeunload", handleUnload);
-  return () => window.removeEventListener("beforeunload", handleUnload);
-}, [sessionActive]);
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, [sessionActive]);
 
   // ✅ RETURN TRACKING FUNCTIONS
   return {

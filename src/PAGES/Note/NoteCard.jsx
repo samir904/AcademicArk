@@ -103,11 +103,11 @@ export default function NoteCard({ note }) {
   const [hasRated, setHasRated] = useState(false);
   const [isCurrentlyDownloading, setIsCurrentlyDownloading] = useState(false);
   const menuRef = useRef(null);
-const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNoteTracking();
+  const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNoteTracking();
 
   const { downloadPDF, downloading } = usePDFDownload();
   const downloadState = downloading[note._id];
- // Close menu on outside click
+  // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -124,7 +124,7 @@ const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNo
   const handleBookmark = (e) => {
     e.preventDefault();
     e.stopPropagation();
-     trackBookmark(note._id);
+    trackBookmark(note._id);
     if (!isLoggedIn) {
       dispatch(setLoginModal({
         isOpen: true,
@@ -141,7 +141,7 @@ const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNo
   const handleDownload = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-trackDownload(note._id);
+    trackDownload(note._id);
     if (!isLoggedIn) {
       dispatch(setLoginModal({
         isOpen: true,
@@ -191,7 +191,7 @@ trackDownload(note._id);
 
   const submitRating = () => {
     if (userRating > 0) {
-       trackRate(note._id, userRating);
+      trackRate(note._id, userRating);
       dispatch(addRating({
         noteId: note._id,
         rating: userRating,
@@ -260,7 +260,7 @@ trackDownload(note._id);
                   }}
                   className="px-2.5 py-1 text-xs font-semibold rounded-full border border-indigo-600/30"
                 >
-                {note.category}
+                  {note.category}
                 </span>
 
               </div>
@@ -270,10 +270,10 @@ trackDownload(note._id);
                 to={`/notes/${note._id}/read`}
                 className="block text-white capitalize font-semibold text-base line-clamp-2 hover:underline transition-all cursor-pointer"
                 onClick={() => {
-              // ✅ ADD TRACKING - TWO LINES!
-              trackView(note._id, note.title);
-              trackClick(note._id);
-            }}
+                  // ✅ ADD TRACKING - TWO LINES!
+                  trackView(note._id, note.title);
+                  trackClick(note._id);
+                }}
               >
                 {note.title}
               </Link>
@@ -329,7 +329,9 @@ trackDownload(note._id);
           <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
             <span className="truncate">{note.subject}</span>
             <span>•</span>
-            <span className="whitespace-nowrap">Sem {note.semester}</span>
+            <span className="whitespace-nowrap">
+              Sem {Array.isArray(note.semester) ? note.semester.join(" / ") : note.semester}
+            </span>
             <span>•</span>
             <span className="truncate">{note.university}</span>
           </div>
@@ -401,10 +403,10 @@ trackDownload(note._id);
               // }}
               className="flex-1  bg-[#1F1F1F] px-4 py-2.5 hover:opacity-90 text-white rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700"
               onClick={() => {
-              // ✅ ADD TRACKING - TWO LINES!
-              trackView(note._id, note.title);
-              trackClick(note._id);
-            }}
+                // ✅ ADD TRACKING - TWO LINES!
+                trackView(note._id, note.title);
+                trackClick(note._id);
+              }}
             >
               <EyeIcon className="w-4 h-4" />
               <span>View</span>
@@ -415,12 +417,12 @@ trackDownload(note._id);
               onClick={handleDownload}
               disabled={downloadState?.status === 'starting' || isCurrentlyDownloading}
               className={`px-3 py-3 border rounded-full font-semibold text-sm transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700 ${downloadState?.status === 'error'
-                  ? 'border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10'
-                  : downloadState?.status === 'complete' || downloadState?.status === 'exists'
-                    ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400'
-                    : downloadState?.status === 'starting' || isCurrentlyDownloading
-                      ? 'border-neutral-600 bg-neutral-800/50 text-neutral-300 cursor-wait'
-                      : 'border-neutral-700  text-neutral-300 hover:border-neutral-600 hover:bg-neutral-900'
+                ? 'border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10'
+                : downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                  ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400'
+                  : downloadState?.status === 'starting' || isCurrentlyDownloading
+                    ? 'border-neutral-600 bg-neutral-800/50 text-neutral-300 cursor-wait'
+                    : 'border-neutral-700  text-neutral-300 hover:border-neutral-600 hover:bg-neutral-900'
                 }`}
               aria-label="Download note"
               aria-busy={downloadState?.status === 'starting' || isCurrentlyDownloading}
@@ -518,8 +520,8 @@ trackDownload(note._id);
                 onClick={submitRating}
                 disabled={userRating === 0}
                 className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-all cursor-pointer ${userRating === 0
-                    ? 'bg-neutral-900 text-neutral-600 cursor-not-allowed'
-                    : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                  ? 'bg-neutral-900 text-neutral-600 cursor-not-allowed'
+                  : 'bg-indigo-600 hover:bg-indigo-500 text-white'
                   }`}
               >
                 Submit

@@ -303,8 +303,9 @@ trackDownload(note._id);
           <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
             <span className="truncate">{note.subject}</span>
             <span>•</span>
-            <span className="whitespace-nowrap">Sem {note.semester}</span>
-            <span>•</span>
+             <span className="whitespace-nowrap">
+              Sem {Array.isArray(note.semester) ? note.semester.join(" / ") : note.semester}
+            </span>            <span>•</span>
             <span className="truncate">{note.university}</span>
           </div>
 

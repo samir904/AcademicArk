@@ -93,9 +93,9 @@ export default function ImportantCard({ note }) {
 
   const { downloadPDF, downloading } = usePDFDownload();
   const downloadState = downloading[note._id];
- const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
-const [isCurrentlyDownloading, setIsCurrentlyDownloading] = useState(false);
-const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNoteTracking();
+  const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
+  const [isCurrentlyDownloading, setIsCurrentlyDownloading] = useState(false);
+  const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNoteTracking();
 
   // Close menu on outside click
   useEffect(() => {
@@ -115,7 +115,7 @@ const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNo
   const handleBookmark = (e) => {
     e.preventDefault();
     e.stopPropagation();
-     trackBookmark(note._id);
+    trackBookmark(note._id);
     if (!isLoggedIn) {
       dispatch(setLoginModal({
         isOpen: true,
@@ -143,7 +143,7 @@ const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNo
       }));
       return;
     }
-setIsCurrentlyDownloading(true);
+    setIsCurrentlyDownloading(true);
     ReactGA.event({
       category: 'engagement',
       action: 'download_important',
@@ -171,7 +171,7 @@ setIsCurrentlyDownloading(true);
       setTimeout(() => {
         setIsCurrentlyDownloading(false);
         // Only show rating modal if user hasn't rated this note yet
-          setShowReviewModal(true);
+        setShowReviewModal(true);
       }, delay);
     } else {
       setIsCurrentlyDownloading(false);
@@ -253,11 +253,11 @@ setIsCurrentlyDownloading(true);
               <Link
                 to={`/notes/${note._id}/read`}
                 className="block text-white capitalize font-semibold text-base line-clamp-2 hover:underline transition-all cursor-pointer"
-              onClick={() => {
-              // ✅ ADD TRACKING - TWO LINES!
-              trackView(note._id, note.title);
-              trackClick(note._id);
-            }}
+                onClick={() => {
+                  // ✅ ADD TRACKING - TWO LINES!
+                  trackView(note._id, note.title);
+                  trackClick(note._id);
+                }}
               >
                 {note.title}
               </Link>
@@ -275,7 +275,7 @@ setIsCurrentlyDownloading(true);
                   className={`w-5 h-5 transition-all ${isBookmarked
                     ? 'text-amber-400 fill-current scale-110'
                     : 'text-neutral-500 hover:text-neutral-300'
-                  }`}
+                    }`}
                   filled={isBookmarked}
                 />
               </button>
@@ -312,7 +312,9 @@ setIsCurrentlyDownloading(true);
           <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
             <span className="truncate">{note.subject}</span>
             <span>•</span>
-            <span className="whitespace-nowrap">Sem {note.semester}</span>
+            <span className="whitespace-nowrap">
+              Sem {Array.isArray(note.semester) ? note.semester.join(" / ") : note.semester}
+            </span>
             <span>•</span>
             <span className="truncate">{note.university}</span>
           </div>
@@ -378,11 +380,11 @@ setIsCurrentlyDownloading(true);
               to={`/notes/${note._id}/read`}
               style={{ backgroundColor: '#1F1F1F' }}
               className="flex-1 px-4 py-2.5 hover:opacity-90 text-white rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700"
-            onClick={() => {
-              // ✅ ADD TRACKING - TWO LINES!
-              trackView(note._id, note.title);
-              trackClick(note._id);
-            }}
+              onClick={() => {
+                // ✅ ADD TRACKING - TWO LINES!
+                trackView(note._id, note.title);
+                trackClick(note._id);
+              }}
             >
               <EyeIcon className="w-4 h-4" />
               <span>View</span>
@@ -391,23 +393,22 @@ setIsCurrentlyDownloading(true);
             {/* Download Button */}
             <button
               onClick={handleDownload}
-              disabled={downloadState?.status === 'starting'|| isCurrentlyDownloading}
-              className={`px-3 py-3 border rounded-full font-semibold text-sm transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700 ${
-                downloadState?.status === 'error'
+              disabled={downloadState?.status === 'starting' || isCurrentlyDownloading}
+              className={`px-3 py-3 border rounded-full font-semibold text-sm transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700 ${downloadState?.status === 'error'
                   ? 'border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10'
                   : downloadState?.status === 'complete' || downloadState?.status === 'exists'
-                  ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400'
-                  : downloadState?.status === 'starting'|| isCurrentlyDownloading
-                  ? 'border-neutral-600 bg-neutral-800/50 text-neutral-300 cursor-wait'
-                  : 'border-neutral-700 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-900'
-              }`}
+                    ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400'
+                    : downloadState?.status === 'starting' || isCurrentlyDownloading
+                      ? 'border-neutral-600 bg-neutral-800/50 text-neutral-300 cursor-wait'
+                      : 'border-neutral-700 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-900'
+                }`}
               aria-label="Download note"
-              aria-busy={downloadState?.status === 'starting'|| isCurrentlyDownloading}
+              aria-busy={downloadState?.status === 'starting' || isCurrentlyDownloading}
               title="Download Important Question"
             >
               {downloadState?.status === 'complete' || downloadState?.status === 'exists' ? (
                 <CheckIcon className="w-4 h-4" />
-              ) : downloadState?.status === 'starting' || isCurrentlyDownloading? (
+              ) : downloadState?.status === 'starting' || isCurrentlyDownloading ? (
                 <div className="w-4 h-4 animate-spin border-2 border-neutral-400 border-t-transparent rounded-full"></div>
               ) : downloadState?.status === 'error' ? (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -496,11 +497,10 @@ setIsCurrentlyDownloading(true);
               <button
                 onClick={submitRating}
                 disabled={userRating === 0}
-                className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-all cursor-pointer ${
-                  userRating === 0
+                className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-all cursor-pointer ${userRating === 0
                     ? 'bg-neutral-900 text-neutral-600 cursor-not-allowed'
                     : 'bg-amber-600 hover:bg-amber-500 text-white'
-                }`}
+                  }`}
               >
                 Submit
               </button>

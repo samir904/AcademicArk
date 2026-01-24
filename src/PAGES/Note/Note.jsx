@@ -5,7 +5,7 @@ import { getAllNotes, setFilters, clearFilters } from '../../REDUX/Slices/notesl
 import aktulogo from "../../../public/download.jpeg";
 import HomeLayout from '../../LAYOUTS/Homelayout';
 import CardRenderer from './CardRenderer';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import AdBanner from '../../COMPONENTS/AdBanner';
 import RequestModal from '../../COMPONENTS/RequestModal';
 import { getAllRequests, upvoteRequest } from '../../REDUX/Slices/requestSlice';
@@ -13,6 +13,9 @@ import { getAllVideoLectures } from '../../REDUX/Slices/videoLecture.slice'; // 
 import { selectVideoLectureData } from '../../REDUX/Slices/videoLecture.slice';
 import { shallowEqual } from 'react-redux';
 import TrackedNoteCard from '../../COMPONENTS/Session/TrackedNoteCardWrapper';
+import { fetchPreferences, openPreferenceDrawer } from '../../REDUX/Slices/plannerSlice';
+import StudyPreferenceDrawer from '../../COMPONENTS/Planner/StudyPreferenceDrawer';
+import { markPlannerReminderAsShown, shouldShowPlannerReminder } from '../../UTILS/shouldShowPlannerReminder';
 
 // Icon components
 const FilterIcon = ({ className }) => (
@@ -54,7 +57,7 @@ export default function Note() {
   const { notes, loading, totalNotes, filters } = useSelector(state => state.note);
   // ✨ UPDATED: Get notes AND videos from Redux
   // In your component:
-const { allVideos: videos, loading: videoLoading } = useSelector(selectVideoLectureData);
+  const { allVideos: videos, loading: videoLoading } = useSelector(selectVideoLectureData);
 
   const [localFilters, setLocalFilters] = useState({
     semester: filters.semester || '',
@@ -110,7 +113,7 @@ const { allVideos: videos, loading: videoLoading } = useSelector(selectVideoLect
     ],
     3: [
       'data structure', 'digital electronics',
-      'computer organization and architecture', 'python programming', 
+      'computer organization and architecture', 'python programming',
       "discrete structures & theory of logic", "mathematics-iv", "technical communication"
     ],
     4: [
@@ -309,124 +312,167 @@ const { allVideos: videos, loading: videoLoading } = useSelector(selectVideoLect
       }));
     }
   }, [localFilters.semester, dispatch]);
- // ✅ FIXED: displayResources with COMPLETE debugging
-const displayResources = useMemo(() => {
-  const category = localFilters.category?.trim();
-  const categoryLower = category?.toLowerCase();
-  
-  console.log('🎯 displayResources check:', {
-    category,
-    categoryLower,
-    isVideoCategory: categoryLower === 'video',
-    filteredVideos: filteredVideos?.length,
-    filteredNotes: filteredNotes?.length,
-    allVideos: videos?.length
-  });
-  
-  // ✨ If Video category selected → show FILTERED videos
-  if (categoryLower === 'video') {
-    console.log('✅ Returning videos:', filteredVideos);
-    return filteredVideos || [];
-  }
-  
-  // ✨ If no category selected → show all notes
-  if (!category) {
-    console.log('✅ No category, returning all notes');
-    return filteredNotes || [];
-  }
-  
-  // ✨ If specific category selected → exact match
-  const result = filteredNotes.filter(note => 
-    note.category?.toLowerCase() === categoryLower
-  );
-  console.log('✅ Filtering by category:', category, 'found:', result.length);
-  return result;
-}, [filteredNotes, filteredVideos, localFilters.category, localFilters]);
+  // ✅ FIXED: displayResources with COMPLETE debugging
+  const displayResources = useMemo(() => {
+    const category = localFilters.category?.trim();
+    const categoryLower = category?.toLowerCase();
 
-// ✅ FIXED: Better category handler
-// const handleCategoryClick = (category) => {
-//   console.log('🎬 Category clicked:', category);
-  
-//   if (localFilters.category?.toLowerCase() === category.toLowerCase()) {
-//     // If clicking the same category, toggle collapse
-//     setIsStatsCollapsed(!isStatsCollapsed);
-//   } else {
-//     // If clicking a different category, select it and expand
-//     handleFilterChange('category', category);
-//     setIsStatsCollapsed(false);
-//   }
-// };
+    console.log('🎯 displayResources check:', {
+      category,
+      categoryLower,
+      isVideoCategory: categoryLower === 'video',
+      filteredVideos: filteredVideos?.length,
+      filteredNotes: filteredNotes?.length,
+      allVideos: videos?.length
+    });
 
-// ✅ Ensure videos are being fetched when component mounts and category changes
-useEffect(() => {
-  console.log('📡 Fetching videos for semester:', localFilters.semester);
-  if (localFilters.semester) {
-    dispatch(getAllVideoLectures({ 
-      semester: localFilters.semester 
-    }));
-  }
-}, [localFilters.semester, dispatch]);
-const handleCategoryClick = (category) => {
-  console.log('=== CATEGORY CLICK DEBUG ===');
-  console.log('Clicked category:', category);
-  console.log('Current category:', localFilters.category);
-  console.log('Videos in Redux:', videos?.length);
-  console.log('Filtered videos:', filteredVideos?.length);
-  
-  if (localFilters.category?.toLowerCase() === category.toLowerCase()) {
-    setIsStatsCollapsed(!isStatsCollapsed);
-  } else {
-    handleFilterChange('category', category);
-    setIsStatsCollapsed(false);
-  }
-  
-  // After state updates
-  setTimeout(() => {
-    console.log('After filter change:');
-    console.log('New localFilters:', localFilters);
-  }, 0);
-};
-const getChapterStats = () => {
-  if (localFilters.category !== 'Video') return {};
-  
-  const videoMaterials = materials.filter(material => 
-    material.category === 'Video' && 
-    material.semester === localFilters.semester &&
-    (!localFilters.subject || material.subject === localFilters.subject)
-  );
-  
-  const stats = {};
-  videoMaterials.forEach(video => {
-    const chapter = video.chapter || 'Unknown';
-    stats[chapter] = (stats[chapter] || 0) + 1;
-  });
-  
-  return stats;
-};
+    // ✨ If Video category selected → show FILTERED videos
+    if (categoryLower === 'video') {
+      console.log('✅ Returning videos:', filteredVideos);
+      return filteredVideos || [];
+    }
 
-const getChapterConfig = (chapter) => {
-  const colors = [
-    { gradient: 'from-blue-600 to-blue-700', textColor: 'text-blue-300', icon: '📖' },
-    { gradient: 'from-purple-600 to-purple-700', textColor: 'text-purple-300', icon: '📚' },
-    { gradient: 'from-pink-600 to-pink-700', textColor: 'text-pink-300', icon: '💡' },
-    { gradient: 'from-green-600 to-green-700', textColor: 'text-green-300', icon: '🎯' },
-    { gradient: 'from-orange-600 to-orange-700', textColor: 'text-orange-300', icon: '⚡' },
-    { gradient: 'from-cyan-600 to-cyan-700', textColor: 'text-cyan-300', icon: '🔥' },
-    { gradient: 'from-indigo-600 to-indigo-700', textColor: 'text-indigo-300', icon: '✨' },
-    { gradient: 'from-rose-600 to-rose-700', textColor: 'text-rose-300', icon: '🌟' },
-  ];
-  
-  const index = (parseInt(chapter) - 1) % colors.length;
-  return colors[index];
-};
+    // ✨ If no category selected → show all notes
+    if (!category) {
+      console.log('✅ No category, returning all notes');
+      return filteredNotes || [];
+    }
 
+    // ✨ If specific category selected → exact match
+    const result = filteredNotes.filter(note =>
+      note.category?.toLowerCase() === categoryLower
+    );
+    console.log('✅ Filtering by category:', category, 'found:', result.length);
+    return result;
+  }, [filteredNotes, filteredVideos, localFilters.category, localFilters]);
+
+  // ✅ FIXED: Better category handler
+  // const handleCategoryClick = (category) => {
+  //   console.log('🎬 Category clicked:', category);
+
+  //   if (localFilters.category?.toLowerCase() === category.toLowerCase()) {
+  //     // If clicking the same category, toggle collapse
+  //     setIsStatsCollapsed(!isStatsCollapsed);
+  //   } else {
+  //     // If clicking a different category, select it and expand
+  //     handleFilterChange('category', category);
+  //     setIsStatsCollapsed(false);
+  //   }
+  // };
+
+  // ✅ Ensure videos are being fetched when component mounts and category changes
+  useEffect(() => {
+    console.log('📡 Fetching videos for semester:', localFilters.semester);
+    if (localFilters.semester) {
+      dispatch(getAllVideoLectures({
+        semester: localFilters.semester
+      }));
+    }
+  }, [localFilters.semester, dispatch]);
+  const handleCategoryClick = (category) => {
+    console.log('=== CATEGORY CLICK DEBUG ===');
+    console.log('Clicked category:', category);
+    console.log('Current category:', localFilters.category);
+    console.log('Videos in Redux:', videos?.length);
+    console.log('Filtered videos:', filteredVideos?.length);
+
+    if (localFilters.category?.toLowerCase() === category.toLowerCase()) {
+      setIsStatsCollapsed(!isStatsCollapsed);
+    } else {
+      handleFilterChange('category', category);
+      setIsStatsCollapsed(false);
+    }
+
+    // After state updates
+    setTimeout(() => {
+      console.log('After filter change:');
+      console.log('New localFilters:', localFilters);
+    }, 0);
+  };
+  const getChapterStats = () => {
+    if (localFilters.category !== 'Video') return {};
+
+    const videoMaterials = materials.filter(material =>
+      material.category === 'Video' &&
+      material.semester === localFilters.semester &&
+      (!localFilters.subject || material.subject === localFilters.subject)
+    );
+
+    const stats = {};
+    videoMaterials.forEach(video => {
+      const chapter = video.chapter || 'Unknown';
+      stats[chapter] = (stats[chapter] || 0) + 1;
+    });
+
+    return stats;
+  };
+
+  const getChapterConfig = (chapter) => {
+    const colors = [
+      { gradient: 'from-blue-600 to-blue-700', textColor: 'text-blue-300', icon: '📖' },
+      { gradient: 'from-purple-600 to-purple-700', textColor: 'text-purple-300', icon: '📚' },
+      { gradient: 'from-pink-600 to-pink-700', textColor: 'text-pink-300', icon: '💡' },
+      { gradient: 'from-green-600 to-green-700', textColor: 'text-green-300', icon: '🎯' },
+      { gradient: 'from-orange-600 to-orange-700', textColor: 'text-orange-300', icon: '⚡' },
+      { gradient: 'from-cyan-600 to-cyan-700', textColor: 'text-cyan-300', icon: '🔥' },
+      { gradient: 'from-indigo-600 to-indigo-700', textColor: 'text-indigo-300', icon: '✨' },
+      { gradient: 'from-rose-600 to-rose-700', textColor: 'text-rose-300', icon: '🌟' },
+    ];
+
+    const index = (parseInt(chapter) - 1) % colors.length;
+    return colors[index];
+  };
+  const navigate = useNavigate();
+  const isPreferencesSet = useSelector((state) => state.planner.isPreferencesSet);
+  const ctaText = localFilters.subject
+    ? `Study ${localFilters.subject} properly →`
+    : isPreferencesSet
+      ? "Continue my study plan →"
+      : "Study in order →";
+
+  const [showPlannerReminder, setShowPlannerReminder] = useState(false);
+
+  useEffect(() => {
+    if (!localFilters.semester) return;
+
+    const shouldShow = shouldShowPlannerReminder();
+
+    if (shouldShow) {
+      setShowPlannerReminder(true);
+      // ⚠️ DO NOT call markPlannerReminderAsShown() here!
+      // Wait for user interaction
+    }
+  }, [localFilters.semester]);
+  // State
+
+  // ✅ FIXED: Close handler - mark as shown when dismissed
+  const handleClosePlannerReminder = () => {
+    setShowPlannerReminder(false);
+    markPlannerReminderAsShown();  // ← Mark AFTER closing
+  };
+
+  // ✅ NEW: Separate handler for opening planner
+  const handleOpenPlanner = () => {
+    markPlannerReminderAsShown();  // ← Mark BEFORE navigating
+
+    if (isPreferencesSet) {
+      navigate("/planner");
+    } else {
+      dispatch(openPreferenceDrawer());
+    }
+  };
+
+
+  useEffect(() => {
+    dispatch(fetchPreferences());
+  }, [dispatch]);
   return (
     <HomeLayout>
       <div className="min-h-screen bg-black text-white">
         {/* Hero Section - Enhanced for AKTU */}
         <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900">
           {/* Subtle Overlay */}
-          <div className="absolute inset-0 bg-[#1F1F1F]"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10"></div>
 
           <div className="relative max-w-5xl mx-auto px-6 py-8 text-center">
             {/* Logo & Badge - Compact */}
@@ -646,29 +692,29 @@ const getChapterConfig = (chapter) => {
                         ✓ {localFilters.category}
                       </p>
                     )}
-                     {/* ✨ NEW: Chapter Filter - ONLY SHOW WHEN VIDEO SELECTED */}
-              {localFilters.category === 'Video' && (
-                <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5 border-red-500/30">
-                  <label className="text-xs text-slate-400 font-semibold block mb-1">Chapter</label>
-                  <select
-                    value={localFilters.videoChapter}
-                    onChange={(e) => handleFilterChange('videoChapter', e.target.value)}
-                    className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500"
-                  >
-                    <option className="bg-gray-900" value="">All Chapters</option>
-                    {uniqueChapters.map((chapter) => (
-                      <option className="bg-gray-900" key={chapter} value={chapter}>
-                        Chapter {chapter}
-                      </option>
-                    ))}
-                  </select>
-                  {localFilters.videoChapter && (
-                    <p className="text-xs text-red-400 mt-1.5 px-2 py-1 bg-red-500/10 rounded">
-                      🎬 Chapter {localFilters.videoChapter}
-                    </p>
-                  )}
-                </div>
-              )}
+                    {/* ✨ NEW: Chapter Filter - ONLY SHOW WHEN VIDEO SELECTED */}
+                    {localFilters.category === 'Video' && (
+                      <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2.5 border-red-500/30">
+                        <label className="text-xs text-slate-400 font-semibold block mb-1">Chapter</label>
+                        <select
+                          value={localFilters.videoChapter}
+                          onChange={(e) => handleFilterChange('videoChapter', e.target.value)}
+                          className="w-full bg-black/50 border border-slate-600/50 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                        >
+                          <option className="bg-gray-900" value="">All Chapters</option>
+                          {uniqueChapters.map((chapter) => (
+                            <option className="bg-gray-900" key={chapter} value={chapter}>
+                              Chapter {chapter}
+                            </option>
+                          ))}
+                        </select>
+                        {localFilters.videoChapter && (
+                          <p className="text-xs text-red-400 mt-1.5 px-2 py-1 bg-red-500/10 rounded">
+                            🎬 Chapter {localFilters.videoChapter}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Contributor */}
@@ -698,6 +744,66 @@ const getChapterConfig = (chapter) => {
               </div>
             )}
 
+            {/* 📘 Planner Smart Guidance Bar */}
+            {localFilters.semester && (
+              <div className="mb-6 px-3 sm:px-0">
+                <div
+                  className="
+        flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4
+        px-4 py-4 sm:py-3
+        rounded-xl
+        border border-slate-500/20
+        bg-[#1F1F1F] to-transparent
+        transition-all duration-200
+        shadow-sm backdrop-blur-sm
+      "
+                >
+                  {/* Left: Icon + Text */}
+                  <div className="flex items-start gap-3 flex-1">
+                    <div className="w-10 h-10 rounded-lg bg-slate-500/15 flex items-center justify-center flex-shrink-0 text-lg">
+                      📘
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm sm:text-base font-semibold text-slate-100 leading-tight">
+                        Want a clear study path?
+                      </p>
+
+                      <p className="text-xs sm:text-sm text-slate-400 mt-1 leading-snug">
+                        Planner organizes this subject chapter-by-chapter with notes, PYQs and
+                        important questions — complete one step, then move ahead.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right: Button */}
+                  <button
+                    onClick={() => {
+                      if (isPreferencesSet) {
+                        navigate("/planner");
+                      } else {
+                        dispatch(openPreferenceDrawer());
+                      }
+                    }}
+                    className="
+          flex-shrink-0
+          text-xs sm:text-sm font-semibold
+          px-4 sm:px-5 py-2.5 sm:py-2
+          rounded-full
+          bg-slate-100 text-slate-900
+          hover:bg-white
+          active:scale-[0.98]
+          transition-all duration-200
+          whitespace-nowrap
+          focus:outline-none focus:ring-2 focus:ring-slate-400/40
+          w-full sm:w-auto
+        "
+                  >
+                    {ctaText}
+                  </button>
+                </div>
+              </div>
+            )}
 
 
             {/* Message when no semester selected */}
@@ -747,153 +853,157 @@ const getChapterConfig = (chapter) => {
                 className="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div> */}
+            {/* <div style={{ padding: '20px', background: 'red', color: 'white' }}>
+      <h2>🔴 IF YOU SEE THIS, COMPONENT IS RENDERING</h2>
+    </div> */}
           </div>
 
-            {/* ✨ UPDATED: Stats Section - Include Video Count */}
-      {!loading && !videoLoading && localFilters.semester && (
-        <div className="mb-8 space-y-3">
-          {/* Total Resources */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-xs font-semibold uppercase tracking-wider mb-1">Total Resources</p>
-                <p className="text-3xl font-bold text-white">
-                  {totalNotes + (videos?.length || 0)}  {/* ✨ NEW: Add video count */}
-                </p>
+
+          {/* ✨ UPDATED: Stats Section - Include Video Count */}
+          {!loading && !videoLoading && localFilters.semester && (
+            <div className="mb-8 space-y-3">
+              {/* Total Resources */}
+              <div className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-blue-100 text-xs font-semibold uppercase tracking-wider mb-1">Total Resources</p>
+                    <p className="text-3xl font-bold text-white">
+                      {totalNotes + (videos?.length || 0)}  {/* ✨ NEW: Add video count */}
+                    </p>
+                  </div>
+                  <span className="text-5xl opacity-30">📊</span>
+                </div>
               </div>
-              <span className="text-5xl opacity-30">📊</span>
-            </div>
-          </div>
 
-          {/* Category Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">  {/* ✨ UPDATED: 5 columns for Video */}
-            {Object.entries(categoryStats).map(([category, count]) => {
-              const config = getCategoryConfig(category);
-              const isActive = localFilters.category === category;
+              {/* Category Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">  {/* ✨ UPDATED: 5 columns for Video */}
+                {Object.entries(categoryStats).map(([category, count]) => {
+                  const config = getCategoryConfig(category);
+                  const isActive = localFilters.category === category;
 
-              return (
-                <button
-                  key={category}
-                  onClick={() => {
-                    handleFilterChange('category', category);
-                    handleFilterChange('videoChapter', '');  // Reset chapter filter
-                  }}
-                  className={`
+                  return (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        handleFilterChange('category', category);
+                        handleFilterChange('videoChapter', '');  // Reset chapter filter
+                      }}
+                      className={`
                     relative rounded-lg p-3 transition-all duration-300 transform hover:scale-105 group
                     ${isActive
-                      ? `bg-gradient-to-br ${config.gradient} border-transparent shadow-lg scale-105`
-                      : `bg-[#1F1F1F] hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-600`
-                    }
+                          ? `bg-gradient-to-br ${config.gradient} border-transparent shadow-lg scale-105`
+                          : `bg-[#1F1F1F] hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-600`
+                        }
                   `}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">{config.icon}</span>
-                    <div className="text-left flex-1">
-                      <p className={`text-xs font-medium mb-0.5 ${isActive ? 'text-white/90' : 'text-slate-400'}`}>
-                        {category}
-                      </p>
-                      <p className={`text-xl font-bold ${isActive ? 'text-white' : config.textColor}`}>
-                        {count}
-                      </p>
-                    </div>
-                  </div>
-
-                  {isActive && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleFilterChange('category', '');
-                        handleFilterChange('videoChapter', '');
-                      }}
-                      className="absolute -top-2 -right-2 p-1 bg-red-500/80 hover:bg-red-600 rounded-full transition-colors shadow-md"
-                      title="Clear filter"
                     >
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-          
-    {/* Contributors Filter - Simple Version */}
-    {notes && notes.length > 0 && (
-      <div className="mb-8">
-        <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
-          <span>👤</span>
-          <span>Filter by Contributor</span>
-        </h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{config.icon}</span>
+                        <div className="text-left flex-1">
+                          <p className={`text-xs font-medium mb-0.5 ${isActive ? 'text-white/90' : 'text-slate-400'}`}>
+                            {category}
+                          </p>
+                          <p className={`text-xl font-bold ${isActive ? 'text-white' : config.textColor}`}>
+                            {count}
+                          </p>
+                        </div>
+                      </div>
 
-        <div className="flex flex-wrap gap-3">
-          {/* All Contributors Button */}
-          <button
-            onClick={() => handleFilterChange('uploadedBy', '')}
-            className={`
+                      {isActive && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleFilterChange('category', '');
+                            handleFilterChange('videoChapter', '');
+                          }}
+                          className="absolute -top-2 -right-2 p-1 bg-red-500/80 hover:bg-red-600 rounded-full transition-colors shadow-md"
+                          title="Clear filter"
+                        >
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Contributors Filter - Simple Version */}
+              {notes && notes.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+                    <span>👤</span>
+                    <span>Filter by Contributor</span>
+                  </h3>
+
+                  <div className="flex flex-wrap gap-3">
+                    {/* All Contributors Button */}
+                    <button
+                      onClick={() => handleFilterChange('uploadedBy', '')}
+                      className={`
               px-4 py-2 rounded-full font-medium transition-all
               ${!localFilters.uploadedBy
-                ? 'bg-blue-600 text-white shadow-lg'
-                : 'bg-[#1F1F1F] text-gray-300 hover:bg-gray-700'
-              }
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-[#1F1F1F] text-gray-300 hover:bg-gray-700'
+                        }
             `}
-          >
-            All Contributors ({notes.length})
-          </button>
+                    >
+                      All Contributors ({notes.length})
+                    </button>
 
-          {/* Individual Contributors */}
-          {uniqueUploaders.map(uploader => {
-            const uploaderCount = notes.filter(n => n.uploadedBy?._id === uploader.id).length;
-            const isActive = localFilters.uploadedBy === uploader.id;
+                    {/* Individual Contributors */}
+                    {uniqueUploaders.map(uploader => {
+                      const uploaderCount = notes.filter(n => n.uploadedBy?._id === uploader.id).length;
+                      const isActive = localFilters.uploadedBy === uploader.id;
 
-            return (
-              <button
-                key={uploader.id}
-                onClick={() => handleFilterChange('uploadedBy', uploader.id)}
-                className={`
+                      return (
+                        <button
+                          key={uploader.id}
+                          onClick={() => handleFilterChange('uploadedBy', uploader.id)}
+                          className={`
                   px-4 py-2 rounded-full font-medium transition-all flex items-center space-x-2
                   ${isActive
-                    ? 'bg-purple-600 text-white shadow-lg'
-                    : 'bg-[#1F1F1F] text-gray-300 hover:bg-gray-700'
-                  }
+                              ? 'bg-purple-600 text-white shadow-lg'
+                              : 'bg-[#1F1F1F] text-gray-300 hover:bg-gray-700'
+                            }
                 `}
-              >
-                {/* Avatar */}
-                {uploader?.avatar?.secure_url ? (
-                  <img
-                    src={uploader.avatar.secure_url}
-                    alt={uploader.name}
-                    className="w-5 h-5 rounded-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                    {uploader.name.charAt(0).toUpperCase()}
+                        >
+                          {/* Avatar */}
+                          {uploader?.avatar?.secure_url ? (
+                            <img
+                              src={uploader.avatar.secure_url}
+                              alt={uploader.name}
+                              className="w-5 h-5 rounded-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                              {uploader.name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <span className='capitalize'>{uploader.name} ({uploaderCount})</span>
+                        </button>
+                      );
+                    })}
                   </div>
-                )}
-                <span className='capitalize'>{uploader.name} ({uploaderCount})</span>
-              </button>
-            );
-          })}
-        </div>
 
-        {/* Active Contributor Badge */}
-        {localFilters.uploadedBy && (
-          <div className="mt-3 text-sm text-gray-400">
-            Showing notes by: <span className="text-purple-400 font-medium">
-              {uniqueUploaders.find(u => u.id === localFilters.uploadedBy)?.name}
-            </span>
-          </div>
-        )}
-      </div>
-    )}
-  </div>
-)}
+                  {/* Active Contributor Badge */}
+                  {localFilters.uploadedBy && (
+                    <div className="mt-3 text-sm text-gray-400">
+                      Showing notes by: <span className="text-purple-400 font-medium">
+                        {uniqueUploaders.find(u => u.id === localFilters.uploadedBy)?.name}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
 
-        
+
 
 
           {/* Loading State */}
@@ -946,7 +1056,7 @@ const getChapterConfig = (chapter) => {
 
 
           {/* Enhanced Empty State with Popular Requests */}
-     {!loading && !videoLoading && localFilters.semester && filteredNotes.length === 0 && displayResources.length === 0 && (
+          {!loading && !videoLoading && localFilters.semester && filteredNotes.length === 0 && displayResources.length === 0 && (
             <div className="text-center py-12 px-4">
 
               {/* TOP: PROMINENT REQUEST BUTTON - MAIN CTA */}
@@ -1016,10 +1126,10 @@ const getChapterConfig = (chapter) => {
                             </h5>
                             <div className="flex gap-2 flex-wrap">
                               <span className={`text-xs px-2 py-1 rounded-full font-medium ${request.requestType === 'NOTES'
-                                  ? 'bg-blue-500/20 text-blue-300'
-                                  : request.requestType === 'PYQ'
-                                    ? 'bg-purple-500/20 text-purple-300'
-                                    : 'bg-pink-500/20 text-pink-300'
+                                ? 'bg-blue-500/20 text-blue-300'
+                                : request.requestType === 'PYQ'
+                                  ? 'bg-purple-500/20 text-purple-300'
+                                  : 'bg-pink-500/20 text-pink-300'
                                 }`}>
                                 {request.requestType === 'NOTES' ? '📖 Notes' : request.requestType === 'PYQ' ? '📄 PYQs' : '❓ Questions'}
                               </span>
@@ -1050,8 +1160,8 @@ const getChapterConfig = (chapter) => {
                             onClick={() => dispatch(upvoteRequest(request._id))}
                             disabled={request.hasUpvoted}
                             className={`flex-1 py-2 px-3 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${request.hasUpvoted
-                                ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50 cursor-not-allowed'
-                                : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20 hover:border-blue-400/50'
+                              ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50 cursor-not-allowed'
+                              : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20 hover:border-blue-400/50'
                               }`}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thumbs-up-icon lucide-thumbs-up"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /><path d="M7 10v12" /></svg>
@@ -1274,35 +1384,109 @@ const getChapterConfig = (chapter) => {
 
           {/* <AdBanner /> */}
           {/* Notes Grid */}
-        {/* Notes/Videos Grid - FIXED */}
-{displayResources && displayResources.length > 0 && (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-    {displayResources.map((resource) => {
-      // ✅ FIXED: Better type detection
-      const isVideo = resource?.videoId || resource?.embedUrl || resource?.platform === 'YOUTUBE';
-      
-      return (
-        <TrackedNoteCard 
-          key={resource._id} 
-          item={resource}
-          type={isVideo ? 'video' : 'note'} // ✅ Detect from resource properties
-          note={resource}
-        />
-      );
-    })}
-  </div>
-)}
+          {/* Notes/Videos Grid - FIXED */}
 
-{/* Empty State - ADD THIS */}
-{!loading && !videoLoading && (!displayResources || displayResources.length === 0) && (
-  <div className="col-span-full text-center py-12">
-    <p className="text-gray-400 text-lg">
-      {localFilters.category === 'Video' 
-        ? 'No videos found for this semester'
-        : 'No resources found'}
-    </p>
-  </div>
-)}
+          {displayResources && displayResources.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {displayResources.map((resource) => {
+                // ✅ FIXED: Better type detection
+                const isVideo = resource?.videoId || resource?.embedUrl || resource?.platform === 'YOUTUBE';
+
+                return (
+                  <TrackedNoteCard
+                    key={resource._id}
+                    item={resource}
+                    type={isVideo ? 'video' : 'note'} // ✅ Detect from resource properties
+                    note={resource}
+                  />
+                );
+              })}
+            </div>
+          )}
+          {/* 📘 Planner Guidance — After Notes Grid */}
+          {displayResources && displayResources.length > 0 && showPlannerReminder && (
+            <div className="mb-10 px-3 sm:px-0">
+              <div
+                className="
+        flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4
+        px-5 py-5 sm:py-4
+        rounded-2xl
+        border border-slate-600/20
+        bg-[#1F1F1F]
+        shadow-sm backdrop-blur
+      "
+              >
+                {/* Left: Message */}
+                <div className="flex items-start gap-4 flex-1">
+                  <div className="w-11 h-11 rounded-xl bg-slate-500/15 flex items-center justify-center flex-shrink-0 text-xl">
+                    📘
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm sm:text-base font-semibold text-slate-100">
+                      Studying chapter-by-chapter works better
+                    </p>
+
+                    <p className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">
+                      Planner arranges these notes, PYQs and important questions into a
+                      clear order — complete one chapter, then move to the next without confusion.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right: CTA */}
+                <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                  <button
+                    onClick={handleOpenPlanner}
+                    className="
+            flex-1 sm:flex-none
+            px-5 py-2.5
+            text-xs sm:text-sm font-semibold
+            rounded-full
+            bg-slate-100 text-slate-900
+            hover:bg-white
+            active:scale-[0.98]
+            transition-all duration-200
+            whitespace-nowrap
+            focus:outline-none focus:ring-2 focus:ring-slate-400/40
+          "
+                  >
+                    Organize my study →
+                  </button>
+
+                  <button
+                    onClick={handleClosePlannerReminder}
+                    className="
+            px-3 py-2.5
+            text-slate-400 hover:text-slate-200
+            hover:bg-white/5
+            rounded-lg
+            transition-colors
+            focus:outline-none focus:ring-2 focus:ring-slate-400/30
+          "
+                    aria-label="Dismiss"
+                    title="Dismiss"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+
+
+
+          {/* Empty State - ADD THIS */}
+          {!loading && !videoLoading && (!displayResources || displayResources.length === 0) && (
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-400 text-lg">
+                {localFilters.category === 'Video'
+                  ? 'No videos found for this semester'
+                  : 'No resources found'}
+              </p>
+            </div>
+          )}
 
           {/* <AdBanner /> */}
         </div>
@@ -1315,6 +1499,9 @@ const getChapterConfig = (chapter) => {
         />
 
       </div>
+
+      {/* Planner Drawer (must be mounted) */}
+      <StudyPreferenceDrawer isFirstTime={false} />
     </HomeLayout>
   );
 }

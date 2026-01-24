@@ -45,6 +45,7 @@ import VideoWatch from './PAGES/video/VideoWatch'
 import LeaderboardPage from "./PAGES/LeaderboardPage";
 import DynamicHome from "./PAGES/DynamicHome";
 import SessionTracker from "./COMPONENTS/Session/SessionTracker";
+import PlannerPage from "./PAGES/PlannerPage";
 // //import VideoUploadForm from "./COMPONENTS/Admin/VideoUploadForm";
 // import UploadVideoLecture from "./PAGES/video/UploadVideoLecture";
 const AdvancedSearch = React.lazy(() =>
@@ -338,6 +339,7 @@ function App() {
             </Suspense>
           }
         />
+        <Route path="/planner" element={<PlannerPage />} />
         <Route
           path="/attendance"
           element={

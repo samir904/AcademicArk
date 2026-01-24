@@ -16,7 +16,7 @@ import EnhancedFooter from "./EnhancedFooter";
 import FeedbackForm from "../COMPONENTS/FeedbackForm";
 import PWAInstallPrompt from "../COMPONENTS/PWAInstallPrompt";
 import OfflineModal from "../COMPONENTS/OfflineModal";
-import { Trophy } from "lucide-react";
+import { Trophy,CalendarCog } from "lucide-react";
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -370,6 +370,8 @@ const [showFeedback, setShowFeedback] = useState(false);
       { name: "Home", path: "/", icon: "🏠" },
       { name: "Library", path: "/notes", icon: "📚" },
       { name: "Search", path: "/search", icon: "📖" },
+      { name: "Smart Planner", path: "/planner", icon: "📘" },
+      
       // { name: "Leaderboard", path: "/leaderboard", icon: "🏆" },  // ✨ NEW
       // { name: "Attendance", path: "/attendance", icon: "📊" }, // ✨ MOVED: Always show
       { name: "Downloads", path: "/downloads", icon: "📥" }
@@ -412,6 +414,7 @@ const [showFeedback, setShowFeedback] = useState(false);
         icon: LibraryIcon,
         label: "Library",
       },
+      { name: "Planner", label: "Planner", path: "/planner", icon: CalendarCog },
   //     {
   //   name: "Leaderboard",  // ✨ NEW
   //   path: "/leaderboard",

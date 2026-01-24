@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getNote, toggleBookmark, clearCurrentNote } from '../../REDUX/Slices/noteslice';
 import { useNoteDownload } from '../../hooks/useNoteDownload';
 import { useNoteTracking } from "../../COMPONENTS/Session/NoteInteractionTracker";
+import { clearActiveResource, setActiveResource } from '../../UTILS/activeResource';
 
 const ReadNote = () => {
   const { id } = useParams();
@@ -91,6 +92,7 @@ const ReadNote = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  
   // Fetch note data
   useEffect(() => {
     if (id) {
@@ -110,7 +112,16 @@ const ReadNote = () => {
       return () => clearInterval(timer);
     }
   }, [currentNote, loading, pdfUrl]);
+// import { useEffect } from "react";
+// import { setActiveResource, clearActiveResource } from "../../UTILS/activeResource";
 
+useEffect(() => {
+  if (!id) return;
+    setActiveResource({
+    type: "NOTE",
+    id: id
+  });
+}, [id]);
   // Format reading time
   const formatReadingTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -142,6 +153,45 @@ const ReadNote = () => {
   // }, [currentNote]);
 
   // Loading state
+  // ✅ Step 1: Initialize state FIRST (top of component)
+  
+const [showPlannerToast, setShowPlannerToast] = useState(false);
+const [hasShownToastToday, setHasShownToastToday] = useState(false);
+// ✅ ADD THIS FUNCTION
+  const markPlannerToastAsShown = () => {
+    const today = new Date().toDateString();
+    localStorage.setItem('plannerToastShownDate', today);
+    setHasShownToastToday(true);
+  };
+// ✅ Step 2: Reading time tracker
+useEffect(() => {
+  if (!currentNote || loading || !pdfUrl) return;
+
+  const timer = setInterval(() => {
+    setReadingTime(prev => prev + 1);
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [currentNote, loading, pdfUrl]);
+
+// ✅ Step 3: Show toast after 30 seconds
+useEffect(() => {
+  if (readingTime === 30 && !hasShownToastToday) {
+    setShowPlannerToast(true);
+    setHasShownToastToday(true);
+  }
+}, [readingTime, hasShownToastToday]);
+
+// ✅ Step 4: Auto-dismiss after 15 seconds
+useEffect(() => {
+  if (!showPlannerToast) return;
+
+  const timer = setTimeout(() => {
+    setShowPlannerToast(false);
+  }, 15000);
+
+  return () => clearTimeout(timer);
+}, [showPlannerToast]);
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -197,6 +247,8 @@ const ReadNote = () => {
       </div>
     );
   }
+
+
 
   return (
     <div className={`min-h-screen bg-black text-white transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
@@ -343,6 +395,87 @@ const ReadNote = () => {
           </div>
         </div>
       )}
+
+{showPlannerToast && (
+  <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div
+      className="
+        relative
+        bg-zinc-900
+        border border-zinc-700/60
+        rounded-2xl
+        p-5
+        shadow-2xl
+        space-y-4
+      "
+    >
+      {/* Close */}
+      <button
+        onClick={() => setShowPlannerToast(false)}
+        className="
+          absolute top-3 right-3
+          p-1.5
+          text-zinc-500 hover:text-zinc-300
+          transition-colors
+        "
+        aria-label="Close"
+      >
+        ✕
+      </button>
+
+      {/* Content */}
+      <div className="pr-8 space-y-2">
+        <p className="text-[11px] font-medium uppercase tracking-widest text-zinc-400">
+          Study tip
+        </p>
+
+        <h3 className="text-base font-semibold text-zinc-100 leading-snug">
+          Studying {currentNote?.subject || "this subject"}?
+        </h3>
+
+        <p className="text-sm text-zinc-400 leading-relaxed">
+          Planner organizes chapters, notes, PYQs and questions in the right order —
+          complete one unit, then move forward without confusion.
+        </p>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-3 pt-2">
+        <button
+          onClick={() => {
+            markPlannerToastAsShown();
+            navigate("/planner");
+          }}
+          className="
+            flex-1 px-4 py-2.5
+            bg-zinc-100 text-zinc-900
+            hover:bg-white
+            rounded-lg
+            font-semibold text-sm
+            transition-all active:scale-95
+          "
+        >
+          Organize this subject
+        </button>
+
+        <button
+          onClick={() => setShowPlannerToast(false)}
+          className="
+            flex-1 px-4 py-2.5
+            bg-zinc-800 text-zinc-400
+            hover:bg-zinc-700 hover:text-zinc-200
+            rounded-lg
+            font-semibold text-sm
+            transition-all active:scale-95
+          "
+        >
+          Later
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* Mobile Header */}
       {isMobile && !isFullscreen && (
