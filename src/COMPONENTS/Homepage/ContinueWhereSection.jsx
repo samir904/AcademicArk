@@ -87,7 +87,7 @@ export default function ContinueWhereSection({ continue: continueData }) {
                     {/* CTA - big and clear */}
                     <div className="pt-4">
                         <Link to={`/notes/${note.id}/read`}>
-                            <button className="w-full md:w-auto bg-[#9CA3AF] hover:bg-white text-black px-10 py-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+                            <button className="w-full md:w-auto bg-[#9CA3AF] hover:bg-white text-black px-10 py-4 rounded-full font-semibold transition-all duration-300 transform hover:scale-105">
                                 {continueData.action} →
                             </button>
                         </Link>

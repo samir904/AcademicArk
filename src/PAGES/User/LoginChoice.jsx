@@ -64,7 +64,7 @@ export default function LoginChoice() {
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="group w-full bg-gradient-to-r from-white to-gray-100 hover:from-gray-50 hover:to-white text-black py-4 rounded-full font-bold transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-between px-6 shadow-lg hover:shadow-xl"
+            className="group w-full bg-[#9CA3AF] hover:bg-white text-black py-4 rounded-full font-bold transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-between px-6 shadow-lg hover:shadow-xl"
           >
             <div className="flex items-center space-x-3">
               <div className="w-5 h-5">

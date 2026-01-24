@@ -173,7 +173,7 @@ export default function LoginEmail() {
                     onChange={handleInputChange}
                     name="email"
                     id="email"
-                    placeholder="your@gmail.com"
+                    placeholder="Enter your email.."
                     className={`w-full pl-12 pr-4 py-3.5 bg-white/5 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all backdrop-blur-sm ${errors.email ? 'border-red-500/50' : 'border-white/20 hover:border-white/30'
                       }`}
                   />
@@ -211,7 +211,7 @@ export default function LoginEmail() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-black hover:black transition-colors"
                   >
                     {showPassword ? (
                       <EyeSlashIcon className="w-5 h-5" />
@@ -242,7 +242,7 @@ export default function LoginEmail() {
               <button
                 type="submit"
                 disabled={loading || Object.keys(errors).length > 0}
-                className="w-full mt-6 bg-gradient-to-r from-white to-gray-100 hover:from-gray-50 hover:to-white text-black py-3.5 rounded-xl font-bold transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center space-x-2 shadow-lg"
+                className="w-full mt-6 bg-gradient-to-r from-white to-gray-100 hover:from-gray-50 hover:to-white text-black py-3.5 rounded-full font-bold transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center space-x-2 shadow-lg"
               >
                 {loading ? (
                   <>

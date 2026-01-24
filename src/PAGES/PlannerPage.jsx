@@ -53,12 +53,14 @@ export default function PlannerPage() {
   // Show loading state
   if (loading.preferences) {
     return (
+        <HomeLayout>
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-neutral-800 border-t-indigo-500 rounded-full animate-spin"></div>
           <p className="text-neutral-400">Loading your study plan...</p>
         </div>
       </div>
+      </HomeLayout>
     );
   }
 

@@ -30,6 +30,7 @@ const initialState = {
     filters: {
         subject: '',
         semester: '',
+        unit: '', // ✅ NEW: For chapter/unit filter
         university: '',
         course: '',
         category: ''

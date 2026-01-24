@@ -449,7 +449,7 @@ useEffect(() => {
           className="
             flex-1 px-4 py-2.5
             bg-[#9CA3AF] hover:bg-white text-black
-            rounded-lg
+            rounded-full
             font-semibold text-sm
             transition-all active:scale-95
           "
@@ -463,7 +463,7 @@ useEffect(() => {
             flex-1 px-4 py-2.5
             bg-zinc-800 text-zinc-400
             hover:bg-zinc-700 hover:text-zinc-200
-            rounded-lg
+            rounded-full
             font-semibold text-sm
             transition-all active:scale-95
           "
