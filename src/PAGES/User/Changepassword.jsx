@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { showToast } from '../../HELPERS/Toaster';
 import { isValidPassword } from '../../HELPERS/regexmatch';
 import { changePassword } from '../../REDUX/Slices/authslice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icon components
 const LockIcon = ({ className }) => (
@@ -149,7 +148,7 @@ export default function Changepassword() {
   };
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
@@ -375,6 +374,6 @@ export default function Changepassword() {
           </div>
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }

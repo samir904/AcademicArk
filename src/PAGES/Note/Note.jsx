@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllNotes, setFilters, clearFilters } from '../../REDUX/Slices/noteslice';
 import aktulogo from "../../../public/download.jpeg";
-import HomeLayout from '../../LAYOUTS/Homelayout';
 import CardRenderer from './CardRenderer';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import AdBanner from '../../COMPONENTS/AdBanner';
@@ -496,7 +495,7 @@ const handleSemesterChange = (newSemester) => {
   dispatch(clearFilters());
 };
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white">
   {/* Notes Library Hero – Calm & Academic */}
 {/* Notes Page Hero – Calm, Academic, Complete */}
@@ -1096,6 +1095,6 @@ const handleSemesterChange = (newSemester) => {
 
       {/* Planner Drawer (must be mounted) */}
       <StudyPreferenceDrawer isFirstTime={false} />
-    </HomeLayout>
+    </>
   );
 }

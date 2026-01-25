@@ -2,7 +2,6 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icons
 const BookOpenIcon = ({ className }) => (
@@ -398,7 +397,7 @@ export default function StudyGuides() {
     );
 
     return (
-        <HomeLayout>
+        <>
             <div className="min-h-screen bg-black text-white">
                 {/* Header */}
                 <div className="bg-gradient-to-br from-blue-900 via-black to-purple-900 py-16">
@@ -609,6 +608,6 @@ export default function StudyGuides() {
                     </div>
                 </div>
             </div>
-        </HomeLayout>
+        </>
     );
 }

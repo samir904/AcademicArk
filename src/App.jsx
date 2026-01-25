@@ -5,6 +5,7 @@ import "./App.css";
 
 // 🟢 KEEP THESE IMMEDIATE (No lazy loading)
 import Homepage from "./PAGES/Static/Homepage";
+import DynamicHome from './PAGES/DynamicHome'
 //import Login from './PAGES/User/Login';
 //import Signup from './PAGES/User/Signup';
 import PageNotFound from "./PAGES/Static/PageNotFound";
@@ -18,9 +19,7 @@ import SignupChoice from "./PAGES/User/SignupChoice";
 import SignupEmail from "./PAGES/User/Signup";
 import ManageBanners from "./PAGES/Admin/ManageBanners";
 import PageTracker from "./COMPONENTS/PageTracker";
-import Analytics from "./PAGES/Admin/Analytics";
 // import { BroadcastEmail } from "./PAGES/Admin/BroadcastEmail";
-import EmailCampaigns from "./PAGES/Admin/EmailCampaigns";
 import GlobalLoginModal from "./COMPONENTS/GlobalLoginModal";
 import HomeLayout from "./LAYOUTS/Homelayout";
 // import StudyBuddy from './PAGES/AI/StudyBuddy';
@@ -29,6 +28,8 @@ import HomeLayout from "./LAYOUTS/Homelayout";
 // import CookieWarning from './COMPONENTS/CookieWarning';
 // import AttendanceDashboard from './PAGES/Attendance/AttendanceDashboard';
 // 🟡 LAZY LOAD THESE (Medium priority)
+const Analytics = React.lazy(() => import("./PAGES/Admin/Analytics"))
+const EmailCampaigns = React.lazy(() => import("./PAGES/Admin/EmailCampaigns"))
 const EditAcademicProfile = React.lazy(() => import("./PAGES/User/EditAcademicProfile"))
 const ForgotPassword = React.lazy(() => import("./PAGES/User/Forgotpassword"));
 const Resetpassword = React.lazy(() => import("./PAGES/User/Resetpassword"));
@@ -41,11 +42,36 @@ const ReadNote = React.lazy(() => import("./PAGES/Note/ReadNote"));
 const UploadNote = React.lazy(() => import("./PAGES/Note/UploadNote"));
 const UpdateNote = React.lazy(() => import("./PAGES/Note/UpdateNote"));
 const UploadVideoLecture = React.lazy(() => import("./PAGES/video/UploadVideoLecture"));
-import VideoWatch from './PAGES/video/VideoWatch'
-import LeaderboardPage from "./PAGES/LeaderboardPage";
-import DynamicHome from "./PAGES/DynamicHome";
+const VideoWatch = React.lazy(() => import("./PAGES/video/VideoWatch"));
+const LeaderboardPage = React.lazy(() => import("./PAGES/LeaderboardPage"));
+
+const PlannerPage = React.lazy(() => import("./PAGES/PlannerPage"));
+const MySpace = React.lazy(() => import("./PAGES/User/MySpace"));
+
+
 import SessionTracker from "./COMPONENTS/Session/SessionTracker";
-import PlannerPage from "./PAGES/PlannerPage";
+// ✅ ALSO CORRECT (same thing, shorter)
+import {
+  NotesSkeleton,
+  NoteDetailSkeleton,
+  ReadNoteSkeleton,
+  DownloadsSkeleton,
+  PlannerSkeleton,
+  AttendanceSkeleton,
+  SubjectSkeleton,
+  ProfileSkeleton,
+  EditProfileSkeleton,
+  SearchSkeleton,
+  BookmarksSkeleton,
+  UploadSkeleton,
+  VideoUploadSkeleton,
+  AdminDashboardSkeleton,
+  SettingsSkeleton,
+  LeaderboardSkeleton,
+  GenericSkeleton,
+  MySpaceSkeleton
+} from "./COMPONENTS/Skeletons";  // This works too!
+// import { NotesSkeleton } from "";
 // //import VideoUploadForm from "./COMPONENTS/Admin/VideoUploadForm";
 // import UploadVideoLecture from "./PAGES/video/UploadVideoLecture";
 const AdvancedSearch = React.lazy(() =>
@@ -313,7 +339,7 @@ function App() {
   //   document.head.appendChild(script);
   // }, []);
   const isLoggedIn = useSelector(state => state?.auth?.isLoggedIn);
-// console.log("isloggedin",isLoggedIn)
+  // console.log("isloggedin",isLoggedIn)
   return (
     <div className="App">
       {/* <CookieWarning /> */}
@@ -322,307 +348,349 @@ function App() {
       <SessionTracker /> {/* ← ADD THIS - Will auto-track everything */}
       <Routes>
         {/* 🟢 Core Routes */}
-        <Route path="/" element={isLoggedIn ? <DynamicHome /> : <Homepage />} />
+
         <Route path="/signup" element={<SignupChoice />} />
         <Route path="/signup/email" element={<SignupEmail />} />
         <Route path="/login" element={<LoginChoice />} />
         <Route path="/login/email" element={<LoginEmail />} />
-        <Route path="/admin/banners" element={<ManageBanners />} />
-        <Route path="/admin/analytics" element={<Analytics />} />
-        {/* <Route path="/admin/broadcast-email" element={<BroadcastEmail />} /> */}
-        <Route path="/admin/campaigns" element={<EmailCampaigns />} />
-        <Route
-          path="/downloads"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <DownloadsPage />
+        {/* 🟡 ALL logged-in routes under HomeLayout */}
+        <Route element={<HomeLayout />}>
+          <Route path="/" element={isLoggedIn ? <DynamicHome /> : <Homepage />} />
+          <Route path="/myspace"
+           element={
+            <Suspense fallback={<MySpaceSkeleton />}>
+           <MySpace />
+           </Suspense>
+           }
+           />
+          
+          <Route path="/admin/banners"
+           element={
+            <Suspense fallback={<AdminDashboardSkeleton />}>
+           <ManageBanners />
+           </Suspense>
+           } />
+          
+          <Route path="/admin/analytics"
+            element={
+              <Suspense fallback={<AdminDashboardSkeleton />}>
+            <Analytics />
             </Suspense>
-          }
-        />
-        <Route path="/planner" element={<PlannerPage />} />
-        <Route
-          path="/attendance"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <AttendanceDashboard />
-            </Suspense>
-          }
-        />
-        {/* // Inside your Routes component, add: */}
-        {/* <Route path="/study-buddy" element={<StudyBuddy />} />
+            } />
+          {/* <Route path="/admin/broadcast-email" element={<BroadcastEmail />} /> */}
+          
+          <Route path="/admin/campaigns"
+            element={
+              <Suspense fallback={<GenericSkeleton />}>
+                <EmailCampaigns />
+              </Suspense>}
+          />
+          <Route
+            path="/downloads"
+            element={
+              <Suspense fallback={<DownloadsSkeleton />}>
+                <DownloadsPage />
+              </Suspense>
+            }
+          />
+          <Route path="/planner"
+            element={
+              <Suspense fallback={<PlannerSkeleton />}>
+                <PlannerPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/attendance"
+            element={
+              <Suspense fallback={<AttendanceSkeleton />}>
+                <AttendanceDashboard />
+              </Suspense>
+            }
+          />
+          {/* // Inside your Routes component, add: */}
+          {/* <Route path="/study-buddy" element={<StudyBuddy />} />
 <Route path="/study-planner" element={<StudyPlanner />} />
 <Route path="/study-planner/:id" element={<StudyPlannerDetail />} /> */}
-        {/* // Add this route with other attendance routes */}
-        <Route
-          path="/attendance/:semester/subject/:subject"
-          element={
-            <AuthGuard>
-              <Suspense fallback={<AppLoader />}>
-                <SubjectDetails />
+          {/* // Add this route with other attendance routes */}
+          <Route
+            path="/attendance/:semester/subject/:subject"
+            element={
+              <AuthGuard>
+                <Suspense fallback={<SubjectSkeleton />}>
+                  <SubjectDetails />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/attendance/stats"
+            element={
+              <AuthGuard>
+                <Suspense fallback={<AttendanceSkeleton />}>
+                  <AttendanceStats />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/attendance/calendar"
+            element={
+              <AuthGuard>
+                <Suspense fallback={<AttendanceSkeleton />}>
+                  <AttendanceCalendar />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route path="/leaderboard"
+            element={
+              <Suspense fallback={<LeaderboardSkeleton />}>
+                <LeaderboardPage />
               </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/attendance/stats"
-          element={
-            <AuthGuard>
-              <Suspense fallback={<AppLoader />}>
-                <AttendanceStats />
+            }
+          />
+          {/* 🟡 Lazy Routes */}
+          <Route
+            path="/forgot-password"
+            element={
+              <Suspense fallback={<SettingsSkeleton />}>
+                <ForgotPassword />
               </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/attendance/calendar"
-          element={
-            <AuthGuard>
-              <Suspense fallback={<AppLoader />}>
-                <AttendanceCalendar />
+            }
+          />
+          <Route
+            path="/reset-password/:resetToken"
+            element={
+              <Suspense fallback={<GenericSkeleton />}>
+                <Resetpassword />
               </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
-        {/* 🟡 Lazy Routes */}
-        <Route
-          path="/forgot-password"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <ForgotPassword />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/reset-password/:resetToken"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <Resetpassword />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <AuthGuard>
-              <Suspense fallback={<AppLoader />}>
-                <Profile />
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <AuthGuard>
+                <Suspense fallback={<ProfileSkeleton />}>
+                  <Profile />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/profile/edit-social"
+            element={
+              <AuthGuard>
+                <Suspense fallback={<EditProfileSkeleton />}>
+                  <EditSocialLinks />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/profile/:userId"
+            element={
+              <Suspense fallback={<ProfileSkeleton />}>
+                <PublicProfile />
               </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/profile/edit-social"
-          element={
-            <AuthGuard>
-              <Suspense fallback={<AppLoader />}>
-                <EditSocialLinks />
+            }
+          />
+          <Route
+            path="/edit-profile"
+            element={
+              <AuthGuard>
+                <Suspense fallback={<EditProfileSkeleton />}>
+                  <Updateprofile />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/academic-profile"
+            element={
+              <AuthGuard>
+                <Suspense fallback={<EditProfileSkeleton />}>
+                  <EditAcademicProfile />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/change-password"
+            element={
+              <AuthGuard>
+                <Suspense fallback={<SettingsSkeleton />}>
+                  <Changepassword />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/notes"
+            element={
+              <Suspense fallback={<NotesSkeleton />}>
+                <Note />
               </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/profile/:userId"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <PublicProfile />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/edit-profile"
-          element={
-            <AuthGuard>
-              <Suspense fallback={<AppLoader />}>
-                <Updateprofile />
+            }
+          />
+          <Route
+            path="/notes/:id"
+            element={
+              <Suspense fallback={<NoteDetailSkeleton />}>
+                <NoteDetail />
               </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/academic-profile"
-          element={
-            <AuthGuard>
-              <Suspense fallback={<AppLoader />}>
-                <EditAcademicProfile />
+            }
+          />
+          {/* // Add this route in your App.jsx */}
+          <Route
+            path="/notes/:id/read"
+            element={
+              <Suspense fallback={<ReadNoteSkeleton />}>
+                <ReadNote />
               </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/change-password"
-          element={
-            <AuthGuard>
-              <Suspense fallback={<AppLoader />}>
-                <Changepassword />
-              </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/notes"
-          element={
-            // <Suspense fallback={<AppLoader />}>
-              <Note />
-            // </Suspense>
-          }
-        />
-        <Route
-          path="/notes/:id"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <NoteDetail />
-            </Suspense>
-          }
-        />
-        {/* // Add this route in your App.jsx */}
-        <Route
-          path="/notes/:id/read"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <ReadNote />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/update-note/:id"
-          element={
-            <AuthGuard requiredRole={["TEACHER", "ADMIN"]}>
-              <Suspense fallback={<AppLoader />}>
-                <UpdateNote />
-              </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/upload"
-          element={
-            <AuthGuard requiredRole={["TEACHER", "ADMIN"]}>
-              <Suspense fallback={<AppLoader />}>
-                <UploadNote />
-              </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/upload/video"
-          element={
-            <AuthGuard requiredRole={["TEACHER", "ADMIN"]}>
-              <Suspense fallback={<AppLoader />}>
-                <UploadVideoLecture />
-              </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path='/video/:videoId'
-          element={
-            <AuthGuard>
-              <Suspense fallback={<AppLoader />}>
-                <VideoWatch />
-              </Suspense>
-            </AuthGuard>
-          }
-        />
+            }
+          />
+          <Route
+            path="/update-note/:id"
+            element={
+              <AuthGuard requiredRole={["TEACHER", "ADMIN"]}>
+                <Suspense fallback={<UploadSkeleton />}>
+                  <UpdateNote />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/upload"
+            element={
+              <AuthGuard requiredRole={["TEACHER", "ADMIN"]}>
+                <Suspense fallback={<UploadSkeleton />}>
+                  <UploadNote />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/upload/video"
+            element={
+              <AuthGuard requiredRole={["TEACHER", "ADMIN"]}>
+                <Suspense fallback={<UploadSkeleton />}>
+                  <UploadVideoLecture />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path='/video/:videoId'
+            element={
+              <AuthGuard>
+                <Suspense fallback={<UploadSkeleton />}>
+                  <VideoWatch />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
 
-        <Route
-          path="/search"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <AdvancedSearch />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/bookmarks"
-          element={
-            <AuthGuard>
-              <Suspense fallback={<AppLoader />}>
-                <MyBookmarks />
+          <Route
+            path="/search"
+            element={
+              <Suspense fallback={<SearchSkeleton />}>
+                <AdvancedSearch />
               </Suspense>
-            </AuthGuard>
-          }
-        />
-        {/* 🔴 Protected Routes without extra wrappers */}
-        <Route
-          path="/admin"
-          element={
-            <AuthGuard requiredRole={"ADMIN"}>
-              <Suspense fallback={<AppLoader />}>
-                <AdminDashboard />
+            }
+          />
+          <Route
+            path="/bookmarks"
+            element={
+              <AuthGuard>
+                <Suspense fallback={<BookmarksSkeleton />}>
+                  <MyBookmarks />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          {/* 🔴 Protected Routes without extra wrappers */}
+          <Route
+            path="/admin"
+            element={
+              <AuthGuard requiredRole={"ADMIN"}>
+                <Suspense fallback={<AdminDashboardSkeleton />}>
+                  <AdminDashboard />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/my-analytics"
+            element={
+              <AuthGuard requiredRole={["TEACHER", "ADMIN"]}>
+                <Suspense fallback={<AdminDashboardSkeleton />}>
+                  <UserAnalytics />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          {/* 🟡 Static Pages */}
+          <Route
+            path="/coming-soon"
+            element={
+              <Suspense fallback={<SettingsSkeleton />}>
+                <ComingSoon />
               </Suspense>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/my-analytics"
-          element={
-            <AuthGuard requiredRole={["TEACHER", "ADMIN"]}>
-              <Suspense fallback={<AppLoader />}>
-                <UserAnalytics />
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <Suspense fallback={<SettingsSkeleton />}>
+                <ComingSoon />
               </Suspense>
-            </AuthGuard>
-          }
-        />
-        {/* 🟡 Static Pages */}
-        <Route
-          path="/coming-soon"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <ComingSoon />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <ComingSoon />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/about-developer"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <AboutDeveloper />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/help"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <HelpCenter />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/contact"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <Contact />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/privacy"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <Privacy />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/terms"
-          element={
-            <Suspense fallback={<AppLoader />}>
-              <Terms />
-            </Suspense>
-          }
-        />
+            }
+          />
+          <Route
+            path="/about-developer"
+            element={
+              <Suspense fallback={<SettingsSkeleton />}>
+                <AboutDeveloper />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/help"
+            element={
+              <Suspense fallback={<SettingsSkeleton />}>
+                <HelpCenter />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <Suspense fallback={<SettingsSkeleton />}>
+                <Contact />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/privacy"
+            element={
+              <Suspense fallback={<SettingsSkeleton />}>
+                <Privacy />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/terms"
+            element={
+              <Suspense fallback={<SettingsSkeleton />}>
+                <Terms />
+              </Suspense>
+            }
+          />
+        </Route>
         {/* ❌ Catch-all */}
         <Route path="*" element={<PageNotFound />} />
+
       </Routes>
       <GlobalLoginModal />
     </div>

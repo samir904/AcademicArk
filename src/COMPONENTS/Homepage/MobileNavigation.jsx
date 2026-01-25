@@ -89,23 +89,23 @@ const MobileNavigation = ({
         ];
 
         // Add role-specific navigation
-        if (isLoggedIn) {
-            if (role === "ADMIN") {
-                baseItems.push({
-                    name: "Dashboard",
-                    path: "/admin",
-                    icon: DashboardIcon,
-                    label: "Dash",
-                });
-            } else if (role === "TEACHER") {
-                baseItems.push({
-                    name: "Upload",
-                    path: "/upload",
-                    icon: UploadIcon,
-                    label: "Upload",
-                });
-            }
-        }
+        // if (isLoggedIn) {
+        //     if (role === "ADMIN") {
+        //         baseItems.push({
+        //             name: "Dashboard",
+        //             path: "/admin",
+        //             icon: DashboardIcon,
+        //             label: "Dash",
+        //         });
+        //     } else if (role === "TEACHER") {
+        //         baseItems.push({
+        //             name: "Upload",
+        //             path: "/upload",
+        //             icon: UploadIcon,
+        //             label: "Upload",
+        //         });
+        //     }
+        // }
 
         return baseItems;
     };
@@ -162,7 +162,25 @@ const MobileNavigation = ({
         };
         return roleMap[userRole] || userRole;
     };
-    const isActiveLink = (path) => window.location.pathname === path;
+    // ✅ UPDATED: Track active state for My Space & related pages
+const isActiveLink = (path) => {
+    const currentPath = window.location.pathname;
+    
+    // My Space stays active for all related pages
+    if (path === '/myspace') {
+        return currentPath === '/myspace' || 
+               currentPath === '/downloads' || 
+               currentPath === '/attendance' || 
+               currentPath=== '/admin'||
+               currentPath==='/upload'||
+               currentPath === '/profile' || 
+               currentPath === '/settings';
+    }
+    
+    // Other paths check exact match
+    return currentPath === path;
+};
+
 
     const handleLogout = () => {
         setShowProfileDrawer(false);
@@ -255,8 +273,9 @@ const MobileNavigation = ({
 
                     {/* Profile Icon - Bottom Right */}
                     {isLoggedIn && (
-                        <button
-                            onClick={() => setShowProfileDrawer(!showProfileDrawer)}
+                        <Link
+                        to={'/myspace'}
+                            // onClick={() => setShowProfileDrawer(!showProfileDrawer)}
                             className="flex flex-col items-center gap-1.5 ml-2"
                         >
                             {/* Avatar Container */}
@@ -279,11 +298,11 @@ const MobileNavigation = ({
                                 )}
                             </div>
 
-                            {/* Label */}
-                            <span className="text-[11px] font-medium tracking-wide text-gray-500">
-                                Profile
+                            {/* Label - WHITE when active ✅ FIXED */}
+                            <span className={`text-[11px] font-medium tracking-wide ${isActiveLink('/myspace') ? "text-white" : "text-gray-500"}`}>
+                                My Space
                             </span>
-                        </button>
+                        </Link>
                     )}
                 </div>
 
@@ -369,35 +388,7 @@ const MobileNavigation = ({
 
                             {/* Divider */}
                             <div className="h-px bg-white/10 mb-6" />
-
-                            {/* 📋 PROFILE MENU ITEMS */}
-                            <div className="space-y-2 mb-6">
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 mb-4">
-                                    Quick Access
-                                </p>
-
-                                {getProfileMenuItems().map((item) => {
-                                    const IconComponent = item.icon;
-
-                                    return (
-                                        <Link
-                                            key={item.name}
-                                            to={item.path}
-                                            onClick={() => setShowProfileDrawer(false)}
-                                            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 
-                      transition-colors text-gray-300 hover:text-white"
-                                        >
-                                            <IconComponent className="w-5 h-5 flex-shrink-0" />
-                                            <span className="text-sm font-medium">{item.label}</span>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Divider */}
-                            <div className="h-px bg-white/10 mb-6" />
-
-                            {/* 🔗 PROFILE ACTIONS */}
+{/* 🔗 PROFILE ACTIONS */}
                             <div className="space-y-2 mb-6">
                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 mb-4">
                                     Account
@@ -422,6 +413,36 @@ const MobileNavigation = ({
                                     <SettingsIcon className="w-5 h-5" />
                                     <span className="text-sm font-medium">Settings</span>
                                 </Link>
+                            </div>
+                            
+
+                            {/* Divider */}
+                            <div className="h-px bg-white/10 mb-6" />
+
+                            
+
+                            {/* 📋 PROFILE MENU ITEMS */}
+                            <div className="space-y-2 mb-6">
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 mb-4">
+                                    Quick Access
+                                </p>
+
+                                {getProfileMenuItems().map((item) => {
+                                    const IconComponent = item.icon;
+
+                                    return (
+                                        <Link
+                                            key={item.name}
+                                            to={item.path}
+                                            onClick={() => setShowProfileDrawer(false)}
+                                            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 
+                      transition-colors text-gray-300 hover:text-white"
+                                        >
+                                            <IconComponent className="w-5 h-5 flex-shrink-0" />
+                                            <span className="text-sm font-medium">{item.label}</span>
+                                        </Link>
+                                    );
+                                })}
                             </div>
 
                             {/* Divider */}

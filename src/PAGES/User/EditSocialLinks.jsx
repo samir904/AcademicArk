@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { updateSocialLinks, toggleProfileVisibility } from '../../REDUX/Slices/authslice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 export default function EditSocialLinks() {
   const dispatch = useDispatch();
@@ -37,7 +36,7 @@ export default function EditSocialLinks() {
   };
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-2xl mx-auto">
           <div className="mb-8">
@@ -156,6 +155,6 @@ export default function EditSocialLinks() {
           </div>
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }

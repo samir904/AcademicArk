@@ -14,9 +14,8 @@ import PlannerNotesStrip from '../COMPONENTS/Planner/PlannerNotesStrip';
 import ProgressSnapshot from '../COMPONENTS/Planner/ProgressSnapshot';
 import StudyPreferenceDrawer from '../COMPONENTS/Planner/StudyPreferenceDrawer';
 import EmptyState from '../COMPONENTS/Planner/EmptyState';
-import HomeLayout from '../LAYOUTS/Homelayout';
-import StudyProgressOverview from '../COMPONENTS/Planner/StudyProgressOverview';
 import ProgressTracker from '../COMPONENTS/Planner/ProgressTracker';
+import { PlannerSkeleton } from '../COMPONENTS/Skeletons';
 
 export default function PlannerPage() {
   const dispatch = useDispatch();
@@ -53,21 +52,16 @@ export default function PlannerPage() {
   // Show loading state
   if (loading.preferences) {
     return (
-        <HomeLayout>
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-neutral-800 border-t-indigo-500 rounded-full animate-spin"></div>
-          <p className="text-neutral-400">Loading your study plan...</p>
-        </div>
-      </div>
-      </HomeLayout>
+        <>
+      <PlannerSkeleton/>
+      </>
     );
   }
 
   // Show empty state if no preferences
   if (!isPreferencesSet) {
     return (
-        <HomeLayout>
+        <>
       <div className="min-h-screen bg-neutral-950">
         <PlannerHeader />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -75,12 +69,12 @@ export default function PlannerPage() {
         </div>
         <StudyPreferenceDrawer />
       </div>
-      </HomeLayout>
+      </>
     );
   }
 
   return (
-    <HomeLayout>
+    <>
     <div className="min-h-screen bg-neutral-950">
       {/* Header */}
       <PlannerHeader />
@@ -142,6 +136,6 @@ export default function PlannerPage() {
       {/* Study Preference Drawer */}
       <StudyPreferenceDrawer isFirstTime={firstTimeSetup} />
     </div>
-    </HomeLayout>
+    </>
   );
 }

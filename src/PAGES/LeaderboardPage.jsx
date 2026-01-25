@@ -4,7 +4,6 @@ import { fetchLeaderboard, setActiveTab } from '../REDUX/Slices/leaderboard.slic
 import TopThreeRing from '../COMPONENTS/Leaderboard/TopThreeRing.jsx';
 import LeaderboardCard from '../COMPONENTS/Leaderboard/LeaderboardCard.jsx';
 import LeaderboardTabs from '../COMPONENTS/Leaderboard/LeaderboardTabs.jsx';
-import HomeLayout from '../LAYOUTS/Homelayout.jsx';
 import {Trophy} from 'lucide-react'
 const LeaderboardPage = () => {
   const dispatch = useDispatch();
@@ -25,7 +24,7 @@ const LeaderboardPage = () => {
   const restEntries = data.entries?.slice(3) || [];
 
   return (
-    <HomeLayout>
+    <>
       {/* Minimal dark background */}
       <div className="min-h-screen bg-[#0B0B0B] py-8">
         <div className="max-w-7xl mx-auto px-4">
@@ -137,7 +136,7 @@ const LeaderboardPage = () => {
           )} */}
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 };
 

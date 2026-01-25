@@ -1,7 +1,6 @@
 // src/PAGES/ComingSoon.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 import { showToast } from '../../HELPERS/Toaster';
 
 // Icons
@@ -151,7 +150,7 @@ export default function ComingSoon() {
     ];
 
     return (
-        <HomeLayout>
+        <>
             <div className="min-h-screen bg-black text-white overflow-hidden">
                 {/* Animated Background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-black to-purple-900/20">
@@ -363,6 +362,6 @@ export default function ComingSoon() {
                     animation: fade-in 1s ease-out;
                 }
             `}</style>
-        </HomeLayout>
+        </>
     );
 }

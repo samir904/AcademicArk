@@ -8,7 +8,6 @@ import {
   getAcademicProfile,
   getCollegeList 
 } from '../../REDUX/Slices/academicProfileSlice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 const EditAcademicProfile = () => {
   const dispatch = useDispatch();
@@ -77,7 +76,7 @@ const EditAcademicProfile = () => {
   };
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
@@ -205,7 +204,7 @@ const EditAcademicProfile = () => {
           </div>
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 };
 

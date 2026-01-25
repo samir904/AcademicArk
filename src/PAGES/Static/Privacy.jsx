@@ -1,7 +1,6 @@
 // src/PAGES/Privacy.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icons
 const ShieldIcon = ({ className }) => (
@@ -78,7 +77,7 @@ export default function Privacy() {
     );
 
     return (
-        <HomeLayout>
+        <>
             <div className="min-h-screen bg-black text-white">
                 {/* Header */}
                 <div className="bg-gradient-to-br from-blue-900 via-black to-purple-900 py-16">
@@ -408,6 +407,6 @@ export default function Privacy() {
                     </div>
                 </div>
             </div>
-        </HomeLayout>
+        </>
     );
 }

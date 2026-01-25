@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 import CardRenderer from '../Note/CardRenderer';
 import { getMyBookmarks } from '../../REDUX/Slices/authslice';
 
@@ -187,16 +186,16 @@ export default function MyBookmarks() {
 
     if (loading) {
         return (
-            <HomeLayout>
+            <>
                 <div className="min-h-screen bg-black flex items-center justify-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
                 </div>
-            </HomeLayout>
+            </>
         );
     }
 
     return (
-        <HomeLayout>
+        <>
             <div className="min-h-screen bg-black text-white">
                 {/* Header */}
                 <div className="bg-gradient-to-br from-purple-900 via-black to-pink-900 py-16">
@@ -519,6 +518,6 @@ export default function MyBookmarks() {
                     )}
                 </div>
             </div>
-        </HomeLayout>
+        </>
     );
 }

@@ -16,7 +16,6 @@ import {
   getTrafficPattern,
   getAdminLogs,
 } from "../../REDUX/Slices/adminSlice";
-import HomeLayout from "../../LAYOUTS/Homelayout";
 import { Link } from "react-router-dom";
 import AdminLogs from "./AdminLogs";
 // import Analytics from "./Analytics";
@@ -35,6 +34,7 @@ import RedisHealth from "../../COMPONENTS/Admin/RedisHealth";
 import QueryMetricsDisplay from "../../COMPONENTS/Admin/QueryMetricsDisplay";
 // import AdminVideoManager from "../../COMPONENTS/Admin/AdminVideoManager";
 import AnalyticsTab from "../../COMPONENTS/Admin/Analytics/AnalyticsTab";
+import { AdminDashboardSkeleton } from "../../COMPONENTS/Skeletons";
 // Icons
 const UsersIcon = ({ className }) => (
   <svg
@@ -261,26 +261,22 @@ export default function AdminDashboard() {
 
   if (loading && !dashboardStats) {
     return (
-      <HomeLayout>
-        <div className="min-h-screen bg-black flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-        </div>
-      </HomeLayout>
+      <>
+        <AdminDashboardSkeleton/>
+      </>
     );
   }
   // Inside AdminDashboard, before returning HomeLayout:
   if (activeTab === "dashboard" && !serverMetrics) {
     return (
-      <HomeLayout>
-        <div className="min-h-screen bg-black flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-        </div>
-      </HomeLayout>
+      <>
+        <AdminDashboardSkeleton/>
+      </>
     );
   }
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-900 to-purple-900 p-6">
@@ -1496,6 +1492,6 @@ export default function AdminDashboard() {
 
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }

@@ -3,7 +3,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { searchNotes, getTrendingNotes, getPopularNotes, clearSearch, setFilters } from '../../REDUX/Slices/searchSlice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 import CardRenderer from '../Note/CardRenderer';
 import aktulogo from "../../../public/download.jpeg";
 import AdBanner from '../../COMPONENTS/AdBanner';
@@ -163,7 +162,7 @@ export default function AdvancedSearch() {
 
 
     return (
-        <HomeLayout>
+        <>
             <div className="min-h-screen bg-black text-white">
                 {/* Enhanced Hero Section for AKTU Global Search */}
                 <div className="bg-gradient-to-br from-blue-900 via-black to-purple-900 py-20">
@@ -591,6 +590,6 @@ export default function AdvancedSearch() {
                     )}
                 </div>
             </div>
-        </HomeLayout>
+        </>
     );
 }

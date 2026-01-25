@@ -7,7 +7,6 @@ import {
   hideBanner,
   deleteBanner,
 } from '../../REDUX/Slices/notificationSlice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8];
 const ROLES = ['USER', 'TEACHER', 'ADMIN'];
@@ -103,7 +102,7 @@ export default function ManageBanners() {
   };
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white p-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -322,6 +321,6 @@ export default function ManageBanners() {
           </div>
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }

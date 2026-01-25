@@ -1,5 +1,6 @@
 // src/components/layouts/HomeLayout.jsx
 import React, { useState, useEffect } from "react";
+import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { showToast } from "../HELPERS/Toaster";
@@ -194,7 +195,7 @@ const AttendanceIcon = ({ className, active }) => (
   </svg>
 );
 
-const HomeLayout = ({ children }) => {
+const HomeLayout = () => {
   // const TravelingDotButton = () => (
   //   <Link
   //     to="/login"
@@ -924,7 +925,9 @@ const HomeLayout = ({ children }) => {
         )}
 
         {/* Main Content */}
-        <main className="pt-20 md:pt-20 pb-20 md:pb-0">{children}</main>
+        <main className="pt-20 md:pt-20 pb-20 md:pb-0">
+          <Outlet />
+        </main>
         {/* ✨ NEW: Add Academic Profile Modal */}
         <AcademicProfileModal />
         {/* 🎨 AMAZING Spotify-Style Bottom Navigation - Redesigned */}
@@ -937,7 +940,7 @@ const HomeLayout = ({ children }) => {
           setShowMobileMenu={setShowMobileMenu}
         />
 
-        <EnhancedFooter />
+        
       </div>
     </>
   );

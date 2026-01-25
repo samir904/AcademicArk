@@ -12,7 +12,6 @@ import {
 } from '../../REDUX/Slices/attendanceSlice';
 import SubjectCard from '../../COMPONENTS/SubjectCard';
 import { PlusIcon, ChartBarIcon, CalendarIcon } from '@heroicons/react/24/outline';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 import Alert from '../../COMPONENTS/Alert'; // ✨ ADD THIS
 import LoginRequiredModal from '../../COMPONENTS/LoginRequiredModal'; // ✨ ADD THIS
 
@@ -163,7 +162,7 @@ const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
   }
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white py-8 px-4">
         <div className="max-w-7xl mx-auto">
          {/* Header - FIXED FOR MOBILE */}
@@ -618,6 +617,6 @@ const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
           />
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }

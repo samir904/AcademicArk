@@ -5,7 +5,6 @@ import {
   getTopPages,
   getTrafficSources
 } from '../../REDUX/Slices/analyticsSlice'
-import HomeLayout from '../../LAYOUTS/Homelayout'
 
 const Analytics = () => {
   const dispatch = useDispatch()

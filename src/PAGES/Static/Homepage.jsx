@@ -1,7 +1,6 @@
 // src/pages/HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 import { useSelector } from 'react-redux';
 import aktulogo from "../../../public/download.jpeg";
 import { MovingBorderButton } from '../../COMPONENTS/MovingBorderButton';
@@ -12,6 +11,7 @@ import { BackgroundBeams } from '../../COMPONENTS/ui/background-beams';
 import { GridBackground } from '../../COMPONENTS/ui/GridBackground';
 import AdBanner from '../../COMPONENTS/AdBanner';
 import TestimonialsSection from '../../COMPONENTS/TestimonialsSection';
+import EnhancedFooter from '../../LAYOUTS/EnhancedFooter';
 
 const Homepage = () => {
   const [isVisible, setIsVisible] = useState({});
@@ -113,7 +113,7 @@ const Homepage = () => {
   // );
 
   return (
-    <HomeLayout>
+    <>
       {/* Hero Section - Enhanced with AKTU branding */}
       <BackgroundLines
       className="flex items-center justify-center w-full flex-col px-4"
@@ -735,7 +735,8 @@ Perfect for AKTU B.Tech students! 🚀
           )}
         </div>
       </section>
-    </HomeLayout>
+      <EnhancedFooter />
+    </>
   );
 };
 

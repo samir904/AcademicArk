@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPublicProfile } from '../../REDUX/Slices/authslice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 const GithubIcon = ({ className }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -48,17 +47,17 @@ export default function PublicProfile() {
 
   if (publicProfileLoading) {
     return (
-      <HomeLayout>
+      <>
         <div className="min-h-screen flex items-center justify-center bg-black">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
         </div>
-      </HomeLayout>
+      </>
     );
   }
 
   if (!publicProfile) {
     return (
-      <HomeLayout>
+      <>
         <div className="min-h-screen flex items-center justify-center bg-black">
           <div className="text-center">
             <div className="text-6xl mb-4">🔒</div>
@@ -69,7 +68,7 @@ export default function PublicProfile() {
             </Link>
           </div>
         </div>
-      </HomeLayout>
+      </>
     );
   }
 
@@ -100,7 +99,7 @@ const formatDate = (dateString) => {
   };
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Profile Header */}
@@ -244,6 +243,6 @@ const formatDate = (dateString) => {
           )}
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }

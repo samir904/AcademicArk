@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { registerNote } from '../../REDUX/Slices/noteslice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icon components
 const CloudUploadIcon = ({ className }) => (
@@ -138,7 +137,7 @@ export default function UploadNote() {
   // Auth check
   if (!role || !['TEACHER', 'ADMIN'].includes(role)) {
     return (
-      <HomeLayout>
+      <>
         <div className="min-h-screen bg-black flex items-center justify-center">
           <div className="text-center">
             <XCircleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
@@ -152,7 +151,7 @@ export default function UploadNote() {
             </button>
           </div>
         </div>
-      </HomeLayout>
+      </>
     );
   }
 
@@ -296,7 +295,7 @@ export default function UploadNote() {
   // Success UI
   if (isSuccess) {
     return (
-      <HomeLayout>
+      <>
         <div className="min-h-screen bg-black flex items-center justify-center px-4">
           <div className="max-w-md w-full text-center">
             <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
@@ -324,14 +323,14 @@ export default function UploadNote() {
             </div>
           </div>
         </div>
-      </HomeLayout>
+      </>
     );
   }
 
 
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -705,6 +704,6 @@ export default function UploadNote() {
           </div>
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }

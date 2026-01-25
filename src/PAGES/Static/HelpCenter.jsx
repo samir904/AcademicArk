@@ -2,7 +2,6 @@
 // src/PAGES/HelpCenter.jsx
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icons
 const QuestionIcon = ({ className }) => (
@@ -315,7 +314,7 @@ export default function HelpCenter() {
     };
 
     return (
-        <HomeLayout>
+        <>
             <div className="min-h-screen bg-black text-white">
                 {/* Header */}
                 <div className="bg-gradient-to-br from-blue-900 via-black to-purple-900 py-16">
@@ -551,6 +550,6 @@ export default function HelpCenter() {
                     </div>
                 </div>
             </div>
-        </HomeLayout>
+        </>
     );
 }

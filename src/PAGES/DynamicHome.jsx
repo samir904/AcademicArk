@@ -5,7 +5,6 @@ import GreetingSection from '../COMPONENTS/Homepage/GreetingSection';
 import ContinueWhereSection from '../COMPONENTS/Homepage/ContinueWhereSection';
 import RecommendedNotesSection from '../COMPONENTS/Homepage/RecommendedNotesSection';
 import TrendingSection from '../COMPONENTS/Homepage/TrendingSection';
-import HomeLayout from '../LAYOUTS/Homelayout';
 // ⭐ ADD THESE IMPORTS
 import LeaderboardSection from '../COMPONENTS/Homepage/LeaderboardSection';
 import AttendanceSection from '../COMPONENTS/Homepage/AttendanceSection';
@@ -52,8 +51,7 @@ export default function DynamicHome() {
     }, [isCompleted, dispatch]);
 
     if (error) {
-        return (
-            <HomeLayout>
+        return (         
                 <div className="min-h-screen bg-[#0B0B0B] flex items-center justify-center">
                     <div className="text-center">
                         <p className="text-[#FF5454] mb-4">Failed to load homepage</p>
@@ -66,7 +64,6 @@ export default function DynamicHome() {
                         </button>
                     </div>
                 </div>
-            </HomeLayout>
         );
     }
 
@@ -74,7 +71,7 @@ export default function DynamicHome() {
     const showSkeletons = loading || isRefreshing;
 
     return (
-        <HomeLayout>
+        <>
             <div className="min-h-screen bg-[#0B0B0B] text-[#FFFFFF]">
                 <BackgroundLines svgOptions={{ duration: 10 }}>
                     <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-12">
@@ -140,6 +137,6 @@ export default function DynamicHome() {
                     </div>
                 </BackgroundLines>
             </div>
-        </HomeLayout>
+        </>
     );
 }

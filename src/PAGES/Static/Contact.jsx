@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { showToast } from '../../HELPERS/Toaster';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icons
 const MailIcon = ({ className }) => (
@@ -215,7 +214,7 @@ export default function Contact() {
     );
 
     return (
-        <HomeLayout>
+        <>
             <div className="min-h-screen bg-black text-white">
                 {/* Header */}
                 <div className="bg-gradient-to-br from-blue-900 via-black to-purple-900 py-16">
@@ -504,6 +503,6 @@ export default function Contact() {
                     </div>
                 </div>
             </div>
-        </HomeLayout>
+        </>
     );
 }

@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { getAttendance } from '../../REDUX/Slices/attendanceSlice';
 import { ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 export default function AttendanceCalendar() {
   const dispatch = useDispatch();
@@ -98,7 +97,7 @@ export default function AttendanceCalendar() {
   const calendarDays = getCalendarDays();
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white py-8 px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -236,6 +235,6 @@ export default function AttendanceCalendar() {
           )}
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }

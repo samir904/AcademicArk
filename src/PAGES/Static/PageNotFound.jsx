@@ -1,7 +1,6 @@
 // src/PAGES/PageNotFound.jsx
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icons
 const BookIcon = ({ className }) => (
@@ -73,7 +72,7 @@ export default function PageNotFound() {
     };
 
     return (
-        <HomeLayout>
+        <>
             <div className="min-h-screen bg-black text-white relative overflow-hidden">
                 {/* Animated Background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-black to-purple-900/20">
@@ -237,6 +236,6 @@ export default function PageNotFound() {
                     </div>
                 </div>
             </div>
-        </HomeLayout>
+        </>
     );
 }

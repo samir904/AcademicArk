@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '../../HELPERS/Toaster';
 import { updateProfile } from '../../REDUX/Slices/authslice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icon components
 const UserIcon = ({ className }) => (
@@ -123,7 +122,7 @@ export default function Updateprofile() {
   }
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
@@ -267,6 +266,6 @@ export default function Updateprofile() {
           </div>
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }

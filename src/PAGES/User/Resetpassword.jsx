@@ -5,7 +5,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { isValidPassword } from '../../HELPERS/regexmatch';
 import { showToast } from '../../HELPERS/Toaster';
 import { resetPassword } from '../../REDUX/Slices/authslice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icon components
 const EyeIcon = ({ className }) => (

@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateNote, getNote, clearCurrentNote } from '../../REDUX/Slices/noteslice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icon components (same as before)
 const ArrowLeftIcon = ({ className }) => (
@@ -113,7 +112,7 @@ export default function UpdateNote() {
   // Check authorization
   if (!canEditNote) {
     return (
-      <HomeLayout>
+      <>
         <div className="min-h-screen bg-black flex items-center justify-center">
           <div className="text-center">
             <XCircleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
@@ -127,28 +126,28 @@ export default function UpdateNote() {
             </button>
           </div>
         </div>
-      </HomeLayout>
+      </>
     );
   }
 
   // Loading state
   if (loading) {
     return (
-      <HomeLayout>
+      <>
         <div className="min-h-screen bg-black flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-blue-500 mx-auto mb-4"></div>
             <p className="text-gray-400">Loading note data...</p>
           </div>
         </div>
-      </HomeLayout>
+      </>
     );
   }
 
   // Note not found
   if (!currentNote) {
     return (
-      <HomeLayout>
+      <>
         <div className="min-h-screen bg-black flex items-center justify-center">
           <div className="text-center">
             <XCircleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
@@ -162,7 +161,7 @@ export default function UpdateNote() {
             </button>
           </div>
         </div>
-      </HomeLayout>
+      </>
     );
   }
 
@@ -328,7 +327,7 @@ export default function UpdateNote() {
   // Success state
   if (isSuccess) {
     return (
-      <HomeLayout>
+      <>
         <div className="min-h-screen bg-black flex items-center justify-center px-4">
           <div className="max-w-md w-full text-center">
             <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
@@ -342,12 +341,12 @@ export default function UpdateNote() {
             </div>
           </div>
         </div>
-      </HomeLayout>
+      </>
     );
   }
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -640,6 +639,6 @@ export default function UpdateNote() {
           </form>
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }

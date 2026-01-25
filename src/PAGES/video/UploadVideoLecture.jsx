@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { registerVideoLecture } from '../../REDUX/Slices/videoLecture.slice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icon components (same as UploadNote)
 const CloudUploadIcon = ({ className }) => (
@@ -142,7 +141,7 @@ export default function UploadVideoLecture() {
   // Auth check
   if (!role || !['TEACHER', 'ADMIN'].includes(role)) {
     return (
-      <HomeLayout>
+      <>
         <div className="min-h-screen bg-black flex items-center justify-center">
           <div className="text-center">
             <XCircleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
@@ -156,7 +155,7 @@ export default function UploadVideoLecture() {
             </button>
           </div>
         </div>
-      </HomeLayout>
+      </>
     );
   }
 

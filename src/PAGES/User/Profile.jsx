@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { getProfile } from '../../REDUX/Slices/authslice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 import {  getBackgroundTheme, useImageColors } from '../../hooks/useImageColors';
 import { setShowProfileModal } from '../../REDUX/Slices/academicProfileSlice'; // ✨ NEW
 // import { EngagementWidget } from '../../COMPONENTS/Session/NoteInteractionTracker';
@@ -101,16 +100,16 @@ useEffect(() => {
 
   if (!userData) {
     return (
-      <HomeLayout>
+      <>
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
         </div>
-      </HomeLayout>
+      </>
     );
   }
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Dynamic Header Section */}
@@ -531,6 +530,6 @@ useEffect(() => {
           </div>
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }

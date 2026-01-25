@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getNote, toggleBookmark, downloadnote, addRating, deleteNote, clearCurrentNote } from '../../REDUX/Slices/noteslice';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 import LoginPrompt from '../../COMPONENTS/LoginPrompt';
 import AdSidebar from '../../COMPONENTS/AdSidebar';
 import AdBanner from '../../COMPONENTS/AdBanner';
@@ -121,21 +120,21 @@ export default function NoteDetail() {
     // Loading state
     if (loading) {
         return (
-            <HomeLayout>
+            <>
                 <div className="min-h-screen bg-black flex items-center justify-center">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-blue-500 mx-auto mb-4"></div>
                         <p className="text-gray-400">Loading note details...</p>
                     </div>
                 </div>
-            </HomeLayout>
+            </>
         );
     }
 
     // Error state
     if (!currentNote) {
         return (
-            <HomeLayout>
+            <>
                 <div className="min-h-screen bg-black flex items-center justify-center">
                     <div className="text-center">
                         <div className="w-24 h-24 bg-gradient-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -151,7 +150,7 @@ export default function NoteDetail() {
                         </button>
                     </div>
                 </div>
-            </HomeLayout>
+            </>
         );
     }
 
@@ -332,7 +331,7 @@ export default function NoteDetail() {
     const theme = getTheme();
     const categoryContent = getCategoryContent();
     return (
-        <HomeLayout>
+        <>
             <div className="min-h-screen bg-black text-white">
                 {/* Header */}
                 <div className={`relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900`}>
@@ -821,6 +820,6 @@ export default function NoteDetail() {
                 )}
         {/* <AdBanner/> */}
             </div>
-        </HomeLayout>
+        </>
     );
 }

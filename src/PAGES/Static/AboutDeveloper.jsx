@@ -1,7 +1,6 @@
 // src/PAGES/AboutDeveloper.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 // Icons
 const UserIcon = ({ className }) => (
@@ -247,7 +246,7 @@ export default function AboutDeveloper() {
     );
 
     return (
-        <HomeLayout>
+        <>
             <div className="min-h-screen bg-black text-white">
                 {/* Hero Section */}
                 <div className="bg-gradient-to-br from-blue-900 via-black to-purple-900 py-20">
@@ -590,6 +589,6 @@ export default function AboutDeveloper() {
                     </div>
                 </div>
             </div>
-        </HomeLayout>
+        </>
     );
 }

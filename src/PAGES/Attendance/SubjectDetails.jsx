@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSubjectDetails } from '../../REDUX/Slices/attendanceSlice';
 import { ArrowLeftIcon, CalendarIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
-import HomeLayout from '../../LAYOUTS/Homelayout';
 
 export default function SubjectDetails() {
   const { semester, subject } = useParams();
@@ -19,11 +18,11 @@ export default function SubjectDetails() {
 
   if (loading || !subjectDetails) {
     return (
-      <HomeLayout>
+      <>
         <div className="min-h-screen bg-black flex items-center justify-center">
           <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full"></div>
         </div>
-      </HomeLayout>
+      </>
     );
   }
 
@@ -50,7 +49,7 @@ export default function SubjectDetails() {
   };
 
   return (
-    <HomeLayout>
+    <>
       <div className="min-h-screen bg-black text-white py-8 px-4">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
@@ -155,6 +154,6 @@ export default function SubjectDetails() {
           </div>
         </div>
       </div>
-    </HomeLayout>
+    </>
   );
 }
