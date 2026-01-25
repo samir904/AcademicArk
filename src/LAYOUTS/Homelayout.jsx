@@ -19,6 +19,7 @@ import PWAInstallPrompt from "../COMPONENTS/PWAInstallPrompt";
 import OfflineModal from "../COMPONENTS/OfflineModal";
 import { Trophy, CalendarCog } from "lucide-react";
 import MobileNavigation from "../COMPONENTS/Homepage/MobileNavigation";
+import { AnimatePresence } from "framer-motion";
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -499,8 +500,8 @@ const HomeLayout = () => {
         {/* Desktop Header */}
         <header
           className={`hidden md:block fixed top-0 w-full z-50 transition-all duration-700 ${isScrolled
-              ? "bg-black/90 backdrop-blur-2xl border-b border-white/10 shadow-2xl"
-              : "bg-transparent"
+            ? "bg-black/90 backdrop-blur-2xl border-b border-white/10 shadow-2xl"
+            : "bg-transparent"
             }`}
         >
           <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -532,8 +533,8 @@ const HomeLayout = () => {
                       key={item.name}
                       to={item.path}
                       className={`relative px-6 py-2.5 text-sm font-medium rounded-full transition-all duration-300 ${isActiveLink(item.path)
-                          ? "text-black bg-white shadow-lg"
-                          : "text-gray-400 hover:text-white hover:bg-white/10"
+                        ? "text-black bg-white shadow-lg"
+                        : "text-gray-400 hover:text-white hover:bg-white/10"
                         }`}
                     >
                       {item.name}
@@ -716,7 +717,7 @@ const HomeLayout = () => {
         <header className="md:hidden fixed top-0 w-full z-50 bg-black/95 backdrop-blur-2xl border-b border-white/5">
           <div className="flex items-center justify-between px-4 h-16">
             {/* Profile/Menu Button */}
-            
+
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-br from-white to-gray-200 rounded-lg flex items-center justify-center">
@@ -926,7 +927,9 @@ const HomeLayout = () => {
 
         {/* Main Content */}
         <main className="pt-20 md:pt-20 pb-20 md:pb-0">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <Outlet key={location.pathname} />
+          </AnimatePresence>
         </main>
         {/* ✨ NEW: Add Academic Profile Modal */}
         <AcademicProfileModal />
@@ -940,7 +943,7 @@ const HomeLayout = () => {
           setShowMobileMenu={setShowMobileMenu}
         />
 
-        
+
       </div>
     </>
   );

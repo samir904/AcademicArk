@@ -163,7 +163,7 @@ const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
   }
 
   return (
-    <>
+    <PageTransition>
       <div className="min-h-screen bg-black text-white py-8 px-4">
         <div className="max-w-7xl mx-auto">
          {/* Header - FIXED FOR MOBILE */}
@@ -618,6 +618,6 @@ const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
           />
         </div>
       </div>
-    </>
+    </PageTransition>
   );
 }

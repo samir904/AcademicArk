@@ -17,6 +17,7 @@ import StudyPreferenceDrawer from '../../COMPONENTS/Planner/StudyPreferenceDrawe
 import { markPlannerReminderAsShown, shouldShowPlannerReminder } from '../../UTILS/shouldShowPlannerReminder';
 import ResourceFilter from '../../COMPONENTS/Note/ResourceFilter';
 import { UserRoundSearch,CalendarCog } from 'lucide-react'
+import PageTransition from '../../COMPONENTS/PageTransition';
 // Icon components
 const FilterIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -495,7 +496,7 @@ const handleSemesterChange = (newSemester) => {
   dispatch(clearFilters());
 };
   return (
-    <>
+    <PageTransition>
       <div className="min-h-screen bg-black text-white">
   {/* Notes Library Hero – Calm & Academic */}
 {/* Notes Page Hero – Calm, Academic, Complete */}
@@ -1090,11 +1091,9 @@ const handleSemesterChange = (newSemester) => {
           defaultSemester={localFilters.semester}
           defaultSubject={localFilters.subject}
         />
-
-      </div>
-
-      {/* Planner Drawer (must be mounted) */}
+ {/* Planner Drawer (must be mounted) */}
       <StudyPreferenceDrawer isFirstTime={false} />
-    </>
+      </div>
+    </PageTransition>
   );
 }

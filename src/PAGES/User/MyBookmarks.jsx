@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import CardRenderer from '../Note/CardRenderer';
 import { getMyBookmarks } from '../../REDUX/Slices/authslice';
+import PageTransition from '../../COMPONENTS/PageTransition';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -195,7 +196,7 @@ export default function MyBookmarks() {
     }
 
     return (
-        <>
+       <PageTransition>
             <div className="min-h-screen bg-black text-white">
                 {/* Header */}
                 <div className="bg-gradient-to-br from-purple-900 via-black to-pink-900 py-16">
@@ -518,6 +519,6 @@ export default function MyBookmarks() {
                     )}
                 </div>
             </div>
-        </>
+        </PageTransition>
     );
 }

@@ -17,6 +17,7 @@ import {
   CircleArrowDown,
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import PageTransition from '../../COMPONENTS/PageTransition';
 
 const MySpace = ({  role, onLogout }) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -117,7 +118,8 @@ const userData = useSelector((state) => state?.auth?.data);
   const branch = userData?.branch || 'Computer Science';
   const firstName = userData?.fullName?.split(' ')[0] || 'User';
   return (
-    <>
+
+    <PageTransition>
       <div className="min-h-screen bg-[#0F0F0F] text-white pt-24 pb-20 px-4">
         <div className="max-w-3xl mx-auto">
            {/* GREETING HEADER */}
@@ -280,7 +282,7 @@ const userData = useSelector((state) => state?.auth?.data);
           <div className="h-20" />
         </div>
       </div>
-    </>
+    </PageTransition>
   );
 };
 

@@ -16,6 +16,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import { DownloadsSkeleton } from '../COMPONENTS/Skeletons';
+import PageTransition from '../COMPONENTS/PageTransition';
 
 const DownloadsPage = () => {
   const [pdfs, setPdfs] = useState([]);
@@ -151,7 +152,7 @@ const DownloadsPage = () => {
 
   if (pdfs.length === 0) {
     return (
-      <>
+      <PageTransition>
         <div className="min-h-screen bg-[#0F0F0F] text-white flex items-center justify-center pt-20 px-4">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-4">📥</div>
@@ -167,12 +168,12 @@ const DownloadsPage = () => {
             </a>
           </div>
         </div>
-      </>
+      </PageTransition>
     );
   }
 
   return (
-    <>
+   <PageTransition>
       <div className="min-h-screen bg-[#0F0F0F] text-white pt-24 pb-12 px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header Section */}
@@ -358,7 +359,7 @@ const DownloadsPage = () => {
           />
         )}
       </div>
-    </>
+    </PageTransition>
   );
 };
 

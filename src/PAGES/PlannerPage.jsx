@@ -16,6 +16,7 @@ import StudyPreferenceDrawer from '../COMPONENTS/Planner/StudyPreferenceDrawer';
 import EmptyState from '../COMPONENTS/Planner/EmptyState';
 import ProgressTracker from '../COMPONENTS/Planner/ProgressTracker';
 import { PlannerSkeleton } from '../COMPONENTS/Skeletons';
+import PageTransition from '../COMPONENTS/PageTransition';
 
 export default function PlannerPage() {
   const dispatch = useDispatch();
@@ -74,7 +75,7 @@ export default function PlannerPage() {
   }
 
   return (
-    <>
+    <PageTransition>
     <div className="min-h-screen bg-neutral-950">
       {/* Header */}
       <PlannerHeader />
@@ -136,6 +137,6 @@ export default function PlannerPage() {
       {/* Study Preference Drawer */}
       <StudyPreferenceDrawer isFirstTime={firstTimeSetup} />
     </div>
-    </>
+    </PageTransition>
   );
 }

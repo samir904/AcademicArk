@@ -35,6 +35,7 @@ import QueryMetricsDisplay from "../../COMPONENTS/Admin/QueryMetricsDisplay";
 // import AdminVideoManager from "../../COMPONENTS/Admin/AdminVideoManager";
 import AnalyticsTab from "../../COMPONENTS/Admin/Analytics/AnalyticsTab";
 import { AdminDashboardSkeleton } from "../../COMPONENTS/Skeletons";
+import PageTransition from "../../COMPONENTS/PageTransition";
 // Icons
 const UsersIcon = ({ className }) => (
   <svg
@@ -276,7 +277,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <>
+    <PageTransition>
       <div className="min-h-screen bg-black text-white">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-900 to-purple-900 p-6">
@@ -1492,6 +1493,6 @@ export default function AdminDashboard() {
 
         </div>
       </div>
-    </>
+    </PageTransition>
   );
 }

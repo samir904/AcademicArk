@@ -6,6 +6,7 @@ import { searchNotes, getTrendingNotes, getPopularNotes, clearSearch, setFilters
 import CardRenderer from '../Note/CardRenderer';
 import aktulogo from "../../../public/download.jpeg";
 import AdBanner from '../../COMPONENTS/AdBanner';
+import PageTransition from '../../COMPONENTS/PageTransition';
 
 // Icons
 const BookIcon = ({ className }) => (
@@ -162,7 +163,7 @@ export default function AdvancedSearch() {
 
 
     return (
-        <>
+        <PageTransition>
             <div className="min-h-screen bg-black text-white">
                 {/* Enhanced Hero Section for AKTU Global Search */}
                 <div className="bg-gradient-to-br from-blue-900 via-black to-purple-900 py-20">
@@ -590,6 +591,6 @@ export default function AdvancedSearch() {
                     )}
                 </div>
             </div>
-        </>
+        </PageTransition>
     );
 }

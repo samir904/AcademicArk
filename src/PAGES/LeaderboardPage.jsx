@@ -24,7 +24,7 @@ const LeaderboardPage = () => {
   const restEntries = data.entries?.slice(3) || [];
 
   return (
-    <>
+    <PageTransition>
       {/* Minimal dark background */}
       <div className="min-h-screen bg-[#0B0B0B] py-8">
         <div className="max-w-7xl mx-auto px-4">
@@ -136,7 +136,7 @@ const LeaderboardPage = () => {
           )} */}
         </div>
       </div>
-    </>
+    </PageTransition>
   );
 };
 

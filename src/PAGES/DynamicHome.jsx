@@ -19,6 +19,7 @@ import {
     AttendanceSkeleton,
     LeaderboardSkeleton,
 } from '../COMPONENTS/Homepage/SkeletonLoading';
+import PageTransition from '../COMPONENTS/PageTransition';
 
 
 export default function DynamicHome() {
@@ -71,7 +72,7 @@ export default function DynamicHome() {
     const showSkeletons = loading || isRefreshing;
 
     return (
-        <>
+        <PageTransition>
             <div className="min-h-screen bg-[#0B0B0B] text-[#FFFFFF]">
                 <BackgroundLines svgOptions={{ duration: 10 }}>
                     <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-12">
@@ -137,6 +138,6 @@ export default function DynamicHome() {
                     </div>
                 </BackgroundLines>
             </div>
-        </>
+        </PageTransition>
     );
 }
