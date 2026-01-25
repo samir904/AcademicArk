@@ -449,22 +449,62 @@ export default function UploadNote() {
                   </div>
 
 
-                  {/* ✨ FIXED: Category Dropdown */}
+                  {/* ✨ FIXED: Category toggle */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Category
-                    </label>
-                    <select
-                      name="category"
-                      value={formData.category}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                    >
-                      <option value="Notes">📚 Study Notes</option>
-                      <option value="Handwritten Notes">✏️ Handwritten Notes</option>
-                      <option value="PYQ">📄 Previous Year Questions</option>
-                      <option value="Important Question">⭐ Important Questions</option>
-                    </select>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-3">
+                        Category
+                      </label>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        {Object.entries(CATEGORY_INFO).map(([key, info]) => {
+                          const isSelected = formData.category === key;
+
+                          return (
+                            <button
+                              key={key}
+                              type="button"
+                              onClick={() =>
+                                handleInputChange({
+                                  target: { name: "category", value: key }
+                                })
+                              }
+                              className={`
+            flex items-start gap-3 p-3 rounded-xl border text-left transition-all
+            ${isSelected
+                                  ? "bg-blue-600/20 border-blue-500 text-white ring-2 ring-blue-500/40"
+                                  : "bg-black/40 border-white/20 text-gray-300 hover:border-white/40"}
+          `}
+                            >
+                              {/* Checkbox look */}
+                              <div
+                                className={`
+              mt-1 w-4 h-4 rounded border flex items-center justify-center
+              ${isSelected
+                                    ? "bg-blue-500 border-blue-500"
+                                    : "border-gray-400"}
+            `}
+                              >
+                                {isSelected && (
+                                  <div className="w-2 h-2 bg-white rounded-sm" />
+                                )}
+                              </div>
+
+                              <div>
+                                <div className="text-sm font-semibold flex items-center gap-1">
+                                  <span>{info.emoji}</span>
+                                  <span>{key}</span>
+                                </div>
+                                {/* <p className="text-xs text-gray-400 mt-0.5">
+                                  {info.description}
+                                </p> */}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
                     {/* ✨ NEW: Category description */}
                     {formData.category && (
                       <p className="mt-2 text-xs text-gray-400">
