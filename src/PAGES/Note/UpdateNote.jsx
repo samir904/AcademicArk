@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateNote, getNote, clearCurrentNote } from '../../REDUX/Slices/noteslice';
+import PageTransition from '../../COMPONENTS/PageTransition';
 
 // Icon components (same as before)
 const ArrowLeftIcon = ({ className }) => (
@@ -346,7 +347,7 @@ export default function UpdateNote() {
   }
 
   return (
-    <>
+    <PageTransition>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -639,6 +640,6 @@ export default function UpdateNote() {
           </form>
         </div>
       </div>
-    </>
+    </PageTransition>
   );
 }

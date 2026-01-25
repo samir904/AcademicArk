@@ -148,7 +148,6 @@ export default function Changepassword() {
   };
 
   return (
-    <>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
@@ -374,6 +373,5 @@ export default function Changepassword() {
           </div>
         </div>
       </div>
-    </>
   );
 }

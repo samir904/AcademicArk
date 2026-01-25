@@ -36,7 +36,7 @@ export default function EditSocialLinks() {
   };
 
   return (
-    <>
+    
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-2xl mx-auto">
           <div className="mb-8">
@@ -155,6 +155,6 @@ export default function EditSocialLinks() {
           </div>
         </div>
       </div>
-    </>
+   
   );
 }

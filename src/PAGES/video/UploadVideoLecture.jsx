@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { registerVideoLecture } from '../../REDUX/Slices/videoLecture.slice';
+import PageTransition from '../../COMPONENTS/PageTransition';
 
 // Icon components (same as UploadNote)
 const CloudUploadIcon = ({ className }) => (
@@ -242,7 +243,6 @@ export default function UploadVideoLecture() {
   // Success UI
   if (isSuccess) {
     return (
-      <HomeLayout>
         <div className="min-h-screen bg-black flex items-center justify-center px-4">
           <div className="max-w-md w-full text-center">
             <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
@@ -270,12 +270,11 @@ export default function UploadVideoLecture() {
             </div>
           </div>
         </div>
-      </HomeLayout>
     );
   }
 
   return (
-    <HomeLayout>
+    <PageTransition>
       <div className="min-h-screen bg-black text-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -596,6 +595,6 @@ export default function UploadVideoLecture() {
           </div>
         </div>
       </div>
-    </HomeLayout>
+    </PageTransition>
   );
 }

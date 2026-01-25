@@ -109,7 +109,6 @@ export default function VideoWatch() {
 
   if (errorDetail || !currentVideo) {
     return (
-      <>
         <div className="flex items-center justify-center min-h-screen bg-[#0B0B0B]">
           <div className="text-center max-w-md">
             <div className="bg-[#111111] border border-[#1F1F1F] rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
@@ -126,12 +125,10 @@ export default function VideoWatch() {
             </Link>
           </div>
         </div>
-      </>
     );
   }
 
   return (
-    <>
       <div className="min-h-screen bg-[#0B0B0B]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           
@@ -438,6 +435,5 @@ export default function VideoWatch() {
           </div>
         </div>
       </div>
-    </>
   );
 }
