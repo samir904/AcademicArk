@@ -249,20 +249,27 @@ export default function ImportantCard({ note }) {
   return (
     <>
       {/* ✨ IMPORTANT CARD - AMBER THEME WITH LEFT BORDER */}
-      <div className={`group bg-[#0F0F0F] border border-[#1f1f1f] border-l-3 border-l-amber-500 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
+      <div className={`group bg-[#0F0F0F] relative border border-[#1f1f1f] border-l-3 border-l-amber-500 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
 {/* ✅ NEW: Recommended Badge */}
-              {note.recommended && (
+              {/* {note.recommended && (
                 <div className="absolute -top-2 -left-2 cursor-default flex items-center gap-1 bg-amber-600 px-2 py-1 rounded-full shadow-lg border border-amber-500/50 z-10">
                   <Star className="w-3 h-3 text-yellow-300 fill-yellow-300" />
-                  {/* <span className="text-[10px] text-white font-semibold whitespace-nowrap">
+                  <span className="text-[10px] text-white font-semibold whitespace-nowrap">
                     Recommended
-                  </span> */}
+                  </span>
                   <div className="absolute left-1/2 -translate-x-1/2 mt-1 opacity-0 hover:opacity-100 
                   transition bg-black text-white text-[10px] px-2 py-1 rounded">
               Recommended
             </div>
                 </div>
-              )}
+              )} */}
+               {note.recommended && (
+  <div className="absolute -top-14 -right-10 -z-0 w-40 h-40 flex items-center justify-center overflow-visible">
+    <div className="bg-amber-600 text-white text-[10px] font-bold px-8 py-1 rotate-35 shadow-md whitespace-nowrap">
+      ⭐ Recommended
+    </div>
+  </div>
+)}
         {/* Content */}
         <div className="p-6 space-y-4">
 
