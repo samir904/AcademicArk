@@ -15,6 +15,7 @@ import { PlusIcon, ChartBarIcon, CalendarIcon } from '@heroicons/react/24/outlin
 import Alert from '../../COMPONENTS/Alert'; // ✨ ADD THIS
 import LoginRequiredModal from '../../COMPONENTS/LoginRequiredModal'; // ✨ ADD THIS
 import { AttendanceSkeleton } from '../../COMPONENTS/Skeletons';
+import PageTransition from '../../COMPONENTS/PageTransition';
 
 export default function AttendanceDashboard() {
   const dispatch = useDispatch();
