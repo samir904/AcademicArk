@@ -14,6 +14,7 @@ import SubjectCard from '../../COMPONENTS/SubjectCard';
 import { PlusIcon, ChartBarIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import Alert from '../../COMPONENTS/Alert'; // ✨ ADD THIS
 import LoginRequiredModal from '../../COMPONENTS/LoginRequiredModal'; // ✨ ADD THIS
+import { AttendanceSkeleton } from '../../COMPONENTS/Skeletons';
 
 export default function AttendanceDashboard() {
   const dispatch = useDispatch();
@@ -155,9 +156,9 @@ const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
 
   if (loading && !attendance) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full"></div>
-      </div>
+      <>
+        <AttendanceSkeleton/>
+      </>
     );
   }
 

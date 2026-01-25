@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { getAttendanceStats } from '../../REDUX/Slices/attendanceSlice';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { AttendanceSkeleton } from '../../COMPONENTS/Skeletons';
 
 export default function AttendanceStats() {
   const dispatch = useDispatch();
@@ -14,9 +15,9 @@ export default function AttendanceStats() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full"></div>
-      </div>
+      <>
+        <AttendanceSkeleton/>
+      </>
     );
   }
 
