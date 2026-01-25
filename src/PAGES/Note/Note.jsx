@@ -119,10 +119,12 @@ export default function Note() {
       "discrete structures & theory of logic", "mathematics-iv", "technical communication"
     ],
     4: [
-      'data structure', 'digital electronics',
-      'computer organization and architecture', 'python programming', 'discrete structures & theory of logic',
-      "technical communication",
-      "discrete structures & theory of logic", "mathematics-iv", "technical communication"
+       'digital electronics', 
+       "mathematics-iv", 
+       "operating system",
+       "Theory of Automata and Formal Languages ",
+       "Object Oriented Programming with Java",
+       "CYBER SECURITY","Universal Human Values and Professional Ethics"
     ],
     5: [
       'Web Technology', 'cloud computing',
@@ -131,8 +133,14 @@ export default function Note() {
       "database management system", "artificial intelligence", "introduction to data analytics and visualization", "Constitution of India"
     ],
     6: [
-      'Machine Learning', 'Artificial Intelligence', 'Mobile Computing',
-      'Network Security', 'Advanced Database', 'Human Computer Interaction'
+      'Computer network',
+      'software project management',
+      "software engineering",
+      'Big data and analytics', 
+      'compiler design',
+      "Machine Learning Techniques",
+      "cloud computing",
+      'Indian Tradition, Culture and Society'
     ],
     7: [
       // 'Advanced Machine Learning', 'Distributed Systems','Data Mining', 'Blockchain Technology',

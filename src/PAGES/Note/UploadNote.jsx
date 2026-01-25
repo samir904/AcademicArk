@@ -110,7 +110,9 @@ export default function UploadNote() {
     if (!formData.subject.trim()) newErrors.subject = 'Subject is required';
     else if (formData.subject.trim().length < 2) newErrors.subject = 'Subject must be at least 2 characters';
 
-    if (!formData.semester) newErrors.semester = 'Semester is required';
+    if (!formData.semester.length) {
+      newErrors.semester = 'Select at least one semester';
+    }
     if (!selectedFile) newErrors.file = 'File is required';
 
     if (selectedFile) {
@@ -142,8 +144,8 @@ export default function UploadNote() {
             <XCircleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
             <p className="text-gray-400 mb-4">You need TEACHER or ADMIN privileges to upload notes.</p>
-            <button 
-              onClick={() => navigate('/notes')} 
+            <button
+              onClick={() => navigate('/notes')}
               className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-lg hover:from-blue-600 hover:to-purple-600"
             >
               Browse Notes
@@ -189,7 +191,7 @@ export default function UploadNote() {
     }
 
     setSelectedFile(file);
-    
+
     // Create preview for PDF files
     if (file.type === 'application/pdf') {
       const previewUrl = URL.createObjectURL(file);
@@ -230,7 +232,9 @@ export default function UploadNote() {
     submitFormData.append('description', formData.description.trim());
     submitFormData.append('subject', formData.subject.trim());
     submitFormData.append('course', formData.course);
-    submitFormData.append('semester', formData.semester);
+    formData.semester.forEach(sem => {
+      submitFormData.append('semester[]', sem);
+    });
     submitFormData.append('university', formData.university);
     submitFormData.append('category', formData.category); // ✨ Fixed:
     submitFormData.append('fileDetails', selectedFile);
@@ -246,7 +250,7 @@ export default function UploadNote() {
             description: '',
             subject: '',
             course: 'BTECH',
-            semester: '',
+            semester: [],
             university: 'AKTU',
             category: 'Notes'
           });
@@ -272,6 +276,21 @@ export default function UploadNote() {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+  };
+  const handleSemesterChange = (sem) => {
+    setFormData(prev => {
+      const exists = prev.semester.includes(sem);
+      return {
+        ...prev,
+        semester: exists
+          ? prev.semester.filter(s => s !== sem)
+          : [...prev.semester, sem]
+      };
+    });
+
+    if (errors.semester) {
+      setErrors(prev => ({ ...prev, semester: '' }));
+    }
   };
 
   // Success UI
@@ -309,6 +328,8 @@ export default function UploadNote() {
     );
   }
 
+
+
   return (
     <HomeLayout>
       <div className="min-h-screen bg-black text-white py-12 px-4">
@@ -337,15 +358,19 @@ export default function UploadNote() {
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Title *
                     </label>
+
+                    <p className="text-xs text-gray-500 mb-2">
+                      💡 Tip: Include <span className="text-blue-400">Unit-1, Unit-2</span> in title.
+                      Unit will be auto-detected.
+                    </p>
                     <input
                       type="text"
                       name="title"
                       value={formData.title}
                       onChange={handleInputChange}
-                      placeholder="Enter note title (e.g., Data Structures - Unit 1)"
-                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                        errors.title ? 'border-red-500' : 'border-white/20'
-                      }`}
+                      placeholder="Enter note title (e.g., Data Structures Unit-1)"
+                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.title ? 'border-red-500' : 'border-white/20'
+                        }`}
                     />
                     {errors.title && <p className="mt-2 text-sm text-red-400">{errors.title}</p>}
                   </div>
@@ -361,9 +386,8 @@ export default function UploadNote() {
                       onChange={handleInputChange}
                       rows={4}
                       placeholder="Provide a detailed description of the content, topics covered, and any special notes..."
-                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none ${
-                        errors.description ? 'border-red-500' : 'border-white/20'
-                      }`}
+                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none ${errors.description ? 'border-red-500' : 'border-white/20'
+                        }`}
                     />
                     {errors.description && (
                       <p className="mt-2 text-sm text-red-400">{errors.description}</p>
@@ -381,9 +405,8 @@ export default function UploadNote() {
                       value={formData.subject}
                       onChange={handleInputChange}
                       placeholder="Enter subject name (e.g., Operating System, Machine Learning)"
-                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                        errors.subject ? 'border-red-500' : 'border-white/20'
-                      }`}
+                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.subject ? 'border-red-500' : 'border-white/20'
+                        }`}
                     />
                     {errors.subject && (
                       <p className="mt-2 text-sm text-red-400">{errors.subject}</p>
@@ -393,30 +416,40 @@ export default function UploadNote() {
                     </p>
                   </div>
 
-                  {/* Semester */}
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Semester *
                     </label>
-                    <select
-                      name="semester"
-                      value={formData.semester}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-3 bg-black/50 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                        errors.semester ? 'border-red-500' : 'border-white/20'
-                      }`}
-                    >
-                      <option value="">Select Semester</option>
-                      {[...Array(8)].map((_, i) => (
-                        <option key={i + 1} value={i + 1}>Semester {i + 1}</option>
+
+                    <div className="grid grid-cols-4 gap-3">
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
+                        <button
+                          key={sem}
+                          type="button"
+                          onClick={() => handleSemesterChange(sem)}
+                          className={`
+          px-3 py-2 rounded-lg text-sm font-medium border transition-all
+          ${formData.semester.includes(sem)
+                              ? 'bg-blue-600 text-white border-blue-500'
+                              : 'bg-black/50 text-gray-300 border-white/20 hover:border-white/40'}
+        `}
+                        >
+                          Sem {sem}
+                        </button>
                       ))}
-                    </select>
+                    </div>
+
                     {errors.semester && (
                       <p className="mt-2 text-sm text-red-400">{errors.semester}</p>
                     )}
+
+                    <p className="mt-1 text-xs text-gray-500">
+                      You can select multiple semesters
+                    </p>
                   </div>
 
-                 {/* ✨ FIXED: Category Dropdown */}
+
+                  {/* ✨ FIXED: Category Dropdown */}
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Category
@@ -467,13 +500,12 @@ export default function UploadNote() {
 
                 {/* Drag & Drop / Clickable Area */}
                 <div
-                  className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 ${
-                    dragActive
-                      ? 'border-blue-500 bg-blue-500/10'
-                      : errors.file
+                  className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 ${dragActive
+                    ? 'border-blue-500 bg-blue-500/10'
+                    : errors.file
                       ? 'border-red-500 bg-red-500/5'
                       : 'border-white/30 hover:border-white/50 hover:bg-white/5'
-                  }`}
+                    }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
@@ -504,7 +536,7 @@ export default function UploadNote() {
                           <XCircleIcon className="w-5 h-5" />
                         </button>
                       </div>
-                      
+
                       {/* NEW: PDF Preview */}
                       {filePreview && selectedFile.type === 'application/pdf' && (
                         <div className="mt-4">
@@ -533,7 +565,7 @@ export default function UploadNote() {
                           </div>
                         </div>
                       )}
-                      
+
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
@@ -614,23 +646,23 @@ export default function UploadNote() {
             </div>
           </div>
           {/* ✨ NEW: Category Tips */}
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <h4 className="font-medium text-white mb-3">Choosing the Right Category</h4>
-              <div className="space-y-2 text-sm text-gray-400">
-                <p>
-                  <span className="text-blue-400">📚 Study Notes:</span> Comprehensive lecture notes, tutorials, and study guides
-                </p>
-                <p>
-                  <span className="text-green-400">✏️ Handwritten Notes:</span> Personal handwritten notes, annotations, and scanned notebooks
-                </p>
-                <p>
-                  <span className="text-yellow-400">📄 PYQ:</span> Previous year exam papers and solved solutions
-                </p>
-                <p>
-                  <span className="text-purple-400">⭐ Important Questions:</span> Frequently asked questions and important topics
-                </p>
-              </div>
+          <div className="mt-6 pt-6 border-t border-white/10">
+            <h4 className="font-medium text-white mb-3">Choosing the Right Category</h4>
+            <div className="space-y-2 text-sm text-gray-400">
+              <p>
+                <span className="text-blue-400">📚 Study Notes:</span> Comprehensive lecture notes, tutorials, and study guides
+              </p>
+              <p>
+                <span className="text-green-400">✏️ Handwritten Notes:</span> Personal handwritten notes, annotations, and scanned notebooks
+              </p>
+              <p>
+                <span className="text-yellow-400">📄 PYQ:</span> Previous year exam papers and solved solutions
+              </p>
+              <p>
+                <span className="text-purple-400">⭐ Important Questions:</span> Frequently asked questions and important topics
+              </p>
             </div>
+          </div>
         </div>
       </div>
     </HomeLayout>

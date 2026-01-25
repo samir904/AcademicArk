@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleBookmark, downloadnote, addRating } from '../../REDUX/Slices/noteslice.js';
+import { toggleBookmark, downloadnote, addRating, toggleRecommendNote } from '../../REDUX/Slices/noteslice.js';
 import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 import { usePDFDownload } from '../../hooks/usePDFDownload.js';
 import ViewersModal from '../../COMPONENTS/Note/ViewersModal.jsx';
 import { useNoteTracking } from '../../COMPONENTS/Session/NoteInteractionTracker.jsx';  // ← ADD HERE
+import { Star } from 'lucide-react';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -75,6 +76,7 @@ export default function ImportantCard({ note }) {
   const dispatch = useDispatch();
   const user = useSelector(state => state.auth.data);
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
+ const role = useSelector((state) => state?.auth?.role || "");
 
   const isBookmarked = note.bookmarkedBy?.includes(user?._id);
 
@@ -226,13 +228,41 @@ export default function ImportantCard({ note }) {
     { label: '👁️ Viewers', action: () => { setShowViewersModal(true); closeMenuDropdown(); } },
     { label: '📄 Details', action: () => { window.location.href = `/notes/${note._id}`; } },
     { label: '🔗 Share', action: () => { setShowShareModal(true); closeMenuDropdown(); } },
+     // ✅ NEW: Admin-only recommendation option
+        ...(role === 'ADMIN' ? [
+          {
+            label: note.recommended ? '✓ Remove Recommendation' : '⭐ Mark Recommended',
+            action: () => {
+              dispatch(toggleRecommendNote({
+                noteId: note._id,
+                recommended: !note.recommended,
+                rank: !note.recommended ? 1 : 0
+              }));
+              closeMenuDropdown();
+            },
+            admin: true,
+            separator: true
+          }
+        ] : []),
   ];
 
   return (
     <>
       {/* ✨ IMPORTANT CARD - AMBER THEME WITH LEFT BORDER */}
       <div className={`group bg-neutral-950 border border-neutral-800 border-l-3 border-l-amber-500 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
-
+{/* ✅ NEW: Recommended Badge */}
+              {note.recommended && (
+                <div className="absolute -top-2 -left-2 cursor-default flex items-center gap-1 bg-amber-600 px-2 py-1 rounded-full shadow-lg border border-amber-500/50 z-10">
+                  <Star className="w-3 h-3 text-yellow-300 fill-yellow-300" />
+                  {/* <span className="text-[10px] text-white font-semibold whitespace-nowrap">
+                    Recommended
+                  </span> */}
+                  <div className="absolute left-1/2 -translate-x-1/2 mt-1 opacity-0 hover:opacity-100 
+                  transition bg-black text-white text-[10px] px-2 py-1 rounded">
+              Recommended
+            </div>
+                </div>
+              )}
         {/* Content */}
         <div className="p-6 space-y-4">
 
@@ -290,17 +320,23 @@ export default function ImportantCard({ note }) {
                   <DotsIcon className="w-5 h-5 text-neutral-500 hover:text-neutral-300" />
                 </button>
 
-                {/* Dropdown Menu - CLOSES ON OUTSIDE CLICK */}
-                {showMenuDropdown && (
-                  <div className="absolute right-0 mt-1 w-40 bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg z-50 overflow-hidden">
+               {showMenuDropdown && (
+                  <div className="absolute right-0 mt-1 w-48 bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg z-50 overflow-hidden">
                     {menuOptions.map((option, idx) => (
-                      <button
-                        key={idx}
-                        onClick={option.action}
-                        className="w-full px-4 py-2.5 text-left text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors border-b border-neutral-800 last:border-b-0 cursor-pointer"
-                      >
-                        {option.label}
-                      </button>
+                      <div key={idx}>
+                        {option.separator && (
+                          <div className="h-px bg-neutral-700 my-1" />
+                        )}
+                        <button
+                          onClick={option.action}
+                          className={`w-full px-4 py-2.5 text-left text-sm transition-colors border-b border-neutral-800 last:border-b-0 ${option.admin
+                              ? 'bg-amber-900/20 text-amber-400 hover:bg-amber-900/40 font-semibold'
+                              : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
+                            }`}
+                        >
+                          {option.label}
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}

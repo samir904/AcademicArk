@@ -26,6 +26,12 @@ const initialState = {
     rating: false,
     bookmarkingNotes: [],//new array of note ids being bookmarked
     downloadingNotes: [],//new array of note ids being downloading
+    // ✅ NEW: Recommendations State
+    recommendedNotes: [],
+    adminNotes: [],
+    recommendationsLoading: false,
+    toggleRecommendLoading: false,
+    recommendationsError: null,
     error: null,
     filters: {
         subject: '',
@@ -34,7 +40,8 @@ const initialState = {
         university: '',
         course: '',
         category: ''
-    }
+    },
+
 }
 
 export const registerNote = createAsyncThunk('/note/register', async (data) => {
@@ -95,7 +102,7 @@ export const deleteNote = createAsyncThunk("/note/deleteNote", async (noteId) =>
     }
 })
 
-export const addRating = createAsyncThunk("/note/addrating", async ({noteId, rating, review}) => {
+export const addRating = createAsyncThunk("/note/addrating", async ({ noteId, rating, review }) => {
     try {
         const res = await axiosInstance.post(`/notes/${noteId}/rate`, { rating, review })
         showToast.success(res?.data?.message || "Rating added successfully!");
@@ -125,22 +132,22 @@ export const toggleBookmark = createAsyncThunk("/note/togglebookmark", async (no
 //     try {
 //         // Get the download URL from backend
 //         const res = await axiosInstance.get(`/notes/${noteId}/download`);
-        
+
 //         if (res.data.success) {
 //             const { downloadUrl, filename } = res.data.data;
-            
+
 //             // SIMPLE DIRECT DOWNLOAD - This will work 100%
 //             const link = document.createElement('a');
 //             link.href = downloadUrl;
 //             link.download = filename;
 //             link.target = '_blank';
 //             link.rel = 'noopener noreferrer';
-            
+
 //             // Trigger download
 //             document.body.appendChild(link);
 //             link.click();
 //             document.body.removeChild(link);
-            
+
 //             showToast.success(`Note downloaded successfully!`);
 //             return { noteId };
 //         }
@@ -213,14 +220,62 @@ export const getNoteViewers = createAsyncThunk(
     }
 );
 
+export const toggleRecommendNote = createAsyncThunk(
+    "/note/toggleRecommend",
+    async ({ noteId, recommended, rank }) => {
+        try {
+            const res = await axiosInstance.patch(
+                `/notes/admin/recommend/${noteId}`,
+                {
+                    recommended,
+                    rank: recommended ? rank || 1 : 0
+                }
+            );
+            showToast.success(res?.data?.message || "Recommendation updated");
+            return res.data;
+        } catch (e) {
+            showToast.error(e?.response?.data?.message || "Failed to update recommendation");
+            throw e;
+        }
+    }
+);
 
+export const getRecommendedNotes = createAsyncThunk(
+    "/note/getRecommended",
+    async () => {
+        try {
+            const res = await axiosInstance.get("/notes/admin/recommendations");
+            return res.data;
+        } catch (e) {
+            showToast.error(e?.response?.data?.message || "Failed to fetch recommended notes");
+            throw e;
+        }
+    }
+);
+
+export const getAllNotesForAdmin = createAsyncThunk(
+    "/note/getAllAdmin",
+    async (filters = {}) => {
+        try {
+            const queryparams = new URLSearchParams();
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value) queryparams.append(key, value);
+            });
+            const res = await axiosInstance.get(`/notes/admin/all?${queryparams.toString()}`);
+            return res.data;
+        } catch (e) {
+            showToast.error(e?.response?.data?.message || "Failed to fetch notes");
+            throw e;
+        }
+    }
+);
 
 
 
 const noteSlice = createSlice({
     name: "note",
     initialState,
-   reducers: {
+    reducers: {
         clearCurrentNote: (state) => {
             state.currentNote = null;
         },
@@ -245,11 +300,11 @@ const noteSlice = createSlice({
             state.totalNotes = 0;
             state.error = null;
         },
-        
+
         // ✅ ADD THIS REDUCER
         updateNoteViews: (state, action) => {
             const { noteId, views } = action.payload;
-            
+
             // Update in notes array (for NoteCard display)
             const index = state.notes.findIndex(note => note._id === noteId);
             if (index !== -1) {
@@ -258,7 +313,7 @@ const noteSlice = createSlice({
                     views: views
                 };
             }
-            
+
             // Update currentNote if same
             if (state.currentNote?._id === noteId) {
                 state.currentNote = {
@@ -275,11 +330,20 @@ const noteSlice = createSlice({
                 loading: false,
                 error: null
             };
+        },
+        // ✅ NEW: Recommendations Reducers
+        clearRecommendedNotes: (state) => {
+            state.recommendedNotes = [];
+            state.adminNotes = [];
+            state.recommendationsError = null;
+        },
+        clearRecommendationError: (state) => {
+            state.recommendationsError = null;
         }
     },
     extraReducers: (builder) => {
         builder
-        // ============================================
+            // ============================================
             // ✅ NEW: GET NOTE VIEWERS
             // ============================================
             .addCase(getNoteViewers.pending, (state) => {
@@ -400,21 +464,21 @@ const noteSlice = createSlice({
             // In your noteSlice.js - Fix the toggleBookmark.fulfilled
             // Update the reducer
 
-            .addCase(toggleBookmark.pending,(state,action)=>{
-                const noteId=action.meta.arg;
-                if(!state.bookmarkingNotes.includes(noteId)){
+            .addCase(toggleBookmark.pending, (state, action) => {
+                const noteId = action.meta.arg;
+                if (!state.bookmarkingNotes.includes(noteId)) {
                     state.bookmarkingNotes.push(noteId);
                 }
-                state.error=null;
+                state.error = null;
             })
 
             .addCase(toggleBookmark.fulfilled, (state, action) => {
                 //state.bookmarking = false;
                 const updatedNote = action.payload.data; // Make sure backend returns { data: updatedNote }
-                const noteId=updatedNote._id;
+                const noteId = updatedNote._id;
 
                 //remove from bookmarking array
-                state.bookmarkingNotes=state.bookmarkingNotes.filter(id=>id!==noteId);
+                state.bookmarkingNotes = state.bookmarkingNotes.filter(id => id !== noteId);
 
                 // Update in notes array
                 const index = state.notes.findIndex(n => n._id === updatedNote._id);
@@ -430,28 +494,28 @@ const noteSlice = createSlice({
 
             .addCase(toggleBookmark.rejected, (state, action) => {
                 //state.bookmarking = false;
-                const noteId=action.meta.arg;
+                const noteId = action.meta.arg;
 
                 //remove from bookmarking array
-                state.bookmarkingNotes=state.bookmarkingNotes.filter(id=>id!==noteId);
+                state.bookmarkingNotes = state.bookmarkingNotes.filter(id => id !== noteId);
 
                 state.error = action?.payload?.message || "Failed to toggle bookmark"
             })
 
             //download note
             .addCase(downloadnote.pending, (state, action) => {
-                const noteId=action.meta.arg.noteId;
-                if(!state.downloadingNotes.includes(noteId)){
+                const noteId = action.meta.arg.noteId;
+                if (!state.downloadingNotes.includes(noteId)) {
                     state.downloadingNotes.push(noteId);
                 }
-                state.error=null;
+                state.error = null;
             })
             .addCase(downloadnote.fulfilled, (state, action) => {
-             //optionally increment download count in local state
+                //optionally increment download count in local state
                 const noteId = action?.payload?.noteId;
 
                 //remove from downloading array
-                state.downloadingNotes=state.downloadingNotes.filter(id=>id!==noteId);
+                state.downloadingNotes = state.downloadingNotes.filter(id => id !== noteId);
 
                 const index = state.notes.findIndex(note => note._id === noteId);
                 if (index !== -1) {
@@ -462,11 +526,11 @@ const noteSlice = createSlice({
                 }
             })
             .addCase(downloadnote.rejected, (state, action) => {
-                
-                const noteId=action.meta.arg.noteId;
+
+                const noteId = action.meta.arg.noteId;
 
                 //remove from downloading array
-                state.downloadingNotes=state.downloadingNotes.filter(id=>id!==noteId);
+                state.downloadingNotes = state.downloadingNotes.filter(id => id !== noteId);
 
                 state.error = action?.payload?.message || "Failed to download note"
             })
@@ -492,6 +556,88 @@ const noteSlice = createSlice({
                 state.deleting = false;
                 state.error = action.error.message;
             })
+            // Inside your .addCase() chain, add these:
+
+            // ============================================
+            // ✅ NEW: TOGGLE RECOMMENDATION
+            // ============================================
+            .addCase(toggleRecommendNote.pending, (state) => {
+                state.toggleRecommendLoading = true;
+                state.recommendationsError = null;
+            })
+            .addCase(toggleRecommendNote.fulfilled, (state, action) => {
+                state.toggleRecommendLoading = false;
+                const updatedNote = action.payload.data;
+
+                // Update in notes array
+                const noteIndex = state.notes.findIndex(n => n._id === updatedNote._id);
+                if (noteIndex !== -1) {
+                    state.notes[noteIndex] = updatedNote;
+                }
+
+                // Update in admin notes array
+                const adminIndex = state.adminNotes.findIndex(n => n._id === updatedNote._id);
+                if (adminIndex !== -1) {
+                    state.adminNotes[adminIndex] = updatedNote;
+                }
+
+                // Update in recommended notes
+                if (updatedNote.recommended) {
+                    const recIndex = state.recommendedNotes.findIndex(n => n._id === updatedNote._id);
+                    if (recIndex !== -1) {
+                        state.recommendedNotes[recIndex] = updatedNote;
+                    } else {
+                        state.recommendedNotes.push(updatedNote);
+                    }
+                } else {
+                    state.recommendedNotes = state.recommendedNotes.filter(n => n._id !== updatedNote._id);
+                }
+
+                // Update current note
+                if (state.currentNote?._id === updatedNote._id) {
+                    state.currentNote = updatedNote;
+                }
+            })
+            .addCase(toggleRecommendNote.rejected, (state, action) => {
+                state.toggleRecommendLoading = false;
+                state.recommendationsError = action.error.message || "Failed to update recommendation";
+            })
+
+            // ============================================
+            // ✅ NEW: GET RECOMMENDED NOTES
+            // ============================================
+            .addCase(getRecommendedNotes.pending, (state) => {
+                state.recommendationsLoading = true;
+                state.recommendationsError = null;
+            })
+            .addCase(getRecommendedNotes.fulfilled, (state, action) => {
+                state.recommendationsLoading = false;
+                state.recommendedNotes = action.payload.data;
+            })
+            .addCase(getRecommendedNotes.rejected, (state, action) => {
+                state.recommendationsLoading = false;
+                state.recommendationsError = action.error.message || "Failed to fetch recommended notes";
+                state.recommendedNotes = [];
+            })
+
+            // ============================================
+            // ✅ NEW: GET ALL NOTES FOR ADMIN
+            // ============================================
+            .addCase(getAllNotesForAdmin.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(getAllNotesForAdmin.fulfilled, (state, action) => {
+                state.loading = false;
+                state.adminNotes = action.payload.data;
+                state.totalNotes = action.payload.count;
+            })
+            .addCase(getAllNotesForAdmin.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || "Failed to fetch notes";
+                state.adminNotes = [];
+            })
+
 
     }
 
@@ -504,8 +650,11 @@ export const {
     clearFilters,
     clearError,
     clearNotes,
-    updateNoteViews , // ✅ EXPORT THIS
-    clearViewers  // ✅ NEW
+    updateNoteViews, // ✅ EXPORT THIS
+    clearViewers , // ✅ NEW
+    // ✅ NEW EXPORTS
+    clearRecommendedNotes,
+    clearRecommendationError
 } = noteSlice.actions;
 
 //export reducer

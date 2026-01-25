@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleBookmark, downloadnote, addRating, incrementViewCount } from '../../REDUX/Slices/noteslice.js';
+import { toggleBookmark, downloadnote, addRating, incrementViewCount, toggleRecommendNote } from '../../REDUX/Slices/noteslice.js';
 import LoginPrompt from '../../COMPONENTS/LoginPrompt.jsx';
 import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
@@ -11,6 +11,7 @@ import { usePDFDownload } from '../../hooks/usePDFDownload.js';
 import ViewersModal from '../../COMPONENTS/Note/ViewersModal.jsx';
 import { useEffect } from 'react';
 import { useNoteTracking } from '../../COMPONENTS/Session/NoteInteractionTracker.jsx';  // ← ADD HERE
+import { Star } from 'lucide-react';
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
   <svg className={className} fill={filled ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
@@ -87,6 +88,7 @@ export default function NoteCard({ note }) {
   const avgRating = note.rating?.length
     ? (note.rating.reduce((sum, r) => sum + r.rating, 0) / note.rating.length).toFixed(1)
     : 0;
+  const role = useSelector((state) => state?.auth?.role || "");
 
   // Get category colors
   const categoryKey = note.category?.toUpperCase().replace(/\s+/g, '_') || 'NOTES';
@@ -238,12 +240,75 @@ export default function NoteCard({ note }) {
     { label: '👁️ Viewers', action: () => { setShowViewersModal(true); closeMenuDropdown(); } },
     { label: '📄 Details', action: () => { window.location.href = `/notes/${note._id}`; } },
     { label: '🔗 Share', action: () => { setShowShareModal(true); closeMenuDropdown(); } },
+    // ✅ NEW: Admin-only recommendation option
+    ...(role === 'ADMIN' ? [
+      {
+        label: note.recommended ? '✓ Remove Recommendation' : '⭐ Mark Recommended',
+        action: () => {
+          dispatch(toggleRecommendNote({
+            noteId: note._id,
+            recommended: !note.recommended,
+            rank: !note.recommended ? 1 : 0
+          }));
+          closeMenuDropdown();
+        },
+        admin: true,
+        separator: true
+      }
+    ] : []),
   ];
 
   return (
     <>
       {/* ✨ CLEAN ACADEMIC NOTE CARD - FINAL VERSION */}
       <div className={`group bg-neutral-950 border border-neutral-800 ${borderColorClass} border-l-3 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
+        {note.recommended && (
+                  <div className="absolute -top-2 -left-2 cursor-default flex items-center gap-1 bg-indigo-600 px-2 py-1 rounded-full shadow-lg border border-indigo-500/50 z-10">
+                    <Star className="w-3 h-3 text-yellow-300 fill-yellow-300" />
+                    <span className="text-[10px] text-white font-semibold whitespace-nowrap">
+                            Recommended
+                          </span>
+                    {/* <div className="absolute left-1/2 -translate-x-1/2 mt-1 opacity-0 hover:opacity-100 
+                          transition bg-black text-white text-[10px] px-2 py-1 rounded">
+                      Recommended
+                    </div> */}
+                  </div>
+                )}
+        {/* {note.recommended && (
+          <div className="absolute -top-2 -left-2 flex items-center gap-1 bg-indigo-500/10 px-2 py-1 rounded-full shadow-lg border border-indigo-500/20 z-10">
+            <Star className="w-3 h-3 text-yellow-300 fill-yellow-300" />
+            <span className="text-[10px] text-indigo-400 font-semibold whitespace-nowrap">
+              Recommended
+            </span>
+          </div>
+        )} */}
+       
+        {/* {note.recommended && (
+  <div className="absolute top-3 left-3 z-10">
+    <span className="
+      inline-flex items-center gap-1
+      px-2 py-0.5
+      rounded-md
+      bg-indigo-500/10
+      text-indigo-400
+      text-[10px] font-semibold
+      border border-indigo-500/20
+      backdrop-blur-sm
+    ">
+      <Star className="w-3 h-3 fill-indigo-400" />
+      Recommended
+    </span>
+  </div>
+)} */}
+        {/* ✅ NEW: Recommended ribbon */}
+        {/* {note.recommended && (
+  <div className="absolute -top-14 -right-10 -z-0 w-40 h-40 flex items-center justify-center overflow-visible">
+    <div className="bg-indigo-600 text-white text-[10px] font-bold px-8 py-1 rotate-37 shadow-md whitespace-nowrap">
+      ⭐ Recommended
+    </div>
+  </div>
+)} */}
+
 
         {/* Content */}
         <div className="p-6 space-y-4">
@@ -251,6 +316,7 @@ export default function NoteCard({ note }) {
           {/* Header - Title + Bookmark + Menu */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
+
               {/* Category Badge */}
               <div className="mb-2">
                 <span
@@ -309,18 +375,27 @@ export default function NoteCard({ note }) {
 
                 {/* Dropdown Menu */}
                 {showMenuDropdown && (
-                  <div className="absolute right-0 mt-1 w-40 bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg z-50 overflow-hidden">
+                  <div className="absolute right-0 mt-1 w-48 bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg z-50 overflow-hidden">
                     {menuOptions.map((option, idx) => (
-                      <button
-                        key={idx}
-                        onClick={option.action}
-                        className="w-full px-4 py-2.5 text-left text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors border-b border-neutral-800 last:border-b-0"
-                      >
-                        {option.label}
-                      </button>
+                      <div key={idx}>
+                        {option.separator && (
+                          <div className="h-px bg-neutral-700 my-1" />
+                        )}
+                        <button
+                          onClick={option.action}
+                          className={`w-full px-4 py-2.5 text-left text-sm transition-colors border-b border-neutral-800 last:border-b-0 ${option.admin
+                            ? 'bg-amber-900/20 text-amber-400 hover:bg-amber-900/40 font-semibold'
+                            : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
+                            }`}
+                        >
+                          {option.label}
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}
+
+
               </div>
             </div>
           </div>

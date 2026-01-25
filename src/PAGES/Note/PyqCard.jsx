@@ -3,12 +3,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleBookmark, downloadnote, addRating } from '../../REDUX/Slices/noteslice.js';
+import { toggleBookmark, downloadnote, addRating, toggleRecommendNote } from '../../REDUX/Slices/noteslice.js';
 import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 import { usePDFDownload } from '../../hooks/usePDFDownload.js';
 import ViewersModal from '../../COMPONENTS/Note/ViewersModal.jsx';
 import { useNoteTracking } from '../../COMPONENTS/Session/NoteInteractionTracker.jsx';  // ← ADD HERE
+import { Star } from 'lucide-react';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -77,6 +78,7 @@ export default function PyqCard({ note }) {
   const dispatch = useDispatch();
   const user = useSelector(state => state.auth.data);
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
+  const role = useSelector((state) => state?.auth?.role || "");
 
   const isBookmarked = note.bookmarkedBy?.includes(user?._id);
 
@@ -98,7 +100,7 @@ export default function PyqCard({ note }) {
   const downloadState = downloading[note._id];
   const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
   const [isCurrentlyDownloading, setIsCurrentlyDownloading] = useState(false);
-const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNoteTracking();
+  const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNoteTracking();
 
   // Close menu on outside click
   useEffect(() => {
@@ -118,7 +120,7 @@ const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNo
   const handleBookmark = (e) => {
     e.preventDefault();
     e.stopPropagation();
-     trackBookmark(note._id);
+    trackBookmark(note._id);
     if (!isLoggedIn) {
       dispatch(setLoginModal({
         isOpen: true,
@@ -135,7 +137,7 @@ const { trackView, trackClick, trackDownload, trackBookmark, trackRate } = useNo
   const handleDownload = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-trackDownload(note._id);
+    trackDownload(note._id);
     if (!isLoggedIn) {
       dispatch(setLoginModal({
         isOpen: true,
@@ -217,13 +219,40 @@ trackDownload(note._id);
     { label: '👁️ Viewers', action: () => { setShowViewersModal(true); closeMenuDropdown(); } },
     { label: '📄 Details', action: () => { window.location.href = `/notes/${note._id}`; } },
     { label: '🔗 Share', action: () => { setShowShareModal(true); closeMenuDropdown(); } },
+    // ✅ NEW: Admin-only recommendation option
+    ...(role === 'ADMIN' ? [
+      {
+        label: note.recommended ? '✓ Remove Recommendation' : '⭐ Mark Recommended',
+        action: () => {
+          dispatch(toggleRecommendNote({
+            noteId: note._id,
+            recommended: !note.recommended,
+            rank: !note.recommended ? 1 : 0
+          }));
+          closeMenuDropdown();
+        },
+        admin: true,
+        separator: true
+      }
+    ] : []),
   ];
 
   return (
     <>
       {/* ✨ CLEAN ACADEMIC PYQ CARD - CYAN THEME */}
       <div className={`group bg-neutral-950 border border-neutral-800 ${PYQ_COLORS.borderClass} border-l-3 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
-
+        {note.recommended && (
+          <div className="absolute -top-2 -left-2 cursor-default flex items-center gap-1 bg-cyan-600 px-2 py-1 rounded-full shadow-lg border border-cyan-500/50 z-10">
+            <Star className="w-3 h-3 text-yellow-300 fill-yellow-300" />
+            {/* <span className="text-[10px] text-[#0A0A0A] font-semibold whitespace-nowrap">
+                    Recommended
+                  </span> */}
+            <div className="absolute left-1/2 -translate-x-1/2 mt-1 opacity-0 hover:opacity-100 
+                  transition bg-black text-white text-[10px] px-2 py-1 rounded">
+              Recommended
+            </div>
+          </div>
+        )}
         {/* Content */}
         <div className="p-6 space-y-4">
 
@@ -245,10 +274,10 @@ trackDownload(note._id);
                 to={`/notes/${note._id}/read`}
                 className="block text-white capitalize font-semibold text-base line-clamp-2 hover:underline transition-all cursor-pointer"
                 onClick={() => {
-              // ✅ ADD TRACKING - TWO LINES!
-              trackView(note._id, note.title);
-              trackClick(note._id);
-            }}
+                  // ✅ ADD TRACKING - TWO LINES!
+                  trackView(note._id, note.title);
+                  trackClick(note._id);
+                }}
               >
                 {note.title}
               </Link>
@@ -281,17 +310,24 @@ trackDownload(note._id);
                   <DotsIcon className="w-5 h-5 text-neutral-500 hover:text-neutral-300" />
                 </button>
 
-                {/* Dropdown Menu - CLOSES ON OUTSIDE CLICK */}
+                {/* Dropdown Menu */}
                 {showMenuDropdown && (
-                  <div className="absolute right-0 mt-1 w-40 bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg z-50 overflow-hidden">
+                  <div className="absolute right-0 mt-1 w-48 bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg z-50 overflow-hidden">
                     {menuOptions.map((option, idx) => (
-                      <button
-                        key={idx}
-                        onClick={option.action}
-                        className="w-full px-4 py-2.5 text-left text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors border-b border-neutral-800 last:border-b-0 cursor-pointer"
-                      >
-                        {option.label}
-                      </button>
+                      <div key={idx}>
+                        {option.separator && (
+                          <div className="h-px bg-neutral-700 my-1" />
+                        )}
+                        <button
+                          onClick={option.action}
+                          className={`w-full px-4 py-2.5 text-left text-sm transition-colors border-b border-neutral-800 last:border-b-0 ${option.admin
+                            ? 'bg-amber-900/20 text-amber-400 hover:bg-amber-900/40 font-semibold'
+                            : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
+                            }`}
+                        >
+                          {option.label}
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -303,7 +339,7 @@ trackDownload(note._id);
           <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
             <span className="truncate">{note.subject}</span>
             <span>•</span>
-             <span className="whitespace-nowrap">
+            <span className="whitespace-nowrap">
               Sem {Array.isArray(note.semester) ? note.semester.join(" / ") : note.semester}
             </span>            <span>•</span>
             <span className="truncate">{note.university}</span>
@@ -371,10 +407,10 @@ trackDownload(note._id);
               style={{ backgroundColor: '#1F1F1F' }}
               className="flex-1 px-4 py-2.5   hover:opacity-90 text-white rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700"
               onClick={() => {
-              // ✅ ADD TRACKING - TWO LINES!
-              trackView(note._id, note.title);
-              trackClick(note._id);
-            }}
+                // ✅ ADD TRACKING - TWO LINES!
+                trackView(note._id, note.title);
+                trackClick(note._id);
+              }}
             >
               <EyeIcon className="w-4 h-4" />
               <span>View</span>
@@ -385,12 +421,12 @@ trackDownload(note._id);
               onClick={handleDownload}
               disabled={downloadState?.status === 'starting' || isCurrentlyDownloading}
               className={`px-3 py-3 border rounded-full font-semibold text-sm transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700 ${downloadState?.status === 'error'
-                  ? 'border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10'
-                  : downloadState?.status === 'complete' || downloadState?.status === 'exists'
-                    ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400'
-                    : downloadState?.status === 'starting' || isCurrentlyDownloading
-                      ? 'border-neutral-600 bg-neutral-800/50 text-neutral-300 cursor-wait'
-                      : 'border-neutral-700 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-900'
+                ? 'border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10'
+                : downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                  ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400'
+                  : downloadState?.status === 'starting' || isCurrentlyDownloading
+                    ? 'border-neutral-600 bg-neutral-800/50 text-neutral-300 cursor-wait'
+                    : 'border-neutral-700 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-900'
                 }`}
               aria-label="Download note"
               aria-busy={downloadState?.status === 'starting' || isCurrentlyDownloading}
@@ -488,8 +524,8 @@ trackDownload(note._id);
                 onClick={submitRating}
                 disabled={userRating === 0}
                 className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-all cursor-pointer ${userRating === 0
-                    ? 'bg-neutral-900 text-neutral-600 cursor-not-allowed'
-                    : 'bg-cyan-600 hover:bg-cyan-500 text-white'
+                  ? 'bg-neutral-900 text-neutral-600 cursor-not-allowed'
+                  : 'bg-cyan-600 hover:bg-cyan-500 text-white'
                   }`}
               >
                 Submit
