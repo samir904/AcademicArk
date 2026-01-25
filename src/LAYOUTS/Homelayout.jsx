@@ -20,6 +20,7 @@ import OfflineModal from "../COMPONENTS/OfflineModal";
 import { Trophy, CalendarCog } from "lucide-react";
 import MobileNavigation from "../COMPONENTS/Homepage/MobileNavigation";
 import { AnimatePresence } from "framer-motion";
+import ScrollRestoration from "../COMPONENTS/ScrollRestoration";
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -266,13 +267,13 @@ const HomeLayout = () => {
   //     }
   // }, [dispatch, isLoggedIn, userData?._id]);
   // Smooth scroll version
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "smooth",
-    });
-  }, [location.pathname]);
+  // useEffect(() => {
+  //   window.scrollTo({
+  //     top: 0,
+  //     left: 0,
+  //     behavior: "smooth",
+  //   });
+  // }, [location.pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -486,7 +487,7 @@ const HomeLayout = () => {
 
       {/* 🎉 NEW: Milestone celebration */}
       {/* <MilestoneBanner /> */}
-
+    <ScrollRestoration/>
       <div className="min-h-screen bg-black text-white relative overflow-hidden">
         {/* Dynamic Background */}
         <div
