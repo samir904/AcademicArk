@@ -261,7 +261,7 @@ export default function NoteCard({ note }) {
   return (
     <>
       {/* ✨ CLEAN ACADEMIC NOTE CARD - FINAL VERSION */}
-      <div className={`group bg-neutral-950 border border-neutral-800 ${borderColorClass} border-l-3 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
+      <div className={`group bg-[#0F0F0F] border border-[#1f1f1f] ${borderColorClass} border-l-3 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
         {note.recommended && (
                   <div className="absolute -top-2 -left-2 cursor-default flex items-center gap-1 bg-indigo-600 px-2 py-1 rounded-full shadow-lg border border-indigo-500/50 z-10">
                     <Star className="w-3 h-3 text-yellow-300 fill-yellow-300" />
@@ -476,7 +476,7 @@ export default function NoteCard({ note }) {
               //                  colors.accent === 'amber-500' ? '#f59e0b' :
               //                  '#10b981'
               // }}
-              className="flex-1  bg-[#1F1F1F] px-4 py-2.5 hover:opacity-90 text-white rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700"
+              className="flex-1  bg-[#1F1F1F] hover:bg-[#2F2F2F] px-4 py-2.5 hover:opacity-90 text-white rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700"
               onClick={() => {
                 // ✅ ADD TRACKING - TWO LINES!
                 trackView(note._id, note.title);

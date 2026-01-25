@@ -252,7 +252,7 @@ export default function HandwrittenCard({ note }) {
   return (
     <>
       {/* ✨ HANDWRITTEN CARD - EMERALD THEME WITH LEFT BORDER */}
-      <div className={`group bg-neutral-950 border border-neutral-800 border-l-3 border-l-emerald-500/80 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
+      <div className={`group bg-[#0F0F0F] border border-[#1f1f1f] border-l-3 border-l-emerald-500/80 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
 {/* ✅ NEW: Recommended Badge */}
               {note.recommended && (
                 <div className="absolute -top-2 -left-2 flex cursor-default items-center gap-1 bg-emerald-600 px-2 py-1 rounded-full shadow-lg border border-emerald-500/50 z-10">
@@ -418,8 +418,8 @@ export default function HandwrittenCard({ note }) {
             {/* Primary: View Button */}
             <Link
               to={`/notes/${note._id}/read`}
-              style={{ backgroundColor: '#1F1F1F' }}
-              className="flex-1 px-4 py-2.5 hover:opacity-90 text-white rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700"
+              // style={{ backgroundColor: '#1F1F1F' }}
+              className="flex-1 px-4 bg-[#1F1F1F] hover:bg-[#2F2F2F] py-2.5 hover:opacity-90 text-white rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700"
               onClick={() => {
                 // ✅ ADD TRACKING - TWO LINES!
                 trackView(note._id, note.title);

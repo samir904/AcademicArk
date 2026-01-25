@@ -80,7 +80,7 @@ export default function DownloadsSection({ downloads }) {
 
       <div className="mt-6">
         <Link to="/downloads">
-          <button className="w-full md:w-auto bg-[#9CA3AF] hover:bg-white text-black px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center gap-2">
+          <button className="w-full md:hidden md:w-auto bg-[#9CA3AF] hover:bg-white text-black px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center gap-2">
             View All Downloads
             <ArrowRight className="w-4 h-4" />
           </button>

@@ -497,7 +497,7 @@ const handleSemesterChange = (newSemester) => {
 };
   return (
     <PageTransition>
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-neutral-950 text-white">
   {/* Notes Library Hero – Calm & Academic */}
 {/* Notes Page Hero – Calm, Academic, Complete */}
 <div className="bg-[#0F0F0F] border-b border-[#1F1F1F]">
@@ -1077,7 +1077,7 @@ const handleSemesterChange = (newSemester) => {
               <p className="text-gray-400 text-lg">
                 {localFilters.category === 'Video'
                   ? 'No videos found for this semester'
-                  : 'No resources found'}
+                  : ''}
               </p>
             </div>
           )}
