@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import CardRenderer from '../Note/CardRenderer';
 import { getMyBookmarks } from '../../REDUX/Slices/authslice';
 import PageTransition from '../../COMPONENTS/PageTransition';
+import { BookmarksSkeleton } from '../../COMPONENTS/Skeletons';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -187,11 +188,7 @@ export default function MyBookmarks() {
 
     if (loading) {
         return (
-            <>
-                <div className="min-h-screen bg-black flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-                </div>
-            </>
+            <BookmarksSkeleton/>
         );
     }
 
