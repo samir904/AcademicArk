@@ -16,7 +16,8 @@ import EnhancedFooter from "./EnhancedFooter";
 import FeedbackForm from "../COMPONENTS/FeedbackForm";
 import PWAInstallPrompt from "../COMPONENTS/PWAInstallPrompt";
 import OfflineModal from "../COMPONENTS/OfflineModal";
-import { Trophy,CalendarCog } from "lucide-react";
+import { Trophy, CalendarCog } from "lucide-react";
+import MobileNavigation from "../COMPONENTS/Homepage/MobileNavigation";
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -66,11 +67,11 @@ const LoginIcon = ({ className }) => (
 );
 
 const DownloadIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10" /><path d="M12 8v8" /><path d="m8 12 4 4 4-4" /></svg>
 );
 
-const TrophyIcon=()=>{
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trophy-icon lucide-trophy"><path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978"/><path d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978"/><path d="M18 9h1.5a1 1 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"/><path d="M6 9H4.5a1 1 0 0 1 0-5H6"/></svg>
+const TrophyIcon = () => {
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trophy-icon lucide-trophy"><path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978" /><path d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978" /><path d="M18 9h1.5a1 1 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z" /><path d="M6 9H4.5a1 1 0 0 1 0-5H6" /></svg>
 }
 const SearchIcon = ({ className, active }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -93,7 +94,7 @@ const SearchIcon = ({ className, active }) => (
 );
 
 const LibraryIcon = ({ className = "", active }) => (
- <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library-icon lucide-library"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library-icon lucide-library"><path d="m16 6 4 14" /><path d="M12 6v14" /><path d="M8 8v12" /><path d="M4 4v16" /></svg>
 );
 
 
@@ -239,8 +240,8 @@ const HomeLayout = ({ children }) => {
   //     <div className="absolute bottom-1 left-1 w-1 h-1 bg-cyan-500 rounded-full animate-pulse delay-1500"></div>
   //   </Link>
   // );
-const [showFeedback, setShowFeedback] = useState(false);
-    
+  const [showFeedback, setShowFeedback] = useState(false);
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -370,8 +371,8 @@ const [showFeedback, setShowFeedback] = useState(false);
       { name: "Home", path: "/", icon: "🏠" },
       { name: "Library", path: "/notes", icon: "📚" },
       { name: "Search", path: "/search", icon: "📖" },
-      { name: "Smart Planner", path: "/planner", icon: "📘" },
-      
+      { name: "Planner", path: "/planner", icon: "📘" },
+
       // { name: "Leaderboard", path: "/leaderboard", icon: "🏆" },  // ✨ NEW
       // { name: "Attendance", path: "/attendance", icon: "📊" }, // ✨ MOVED: Always show
       { name: "Downloads", path: "/downloads", icon: "📥" }
@@ -415,12 +416,12 @@ const [showFeedback, setShowFeedback] = useState(false);
         label: "Library",
       },
       { name: "Planner", label: "Planner", path: "/planner", icon: CalendarCog },
-  //     {
-  //   name: "Leaderboard",  // ✨ NEW
-  //   path: "/leaderboard",
-  //   icon: Trophy,  // or import LeaderboardIcon if you have one
-  //   label: "Board",
-  // },
+      //     {
+      //   name: "Leaderboard",  // ✨ NEW
+      //   path: "/leaderboard",
+      //   icon: Trophy,  // or import LeaderboardIcon if you have one
+      //   label: "Board",
+      // },
       {
         name: "Attendance",
         path: "/attendance",
@@ -428,11 +429,11 @@ const [showFeedback, setShowFeedback] = useState(false);
         label: "Attend",
       }, // ✨ MOVED: Always show
       {
-  name: "Downloads",
-  path: "/downloads",
-  icon: DownloadIcon,
-  label: "Download",
-}
+        name: "Downloads",
+        path: "/downloads",
+        icon: DownloadIcon,
+        label: "Download",
+      }
 
     ];
 
@@ -457,14 +458,14 @@ const [showFeedback, setShowFeedback] = useState(false);
 
     return baseItems;
   };
-// ✨ NEW: Check academic profile on mount
+  // ✨ NEW: Check academic profile on mount
   useEffect(() => {
     if (isLoggedIn) {
       dispatch(checkProfileCompletion());
     }
   }, [isLoggedIn, dispatch]);
- const [showFeedbackText, setShowFeedbackText] = useState(true);
- 
+  const [showFeedbackText, setShowFeedbackText] = useState(true);
+
   // ✅ Hide feedback text after 5 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -475,9 +476,9 @@ const [showFeedback, setShowFeedback] = useState(false);
   }, []);
   return (
     <>
-    {/* <OfflineRedirect/> */}
-    <OfflineModal/>
-    <PWAInstallPrompt />
+      {/* <OfflineRedirect/> */}
+      <OfflineModal />
+      <PWAInstallPrompt />
       {/* Notification banner - rendered independently */}
       <NotificationBanner />
 
@@ -492,15 +493,14 @@ const [showFeedback, setShowFeedback] = useState(false);
             background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
           }}
         />
-        
+
 
         {/* Desktop Header */}
         <header
-          className={`hidden md:block fixed top-0 w-full z-50 transition-all duration-700 ${
-            isScrolled
+          className={`hidden md:block fixed top-0 w-full z-50 transition-all duration-700 ${isScrolled
               ? "bg-black/90 backdrop-blur-2xl border-b border-white/10 shadow-2xl"
               : "bg-transparent"
-          }`}
+            }`}
         >
           <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-20">
@@ -530,11 +530,10 @@ const [showFeedback, setShowFeedback] = useState(false);
                     <Link
                       key={item.name}
                       to={item.path}
-                      className={`relative px-6 py-2.5 text-sm font-medium rounded-full transition-all duration-300 ${
-                        isActiveLink(item.path)
+                      className={`relative px-6 py-2.5 text-sm font-medium rounded-full transition-all duration-300 ${isActiveLink(item.path)
                           ? "text-black bg-white shadow-lg"
                           : "text-gray-400 hover:text-white hover:bg-white/10"
-                      }`}
+                        }`}
                     >
                       {item.name}
                       {isActiveLink(item.path) && (
@@ -655,7 +654,7 @@ const [showFeedback, setShowFeedback] = useState(false);
                               <span>Upload Notes</span>
                             </Link>
                           )}
-                           {(role === "TEACHER" || role === "ADMIN") && (
+                          {(role === "TEACHER" || role === "ADMIN") && (
                             <Link
                               to="/upload/video"
                               className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
@@ -713,83 +712,57 @@ const [showFeedback, setShowFeedback] = useState(false);
         </header>
 
         {/* Spotify-Style Mobile Header */}
-<header className="md:hidden fixed top-0 w-full z-50 bg-black/95 backdrop-blur-2xl border-b border-white/5">
-  <div className="flex items-center justify-between px-4 h-16">
-    {/* Profile/Menu Button */}
-    {isLoggedIn ? (
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowMobileMenu(!showMobileMenu);
-        }}
-        className="w-8 h-8 rounded-full overflow-hidden border border-white/20 hover:border-white/40 transition-colors"
-      >
-        {userData?.avatar?.secure_url?.startsWith("http") ? (
-          <img
-            src={userData.avatar.secure_url}
-            alt="Profile"
-            loading="lazy"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-            {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
+        <header className="md:hidden fixed top-0 w-full z-50 bg-black/95 backdrop-blur-2xl border-b border-white/5">
+          <div className="flex items-center justify-between px-4 h-16">
+            {/* Profile/Menu Button */}
+            
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-white to-gray-200 rounded-lg flex items-center justify-center">
+                <span className="text-black font-bold text-sm">A</span>
+              </div>
+              <span className="font-bold text-lg text-white">AcademicArk</span>
+            </Link>
+
+            {/* Notifications / Login Button */}
+            {isLoggedIn ? (
+              <button className="p-2">
+                {/* Placeholder for notifications */}
+              </button>
+            ) : (
+              <MovingBorderLoginButton />
+            )}
           </div>
-        )}
-      </button>
-    ) : (
-      <Link to="/login">
-        <UserIcon className="w-8 h-8 text-gray-400" />
-      </Link>
-    )}
-
-    {/* Logo */}
-    <Link to="/" className="flex items-center space-x-2">
-      <div className="w-8 h-8 bg-gradient-to-br from-white to-gray-200 rounded-lg flex items-center justify-center">
-        <span className="text-black font-bold text-sm">A</span>
-      </div>
-      <span className="font-bold text-lg text-white">AcademicArk</span>
-    </Link>
-
-    {/* Notifications / Login Button */}
-    {isLoggedIn ? (
-      <button className="p-2">
-        {/* Placeholder for notifications */}
-      </button>
-    ) : (
-      <MovingBorderLoginButton />
-    )}
-  </div>
-</header>
- {/* ✨ NEW: Floating Feedback Button */}
-                {/* ✨ NEW: Floating Feedback Button with Text (Desktop Only) */}
-<div className="hidden md:flex flex-col items-end gap-3 fixed bottom-6 right-6 z-40">
-  {/* Feedback Text - Desktop Only */}
- {/* Feedback Text - Desktop Only - Auto Hide with Fade Out */}
-{showFeedbackText && (
-  <div className="bg-gradient-to-r from-blue-600/90 to-purple-600/90 backdrop-blur-xl rounded-2xl px-5 py-3 shadow-xl border border-white/10 animate-fade-out">
-    <p className="text-sm font-semibold text-white whitespace-nowrap">
-      Help us improve 🚀
-    </p>
-    <p className="text-xs text-white/80 whitespace-nowrap">
-      Send us your feedback
-    </p>
-  </div>
-)}
+        </header>
+        {/* ✨ NEW: Floating Feedback Button */}
+        {/* ✨ NEW: Floating Feedback Button with Text (Desktop Only) */}
+        <div className="hidden md:flex flex-col items-end gap-3 fixed bottom-6 right-6 z-40">
+          {/* Feedback Text - Desktop Only */}
+          {/* Feedback Text - Desktop Only - Auto Hide with Fade Out */}
+          {showFeedbackText && (
+            <div className="bg-gradient-to-r from-blue-600/90 to-purple-600/90 backdrop-blur-xl rounded-2xl px-5 py-3 shadow-xl border border-white/10 animate-fade-out">
+              <p className="text-sm font-semibold text-white whitespace-nowrap">
+                Help us improve 🚀
+              </p>
+              <p className="text-xs text-white/80 whitespace-nowrap">
+                Send us your feedback
+              </p>
+            </div>
+          )}
 
 
-  {/* Feedback Button */}
-  <button
-    onClick={() => setShowFeedback(true)}
-    className="w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg flex items-center justify-center text-white text-2xl hover:scale-110 transition-transform"
-    title="Send Feedback"
-  >
-    💬
-  </button>
-</div>
+          {/* Feedback Button */}
+          <button
+            onClick={() => setShowFeedback(true)}
+            className="w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg flex items-center justify-center text-white text-2xl hover:scale-110 transition-transform"
+            title="Send Feedback"
+          >
+            💬
+          </button>
+        </div>
 
-{/* ✨ Mobile Feedback Button - Small Version */}
-{/* <button
+        {/* ✨ Mobile Feedback Button - Small Version */}
+        {/* <button
     onClick={() => setShowFeedback(true)}
     className="md:hidden fixed bottom-34 right-6 w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg flex items-center justify-center text-white text-xl hover:scale-110 transition-transform z-40"
     title="Send Feedback"
@@ -797,69 +770,69 @@ const [showFeedback, setShowFeedback] = useState(false);
     💬
 </button> */}
 
-                
 
-                {/* ✨ NEW: Feedback Form Modal */}
-                <FeedbackForm 
-                    isOpen={showFeedback} 
-                    onClose={() => setShowFeedback(false)} 
-                />
-{/* 📱 FIXED Side Drawer Menu - Separate from Header */}
-{showMobileMenu && isLoggedIn && (
-  <>
-    {/* Backdrop - Dismissible */}
-    <div
-      className="fixed inset-0 bg-black/50 z-40 md:hidden"
-      onClick={() => setShowMobileMenu(false)}
-    />
 
-    {/* Side Drawer from Left - FULL HEIGHT */}
-    <div className="fixed left-0 top-0 bottom-0 w-72 bg-gray-900/98 backdrop-blur-xl border-r border-white/10 z-50 overflow-y-auto md:hidden">
-      
-      {/* Header Section */}
-      <div className="sticky top-0 px-6 pt-6 pb-6 border-b border-white/10 bg-gray-900/50">
-        <div className="flex items-center space-x-3 mb-4">
-          {/* Avatar */}
-          <div className="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 flex-shrink-0">
-            {userData?.avatar?.secure_url?.startsWith("http") ? (
-              <img
-                src={userData.avatar.secure_url}
-                alt="Profile"
-                loading="lazy"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-white font-bold text-lg">
-                {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
-              </div>
-            )}
-          </div>
+        {/* ✨ NEW: Feedback Form Modal */}
+        <FeedbackForm
+          isOpen={showFeedback}
+          onClose={() => setShowFeedback(false)}
+        />
+        {/* 📱 FIXED Side Drawer Menu - Separate from Header */}
+        {showMobileMenu && isLoggedIn && (
+          <>
+            {/* Backdrop - Dismissible */}
+            <div
+              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+              onClick={() => setShowMobileMenu(false)}
+            />
 
-          {/* User Info */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-white truncate">
-              {userData?.fullName || "User"}
-            </h3>
-            <p className="text-xs text-gray-400 truncate">
-              {userData?.email}
-            </p>
-            <span className="text-xs font-semibold text-blue-400 capitalize">
-              {role.toLowerCase()}
-            </span>
-          </div>
-          {/* Close Button */}
-        <button
-          onClick={() => setShowMobileMenu(false)}
-          className=" py-2 px-3 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        </div>
+            {/* Side Drawer from Left - FULL HEIGHT */}
+            <div className="fixed left-0 top-0 bottom-0 w-72 bg-gray-900/98 backdrop-blur-xl border-r border-white/10 z-50 overflow-y-auto md:hidden">
 
-        {/* Close Button */}
-        {/* <button
+              {/* Header Section */}
+              <div className="sticky top-0 px-6 pt-6 pb-6 border-b border-white/10 bg-gray-900/50">
+                <div className="flex items-center space-x-3 mb-4">
+                  {/* Avatar */}
+                  <div className="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 flex-shrink-0">
+                    {userData?.avatar?.secure_url?.startsWith("http") ? (
+                      <img
+                        src={userData.avatar.secure_url}
+                        alt="Profile"
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white font-bold text-lg">
+                        {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* User Info */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-bold text-white truncate">
+                      {userData?.fullName || "User"}
+                    </h3>
+                    <p className="text-xs text-gray-400 truncate">
+                      {userData?.email}
+                    </p>
+                    <span className="text-xs font-semibold text-blue-400 capitalize">
+                      {role.toLowerCase()}
+                    </span>
+                  </div>
+                  {/* Close Button */}
+                  <button
+                    onClick={() => setShowMobileMenu(false)}
+                    className=" py-2 px-3 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Close Button */}
+                {/* <button
           onClick={() => setShowMobileMenu(false)}
           className="w-full flex items-center  py-2 px-3 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
         >
@@ -867,139 +840,104 @@ const [showFeedback, setShowFeedback] = useState(false);
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button> */}
-      </div>
+              </div>
 
-      {/* Menu Items */}
-      <div className="px-3 py-4 space-y-1">
-        {/* My Profile */}
-        <Link
-          to="/profile"
-          onClick={() => setShowMobileMenu(false)}
-          className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-        >
-          <UserIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
-          <span className="text-sm font-medium">My Profile</span>
-        </Link>
+              {/* Menu Items */}
+              <div className="px-3 py-4 space-y-1">
+                {/* My Profile */}
+                <Link
+                  to="/profile"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <UserIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                  <span className="text-sm font-medium">My Profile</span>
+                </Link>
 
-        {/* My Bookmarks */}
-        <Link
-          to="/bookmarks"
-          onClick={() => setShowMobileMenu(false)}
-          className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-        >
-          <LibraryIcon className="w-5 h-5 text-green-400 flex-shrink-0" />
-          <span className="text-sm font-medium">My Bookmarks</span>
-        </Link>
+                {/* My Bookmarks */}
+                <Link
+                  to="/bookmarks"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <LibraryIcon className="w-5 h-5 text-green-400 flex-shrink-0" />
+                  <span className="text-sm font-medium">My Bookmarks</span>
+                </Link>
 
-        {/* Upload Notes - Teachers & Admins */}
-        {(role === "TEACHER" || role === "ADMIN") && (
-          <Link
-            to="/upload"
-            onClick={() => setShowMobileMenu(false)}
-            className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <UploadIcon className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-            <span className="text-sm font-medium">Upload Notes</span>
-          </Link>
+                {/* Upload Notes - Teachers & Admins */}
+                {(role === "TEACHER" || role === "ADMIN") && (
+                  <Link
+                    to="/upload"
+                    onClick={() => setShowMobileMenu(false)}
+                    className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <UploadIcon className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                    <span className="text-sm font-medium">Upload Notes</span>
+                  </Link>
+                )}
+                {/* Upload video - Teachers & Admins */}
+                {(role === "TEACHER" || role === "ADMIN") && (
+                  <Link
+                    to="/upload/video"
+                    onClick={() => setShowMobileMenu(false)}
+                    className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <UploadIcon className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                    <span className="text-sm font-medium">Upload video</span>
+                  </Link>
+                )}
+
+                {/* Admin Dashboard - Admins Only */}
+                {role === "ADMIN" && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setShowMobileMenu(false)}
+                    className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <DashboardIcon className="w-5 h-5 text-red-400 flex-shrink-0" />
+                    <span className="text-sm font-medium">Dashboard</span>
+                  </Link>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div className="mx-3 my-2 h-px bg-white/10" />
+
+              {/* Sign Out */}
+              <div className="px-3 py-2">
+                <button
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <LogoutIcon className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-sm font-medium">Sign Out</span>
+                </button>
+              </div>
+
+              {/* Safe Area Padding */}
+              <div className="h-4" />
+            </div>
+          </>
         )}
-        {/* Upload video - Teachers & Admins */}
-        {(role === "TEACHER" || role === "ADMIN") && (
-          <Link
-            to="/upload/video"
-            onClick={() => setShowMobileMenu(false)}
-            className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <UploadIcon className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-            <span className="text-sm font-medium">Upload video</span>
-          </Link>
-        )}
-
-        {/* Admin Dashboard - Admins Only */}
-        {role === "ADMIN" && (
-          <Link
-            to="/admin"
-            onClick={() => setShowMobileMenu(false)}
-            className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <DashboardIcon className="w-5 h-5 text-red-400 flex-shrink-0" />
-            <span className="text-sm font-medium">Dashboard</span>
-          </Link>
-        )}
-      </div>
-
-      {/* Divider */}
-      <div className="mx-3 my-2 h-px bg-white/10" />
-
-      {/* Sign Out */}
-      <div className="px-3 py-2">
-        <button
-          onClick={() => {
-            setShowMobileMenu(false);
-            handleLogout();
-          }}
-          className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-white/10 rounded-lg transition-colors"
-        >
-          <LogoutIcon className="w-5 h-5 flex-shrink-0" />
-          <span className="text-sm font-medium">Sign Out</span>
-        </button>
-      </div>
-
-      {/* Safe Area Padding */}
-      <div className="h-4" />
-    </div>
-  </>
-)}
 
         {/* Main Content */}
         <main className="pt-20 md:pt-20 pb-20 md:pb-0">{children}</main>
-{/* ✨ NEW: Add Academic Profile Modal */}
-      <AcademicProfileModal />
+        {/* ✨ NEW: Add Academic Profile Modal */}
+        <AcademicProfileModal />
         {/* 🎨 AMAZING Spotify-Style Bottom Navigation - Redesigned */}
-   <div className="md:hidden fixed bottom-0 left-0 right-0 z-40">
-  {/* Background */}
-  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-transparent" />
+        <MobileNavigation
+          isLoggedIn={isLoggedIn}
+          userData={userData}
+          role={role}
+          onLogout={handleLogout}
+          showMobileMenu={showMobileMenu}
+          setShowMobileMenu={setShowMobileMenu}
+        />
 
-  <div className="relative px-4 py-3 flex items-center justify-evenly">
-    {getMobileNavItems().map((item) => {
-      const IconComponent = item.icon;
-      const isActive = isActiveLink(item.path);
-
-      return (
-        <Link
-          key={item.name}
-          to={item.path}
-          className="flex flex-col items-center gap-1.5"
-        >
-          {/* Icon Container */}
-          <div
-            className={`
-              p-3 rounded-full transition-all duration-200
-              ${isActive
-                ? "bg-white/10 text-white ring-1 ring-white/20"
-                : "bg-transparent text-gray-500"
-              }
-            `}
-          >
-            <IconComponent className="w-5 h-5" />
-          </div>
-
-          {/* Label */}
-          <span
-            className={`text-[11px] font-medium tracking-wide ${
-              isActive ? "text-white" : "text-gray-500"
-            }`}
-          >
-            {item.label}
-          </span>
-        </Link>
-      );
-    })}
-  </div>
-
-  {/* Safe Area */}
-  <div className="h-2" />
-</div>
-        <EnhancedFooter/>
+        <EnhancedFooter />
       </div>
     </>
   );
@@ -1014,4 +952,4 @@ export default HomeLayout;
                 >
                     💬
                 </button> */}
-                
+
