@@ -766,13 +766,13 @@ export default function Note() {
             <div className="space-y-6 py-8">
 
               {/* Header Skeleton */}
-              <div className="space-y-3">
+              {/* <div className="space-y-3">
                 <div className="h-8 rounded-lg w-3/4 bg-[#2A2A2A] animate-pulse" />
                 <div className="h-4 rounded-lg w-1/2 bg-[#1F1F1F] animate-pulse" />
-              </div>
+              </div> */}
 
               {/* Search Bar Skeleton */}
-              <div className="h-12 rounded-xl bg-[#1F1F1F] animate-pulse" />
+              {/* <div className="h-12 rounded-xl bg-[#1F1F1F] animate-pulse" /> */}
 
               {/* Filter Buttons Skeleton */}
               <div className="flex gap-3 flex-wrap">
