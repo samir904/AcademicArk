@@ -73,29 +73,29 @@ export default function Note() {
   //   university: filters.university || 'AKTU',
   //   course: filters.course || 'BTECH'
   // });
-  
-  
-const getFiltersFromURL = () => ({
-  semester: searchParams.get("semester") || "",
-  subject: searchParams.get("subject") || "",
-  category: searchParams.get("category") || "",
-  unit: searchParams.get("unit") || "",
-  uploadedBy: searchParams.get("uploadedBy") || "",
-  videoChapter: searchParams.get("videoChapter") || "",
-  university: "AKTU",
-  course: "BTECH"
-});
-const [localFilters, setLocalFilters] = useState(getFiltersFromURL);
+
+
+  const getFiltersFromURL = () => ({
+    semester: searchParams.get("semester") || "",
+    subject: searchParams.get("subject") || "",
+    category: searchParams.get("category") || "",
+    unit: searchParams.get("unit") || "",
+    uploadedBy: searchParams.get("uploadedBy") || "",
+    videoChapter: searchParams.get("videoChapter") || "",
+    university: "AKTU",
+    course: "BTECH"
+  });
+  const [localFilters, setLocalFilters] = useState(getFiltersFromURL);
   useEffect(() => {
-  const urlFilters = getFiltersFromURL();
-  setLocalFilters(urlFilters);
-}, [searchParams]);
-const isOnlySemester =
-  localFilters.semester &&
-  !localFilters.subject &&
-  !localFilters.category &&
-  !localFilters.unit &&
-  !localFilters.uploadedBy;
+    const urlFilters = getFiltersFromURL();
+    setLocalFilters(urlFilters);
+  }, [searchParams]);
+  const isOnlySemester =
+    localFilters.semester &&
+    !localFilters.subject &&
+    !localFilters.category &&
+    !localFilters.unit &&
+    !localFilters.uploadedBy;
   // Get unique uploaders from notes
   const getUniqueUploaders = () => {
     const uploaders = new Map();
@@ -152,7 +152,7 @@ const isOnlySemester =
   const subjectsBySemester = {
     1: [
       'engineering mathematics-i', 'engineering physics', 'programming for problem solving',
-       'environment and ecology', "FUNDAMENTALS OF ELECTRONICS ENGINEERING", "soft skills",
+      'environment and ecology', "FUNDAMENTALS OF ELECTRONICS ENGINEERING", "soft skills",
       "fundamentals of mechanical engineering", "engineering chemistry", "fundamentals of electrical engineering"
     ],
     2: [
@@ -205,45 +205,45 @@ const isOnlySemester =
   const allSubjects = Object.values(subjectsBySemester).flat().sort();
 
   // Fetch notes when filters change
-  
-useEffect(() => {
-  if (!localFilters.semester) return;
 
-  dispatch(resetPagination());
+  useEffect(() => {
+    if (!localFilters.semester) return;
 
-  const filterParams = Object.fromEntries(
-    Object.entries(localFilters).filter(([_, value]) => value)
-  );
+    dispatch(resetPagination());
 
-  if (isOnlySemester) {
-    // 🔥 SEMESTER PREVIEW MODE
-    dispatch(getSemesterPreviewNotes(localFilters.semester));
-  } else {
-    // 🔥 FULL NOTES MODE
-    dispatch(getAllNotes({
-      filters: filterParams,
-      cursor: null
-    }));
-  }
-  // Fetch stats ONLY in full mode
+    const filterParams = Object.fromEntries(
+      Object.entries(localFilters).filter(([_, value]) => value)
+    );
+
+    if (isOnlySemester) {
+      // 🔥 SEMESTER PREVIEW MODE
+      dispatch(getSemesterPreviewNotes(localFilters.semester));
+    } else {
+      // 🔥 FULL NOTES MODE
+      dispatch(getAllNotes({
+        filters: filterParams,
+        cursor: null
+      }));
+    }
+    // Fetch stats ONLY in full mode
     dispatch(getNoteStats(filterParams));
 
-  // Videos always depend on semester
-  dispatch(getAllVideoLectures({ semester: localFilters.semester }));
+    // Videos always depend on semester
+    dispatch(getAllVideoLectures({ semester: localFilters.semester }));
 
-}, [localFilters.semester, localFilters.subject, localFilters.category, localFilters.unit]);
+  }, [localFilters.semester, localFilters.subject, localFilters.category, localFilters.unit]);
 
 
   const handleFilterChange = (key, value) => {
-  const updated = { ...localFilters, [key]: value };
-  setLocalFilters(updated);
+    const updated = { ...localFilters, [key]: value };
+    setLocalFilters(updated);
 
-  const params = Object.fromEntries(
-    Object.entries(updated).filter(([_, v]) => v)
-  );
+    const params = Object.fromEntries(
+      Object.entries(updated).filter(([_, v]) => v)
+    );
 
-  setSearchParams(params);
-};
+    setSearchParams(params);
+  };
 
   const handleClearFilters = () => {
     const resetFilters = {
@@ -761,24 +761,26 @@ useEffect(() => {
 
 
           {/* Loading State */}
+          {/* Loading State */}
           {isInitialLoading && (
             <div className="space-y-6 py-8">
+
               {/* Header Skeleton */}
               <div className="space-y-3">
-                <div className="h-8 bg-[#2A2A2A] rounded-lg w-3/4 animate-pulse"></div>
-                <div className="h-4 bg-[#2A2A2A] rounded-lg w-1/2 animate-pulse"></div>
+                <div className="h-8 rounded-lg w-3/4 bg-[#2A2A2A] animate-pulse" />
+                <div className="h-4 rounded-lg w-1/2 bg-[#1F1F1F] animate-pulse" />
               </div>
 
               {/* Search Bar Skeleton */}
-              <div className="h-12 bg-[#2A2A2A] rounded-xl animate-pulse"></div>
+              <div className="h-12 rounded-xl bg-[#1F1F1F] animate-pulse" />
 
               {/* Filter Buttons Skeleton */}
               <div className="flex gap-3 flex-wrap">
                 {[1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
-                    className="h-10 bg-[#2A2A2A] rounded-full w-24 animate-pulse"
-                  ></div>
+                    className="h-10 w-24 rounded-full bg-[#1F1F1F] border border-[#2A2A2A]"
+                  />
                 ))}
               </div>
 
@@ -787,26 +789,28 @@ useEffect(() => {
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div
                     key={i}
-                    className="bg-[#2A2A2A] rounded-xl overflow-hidden border border-slate-700/50 p-4 space-y-4"
+                    className="rounded-xl p-4 space-y-4 bg-[#0F0F0F] border border-[#1F1F1F]"
                   >
-                    {/* Thumbnail Skeleton */}
-                    <div className="h-40 bg-[#2A2A2A] rounded-lg animate-pulse"></div>
+                    {/* Thumbnail */}
+                    <div className="h-40 rounded-lg bg-[#2A2A2A] animate-pulse" />
 
-                    {/* Title Skeleton */}
-                    <div className="h-4 bg-[#2A2A2A] rounded-lg w-5/6 animate-pulse"></div>
+                    {/* Title */}
+                    <div className="h-4 rounded-lg w-5/6 bg-[#2A2A2A] animate-pulse" />
 
-                    {/* Subtitle Skeleton */}
-                    <div className="h-3 bg-[#2A2A2A] rounded-lg w-4/6 animate-pulse"></div>
+                    {/* Subtitle */}
+                    <div className="h-3 rounded-lg w-4/6 bg-[#1F1F1F] animate-pulse" />
 
-                    {/* Button Skeleton */}
+                    {/* Button */}
                     <div className="pt-2">
-                      <div className="h-10 bg-[#2A2A2A] rounded-lg animate-pulse"></div>
+                      <div className="h-10 rounded-lg bg-[#1F1F1F] animate-pulse" />
                     </div>
                   </div>
                 ))}
               </div>
+
             </div>
           )}
+
 
 
           {/* Enhanced Empty State with Popular Requests */}
@@ -1188,21 +1192,21 @@ useEffect(() => {
           {/* ================= OBSERVER TARGET (LAST ELEMENT) ================= */}
           <div ref={bottomRef} className="h-1" />
 
-        {/* ================= END MESSAGE ================= */}
-{!pagination.hasMore && !pagination.isLoadingMore && (
-  <div className="text-center py-8 space-y-2">
-    <p className="text-slate-400 text-sm">
-      You’ve reached the end
-    </p>
+          {/* ================= END MESSAGE ================= */}
+          {!pagination.hasMore && !pagination.isLoadingMore && (
+            <div className="text-center py-8 space-y-2">
+              <p className="text-slate-400 text-sm">
+                You’ve reached the end
+              </p>
 
-    <p className="text-xs text-slate-500">
-      Try changing your subject, material type, or unit to explore more content.
-    </p>
+              <p className="text-xs text-slate-500">
+                Try changing your subject, material type, or unit to explore more content.
+              </p>
 
-    {(localFilters.subject || localFilters.category || localFilters.unit || localFilters.videoChapter) && (
-      <button
-        onClick={handleClearFilters}
-        className="
+              {(localFilters.subject || localFilters.category || localFilters.unit || localFilters.videoChapter) && (
+                <button
+                  onClick={handleClearFilters}
+                  className="
           mt-3
           inline-flex items-center gap-2
           px-4 py-2
@@ -1215,13 +1219,13 @@ useEffect(() => {
           hover:border-[#9CA3AF]/40
           transition-all
         "
-      >
-        <RefreshCcw className="w-4 h-4" />
-        Reset filters
-      </button>
-    )}
-  </div>
-)}
+                >
+                  <RefreshCcw className="w-4 h-4" />
+                  Reset filters
+                </button>
+              )}
+            </div>
+          )}
 
 
           {/* Empty State - ADD THIS */}
