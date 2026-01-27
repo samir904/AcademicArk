@@ -12,11 +12,11 @@ export default function ProgressTracker({ progress }) {
   const dispatch = useDispatch();
   const activeRef = useRef(null);
 
-  useEffect(() => {
-    if (activeRef.current) {
-      activeRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (activeRef.current) {
+  //     activeRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+  //   }
+  // }, []);
 
   const activeUnit = progress.find(p => p.status === "IN_PROGRESS");
 
@@ -50,10 +50,16 @@ export default function ProgressTracker({ progress }) {
             cursor-pointer
             hover:bg-[#2F2F2F] transition-colors
           "
-          onClick={() => activeRef.current?.scrollIntoView({ behavior: "smooth" })}
+          onClick={() => {
+            window.scrollTo({
+              top: 0,
+              left: 0,
+              behavior: "smooth",
+            });
+          }}
         >
           <span className="text-base mr-2">🔔</span>
-          Continue <b className="text-white">{activeUnit.subject} – Unit {activeUnit.unit}</b>
+          You left <b className="text-white">{activeUnit.subject} – Unit {activeUnit.unit} </b>midway →
         </div>
       )}
 
@@ -196,9 +202,8 @@ function WeeklyHeatmap({ units }) {
                 title={`${labels[i]} - ${count > 0 ? `${count} units` : 'No activity'}`}
               />
               <span
-                className={`text-[10px] font-semibold ${
-                  isToday_flag ? 'text-[#9CA3AF]' : 'text-[#4B5563]'
-                }`}
+                className={`text-[10px] font-semibold ${isToday_flag ? 'text-[#9CA3AF]' : 'text-[#4B5563]'
+                  }`}
               >
                 {labels[i].slice(0, 1)}
               </span>

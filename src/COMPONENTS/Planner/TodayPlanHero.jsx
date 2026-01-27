@@ -22,7 +22,7 @@ export default function TodayPlanHero({ plan }) {
   // -------------------------
   if (!plan?.tasks || plan.tasks.length === 0) {
   return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 sm:p-10 text-center">
+    <div id="today-plan-anchor" className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 sm:p-10 text-center">
       <div className="flex justify-center mb-4">
         <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center">
           <BookOpen className="w-6 h-6 text-indigo-500" />
