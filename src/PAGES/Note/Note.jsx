@@ -86,10 +86,12 @@ export default function Note() {
     course: "BTECH"
   });
   const [localFilters, setLocalFilters] = useState(getFiltersFromURL);
-  useEffect(() => {
-    const urlFilters = getFiltersFromURL();
-    setLocalFilters(urlFilters);
-  }, [searchParams]);
+  // 🔥 URL → state ONLY on first mount
+useEffect(() => {
+  const urlFilters = getFiltersFromURL();
+  setLocalFilters(urlFilters);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
   const isOnlySemester =
     localFilters.semester &&
     !localFilters.subject &&
@@ -225,7 +227,7 @@ export default function Note() {
         cursor: null
       }));
     }
-    // Fetch stats ONLY in full mode
+    // Fetch stats  in every  mode
     dispatch(getNoteStats(filterParams));
 
     // Videos always depend on semester
@@ -234,16 +236,20 @@ export default function Note() {
   }, [localFilters.semester, localFilters.subject, localFilters.category, localFilters.unit]);
 
 
-  const handleFilterChange = (key, value) => {
-    const updated = { ...localFilters, [key]: value };
-    setLocalFilters(updated);
+  const handleFilterChange = (keyOrObject, value) => {
+  const updated =
+    typeof keyOrObject === 'object'
+      ? { ...localFilters, ...keyOrObject }   // ✅ batch update
+      : { ...localFilters, [keyOrObject]: value };
 
-    const params = Object.fromEntries(
-      Object.entries(updated).filter(([_, v]) => v)
-    );
+  setLocalFilters(updated);
 
-    setSearchParams(params);
-  };
+  const params = Object.fromEntries(
+    Object.entries(updated).filter(([_, v]) => v)
+  );
+
+  setSearchParams(params);
+};
 
   const handleClearFilters = () => {
     const resetFilters = {
@@ -292,20 +298,7 @@ export default function Note() {
 
     return matchesSearch && matchesChapter && matchesUploader;
   }) || [];
-  // const getCategoryStats = () => {
-  //   const stats = {};
-  //   notes?.forEach(note => {
-  //     stats[note.category] = (stats[note.category] || 0) + 1;
-  //   });
-  //   // ✨ NEW: Add video count
-  //   if (videos && videos.length > 0) {
-  //     stats['Video'] = videos.length;
-  //   }
-  //   return stats;
-  // };
-
-  // const categoryStats = getCategoryStats();
-  // Get unique chapters from filtered videos
+  
   const getUniqueChapters = () => {
     const chapters = new Set();
     videos?.forEach(video => {
@@ -319,73 +312,9 @@ export default function Note() {
   const uniqueChapters = getUniqueChapters();
 
 
-  // // Handle category selection with collapse/expand behavior
-  // const handleCategoryClick = (category) => {
-  //   if (localFilters.category === category) {
-  //     // If clicking the same category, toggle collapse
-  //     setIsStatsCollapsed(!isStatsCollapsed);
-  //   } else {
-  //     // If clicking a different category, select it and expand
-  //     handleFilterChange('category', category);
-  //     setIsStatsCollapsed(false);
-  //   }
-  // };
-
-  // Handle clear category filter
-  const handleClearCategory = () => {
-    handleFilterChange('category', '');
-    setIsStatsCollapsed(false);
-  };
-
-  // ✨ FIXED: Updated getCategoryConfig with Handwritten Notes
-  const getCategoryConfig = (category) => {
-    const configs = {
-      'Notes': {
-        icon: '📚',
-        gradient: 'from-blue-600 to-blue-500',
-        hoverGradient: 'hover:from-blue-500 hover:to-blue-400',
-        borderColor: 'border-blue-500/30',
-        bgGradient: 'from-blue-900/90 to-purple-900/80',
-        textColor: 'text-blue-400'
-      },
-      'Important Question': {
-        icon: '⭐',
-        gradient: 'from-yellow-600 to-orange-500',
-        hoverGradient: 'hover:from-yellow-500 hover:to-orange-400',
-        borderColor: 'border-yellow-500/30',
-        bgGradient: 'from-yellow-900/90 to-orange-900/80',
-        textColor: 'text-yellow-400'
-      },
-      'PYQ': {
-        icon: '📄',
-        gradient: 'from-clan-00 to-blue-500',
-        hoverGradient: 'hover:from-clan-500 hover:to-blue-400',
-        borderColor: 'border-red-500/30',
-        bgGradient: 'from-clan-900/90 to-blue-900/80',
-        textColor: 'text-red-400'
-      },
-      'Handwritten Notes': {
-        icon: '✏️',
-        gradient: 'from-green-600 to-teal-500',
-        hoverGradient: 'hover:from-green-500 hover:to-teal-400',
-        borderColor: 'border-green-500/30',
-        bgGradient: 'from-green-900/90 to-teal-900/80',
-        textColor: 'text-green-400'
-      },
-      'Video': { // ✨ NEW: Video category
-        icon: '🎬',
-        gradient: 'from-red-600 to-pink-500',
-        hoverGradient: 'hover:from-red-500 hover:to-pink-400',
-        borderColor: 'border-red-500/30',
-        bgGradient: 'from-red-900/90 to-pink-900/80',
-        textColor: 'text-red-400'
-      }
-    };
-    return configs[category] || configs['Notes'];
-  };
+  
   const { allRequests: popularRequests, loading: requestsLoading } = useSelector((state) => state.request);
-  // const [localFilters, setLocalFilters] = useState({ semester: 3 });
-
+ 
   // Fetch popular requests for current semester
   useEffect(() => {
     if (localFilters.semester) {
@@ -397,6 +326,7 @@ export default function Note() {
       }));
     }
   }, [localFilters.semester, dispatch]);
+  
   // ✅ FIXED: displayResources with COMPLETE debugging
   const displayResources = useMemo(() => {
     const category = localFilters.category?.trim();
@@ -431,19 +361,7 @@ export default function Note() {
     return result;
   }, [filteredNotes, filteredVideos, localFilters.category, localFilters]);
 
-  // ✅ FIXED: Better category handler
-  // const handleCategoryClick = (category) => {
-  //   console.log('🎬 Category clicked:', category);
-
-  //   if (localFilters.category?.toLowerCase() === category.toLowerCase()) {
-  //     // If clicking the same category, toggle collapse
-  //     setIsStatsCollapsed(!isStatsCollapsed);
-  //   } else {
-  //     // If clicking a different category, select it and expand
-  //     handleFilterChange('category', category);
-  //     setIsStatsCollapsed(false);
-  //   }
-  // };
+  
 
   // ✅ Ensure videos are being fetched when component mounts and category changes
   useEffect(() => {
@@ -454,59 +372,9 @@ export default function Note() {
       }));
     }
   }, [localFilters.semester, dispatch]);
-  const handleCategoryClick = (category) => {
-    console.log('=== CATEGORY CLICK DEBUG ===');
-    console.log('Clicked category:', category);
-    console.log('Current category:', localFilters.category);
-    console.log('Videos in Redux:', videos?.length);
-    console.log('Filtered videos:', filteredVideos?.length);
+  
 
-    if (localFilters.category?.toLowerCase() === category.toLowerCase()) {
-      setIsStatsCollapsed(!isStatsCollapsed);
-    } else {
-      handleFilterChange('category', category);
-      setIsStatsCollapsed(false);
-    }
-
-    // After state updates
-    setTimeout(() => {
-      console.log('After filter change:');
-      console.log('New localFilters:', localFilters);
-    }, 0);
-  };
-  const getChapterStats = () => {
-    if (localFilters.category !== 'Video') return {};
-
-    const videoMaterials = materials.filter(material =>
-      material.category === 'Video' &&
-      material.semester === localFilters.semester &&
-      (!localFilters.subject || material.subject === localFilters.subject)
-    );
-
-    const stats = {};
-    videoMaterials.forEach(video => {
-      const chapter = video.chapter || 'Unknown';
-      stats[chapter] = (stats[chapter] || 0) + 1;
-    });
-
-    return stats;
-  };
-
-  const getChapterConfig = (chapter) => {
-    const colors = [
-      { gradient: 'from-blue-600 to-blue-700', textColor: 'text-blue-300', icon: '📖' },
-      { gradient: 'from-purple-600 to-purple-700', textColor: 'text-purple-300', icon: '📚' },
-      { gradient: 'from-pink-600 to-pink-700', textColor: 'text-pink-300', icon: '💡' },
-      { gradient: 'from-green-600 to-green-700', textColor: 'text-green-300', icon: '🎯' },
-      { gradient: 'from-orange-600 to-orange-700', textColor: 'text-orange-300', icon: '⚡' },
-      { gradient: 'from-cyan-600 to-cyan-700', textColor: 'text-cyan-300', icon: '🔥' },
-      { gradient: 'from-indigo-600 to-indigo-700', textColor: 'text-indigo-300', icon: '✨' },
-      { gradient: 'from-rose-600 to-rose-700', textColor: 'text-rose-300', icon: '🌟' },
-    ];
-
-    const index = (parseInt(chapter) - 1) % colors.length;
-    return colors[index];
-  };
+  
   const navigate = useNavigate();
   const isPreferencesSet = useSelector((state) => state.planner.isPreferencesSet);
   const ctaText = localFilters.subject
@@ -566,6 +434,11 @@ export default function Note() {
     setLocalFilters(resetFilters);
     setSearchTerm(''); // Clear search term too
     // Reset pagination for new semester
+     // 🔥 CRITICAL
+  const params = Object.fromEntries(
+    Object.entries(resetFilters).filter(([_, v]) => v)
+  );
+  setSearchParams(params);
     dispatch(resetPagination());
     dispatch(clearFilters());
   };
