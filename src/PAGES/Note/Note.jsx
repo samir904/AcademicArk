@@ -234,23 +234,65 @@ useEffect(() => {
     dispatch(getAllVideoLectures({ semester: localFilters.semester }));
 
   }, [localFilters.semester, localFilters.subject, localFilters.category, localFilters.unit]);
+const filterParams = { ...localFilters };
 
+if (!['Notes', 'Handwritten Notes'].includes(filterParams.category)) {
+  delete filterParams.unit;
+}
 
-  const handleFilterChange = (keyOrObject, value) => {
-  const updated =
-    typeof keyOrObject === 'object'
-      ? { ...localFilters, ...keyOrObject }   // ✅ batch update
-      : { ...localFilters, [keyOrObject]: value };
+if (filterParams.category !== 'Video') {
+  delete filterParams.videoChapter;
+}
 
-  setLocalFilters(updated);
+ const handleFilterChange = (keyOrObject, value) => {
+  setLocalFilters(prev => {
+    let updated = { ...prev };
 
-  const params = Object.fromEntries(
-    Object.entries(updated).filter(([_, v]) => v)
-  );
+    // ✅ Support object updates
+    if (typeof keyOrObject === 'object') {
+      updated = { ...updated, ...keyOrObject };
+    } else {
+      updated[keyOrObject] = value;
+    }
 
-  setSearchParams(params);
+    // 🔥 SUBJECT CHANGE → reset everything below
+    if (
+      (typeof keyOrObject === 'string' && keyOrObject === 'subject') ||
+      keyOrObject?.subject
+    ) {
+      updated.category = '';
+      updated.unit = '';
+      updated.videoChapter = '';
+    }
+
+    // 🔥 CATEGORY CHANGE → reset dependent filters
+    if (
+      (typeof keyOrObject === 'string' && keyOrObject === 'category') ||
+      keyOrObject?.category !== undefined
+    ) {
+      updated.unit = '';
+      updated.videoChapter = '';
+    }
+
+    // 🔒 Guard rules
+    const UNIT_ALLOWED = ['Notes', 'Handwritten Notes'];
+    if (updated.unit && !UNIT_ALLOWED.includes(updated.category)) {
+      updated.unit = '';
+    }
+
+    if (updated.videoChapter && updated.category !== 'Video') {
+      updated.videoChapter = '';
+    }
+
+    // 🔗 Sync URL
+    const params = Object.fromEntries(
+      Object.entries(updated).filter(([_, v]) => v)
+    );
+    setSearchParams(params);
+
+    return updated;
+  });
 };
-
   const handleClearFilters = () => {
     const resetFilters = {
       semester: '',
