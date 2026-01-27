@@ -300,7 +300,7 @@ const sortedCategories = CATEGORY_ORDER
               Step 2: Choose Subject
             </h3>
             <p className="text-xs text-[#4B5563]">
-              Select one subject to focus your study
+              Optional — recommended for better results
             </p>
           </div>
         </div>
@@ -375,7 +375,7 @@ const sortedCategories = CATEGORY_ORDER
               Step 3: Choose Material Type
             </h3>
             <p className="text-xs text-[#4B5563]">
-              Notes, PYQs, videos or handwritten content
+              Optional — helps you find the right kind of material faster
             </p>
           </div>
         </div>

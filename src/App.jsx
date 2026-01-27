@@ -353,6 +353,15 @@ function App() {
         <Route path="/signup/email" element={<SignupEmail />} />
         <Route path="/login" element={<LoginChoice />} />
         <Route path="/login/email" element={<LoginEmail />} />
+
+        <Route
+            path="/notes/:id/read"
+            element={
+              <Suspense fallback={<ReadNoteSkeleton />}>
+                <ReadNote />
+              </Suspense>
+            }
+          />
         {/* 🟡 ALL logged-in routes under HomeLayout */}
         <Route element={<HomeLayout />}>
           <Route path="/" element={isLoggedIn ? <DynamicHome /> : <Homepage />} />
@@ -542,14 +551,7 @@ function App() {
             }
           />
           {/* // Add this route in your App.jsx */}
-          <Route
-            path="/notes/:id/read"
-            element={
-              <Suspense fallback={<ReadNoteSkeleton />}>
-                <ReadNote />
-              </Suspense>
-            }
-          />
+          
           <Route
             path="/update-note/:id"
             element={

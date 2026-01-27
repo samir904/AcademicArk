@@ -83,7 +83,7 @@ function Section({ title, notes = [], navigate }) {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {sortedNotes.map((note, index) => {
-          const showRecommended = note.isRecommended || index === 0;
+          const showRecommended = note.recommended===true ;
 
           return (
             <div
