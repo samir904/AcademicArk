@@ -99,7 +99,7 @@ export default function PlannerPage() {
               </div>
             </div>
           ) : (
-            <TodayPlanHero id="today-plan-anchor" plan={todayPlan} />
+            <TodayPlanHero  plan={todayPlan} />
           )}
         </div>
 

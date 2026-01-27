@@ -52,3 +52,31 @@
     You’ve reached the end 📘
   </div>
 )}
+
+useEffect(() => {
+  if (!localFilters.semester) return;
+
+  dispatch(resetPagination());
+
+  const filterParams = Object.fromEntries(
+    Object.entries(localFilters).filter(([_, value]) => value)
+  );
+
+  if (isOnlySemester) {
+    // 🔥 SEMESTER PREVIEW MODE
+    dispatch(getSemesterPreviewNotes(localFilters.semester));
+  } else {
+    // 🔥 FULL NOTES MODE
+    dispatch(getAllNotes({
+      filters: filterParams,
+      cursor: null
+    }));
+
+    // Fetch stats ONLY in full mode
+    dispatch(getNoteStats(filterParams));
+  }
+
+  // Videos always depend on semester
+  dispatch(getAllVideoLectures({ semester: localFilters.semester }));
+
+}, [localFilters.semester, localFilters.subject, localFilters.category, localFilters.unit]);

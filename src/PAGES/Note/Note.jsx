@@ -20,6 +20,7 @@ import { UserRoundSearch, CalendarCog, RefreshCcw } from 'lucide-react'
 import PageTransition from '../../COMPONENTS/PageTransition';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 import BottomLoader from '../../COMPONENTS/Note/BottomLoader';
+import { useSearchParams } from "react-router-dom";
 // Icon components
 const FilterIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,7 +55,7 @@ const CloseIcon = ({ className }) => (
 export default function Note() {
 
   const [showRequestModal, setShowRequestModal] = useState(false);
-
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const dispatch = useDispatch();
   const { notes, loading, totalNotes, pagination, filters } = useSelector(state => state.note);
@@ -62,23 +63,39 @@ export default function Note() {
   // In your component:
   const { allVideos: videos, loading: videoLoading } = useSelector(selectVideoLectureData);
   const { total, categories } = useSelector(state => state.note.stats);
-  const [localFilters, setLocalFilters] = useState({
-    semester: filters.semester || '',
-    subject: filters.subject || '',
-    category: filters.category || '',
-    uploadedBy: filters.uploadedBy || '', // NEW
-    unit: filters.unit, // ✅ NEW: For chapter/unit filter
-    videoChapter: '', // ✨ NEW: For filtering videos by chapter
-    university: filters.university || 'AKTU',
-    course: filters.course || 'BTECH'
-  });
-  const isOnlySemester =
+  // const [localFilters, setLocalFilters] = useState({
+  //   semester: filters.semester || '',
+  //   subject: filters.subject || '',
+  //   category: filters.category || '',
+  //   uploadedBy: filters.uploadedBy || '', // NEW
+  //   unit: filters.unit, // ✅ NEW: For chapter/unit filter
+  //   videoChapter: '', // ✨ NEW: For filtering videos by chapter
+  //   university: filters.university || 'AKTU',
+  //   course: filters.course || 'BTECH'
+  // });
+  
+  
+const getFiltersFromURL = () => ({
+  semester: searchParams.get("semester") || "",
+  subject: searchParams.get("subject") || "",
+  category: searchParams.get("category") || "",
+  unit: searchParams.get("unit") || "",
+  uploadedBy: searchParams.get("uploadedBy") || "",
+  videoChapter: searchParams.get("videoChapter") || "",
+  university: "AKTU",
+  course: "BTECH"
+});
+const [localFilters, setLocalFilters] = useState(getFiltersFromURL);
+  useEffect(() => {
+  const urlFilters = getFiltersFromURL();
+  setLocalFilters(urlFilters);
+}, [searchParams]);
+const isOnlySemester =
   localFilters.semester &&
   !localFilters.subject &&
   !localFilters.category &&
   !localFilters.unit &&
   !localFilters.uploadedBy;
-
   // Get unique uploaders from notes
   const getUniqueUploaders = () => {
     const uploaders = new Map();
@@ -218,8 +235,15 @@ useEffect(() => {
 
 
   const handleFilterChange = (key, value) => {
-    setLocalFilters(prev => ({ ...prev, [key]: value }));
-  };
+  const updated = { ...localFilters, [key]: value };
+  setLocalFilters(updated);
+
+  const params = Object.fromEntries(
+    Object.entries(updated).filter(([_, v]) => v)
+  );
+
+  setSearchParams(params);
+};
 
   const handleClearFilters = () => {
     const resetFilters = {
