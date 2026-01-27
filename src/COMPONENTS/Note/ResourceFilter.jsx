@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Filter, X, Check ,CalendarCog} from 'lucide-react';
+import { getSubjectShortName } from '../../UTILS/subjectShortName';
 
 /**
  * FIXED: Stats Section with Subject-Based Video Filtering
@@ -340,7 +341,7 @@ const sortedCategories = CATEGORY_ORDER
               `}
               title={`Study ${subject}`}
             >
-              {subject}
+              {getSubjectShortName(subject)}
 
               {isActive && (
                 <span className="ml-1 w-4 h-4 bg-[#22C55E] rounded-full flex items-center justify-center">

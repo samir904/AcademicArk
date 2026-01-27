@@ -135,12 +135,12 @@ export default function Note() {
   const subjectsBySemester = {
     1: [
       'engineering mathematics-i', 'engineering physics', 'programming for problem solving',
-      'Electrical Engineering', 'environment and ecology', "FUNDAMENTALS OF ELECTRONICS ENGINEERING", "soft skills",
+       'environment and ecology', "FUNDAMENTALS OF ELECTRONICS ENGINEERING", "soft skills",
       "fundamentals of mechanical engineering", "engineering chemistry", "fundamentals of electrical engineering"
     ],
     2: [
-      'Mathematics-II', , 'engineering physics', 'programming for problem solving',
-      'Electrical Engineering', 'environment and ecology', "FUNDAMENTALS OF ELECTRONICS ENGINEERING", "soft skills",
+      'engineering mathematics-II', , 'engineering physics', 'programming for problem solving',
+      'environment and ecology', "FUNDAMENTALS OF ELECTRONICS ENGINEERING", "soft skills",
       "fundamentals of mechanical engineering", "engineering chemistry", "fundamentals of electrical engineering"
     ],
     3: [

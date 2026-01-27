@@ -128,7 +128,7 @@ const userData = useSelector((state) => state?.auth?.data);
               Hi, {firstName}
             </h1>
             <p className="text-[#9CA3AF] text-sm">
-              {semester} · {branch} · AKTU
+              sem {semester} · {branch} · AKTU
             </p>
           </div>
 
