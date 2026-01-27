@@ -114,8 +114,8 @@ const userData = useSelector((state) => state?.auth?.data);
     onLogout();
   };
 // Get semester and branch from user data
-  const semester = userData?.semester || 'Semester 5';
-  const branch = userData?.branch || 'Computer Science';
+  const semester = userData?.academicProfile?.semester || 'Semester 5';
+  const branch = userData?.academicProfile?.branch || 'Computer Science';
   const firstName = userData?.fullName?.split(' ')[0] || 'User';
   return (
 

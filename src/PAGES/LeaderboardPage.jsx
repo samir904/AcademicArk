@@ -5,6 +5,7 @@ import TopThreeRing from '../COMPONENTS/Leaderboard/TopThreeRing.jsx';
 import LeaderboardCard from '../COMPONENTS/Leaderboard/LeaderboardCard.jsx';
 import LeaderboardTabs from '../COMPONENTS/Leaderboard/LeaderboardTabs.jsx';
 import {Trophy} from 'lucide-react'
+import PageTransition from '../COMPONENTS/PageTransition.jsx';
 const LeaderboardPage = () => {
   const dispatch = useDispatch();
   const { data, activeTab, loading, error } = useSelector(

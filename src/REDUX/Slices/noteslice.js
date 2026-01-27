@@ -7,6 +7,12 @@ import { showToast } from "../../HELPERS/Toaster";
 const initialState = {
     notes: [],
     currentNote: null,
+    // ✨ NEW: Pagination state
+    pagination: {
+        nextCursor: null,
+        hasMore: true,
+        isLoadingMore: false
+    },
     viewers: {
         data: [],
         pagination: {
@@ -32,6 +38,12 @@ const initialState = {
     recommendationsLoading: false,
     toggleRecommendLoading: false,
     recommendationsError: null,
+    stats: {
+        total: 0,
+        categories: {},
+        loading: false,
+        error: null
+    },
     error: null,
     filters: {
         subject: '',
@@ -55,24 +67,80 @@ export const registerNote = createAsyncThunk('/note/register', async (data) => {
     }
 })
 
-export const getAllNotes = createAsyncThunk("/note/getallnotes", async (filters = {}) => {
-    try {
-        const queryparams = new URLSearchParams();
+// ✨ NEW: Thunk for fetching next page
+export const getNextNotesPage = createAsyncThunk(
+    'note/getNextPage',
+    async (params, { rejectWithValue }) => {
+        try {
+            // params = { cursor, filters }
+            const queryParams = new URLSearchParams();
 
-        //add filter to query params
-        Object.entries(filters).forEach(([key, value]) => {
-            if (value) {
-                queryparams.append(key, value)
+            // Add cursor
+            if (params.cursor) {
+                queryParams.append('cursor', params.cursor);
             }
-        });
 
-        const res = await axiosInstance.get(`/notes?${queryparams.toString()}`);
-        return res.data;
-    } catch (e) {
-        showToast.error(e?.response?.data?.message || "Failed to fetch notes!")
+            // Add filters
+            if (params.filters) {
+                Object.entries(params.filters).forEach(([key, value]) => {
+                    if (value && value !== '') {
+                        queryParams.append(key, value);
+                    }
+                });
+            }
+
+            const response = await axios.get(
+                `/api/v1/notes?${queryParams.toString()}`
+            );
+
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Failed to fetch notes');
+        }
     }
-})
+);
 
+export const getAllNotes = createAsyncThunk(
+    "note/getAllNotes",
+    async ({ filters = {}, cursor = null }, { rejectWithValue }) => {
+        try {
+            const params = new URLSearchParams();
+
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value !== undefined && value !== "") {
+                    params.append(key, value);
+                }
+            });
+
+            if (cursor) {
+                params.append("cursor", cursor);
+            }
+
+            const res = await axiosInstance.get(`/notes?${params.toString()}`);
+            return res.data;
+        } catch (err) {
+            return rejectWithValue(
+                err.response?.data?.message || "Failed to fetch notes"
+            );
+        }
+    }
+);
+
+export const getSemesterPreviewNotes = createAsyncThunk(
+    "note/getSemesterPreviewNotes",
+    async (semester, { rejectWithValue }) => {
+        try {
+            const res = await axiosInstance.get(
+                `/notes/preview?semester=${semester}`
+            );
+            return res.data;
+        } catch (err) {
+            return rejectWithValue(
+                err.response?.data?.message || "Failed to load semester preview"
+            );
+        }
+    }
+);
 export const getNote = createAsyncThunk("/note/notedetails", async (noteId) => {
     try {
         const res = await axiosInstance.get(`/notes/${noteId}`);
@@ -270,6 +338,24 @@ export const getAllNotesForAdmin = createAsyncThunk(
     }
 );
 
+export const getNoteStats = createAsyncThunk(
+    "note/getStats",
+    async (filters, { rejectWithValue }) => {
+        try {
+            const params = new URLSearchParams();
+
+            Object.entries(filters).forEach(([k, v]) => {
+                if (v) params.append(k, v);
+            });
+
+            const res = await axiosInstance.get(`/notes/stats?${params.toString()}`);
+            return res.data;
+        } catch (err) {
+            return rejectWithValue("Failed to fetch stats");
+        }
+    }
+);
+
 
 
 const noteSlice = createSlice({
@@ -282,13 +368,25 @@ const noteSlice = createSlice({
         setFilters: (state, action) => {
             state.filters = { ...state.filters, ...action.payload };
         },
-        clearFilters: (state) => {
-            state.filters = {
-                subject: "",
-                semester: "",
-                university: "",
-                course: "",
-                category: ""
+        // ✨ NEW: Reset pagination when filters change
+        resetPagination: (state) => {
+            state.notes = [];
+            state.pagination = {
+                nextCursor: null,
+                hasMore: true,
+                isLoadingMore: false
+            };
+        },
+        // ✨ NEW: Clear notes for fresh load
+        clearNotes: (state) => {
+            state.notes = [];
+            state.currentNote = null;
+            state.totalNotes = 0;
+            state.error = null;
+            state.pagination = {
+                nextCursor: null,
+                hasMore: true,
+                isLoadingMore: false
             };
         },
         clearError: (state) => {
@@ -376,19 +474,85 @@ const noteSlice = createSlice({
                 state.error = action?.payload?.message || "Failed to upload note"
             })
 
-            //get all notes
-            .addCase(getAllNotes.pending, (state) => {
-                state.loading = true;
+            .addCase(getAllNotes.pending, (state, action) => {
+                const isPagination = Boolean(action.meta.arg?.cursor);
+
+                if (isPagination) {
+                    state.pagination.isLoadingMore = true;
+                } else {
+                    state.loading = true;
+                }
+
                 state.error = null;
             })
             .addCase(getAllNotes.fulfilled, (state, action) => {
+                const isPagination = Boolean(action.meta.arg?.cursor);
+                const { notes, nextCursor, hasMore } = action.payload.data;
+
+                if (!isPagination) {
+                    state.notes = notes;
+                } else {
+                    state.notes.push(...notes);
+                }
+
+                state.pagination.nextCursor = nextCursor;
+                state.pagination.hasMore = hasMore;
+                state.pagination.isLoadingMore = false;
                 state.loading = false;
-                state.notes = action?.payload?.data;
-                state.totalNotes = action?.payload?.count;
             })
             .addCase(getAllNotes.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action?.payload?.message || "Failed to fetch notes!";
+                state.pagination.isLoadingMore = false;
+                state.error = action.payload || "Failed to fetch notes";
+            })
+            .addCase(getSemesterPreviewNotes.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+
+            .addCase(getSemesterPreviewNotes.fulfilled, (state, action) => {
+                state.loading = false;
+
+                // 🔥 treat preview as fresh load
+                state.notes = action.payload.data.notes;
+
+                state.pagination.nextCursor = action.payload.data.nextCursor;
+                state.pagination.hasMore = action.payload.data.hasMore;
+            })
+
+            .addCase(getSemesterPreviewNotes.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(getNoteStats.pending, (state) => {
+                state.stats.loading = true;
+            })
+            .addCase(getNoteStats.fulfilled, (state, action) => {
+                state.stats.loading = false;
+                state.stats.total = action.payload.data.total;
+                state.stats.categories = action.payload.data.categories;
+            })
+            .addCase(getNoteStats.rejected, (state, action) => {
+                state.stats.loading = false;
+                state.stats.error = action.payload;
+            });
+        // ===== GET NEXT PAGE (Infinite scroll) =====
+        builder
+            .addCase(getNextNotesPage.pending, (state) => {
+                state.pagination.isLoadingMore = true;
+            })
+            .addCase(getNextNotesPage.fulfilled, (state, action) => {
+                state.pagination.isLoadingMore = false;
+                // ✨ APPEND new notes to existing array
+                state.notes = [...state.notes, ...action.payload.data];
+                state.totalNotes += action.payload.count;
+                // ✨ Update pagination for next fetch
+                state.pagination.nextCursor = action.payload.nextCursor;
+                state.pagination.hasMore = action.payload.hasMore;
+            })
+            .addCase(getNextNotesPage.rejected, (state, action) => {
+                state.pagination.isLoadingMore = false;
+                state.error = action.payload || "Failed to load more notes";
             })
 
             //get single note
@@ -648,10 +812,11 @@ export const {
     clearCurrentNote,
     setFilters,
     clearFilters,
+    resetPagination,
     clearError,
     clearNotes,
     updateNoteViews, // ✅ EXPORT THIS
-    clearViewers , // ✅ NEW
+    clearViewers, // ✅ NEW
     // ✅ NEW EXPORTS
     clearRecommendedNotes,
     clearRecommendationError

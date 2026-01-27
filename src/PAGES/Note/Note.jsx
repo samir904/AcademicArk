@@ -1,7 +1,7 @@
 // src/pages/Note.jsx
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllNotes, setFilters, clearFilters } from '../../REDUX/Slices/noteslice';
+import { getAllNotes, setFilters, clearFilters, getNextNotesPage, resetPagination, getNoteStats, getSemesterPreviewNotes } from '../../REDUX/Slices/noteslice';
 import aktulogo from "../../../public/download.jpeg";
 import CardRenderer from './CardRenderer';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
@@ -16,8 +16,10 @@ import { fetchPreferences, openPreferenceDrawer } from '../../REDUX/Slices/plann
 import StudyPreferenceDrawer from '../../COMPONENTS/Planner/StudyPreferenceDrawer';
 import { markPlannerReminderAsShown, shouldShowPlannerReminder } from '../../UTILS/shouldShowPlannerReminder';
 import ResourceFilter from '../../COMPONENTS/Note/ResourceFilter';
-import { UserRoundSearch,CalendarCog } from 'lucide-react'
+import { UserRoundSearch, CalendarCog, RefreshCcw } from 'lucide-react'
 import PageTransition from '../../COMPONENTS/PageTransition';
+import useInfiniteScroll from '../../hooks/useInfiniteScroll';
+import BottomLoader from '../../COMPONENTS/Note/BottomLoader';
 // Icon components
 const FilterIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,11 +57,11 @@ export default function Note() {
 
 
   const dispatch = useDispatch();
-  const { notes, loading, totalNotes, filters } = useSelector(state => state.note);
+  const { notes, loading, totalNotes, pagination, filters } = useSelector(state => state.note);
   // ✨ UPDATED: Get notes AND videos from Redux
   // In your component:
   const { allVideos: videos, loading: videoLoading } = useSelector(selectVideoLectureData);
-
+  const { total, categories } = useSelector(state => state.note.stats);
   const [localFilters, setLocalFilters] = useState({
     semester: filters.semester || '',
     subject: filters.subject || '',
@@ -70,6 +72,12 @@ export default function Note() {
     university: filters.university || 'AKTU',
     course: filters.course || 'BTECH'
   });
+  const isOnlySemester =
+  localFilters.semester &&
+  !localFilters.subject &&
+  !localFilters.category &&
+  !localFilters.unit &&
+  !localFilters.uploadedBy;
 
   // Get unique uploaders from notes
   const getUniqueUploaders = () => {
@@ -101,6 +109,28 @@ export default function Note() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isStatsCollapsed, setIsStatsCollapsed] = useState(false);
 
+  const loadMore = useCallback(() => {
+    if (
+      !localFilters.semester ||              // 🚨 BLOCK
+      !pagination.hasMore ||
+      pagination.isLoadingMore
+    ) {
+      return;
+    }
+
+    dispatch(getAllNotes({
+      filters: localFilters,
+      cursor: pagination.nextCursor
+    }));
+  }, [pagination.nextCursor, pagination.hasMore, pagination.isLoadingMore, localFilters]);
+
+
+  const bottomRef = useInfiniteScroll(
+    loadMore,
+    pagination.isLoadingMore,
+    pagination.hasMore && !loading
+  );
+
   // Subject mapping by semester
   const subjectsBySemester = {
     1: [
@@ -119,12 +149,12 @@ export default function Note() {
       "discrete structures & theory of logic", "mathematics-iv", "technical communication"
     ],
     4: [
-       'digital electronics', 
-       "mathematics-iv", 
-       "operating system",
-       "Theory of Automata and Formal Languages ",
-       "Object Oriented Programming with Java",
-       "CYBER SECURITY","Universal Human Values and Professional Ethics"
+      'digital electronics',
+      "mathematics-iv",
+      "operating system",
+      "Theory of Automata and Formal Languages ",
+      "Object Oriented Programming with Java",
+      "CYBER SECURITY", "Universal Human Values and Professional Ethics"
     ],
     5: [
       'Web Technology', 'cloud computing',
@@ -136,7 +166,7 @@ export default function Note() {
       'Computer network',
       'software project management',
       "software engineering",
-      'Big data and analytics', 
+      'Big data and analytics',
       'compiler design',
       "Machine Learning Techniques",
       "cloud computing",
@@ -158,18 +188,34 @@ export default function Note() {
   const allSubjects = Object.values(subjectsBySemester).flat().sort();
 
   // Fetch notes when filters change
-  useEffect(() => {
-    if (localFilters.semester) {
-      const filterParams = Object.fromEntries(
-        Object.entries(localFilters).filter(([_, value]) => value)
-      );
-      dispatch(setFilters(filterParams));
-      dispatch(getAllNotes(filterParams));
-      // ✨ NEW: Fetch videos for this semester
-      dispatch(getAllVideoLectures({ semester: localFilters.semester }));
+  
+useEffect(() => {
+  if (!localFilters.semester) return;
 
-    }
-  }, [localFilters, dispatch]);
+  dispatch(resetPagination());
+
+  const filterParams = Object.fromEntries(
+    Object.entries(localFilters).filter(([_, value]) => value)
+  );
+
+  if (isOnlySemester) {
+    // 🔥 SEMESTER PREVIEW MODE
+    dispatch(getSemesterPreviewNotes(localFilters.semester));
+  } else {
+    // 🔥 FULL NOTES MODE
+    dispatch(getAllNotes({
+      filters: filterParams,
+      cursor: null
+    }));
+  }
+  // Fetch stats ONLY in full mode
+    dispatch(getNoteStats(filterParams));
+
+  // Videos always depend on semester
+  dispatch(getAllVideoLectures({ semester: localFilters.semester }));
+
+}, [localFilters.semester, localFilters.subject, localFilters.category, localFilters.unit]);
+
 
   const handleFilterChange = (key, value) => {
     setLocalFilters(prev => ({ ...prev, [key]: value }));
@@ -189,6 +235,8 @@ export default function Note() {
     setLocalFilters(resetFilters);
     setSearchTerm('');
     setIsStatsCollapsed(false);
+    // Reset pagination
+    dispatch(resetPagination());
     dispatch(clearFilters());
   };
 
@@ -220,19 +268,19 @@ export default function Note() {
 
     return matchesSearch && matchesChapter && matchesUploader;
   }) || [];
-  const getCategoryStats = () => {
-    const stats = {};
-    notes?.forEach(note => {
-      stats[note.category] = (stats[note.category] || 0) + 1;
-    });
-    // ✨ NEW: Add video count
-    if (videos && videos.length > 0) {
-      stats['Video'] = videos.length;
-    }
-    return stats;
-  };
+  // const getCategoryStats = () => {
+  //   const stats = {};
+  //   notes?.forEach(note => {
+  //     stats[note.category] = (stats[note.category] || 0) + 1;
+  //   });
+  //   // ✨ NEW: Add video count
+  //   if (videos && videos.length > 0) {
+  //     stats['Video'] = videos.length;
+  //   }
+  //   return stats;
+  // };
 
-  const categoryStats = getCategoryStats();
+  // const categoryStats = getCategoryStats();
   // Get unique chapters from filtered videos
   const getUniqueChapters = () => {
     const chapters = new Set();
@@ -480,78 +528,91 @@ export default function Note() {
     dispatch(fetchPreferences());
   }, [dispatch]);
   // ✨ NEW: When semester changes, reset all other filters
-const handleSemesterChange = (newSemester) => {
-  const resetFilters = {
-    semester: newSemester,
-    subject: '', // ✅ Clear
-    category: '', // ✅ Clear
-    uploadedBy: '', // ✅ Clear
-    unit: '', // ✅ Clear
-    videoChapter: '', // ✅ Clear
-    university: 'AKTU',
-    course: 'BTECH'
+  const handleSemesterChange = (newSemester) => {
+    const resetFilters = {
+      semester: newSemester,
+      subject: '', // ✅ Clear
+      category: '', // ✅ Clear
+      uploadedBy: '', // ✅ Clear
+      unit: '', // ✅ Clear
+      videoChapter: '', // ✅ Clear
+      university: 'AKTU',
+      course: 'BTECH'
+    };
+    setLocalFilters(resetFilters);
+    setSearchTerm(''); // Clear search term too
+    // Reset pagination for new semester
+    dispatch(resetPagination());
+    dispatch(clearFilters());
   };
-  setLocalFilters(resetFilters);
-  setSearchTerm(''); // Clear search term too
-  dispatch(clearFilters());
-};
+  const hasSemester = Boolean(localFilters.semester);
+  const isInitialLoading = hasSemester && loading && notes.length === 0;
+  const hasData =
+    displayResources.length > 0 || filteredNotes.length > 0 || filteredVideos.length > 0;
+
+  const showEmptyState =
+    hasSemester &&
+    !loading &&
+    !videoLoading &&
+    !hasData;
+
   return (
     <PageTransition>
       <div className="min-h-screen bg-neutral-950 text-white">
-  {/* Notes Library Hero – Calm & Academic */}
-{/* Notes Page Hero – Calm, Academic, Complete */}
-<div className="bg-[#0F0F0F] border-b border-[#1F1F1F]">
-  <div className="max-w-5xl mx-auto px-6 py-8 text-center">
+        {/* Notes Library Hero – Calm & Academic */}
+        {/* Notes Page Hero – Calm, Academic, Complete */}
+        <div className="bg-[#0F0F0F] border-b border-[#1F1F1F]">
+          <div className="max-w-5xl mx-auto px-6 py-8 text-center">
 
-    {/* Logo + Context */}
-    <div className="flex items-center justify-center gap-2 mb-3">
-      <img
-        src={aktulogo}
-        alt="AKTU Logo"
-        loading="lazy"
-        className="w-9 h-9 rounded-full"
-      />
-      <span className="text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider">
-        AKTU Study Library
-      </span>
-    </div>
+            {/* Logo + Context */}
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <img
+                src={aktulogo}
+                alt="AKTU Logo"
+                loading="lazy"
+                className="w-9 h-9 rounded-full"
+              />
+              <span className="text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider">
+                AKTU Study Library
+              </span>
+            </div>
 
-    {/* Title */}
-    <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-      Notes, PYQs & Exam Resources
-    </h1>
+            {/* Title */}
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+              Notes, PYQs & Exam Resources
+            </h1>
 
-    {/* Subtitle */}
-    <p className="text-sm text-[#9CA3AF] max-w-xl mx-auto">
-      Semester-wise notes, video lectures, PYQs and important questions —
-      organized for focused AKTU preparation
-    </p>
+            {/* Subtitle */}
+            <p className="text-sm text-[#9CA3AF] max-w-xl mx-auto">
+              Semester-wise notes, video lectures, PYQs and important questions —
+              organized for focused AKTU preparation
+            </p>
 
-    {/* Resource Types */}
-    <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs">
-      <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
-        📘 Notes 
-      </span>
-      <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
-        ✏️ Handwritten notes
-      </span>
-      <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
-        📄 PYQs
-      </span>
-      <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
-        ⭐ Important Questions
-      </span>
-      <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
-        🎥 Video Lectures
-      </span>
-    </div>
-<div className="pt-4">
-      <button
-        onClick={() => {
-          const semesterSection = document.querySelector('[data-semester-section]');
-          semesterSection?.scrollIntoView({ behavior: 'smooth' });
-        }}
-        className="
+            {/* Resource Types */}
+            <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs">
+              <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
+                📘 Notes
+              </span>
+              <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
+                ✏️ Handwritten notes
+              </span>
+              <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
+                📄 PYQs
+              </span>
+              <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
+                ⭐ Important Questions
+              </span>
+              <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
+                🎥 Video Lectures
+              </span>
+            </div>
+            <div className="pt-4">
+              <button
+                onClick={() => {
+                  const semesterSection = document.querySelector('[data-semester-section]');
+                  semesterSection?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="
           inline-flex items-center gap-2
           px-6 py-1
           rounded-full
@@ -560,12 +621,12 @@ const handleSemesterChange = (newSemester) => {
           font-semibold text-sm
           transition-all duration-200
         "
-      >
-        Browse by Semester →
-      </button>
-    </div>
-  </div>
-</div>
+              >
+                Browse by Semester →
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Filters Section */}
         <div data-semester-section className="max-w-7xl mx-auto px-4 py-8">
@@ -584,6 +645,11 @@ const handleSemesterChange = (newSemester) => {
             ctaText={ctaText}
             notes={notes}        // Add this
             videos={videos}      // Add this
+            // ✅ FIXED
+            stats={{
+              total,
+              categories
+            }}
           />
 
 
@@ -671,23 +737,23 @@ const handleSemesterChange = (newSemester) => {
 
 
           {/* Loading State */}
-          {loading && (
+          {isInitialLoading && (
             <div className="space-y-6 py-8">
               {/* Header Skeleton */}
               <div className="space-y-3">
-                <div className="h-8 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-3/4 animate-pulse"></div>
-                <div className="h-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-1/2 animate-pulse"></div>
+                <div className="h-8 bg-[#2A2A2A] rounded-lg w-3/4 animate-pulse"></div>
+                <div className="h-4 bg-[#2A2A2A] rounded-lg w-1/2 animate-pulse"></div>
               </div>
 
               {/* Search Bar Skeleton */}
-              <div className="h-12 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl animate-pulse"></div>
+              <div className="h-12 bg-[#2A2A2A] rounded-xl animate-pulse"></div>
 
               {/* Filter Buttons Skeleton */}
               <div className="flex gap-3 flex-wrap">
                 {[1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
-                    className="h-10 bg-gradient-to-r from-slate-700 to-slate-600 rounded-full w-24 animate-pulse"
+                    className="h-10 bg-[#2A2A2A] rounded-full w-24 animate-pulse"
                   ></div>
                 ))}
               </div>
@@ -697,20 +763,20 @@ const handleSemesterChange = (newSemester) => {
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div
                     key={i}
-                    className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden border border-slate-700/50 p-4 space-y-4"
+                    className="bg-[#2A2A2A] rounded-xl overflow-hidden border border-slate-700/50 p-4 space-y-4"
                   >
                     {/* Thumbnail Skeleton */}
-                    <div className="h-40 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg animate-pulse"></div>
+                    <div className="h-40 bg-[#2A2A2A] rounded-lg animate-pulse"></div>
 
                     {/* Title Skeleton */}
-                    <div className="h-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-5/6 animate-pulse"></div>
+                    <div className="h-4 bg-[#2A2A2A] rounded-lg w-5/6 animate-pulse"></div>
 
                     {/* Subtitle Skeleton */}
-                    <div className="h-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg w-4/6 animate-pulse"></div>
+                    <div className="h-3 bg-[#2A2A2A] rounded-lg w-4/6 animate-pulse"></div>
 
                     {/* Button Skeleton */}
                     <div className="pt-2">
-                      <div className="h-10 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg animate-pulse"></div>
+                      <div className="h-10 bg-[#2A2A2A] rounded-lg animate-pulse"></div>
                     </div>
                   </div>
                 ))}
@@ -720,51 +786,51 @@ const handleSemesterChange = (newSemester) => {
 
 
           {/* Enhanced Empty State with Popular Requests */}
-       {!loading && !videoLoading && localFilters.semester && filteredNotes.length === 0 && displayResources.length === 0 && (
-  <div className="min-h-[60vh] flex items-center justify-center px-4">
-    <div className="max-w-4xl w-full space-y-8">
-       {/* TOP: PROMINENT REQUEST BUTTON - MAIN CTA */}
-             <div className="text-center space-y-3 pt-8">
-        <button
-          onClick={() => setShowRequestModal(true)}
-          className="group relative mx-auto px-8 py-4 bg-[#9CA3AF] hover:bg-white rounded-full font-bold text-black transition-all duration-300 flex items-center justify-center gap-3 max-w-md"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          <span className='font-extrabold text-black' >Request Missing Material</span>
-          <svg className="w-5 h-5 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </button>
-        <p className="text-sm text-gray-400">Help build our library by requesting what you need</p>
-      </div>
+          {showEmptyState && (
+            <div className="min-h-[60vh] flex items-center justify-center px-4">
+              <div className="max-w-4xl w-full space-y-8">
+                {/* TOP: PROMINENT REQUEST BUTTON - MAIN CTA */}
+                <div className="text-center space-y-3 pt-8">
+                  <button
+                    onClick={() => setShowRequestModal(true)}
+                    className="group relative mx-auto px-8 py-4 bg-[#9CA3AF] hover:bg-white rounded-full font-bold text-black transition-all duration-300 flex items-center justify-center gap-3 max-w-md"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span className='font-extrabold text-black' >Request Missing Material</span>
+                    <svg className="w-5 h-5 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </button>
+                  <p className="text-sm text-gray-400">Help build our library by requesting what you need</p>
+                </div>
 
-      {/* Icon & Message */}
-      <div className="text-center space-y-4">
-        {/* Animated Empty Icon */}
-        <div className="relative w-20 h-20 mx-auto mb-6">
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-700/40 to-gray-600/40 rounded-full animate-pulse"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <svg className="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-          </div>
-        </div>
+                {/* Icon & Message */}
+                <div className="text-center space-y-4">
+                  {/* Animated Empty Icon */}
+                  <div className="relative w-20 h-20 mx-auto mb-6">
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-700/40 to-gray-600/40 rounded-full animate-pulse"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <svg className="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                  </div>
 
-        <div>
-          <h2 className="text-3xl font-bold text-white mb-2">
-            No Resources Yet
-          </h2>
-          <p className="text-gray-400 max-w-xl mx-auto">
-            We don't have materials for <span className="text-blue-300 font-semibold">Semester {localFilters.semester}</span>
-            {localFilters.subject && <> in <span className="text-purple-300 font-semibold">{localFilters.subject}</span></>}
-            {searchTerm && <> matching <span className="text-pink-300 font-semibold">"{searchTerm}"</span></>} yet.
-          </p>
-        </div>
-      </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-white mb-2">
+                      No Resources Yet
+                    </h2>
+                    <p className="text-gray-400 max-w-xl mx-auto">
+                      We don't have materials for <span className="text-blue-300 font-semibold">Semester {localFilters.semester}</span>
+                      {localFilters.subject && <> in <span className="text-purple-300 font-semibold">{localFilters.subject}</span></>}
+                      {searchTerm && <> matching <span className="text-pink-300 font-semibold">"{searchTerm}"</span></>} yet.
+                    </p>
+                  </div>
+                </div>
 
-      {/* Popular Requests Grid */}
+                {/* Popular Requests Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {popularRequests && popularRequests.length > 0 ? (
                     popularRequests.map((request) => (
@@ -877,106 +943,106 @@ const handleSemesterChange = (newSemester) => {
                   )}
                 </div>
 
-      {/* Info Box */}
-      <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/30 border border-blue-500/30 rounded-xl p-6 backdrop-blur-sm">
-        <div className="flex gap-4">
-          <div className="flex-shrink-0">
-            <div className="w-10 h-10 bg-blue-500/30 rounded-full flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-          <div className="flex-1 text-left">
-            <h4 className="font-bold text-blue-300 mb-2">💡 Can't Find Your Subject?</h4>
-            <p className="text-sm text-gray-300 mb-3">
-              AKTU allows subject flexibility per semester. Your desired subject might be in a different semester. Upvote popular requests to help us prioritize!
-            </p>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-green-400">✓</span>
-                <span className="text-gray-300"><span className="text-green-300 font-semibold">Upvote requests</span> to show demand</span>
+                {/* Info Box */}
+                <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/30 border border-blue-500/30 rounded-xl p-6 backdrop-blur-sm">
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 bg-blue-500/30 rounded-full flex items-center justify-center">
+                        <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h4 className="font-bold text-blue-300 mb-2">💡 Can't Find Your Subject?</h4>
+                      <p className="text-sm text-gray-300 mb-3">
+                        AKTU allows subject flexibility per semester. Your desired subject might be in a different semester. Upvote popular requests to help us prioritize!
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-green-400">✓</span>
+                          <span className="text-gray-300"><span className="text-green-300 font-semibold">Upvote requests</span> to show demand</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-blue-400">→</span>
+                          <span className="text-gray-300"><span className="text-blue-300 font-semibold">Request material</span> to add to wishlist</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 justify-center pt-6">
+                  <Link
+                    to="/search"
+                    className="group flex-1 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-blue-500/50 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+                  >
+                    <SearchIcon className="w-5 h-5" />
+                    <span>Search All Semesters</span>
+                  </Link>
+
+                  <button
+                    onClick={() => setShowRequestModal(true)}
+                    className="group flex-1 px-6 py-3 bg-gradient-to-r from-purple-600/20 to-pink-600/20 hover:from-purple-600/40 hover:to-pink-600/40 border border-purple-500/50 hover:border-pink-500/50 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Request Material</span>
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-blue-400">→</span>
-                <span className="text-gray-300"><span className="text-blue-300 font-semibold">Request material</span> to add to wishlist</span>
-              </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 justify-center pt-6">
-        <Link
-          to="/search"
-          className="group flex-1 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-blue-500/50 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2"
-        >
-          <SearchIcon className="w-5 h-5" />
-          <span>Search All Semesters</span>
-        </Link>
-
-        <button
-          onClick={() => setShowRequestModal(true)}
-          className="group flex-1 px-6 py-3 bg-gradient-to-r from-purple-600/20 to-pink-600/20 hover:from-purple-600/40 hover:to-pink-600/40 border border-purple-500/50 hover:border-pink-500/50 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          <span>Request Material</span>
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+          )}
 
 
-          
+
 
           {/* Enhanced Semester Selection Prompt */}
-         {!loading && !localFilters.semester && (
-  <div className="min-h-[60vh] flex items-center justify-center px-4">
-    <div className="max-w-2xl w-full text-center space-y-8">
-      {/* Animated Icon - Enhanced */}
-      <div className="relative w-32 h-32 mx-auto mb-8">
-        {/* Rotating Rings */}
-        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-500 border-r-purple-500 animate-spin" style={{animationDuration: '3s'}}></div>
-        <div className="absolute inset-3 rounded-full border-2 border-transparent border-t-purple-500 border-r-pink-500 animate-spin" style={{animationDuration: '4s', animationDirection: 'reverse'}}></div>
-        
-        {/* Center Icon */}
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-full backdrop-blur-sm border border-blue-500/30">
-          <BookIcon className="w-16 h-16 text-blue-300" />
-        </div>
-      </div>
+          {!hasSemester && (
+            <div className="min-h-[60vh] flex items-center justify-center px-4">
+              <div className="max-w-2xl w-full text-center space-y-8">
+                {/* Animated Icon - Enhanced */}
+                <div className="relative w-32 h-32 mx-auto mb-8">
+                  {/* Rotating Rings */}
+                  <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-500 border-r-purple-500 animate-spin" style={{ animationDuration: '3s' }}></div>
+                  <div className="absolute inset-3 rounded-full border-2 border-transparent border-t-purple-500 border-r-pink-500 animate-spin" style={{ animationDuration: '4s', animationDirection: 'reverse' }}></div>
 
-      {/* Main Message */}
-      <div className="space-y-4">
-        <h2 className="text-4xl md:text-5xl font-black text-white">
-          Choose Your
-          <span className="block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Semester
-          </span>
-        </h2>
-        
-        <p className="text-lg text-gray-300 max-w-xl mx-auto leading-relaxed">
-          Select your current semester above to explore curated study materials, previous year questions, and handwritten notes tailored to your academic needs.
-        </p>
-      </div>
+                  {/* Center Icon */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-full backdrop-blur-sm border border-blue-500/30">
+                    <BookIcon className="w-16 h-16 text-blue-300" />
+                  </div>
+                </div>
 
-      {/* Alternative Actions */}
-      <div className="space-y-3 pt-4 border-t border-white/10">
-        <p className="text-sm text-gray-400">Or explore without choosing:</p>
-        <Link
-          to="/search"
-          className="inline-flex items-center  gap-2 px-6 py-2 bg-[#9CA3AF] hover:bg-white  text-black rounded-full  transition-all"
-        >
-          {/* <SearchIcon className="w-5 h-5" /> */}
-          <span className='text-sm font-semibold'>Search All Resources →</span>
-        </Link>
-      </div>
-    </div>
-  </div>
-)}
+                {/* Main Message */}
+                <div className="space-y-4">
+                  <h2 className="text-4xl md:text-5xl font-black text-white">
+                    Choose Your
+                    <span className="block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                      Semester
+                    </span>
+                  </h2>
+
+                  <p className="text-lg text-gray-300 max-w-xl mx-auto leading-relaxed">
+                    Select your current semester above to explore curated study materials, previous year questions, and handwritten notes tailored to your academic needs.
+                  </p>
+                </div>
+
+                {/* Alternative Actions */}
+                <div className="space-y-3 pt-4 border-t border-white/10">
+                  <p className="text-sm text-gray-400">Or explore without choosing:</p>
+                  <Link
+                    to="/search"
+                    className="inline-flex items-center  gap-2 px-6 py-2 bg-[#9CA3AF] hover:bg-white  text-black rounded-full  transition-all"
+                  >
+                    {/* <SearchIcon className="w-5 h-5" /> */}
+                    <span className='text-sm font-semibold'>Search All Resources →</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
           {/* <AdBanner /> */}
           {/* Notes Grid */}
           {/* Notes/Videos Grid - FIXED */}
@@ -1068,7 +1134,70 @@ const handleSemesterChange = (newSemester) => {
             </div>
           )}
 
+          {/* ✨ NEW: BOTTOM LOADER (Infinite Scroll Trigger) */}
+          {/* {pagination.hasMore && displayResources?.length > 0 && (
+                <div
+                    ref={bottomLoaderRef}
+                    className="flex justify-center py-8 mb-16"
+                >
+                    {pagination.isLoadingMore ? (
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                            <span className="text-[#9CA3AF] text-sm ml-2">Loading more notes...</span>
+                        </div>
+                    ) : (
+                        <div className="text-[#9CA3AF] text-sm">Scroll for more</div>
+                    )}
+                </div>
+            )} */}
 
+          {/* ================= BOTTOM LOADER ================= */}
+          {pagination.hasMore && (
+            <BottomLoader
+              isLoading={pagination.isLoadingMore}
+              hasMore={pagination.hasMore}
+            />
+          )}
+
+          {/* ================= OBSERVER TARGET (LAST ELEMENT) ================= */}
+          <div ref={bottomRef} className="h-1" />
+
+        {/* ================= END MESSAGE ================= */}
+{!pagination.hasMore && !pagination.isLoadingMore && (
+  <div className="text-center py-8 space-y-2">
+    <p className="text-slate-400 text-sm">
+      You’ve reached the end
+    </p>
+
+    <p className="text-xs text-slate-500">
+      Try changing your subject, material type, or unit to explore more content.
+    </p>
+
+    {(localFilters.subject || localFilters.category || localFilters.unit || localFilters.videoChapter) && (
+      <button
+        onClick={handleClearFilters}
+        className="
+          mt-3
+          inline-flex items-center gap-2
+          px-4 py-2
+          text-xs font-semibold
+          rounded-full
+          bg-[#1F1F1F]
+          border border-[#2F2F2F]
+          text-[#9CA3AF]
+          hover:text-white
+          hover:border-[#9CA3AF]/40
+          transition-all
+        "
+      >
+        <RefreshCcw className="w-4 h-4" />
+        Reset filters
+      </button>
+    )}
+  </div>
+)}
 
 
           {/* Empty State - ADD THIS */}
@@ -1091,8 +1220,8 @@ const handleSemesterChange = (newSemester) => {
           defaultSemester={localFilters.semester}
           defaultSubject={localFilters.subject}
         />
- {/* Planner Drawer (must be mounted) */}
-      <StudyPreferenceDrawer isFirstTime={false} />
+        {/* Planner Drawer (must be mounted) */}
+        <StudyPreferenceDrawer isFirstTime={false} />
       </div>
     </PageTransition>
   );
