@@ -131,7 +131,7 @@ export default function ResourceFilter({
   const sortedCategories = CATEGORY_ORDER
     .filter(cat => categoryStats?.[cat] > 0)
     .map(cat => [cat, categoryStats[cat]]);
-
+const [showMoreFilters, setShowMoreFilters] = useState(false);
 
   // ✨ UPDATED getCategoryConfig with icons instead of emojis
   const getCategoryConfig = (category) => {
@@ -610,14 +610,86 @@ export default function ResourceFilter({
       )}
 
 
-      {
-        (
-          ['Notes', 'Handwritten Notes'].includes(localFilters.category)
+      {(['Notes', 'Handwritten Notes'].includes(localFilters.category)
           ||
           (localFilters.category === 'Video' && uniqueChaptersForSubject.length > 0)
         )
         && <div className="h-px bg-[#1F1F1F]" />
       }
+      {/* MORE FILTERS TOGGLE */}
+{localFilters.semester && (
+  <div className="flex justify-center">
+    <button
+      onClick={() => setShowMoreFilters(prev => !prev)}
+      className="
+        text-xs font-semibold
+        px-4 py-2
+        rounded-full
+        border border-[#2F2F2F]
+        bg-[#1F1F1F]
+        text-[#9CA3AF]
+        hover:text-white hover:border-[#9CA3AF]/40
+        transition-all
+        flex items-center gap-2
+      "
+    >
+      <Filter className="w-3.5 h-3.5" />
+      {showMoreFilters ? "Hide advanced filters" : "More filters"}
+    </button>
+  </div>
+)}
+      {/* ADVANCED FILTERS */}
+{showMoreFilters && (
+  <div className="animate-in fade-in duration-200">
+    <div className="h-px bg-[#1F1F1F] my-4" />
+
+    {/* CONTRIBUTORS FILTER */}
+    {notes && notes.length > 0 && (
+      <div className="mb-4">
+        <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+          <Filter className="w-4 h-4 text-[#9CA3AF]" />
+          Filter by Contributor
+        </h3>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => handleFilterChange('uploadedBy', '')}
+            className={`
+              px-3 py-1.5 rounded-full text-xs font-semibold
+              ${!localFilters.uploadedBy
+                ? 'bg-[#9CA3AF] text-black'
+                : 'bg-[#1F1F1F] text-[#9CA3AF] border border-[#2F2F2F]'
+              }
+            `}
+          >
+            All
+          </button>
+
+          {uniqueUploaders.map(uploader => {
+            const isActive = localFilters.uploadedBy === uploader.id;
+
+            return (
+              <button
+                key={uploader.id}
+                onClick={() => handleFilterChange('uploadedBy', uploader.id)}
+                className={`
+                  px-3 py-1.5 rounded-full text-xs font-semibold
+                  ${isActive
+                    ? 'bg-[#9CA3AF] text-black'
+                    : 'bg-[#1F1F1F] text-[#9CA3AF] border border-[#2F2F2F]'
+                  }
+                `}
+              >
+                {uploader.name}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    )}
+  </div>
+)}
+    
       {localFilters.semester && (
         <div className="mb-6 px-3 sm:px-0">
           <div
@@ -676,38 +748,7 @@ export default function ResourceFilter({
           </div>
         </div>
       )}
-      {/* PLANNER CTA */}
-      {/* {localFilters.semester && (
-                <div className="bg-[#1F1F1F]/40 border border-[#1F1F1F] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3 animate-in fade-in duration-300">
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <div className="w-10 h-10 rounded-lg bg-[#1F1F1F] flex items-center justify-center flex-shrink-0 text-lg">
-                            📘
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-white leading-tight">
-                                Want a clear study path?
-                            </p>
-                            <p className="text-xs text-[#4B5563] mt-1 leading-snug">
-                                Planner organizes{localFilters.subject ? ` ${localFilters.subject}` : ' your subjects'} chapter-by-chapter with curated resources
-                            </p>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={() => {
-                            if (isPreferencesSet) {
-                                navigate("/planner");
-                            } else {
-                                dispatch(openPreferenceDrawer());
-                            }
-                        }}
-                        className="flex-shrink-0 px-4 py-2.5 bg-[#9CA3AF] text-black hover:bg-white active:scale-95 rounded-full font-semibold text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#9CA3AF]/50 whitespace-nowrap w-full sm:w-auto"
-                    >
-                        {ctaText}
-                    </button>
-                </div>
-            )} */}
-
+      
       {/* EMPTY STATE */}
       {!localFilters.semester && (
         <div className="text-center py-4 px-4 bg-[#1F1F1F]/40 border border-[#1F1F1F] rounded-lg">
@@ -715,6 +756,8 @@ export default function ResourceFilter({
           <p className="text-xs text-[#4B5563]">Materials will appear once you choose</p>
         </div>
       )}
+
+  
     </div>
   );
 }

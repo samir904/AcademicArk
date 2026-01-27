@@ -21,6 +21,8 @@ import PageTransition from '../../COMPONENTS/PageTransition';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 import BottomLoader from '../../COMPONENTS/Note/BottomLoader';
 import { useSearchParams } from "react-router-dom";
+import ActiveFilterPills from '../../COMPONENTS/Note/ActiveFilterPills';
+import ActiveFilterPillsRow from '../../COMPONENTS/Note/ActiveFilterPillsRow';
 // Icon components
 const FilterIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -494,7 +496,13 @@ if (filterParams.category !== 'Video') {
     !loading &&
     !videoLoading &&
     !hasData;
-
+const uploaderMap = useMemo(() => {
+  const map = {};
+  uniqueUploaders.forEach(u => {
+    map[u.id] = u.name;
+  });
+  return map;
+}, [uniqueUploaders]);
   return (
     <PageTransition>
       <div className="min-h-screen bg-neutral-950 text-white">
@@ -593,85 +601,12 @@ if (filterParams.category !== 'Video') {
 
 
           {/* ✨ UPDATED: Stats Section - Include Video Count */}
-          {!loading && !videoLoading && localFilters.semester && (
-            <div className="mb-8 space-y-3">
-
-
-              {/* Contributors Filter - Simple Version */}
-              {notes && notes.length > 0 && (
-                <div className="mb-8">
-                  <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
-                    <UserRoundSearch className='w-6 h-6' />
-                    <span>Filter by Contributor</span>
-                  </h3>
-
-                  <div className="flex flex-wrap gap-3">
-                    {/* All Contributors Button */}
-                    <button
-                      onClick={() => handleFilterChange('uploadedBy', '')}
-                      className={`
-              px-4 py-2 rounded-full font-medium transition-all
-              ${!localFilters.uploadedBy
-                          ? 'bg-[#9CA3AF] text-black shadow-lg'
-                          : 'bg-[#1F1F1F] text-gray-300 hover:bg-gray-700'
-                        }
-            `}
-                    >
-                      All Contributors ({notes.length})
-                    </button>
-
-                    {/* Individual Contributors */}
-                    {uniqueUploaders.map(uploader => {
-                      const uploaderCount = notes.filter(n => n.uploadedBy?._id === uploader.id).length;
-                      const isActive = localFilters.uploadedBy === uploader.id;
-
-                      return (
-                        <button
-                          key={uploader.id}
-                          onClick={() => handleFilterChange('uploadedBy', uploader.id)}
-                          className={`
-                  px-4 py-2 rounded-full font-medium transition-all flex items-center space-x-2
-                  ${isActive
-                              ? 'bg-[#9CA3AF] text-black shadow-lg'
-                              : 'bg-[#1F1F1F] text-gray-300 hover:bg-gray-700'
-                            }
-                `}
-                        >
-                          {/* Avatar */}
-                          {uploader?.avatar?.secure_url ? (
-                            <img
-                              src={uploader.avatar.secure_url}
-                              alt={uploader.name}
-                              className="w-5 h-5 rounded-full object-cover"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                              {uploader.name.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                          <span className='capitalize'>{uploader.name} ({uploaderCount})</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Active Contributor Badge */}
-                  {/* {localFilters.uploadedBy && (
-                    <div className="mt-3 text-sm text-gray-400">
-                      Showing notes by: <span className="text-purple-400 font-medium">
-                        {uniqueUploaders.find(u => u.id === localFilters.uploadedBy)?.name}
-                      </span>
-                    </div>
-                  )} */}
-                </div>
-              )}
-            </div>
-          )}
-
-
+       
+<ActiveFilterPillsRow
+  localFilters={localFilters}
+  handleFilterChange={handleFilterChange}
+  uploaderMap={uploaderMap}
+/>
 
 
 
