@@ -47,7 +47,7 @@ export default function ResourceFilter({
       ? "Continue my study plan →"
       : "Study in order →";
 
-      const [isPresetsOpen,setIsPresetsOpen]=useState(false);
+  const [isPresetsOpen, setIsPresetsOpen] = useState(false);
 
   // ✨ FIXED: Calculate category stats with proper subject filtering
   // const getCategoryStats = useMemo(() => {
@@ -144,7 +144,7 @@ export default function ResourceFilter({
   const sortedCategories = CATEGORY_ORDER
     .filter(cat => categoryStats?.[cat] > 0)
     .map(cat => [cat, categoryStats[cat]]);
-const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
 
   // ✨ UPDATED getCategoryConfig with icons instead of emojis
   const getCategoryConfig = (category) => {
@@ -203,89 +203,97 @@ const [showMoreFilters, setShowMoreFilters] = useState(false);
     return configs[category] || configs['Notes'];
   };
   const isMobile = useMemo(
-  () => window.matchMedia("(max-width: 639px)").matches,
-  []
-);
-const handlePresetsClick = () => {
-  setIsPresetsOpen(true);
-};
+    () => window.matchMedia("(max-width: 639px)").matches,
+    []
+  );
+  const handlePresetsClick = () => {
+    setIsPresetsOpen(true);
+  };
+  const haptic = (ms = 10) => {
+    if (navigator.vibrate) {
+      navigator.vibrate(ms);
+    }
+  };
   return (
     <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl p-6 mb-8 space-y-6">
-   {/* ================= HEADER ================= */}
-<div
-  className="
+      {/* ================= HEADER ================= */}
+      <div
+        className="
     flex flex-col gap-4
     sm:flex-row sm:items-center sm:justify-between
   "
->
-  {/* LEFT: Title */}
-  <div className="flex items-center gap-3">
-    <div className="w-10 h-10 bg-[#1F1F1F] rounded-lg flex items-center justify-center shrink-0">
-      <Filter className="w-5 h-5 text-[#9CA3AF]" />
-    </div>
+      >
+        {/* LEFT: Title */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#1F1F1F] rounded-lg flex items-center justify-center shrink-0">
+            <Filter className="w-5 h-5 text-[#9CA3AF]" />
+          </div>
 
-    <div className="min-w-0">
-      <h2 className="text-lg font-semibold text-white leading-tight">
-        Filter Resources
-      </h2>
-      <p className="text-xs text-[#4B5563] mt-0.5">
-        Find exactly what you need
-      </p>
-    </div>
-  </div>
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold text-white leading-tight">
+              Filter Resources
+            </h2>
+            <p className="text-xs text-[#4B5563] mt-0.5">
+              Find exactly what you need
+            </p>
+          </div>
+        </div>
 
-  {/* RIGHT: Actions */}
-  <div
-    className="
+        {/* RIGHT: Actions */}
+        <div
+          className="
       flex items-center gap-2
       flex-wrap
       sm:flex-nowrap
     "
-  >
-    {/* ===== PRESETS UI LAYER ===== */}
+        >
+          {/* ===== PRESETS UI LAYER ===== */}
 
-{/* Desktop dropdown */}
-{!isMobile && (
-  <SavedFilterPresetsDropdown
-    savedFilters={savedFilters}
-    onApplyPreset={onApplySavedFilter}
-    onOpenSaveModal={onOpenSavePresetModal}
-    onSetDefaultPreset={handleSetDefaultPreset}
-    onDeletePreset={handleDeletePreset}
-    isOpen={isPresetsOpen}
-    setIsOpen={setIsPresetsOpen}
-  />
-)}
+          {/* Desktop dropdown */}
+          {!isMobile && (
+            <SavedFilterPresetsDropdown
+              savedFilters={savedFilters}
+              onApplyPreset={onApplySavedFilter}
+              onOpenSaveModal={onOpenSavePresetModal}
+              onSetDefaultPreset={handleSetDefaultPreset}
+              onDeletePreset={handleDeletePreset}
+              isOpen={isPresetsOpen}
+              setIsOpen={setIsPresetsOpen}
+            />
+          )}
 
-{/* Mobile bottom sheet */}
-{isMobile && (
-  <PresetBottomSheet
-    isOpen={isPresetsOpen}
-    onClose={() => setIsPresetsOpen(false)}
-    savedFilters={savedFilters}
-    onApplyPreset={onApplySavedFilter}
-    onSetDefaultPreset={handleSetDefaultPreset}
-    onDeletePreset={handleDeletePreset}
-    onOpenSaveModal={onOpenSavePresetModal}
-  />
-)}
-<button
-  onClick={handlePresetsClick}
-  className="
+          {/* Mobile bottom sheet */}
+          {isMobile && (
+            <PresetBottomSheet
+              isOpen={isPresetsOpen}
+              onClose={() => {
+                haptic(5);
+                setIsPresetsOpen(false);
+              }}
+              savedFilters={savedFilters}
+              onApplyPreset={onApplySavedFilter}
+              onSetDefaultPreset={handleSetDefaultPreset}
+              onDeletePreset={handleDeletePreset}
+              onOpenSaveModal={onOpenSavePresetModal}
+            />
+          )}
+          <button
+            onClick={handlePresetsClick}
+            className="
   md:hidden
     flex items-center gap-2 px-3 py-1.5
     text-xs font-semibold rounded-lg
     bg-[#1F1F1F] border border-[#2F2F2F]
     text-[#9CA3AF] hover:text-white
   "
->
-  <Star className="w-3.5 h-3.5 text-yellow-400" />
-  Presets
-</button>
-    {hasActiveFilters && (
-      <button
-        onClick={handleClearFilters}
-        className="
+          >
+            <Star className="w-3.5 h-3.5 text-yellow-400" />
+            Presets
+          </button>
+          {hasActiveFilters && (
+            <button
+              onClick={handleClearFilters}
+              className="
           flex items-center gap-1.5
           text-xs font-medium
           px-2.5 py-1.5 sm:px-3
@@ -296,15 +304,15 @@ const handlePresetsClick = () => {
           transition-all
           whitespace-nowrap
         "
-        title="Clear all filters"
-      >
-        <X className="w-3 h-3" />
-        Clear All
-      </button>
-    )}
-  </div>
-</div>
-{/* ========================================== */}
+              title="Clear all filters"
+            >
+              <X className="w-3 h-3" />
+              Clear All
+            </button>
+          )}
+        </div>
+      </div>
+      {/* ========================================== */}
 
 
       {/* SEMESTER SELECTION - DESKTOP */}
@@ -575,7 +583,7 @@ const handlePresetsClick = () => {
                     Step 4: Choose Unit
                   </h3>
                   <p className="text-xs text-[#4B5563]">
-                    Optional — filter notes by unit 
+                    Optional — filter notes by unit
                   </p>
                 </div>
               </div>
@@ -703,17 +711,17 @@ const handlePresetsClick = () => {
 
 
       {(['Notes', 'Handwritten Notes'].includes(localFilters.category)
-          ||
-          (localFilters.category === 'Video' && uniqueChaptersForSubject.length > 0)
-        )
+        ||
+        (localFilters.category === 'Video' && uniqueChaptersForSubject.length > 0)
+      )
         && <div className="h-px bg-[#1F1F1F]" />
       }
       {/* MORE FILTERS TOGGLE */}
-{localFilters.semester && (
-  <div className="flex justify-center">
-    <button
-      onClick={() => setShowMoreFilters(prev => !prev)}
-      className="
+      {localFilters.semester && (
+        <div className="flex justify-center">
+          <button
+            onClick={() => setShowMoreFilters(prev => !prev)}
+            className="
         text-xs font-semibold
         px-4 py-2
         rounded-full
@@ -724,64 +732,64 @@ const handlePresetsClick = () => {
         transition-all
         flex items-center gap-2
       "
-    >
-      <Filter className="w-3.5 h-3.5" />
-      {showMoreFilters ? "Hide advanced filters" : "More filters"}
-    </button>
-  </div>
-)}
+          >
+            <Filter className="w-3.5 h-3.5" />
+            {showMoreFilters ? "Hide advanced filters" : "More filters"}
+          </button>
+        </div>
+      )}
       {/* ADVANCED FILTERS */}
-{showMoreFilters && (
-  <div className="animate-in fade-in duration-200">
-    <div className="h-px bg-[#1F1F1F] my-4" />
+      {showMoreFilters && (
+        <div className="animate-in fade-in duration-200">
+          <div className="h-px bg-[#1F1F1F] my-4" />
 
-    {/* CONTRIBUTORS FILTER */}
-    {notes && notes.length > 0 && (
-      <div className="mb-4">
-        <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-          <Filter className="w-4 h-4 text-[#9CA3AF]" />
-          Filter by Contributor
-        </h3>
+          {/* CONTRIBUTORS FILTER */}
+          {notes && notes.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <Filter className="w-4 h-4 text-[#9CA3AF]" />
+                Filter by Contributor
+              </h3>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => handleFilterChange('uploadedBy', '')}
-            className={`
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => handleFilterChange('uploadedBy', '')}
+                  className={`
               px-3 py-1.5 rounded-full text-xs font-semibold
               ${!localFilters.uploadedBy
-                ? 'bg-[#9CA3AF] text-black'
-                : 'bg-[#1F1F1F] text-[#9CA3AF] border border-[#2F2F2F]'
-              }
+                      ? 'bg-[#9CA3AF] text-black'
+                      : 'bg-[#1F1F1F] text-[#9CA3AF] border border-[#2F2F2F]'
+                    }
             `}
-          >
-            All
-          </button>
+                >
+                  All
+                </button>
 
-          {uniqueUploaders.map(uploader => {
-            const isActive = localFilters.uploadedBy === uploader.id;
+                {uniqueUploaders.map(uploader => {
+                  const isActive = localFilters.uploadedBy === uploader.id;
 
-            return (
-              <button
-                key={uploader.id}
-                onClick={() => handleFilterChange('uploadedBy', uploader.id)}
-                className={`
+                  return (
+                    <button
+                      key={uploader.id}
+                      onClick={() => handleFilterChange('uploadedBy', uploader.id)}
+                      className={`
                   px-3 py-1.5 rounded-full text-xs font-semibold
                   ${isActive
-                    ? 'bg-[#9CA3AF] text-black'
-                    : 'bg-[#1F1F1F] text-[#9CA3AF] border border-[#2F2F2F]'
-                  }
+                          ? 'bg-[#9CA3AF] text-black'
+                          : 'bg-[#1F1F1F] text-[#9CA3AF] border border-[#2F2F2F]'
+                        }
                 `}
-              >
-                {uploader.name}
-              </button>
-            );
-          })}
+                    >
+                      {uploader.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-    )}
-  </div>
-)}
-    
+      )}
+
       {localFilters.semester && (
         <div className="mb-6 px-3 sm:px-0">
           <div
@@ -840,10 +848,10 @@ const handlePresetsClick = () => {
           </div>
         </div>
       )}
-      
-     {/* EMPTY STATE */}
-{!localFilters.semester && (
-  <div className="
+
+      {/* EMPTY STATE */}
+      {!localFilters.semester && (
+        <div className="
     text-center
     py-6 px-4
     bg-[#1F1F1F]/40
@@ -851,22 +859,22 @@ const handlePresetsClick = () => {
     rounded-xl
     space-y-3
   ">
-    <p className="text-sm font-semibold text-[#E5E7EB]">
-      Start your study flow
-    </p>
+          <p className="text-sm font-semibold text-[#E5E7EB]">
+            Start your study flow
+          </p>
 
-    <p className="text-xs text-[#9CA3AF] leading-relaxed">
-      Select a semester to explore materials
-      <br />
-      or quickly apply a saved preset.
-    </p>
+          <p className="text-xs text-[#9CA3AF] leading-relaxed">
+            Select a semester to explore materials
+            <br />
+            or quickly apply a saved preset.
+          </p>
 
-    {/* Subtle shortcut */}
-    <button
-      onClick={() => {
-        setIsPresetsOpen(true)
-      }}
-      className="
+          {/* Subtle shortcut */}
+          <button
+            onClick={() => {
+              setIsPresetsOpen(true)
+            }}
+            className="
         text-xs
         font-semibold
         text-yellow-400
@@ -876,12 +884,12 @@ const handlePresetsClick = () => {
         items-center
         gap-1
       "
-    >
-      ⭐ View saved presets
-    </button>
-  </div>
-)}
-  
+          >
+            ⭐ View saved presets
+          </button>
+        </div>
+      )}
+
     </div>
   );
 }
