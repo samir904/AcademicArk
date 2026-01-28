@@ -37,6 +37,8 @@ import {
 } from "../../REDUX/selectors/savedFilter.selectors";
 import SaveFilterPresetModal from '../../COMPONENTS/Note/SaveFilterPresetModal';
 import toast from 'react-hot-toast';
+import EmotionalToast from '../../COMPONENTS/Common/EmotionalToast';
+import DefaultPresetToast from '../../COMPONENTS/Common/DefaultPresetToast';
 // Icon components
 const FilterIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -525,6 +527,8 @@ export default function Note() {
   useEffect(() => {
     dispatch(fetchSavedFilters());
   }, [dispatch]);
+  
+const [showDefaultPresetToast, setShowDefaultPresetToast] = useState(false);
   const defaultAppliedRef = useRef(false);
   useEffect(() => {
     if (
@@ -547,9 +551,17 @@ export default function Note() {
         Object.entries(defaultSavedFilter.filters).filter(([_, v]) => v)
       )
     );
+    
+  // ⭐ Emotional confirmation
+  setShowDefaultPresetToast(true);
+
+
   }, [defaultSavedFilter]);
 
 const [showSavePresetModal, setShowSavePresetModal] = useState(false);
+
+const [showPresetToast, setShowPresetToast] = useState(false);
+
 
 const handleSavePreset = ({ name, isDefault }) => {
   const filtersToSave = Object.fromEntries(
@@ -566,6 +578,9 @@ if (!filtersToSave.semester) {
       isDefault
     })
   );
+    // ❤️ Emotional touch
+  setShowPresetToast(true);
+
 
   setShowSavePresetModal(false);
 };
@@ -578,6 +593,12 @@ const handleDeletePreset = (presetId) => {
   if (!window.confirm("Delete this preset?")) return;
   dispatch(deleteSavedFilter(presetId));
 };
+useEffect(() => {
+  if (showPresetToast && navigator.vibrate) {
+    navigator.vibrate(20);
+  }
+}, [showPresetToast]);
+
 
   return (
     <PageTransition>
@@ -1200,6 +1221,16 @@ const handleDeletePreset = (presetId) => {
           defaultSemester={localFilters.semester}
           defaultSubject={localFilters.subject}
         />
+        <EmotionalToast
+  show={showPresetToast}
+  onClose={() => setShowPresetToast(false)}
+/>
+<DefaultPresetToast
+  show={showDefaultPresetToast}
+  onClose={() => setShowDefaultPresetToast(false)}
+/>
+
+
         {/* Planner Drawer (must be mounted) */}
         <StudyPreferenceDrawer isFirstTime={false} />
       </div>
