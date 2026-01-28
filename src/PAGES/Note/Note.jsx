@@ -1,5 +1,5 @@
 // src/pages/Note.jsx
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllNotes, setFilters, clearFilters, getNextNotesPage, resetPagination, getNoteStats, getSemesterPreviewNotes } from '../../REDUX/Slices/noteslice';
 import aktulogo from "../../../public/download.jpeg";
@@ -23,6 +23,20 @@ import BottomLoader from '../../COMPONENTS/Note/BottomLoader';
 import { useSearchParams } from "react-router-dom";
 import ActiveFilterPills from '../../COMPONENTS/Note/ActiveFilterPills';
 import ActiveFilterPillsRow from '../../COMPONENTS/Note/ActiveFilterPillsRow';
+import {
+  fetchSavedFilters,
+  createSavedFilter,
+  deleteSavedFilter,
+  setDefaultSavedFilter,
+  trackPresetUsage
+} from "../../REDUX/Slices/savedFilterSlice";
+
+import {
+  selectSavedFilters,
+  selectDefaultSavedFilter
+} from "../../REDUX/selectors/savedFilter.selectors";
+import SaveFilterPresetModal from '../../COMPONENTS/Note/SaveFilterPresetModal';
+import toast from 'react-hot-toast';
 // Icon components
 const FilterIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,6 +79,9 @@ export default function Note() {
   // In your component:
   const { allVideos: videos, loading: videoLoading } = useSelector(selectVideoLectureData);
   const { total, categories } = useSelector(state => state.note.stats);
+
+  const savedFilters = useSelector(selectSavedFilters);
+  const defaultSavedFilter = useSelector(selectDefaultSavedFilter);
   // const [localFilters, setLocalFilters] = useState({
   //   semester: filters.semester || '',
   //   subject: filters.subject || '',
@@ -89,11 +106,11 @@ export default function Note() {
   });
   const [localFilters, setLocalFilters] = useState(getFiltersFromURL);
   // 🔥 URL → state ONLY on first mount
-useEffect(() => {
-  const urlFilters = getFiltersFromURL();
-  setLocalFilters(urlFilters);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+  useEffect(() => {
+    const urlFilters = getFiltersFromURL();
+    setLocalFilters(urlFilters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const isOnlySemester =
     localFilters.semester &&
     !localFilters.subject &&
@@ -236,65 +253,65 @@ useEffect(() => {
     dispatch(getAllVideoLectures({ semester: localFilters.semester }));
 
   }, [localFilters.semester, localFilters.subject, localFilters.category, localFilters.unit]);
-const filterParams = { ...localFilters };
+  const filterParams = { ...localFilters };
 
-if (!['Notes', 'Handwritten Notes'].includes(filterParams.category)) {
-  delete filterParams.unit;
-}
+  if (!['Notes', 'Handwritten Notes'].includes(filterParams.category)) {
+    delete filterParams.unit;
+  }
 
-if (filterParams.category !== 'Video') {
-  delete filterParams.videoChapter;
-}
+  if (filterParams.category !== 'Video') {
+    delete filterParams.videoChapter;
+  }
 
- const handleFilterChange = (keyOrObject, value) => {
-  setLocalFilters(prev => {
-    let updated = { ...prev };
+  const handleFilterChange = (keyOrObject, value) => {
+    setLocalFilters(prev => {
+      let updated = { ...prev };
 
-    // ✅ Support object updates
-    if (typeof keyOrObject === 'object') {
-      updated = { ...updated, ...keyOrObject };
-    } else {
-      updated[keyOrObject] = value;
-    }
+      // ✅ Support object updates
+      if (typeof keyOrObject === 'object') {
+        updated = { ...updated, ...keyOrObject };
+      } else {
+        updated[keyOrObject] = value;
+      }
 
-    // 🔥 SUBJECT CHANGE → reset everything below
-    if (
-      (typeof keyOrObject === 'string' && keyOrObject === 'subject') ||
-      keyOrObject?.subject
-    ) {
-      updated.category = '';
-      updated.unit = '';
-      updated.videoChapter = '';
-    }
+      // 🔥 SUBJECT CHANGE → reset everything below
+      if (
+        (typeof keyOrObject === 'string' && keyOrObject === 'subject') ||
+        keyOrObject?.subject
+      ) {
+        updated.category = '';
+        updated.unit = '';
+        updated.videoChapter = '';
+      }
 
-    // 🔥 CATEGORY CHANGE → reset dependent filters
-    if (
-      (typeof keyOrObject === 'string' && keyOrObject === 'category') ||
-      keyOrObject?.category !== undefined
-    ) {
-      updated.unit = '';
-      updated.videoChapter = '';
-    }
+      // 🔥 CATEGORY CHANGE → reset dependent filters
+      if (
+        (typeof keyOrObject === 'string' && keyOrObject === 'category') ||
+        keyOrObject?.category !== undefined
+      ) {
+        updated.unit = '';
+        updated.videoChapter = '';
+      }
 
-    // 🔒 Guard rules
-    const UNIT_ALLOWED = ['Notes', 'Handwritten Notes'];
-    if (updated.unit && !UNIT_ALLOWED.includes(updated.category)) {
-      updated.unit = '';
-    }
+      // 🔒 Guard rules
+      const UNIT_ALLOWED = ['Notes', 'Handwritten Notes'];
+      if (updated.unit && !UNIT_ALLOWED.includes(updated.category)) {
+        updated.unit = '';
+      }
 
-    if (updated.videoChapter && updated.category !== 'Video') {
-      updated.videoChapter = '';
-    }
+      if (updated.videoChapter && updated.category !== 'Video') {
+        updated.videoChapter = '';
+      }
 
-    // 🔗 Sync URL
-    const params = Object.fromEntries(
-      Object.entries(updated).filter(([_, v]) => v)
-    );
-    setSearchParams(params);
+      // 🔗 Sync URL
+      const params = Object.fromEntries(
+        Object.entries(updated).filter(([_, v]) => v)
+      );
+      setSearchParams(params);
 
-    return updated;
-  });
-};
+      return updated;
+    });
+  };
   const handleClearFilters = () => {
     const resetFilters = {
       semester: '',
@@ -342,7 +359,7 @@ if (filterParams.category !== 'Video') {
 
     return matchesSearch && matchesChapter && matchesUploader;
   }) || [];
-  
+
   const getUniqueChapters = () => {
     const chapters = new Set();
     videos?.forEach(video => {
@@ -356,9 +373,9 @@ if (filterParams.category !== 'Video') {
   const uniqueChapters = getUniqueChapters();
 
 
-  
+
   const { allRequests: popularRequests, loading: requestsLoading } = useSelector((state) => state.request);
- 
+
   // Fetch popular requests for current semester
   useEffect(() => {
     if (localFilters.semester) {
@@ -370,7 +387,7 @@ if (filterParams.category !== 'Video') {
       }));
     }
   }, [localFilters.semester, dispatch]);
-  
+
   // ✅ FIXED: displayResources with COMPLETE debugging
   const displayResources = useMemo(() => {
     const category = localFilters.category?.trim();
@@ -405,7 +422,7 @@ if (filterParams.category !== 'Video') {
     return result;
   }, [filteredNotes, filteredVideos, localFilters.category, localFilters]);
 
-  
+
 
   // ✅ Ensure videos are being fetched when component mounts and category changes
   useEffect(() => {
@@ -416,9 +433,9 @@ if (filterParams.category !== 'Video') {
       }));
     }
   }, [localFilters.semester, dispatch]);
-  
 
-  
+
+
   const navigate = useNavigate();
   const isPreferencesSet = useSelector((state) => state.planner.isPreferencesSet);
   const ctaText = localFilters.subject
@@ -478,11 +495,11 @@ if (filterParams.category !== 'Video') {
     setLocalFilters(resetFilters);
     setSearchTerm(''); // Clear search term too
     // Reset pagination for new semester
-     // 🔥 CRITICAL
-  const params = Object.fromEntries(
-    Object.entries(resetFilters).filter(([_, v]) => v)
-  );
-  setSearchParams(params);
+    // 🔥 CRITICAL
+    const params = Object.fromEntries(
+      Object.entries(resetFilters).filter(([_, v]) => v)
+    );
+    setSearchParams(params);
     dispatch(resetPagination());
     dispatch(clearFilters());
   };
@@ -496,13 +513,72 @@ if (filterParams.category !== 'Video') {
     !loading &&
     !videoLoading &&
     !hasData;
-const uploaderMap = useMemo(() => {
-  const map = {};
-  uniqueUploaders.forEach(u => {
-    map[u.id] = u.name;
-  });
-  return map;
-}, [uniqueUploaders]);
+  const uploaderMap = useMemo(() => {
+    const map = {};
+    uniqueUploaders.forEach(u => {
+      map[u.id] = u.name;
+    });
+    return map;
+  }, [uniqueUploaders]);
+
+
+  useEffect(() => {
+    dispatch(fetchSavedFilters());
+  }, [dispatch]);
+  const defaultAppliedRef = useRef(false);
+  useEffect(() => {
+    if (
+      defaultAppliedRef.current ||
+      localFilters.semester ||          // user already interacted
+      !defaultSavedFilter?.filters
+    ) {
+      return;
+    }
+
+    defaultAppliedRef.current = true;
+
+    setLocalFilters(prev => ({
+      ...prev,
+      ...defaultSavedFilter.filters
+    }));
+
+    setSearchParams(
+      Object.fromEntries(
+        Object.entries(defaultSavedFilter.filters).filter(([_, v]) => v)
+      )
+    );
+  }, [defaultSavedFilter]);
+
+const [showSavePresetModal, setShowSavePresetModal] = useState(false);
+
+const handleSavePreset = ({ name, isDefault }) => {
+  const filtersToSave = Object.fromEntries(
+    Object.entries(localFilters).filter(([_, v]) => v)
+  );
+if (!filtersToSave.semester) {
+  toast.error("Select a semester before saving a preset");
+  return;
+}
+  dispatch(
+    createSavedFilter({
+      name,
+      filters: filtersToSave,
+      isDefault
+    })
+  );
+
+  setShowSavePresetModal(false);
+};
+
+const handleSetDefaultPreset = (presetId) => {
+  dispatch(setDefaultSavedFilter(presetId));
+};
+
+const handleDeletePreset = (presetId) => {
+  if (!window.confirm("Delete this preset?")) return;
+  dispatch(deleteSavedFilter(presetId));
+};
+
   return (
     <PageTransition>
       <div className="min-h-screen bg-neutral-950 text-white">
@@ -585,6 +661,27 @@ const uploaderMap = useMemo(() => {
             subjectsBySemester={subjectsBySemester}
             uniqueChapters={uniqueChapters}
             uniqueUploaders={uniqueUploaders}
+            // ✅ NEW: presets data
+            savedFilters={savedFilters}
+            defaultSavedFilter={defaultSavedFilter}
+            handleDeletePreset={handleDeletePreset}
+            handleSetDefaultPreset={handleSetDefaultPreset}
+            onApplySavedFilter={(preset) => {
+              setLocalFilters(prev => ({
+                ...prev,
+                ...preset.filters
+              }));
+
+              setSearchParams(
+                Object.fromEntries(
+                  Object.entries(preset.filters).filter(([_, v]) => v)
+                )
+              );
+
+              dispatch(trackPresetUsage(preset._id));
+            }}
+            //  onSaveCurrentFilters={onSaveCurrentFilters}   // ✅ ADD THIS
+            onOpenSavePresetModal={()=>setShowSavePresetModal(true)}
             isPreferencesSet={isPreferencesSet}
             navigate={navigate}
             dispatch={dispatch}
@@ -598,15 +695,20 @@ const uploaderMap = useMemo(() => {
               categories
             }}
           />
+          <SaveFilterPresetModal
+  isOpen={showSavePresetModal}
+  onClose={() => setShowSavePresetModal(false)}
+  onSave={handleSavePreset}
+/>
 
 
           {/* ✨ UPDATED: Stats Section - Include Video Count */}
-       
-<ActiveFilterPillsRow
-  localFilters={localFilters}
-  handleFilterChange={handleFilterChange}
-  uploaderMap={uploaderMap}
-/>
+
+          <ActiveFilterPillsRow
+            localFilters={localFilters}
+            handleFilterChange={handleFilterChange}
+            uploaderMap={uploaderMap}
+          />
 
 
 

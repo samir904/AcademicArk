@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Filter, X, Check, CalendarCog } from 'lucide-react';
+import { Filter, X, Check, CalendarCog, Star } from 'lucide-react';
 import { getSubjectShortName } from '../../UTILS/subjectShortName';
+import SavedFilterPresetsDropdown from './SavedFilterPresetsDropdown';
+import { PresetBottomSheet } from './PresetBottomShee';
 
 /**
  * FIXED: Stats Section with Subject-Based Video Filtering
@@ -20,6 +22,15 @@ export default function ResourceFilter({
   subjectsBySemester,
   uniqueChapters,
   uniqueUploaders,
+  /* ✅ PRESETS */
+  savedFilters = [],
+  defaultSavedFilter,
+  onApplySavedFilter,
+  // onSaveCurrentFilters,   // ✅ ADD THIS
+  onOpenSavePresetModal,
+  handleDeletePreset,
+  handleSetDefaultPreset,
+
   isPreferencesSet,
   navigate,
   dispatch,
@@ -35,6 +46,8 @@ export default function ResourceFilter({
     : isPreferencesSet
       ? "Continue my study plan →"
       : "Study in order →";
+
+      const [isPresetsOpen,setIsPresetsOpen]=useState(false);
 
   // ✨ FIXED: Calculate category stats with proper subject filtering
   // const getCategoryStats = useMemo(() => {
@@ -189,31 +202,110 @@ const [showMoreFilters, setShowMoreFilters] = useState(false);
     };
     return configs[category] || configs['Notes'];
   };
+  const isMobile = useMemo(
+  () => window.matchMedia("(max-width: 639px)").matches,
+  []
+);
+const handlePresetsClick = () => {
+  setIsPresetsOpen(true);
+};
   return (
     <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl p-6 mb-8 space-y-6">
-      {/* HEADER SECTION */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#1F1F1F] rounded-lg flex items-center justify-center">
-            <Filter className="w-5 h-5 text-[#9CA3AF]" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-white">Filter Resources</h2>
-            <p className="text-xs text-[#4B5563] mt-1">Find exactly what you need</p>
-          </div>
-        </div>
+   {/* ================= HEADER ================= */}
+<div
+  className="
+    flex flex-col gap-4
+    sm:flex-row sm:items-center sm:justify-between
+  "
+>
+  {/* LEFT: Title */}
+  <div className="flex items-center gap-3">
+    <div className="w-10 h-10 bg-[#1F1F1F] rounded-lg flex items-center justify-center shrink-0">
+      <Filter className="w-5 h-5 text-[#9CA3AF]" />
+    </div>
 
-        {hasActiveFilters && (
-          <button
-            onClick={handleClearFilters}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 bg-[#1F1F1F] text-[#9CA3AF] hover:text-white hover:bg-[#2F2F2F] rounded-lg transition-all duration-200"
-            title="Clear all filters"
-          >
-            <X className="w-3 h-3" />
-            Clear All
-          </button>
-        )}
-      </div>
+    <div className="min-w-0">
+      <h2 className="text-lg font-semibold text-white leading-tight">
+        Filter Resources
+      </h2>
+      <p className="text-xs text-[#4B5563] mt-0.5">
+        Find exactly what you need
+      </p>
+    </div>
+  </div>
+
+  {/* RIGHT: Actions */}
+  <div
+    className="
+      flex items-center gap-2
+      flex-wrap
+      sm:flex-nowrap
+    "
+  >
+    {/* ===== PRESETS UI LAYER ===== */}
+
+{/* Desktop dropdown */}
+{!isMobile && (
+  <SavedFilterPresetsDropdown
+    savedFilters={savedFilters}
+    onApplyPreset={onApplySavedFilter}
+    onOpenSaveModal={onOpenSavePresetModal}
+    onSetDefaultPreset={handleSetDefaultPreset}
+    onDeletePreset={handleDeletePreset}
+    isOpen={isPresetsOpen}
+    setIsOpen={setIsPresetsOpen}
+  />
+)}
+
+{/* Mobile bottom sheet */}
+{isMobile && (
+  <PresetBottomSheet
+    isOpen={isPresetsOpen}
+    onClose={() => setIsPresetsOpen(false)}
+    savedFilters={savedFilters}
+    onApplyPreset={onApplySavedFilter}
+    onSetDefaultPreset={handleSetDefaultPreset}
+    onDeletePreset={handleDeletePreset}
+    onOpenSaveModal={onOpenSavePresetModal}
+  />
+)}
+<button
+  onClick={handlePresetsClick}
+  className="
+  md:hidden
+    flex items-center gap-2 px-3 py-1.5
+    text-xs font-semibold rounded-lg
+    bg-[#1F1F1F] border border-[#2F2F2F]
+    text-[#9CA3AF] hover:text-white
+  "
+>
+  <Star className="w-3.5 h-3.5 text-yellow-400" />
+  Presets
+</button>
+    {hasActiveFilters && (
+      <button
+        onClick={handleClearFilters}
+        className="
+          flex items-center gap-1.5
+          text-xs font-medium
+          px-2.5 py-1.5 sm:px-3
+          bg-[#1F1F1F]
+          text-[#9CA3AF]
+          hover:text-white hover:bg-[#2F2F2F]
+          rounded-lg
+          transition-all
+          whitespace-nowrap
+        "
+        title="Clear all filters"
+      >
+        <X className="w-3 h-3" />
+        Clear All
+      </button>
+    )}
+  </div>
+</div>
+{/* ========================================== */}
+
 
       {/* SEMESTER SELECTION - DESKTOP */}
       <div className="hidden md:block space-y-4">
@@ -483,7 +575,7 @@ const [showMoreFilters, setShowMoreFilters] = useState(false);
                     Step 4: Choose Unit
                   </h3>
                   <p className="text-xs text-[#4B5563]">
-                    Filter notes by unit
+                    Optional — filter notes by unit 
                   </p>
                 </div>
               </div>
@@ -749,14 +841,46 @@ const [showMoreFilters, setShowMoreFilters] = useState(false);
         </div>
       )}
       
-      {/* EMPTY STATE */}
-      {!localFilters.semester && (
-        <div className="text-center py-4 px-4 bg-[#1F1F1F]/40 border border-[#1F1F1F] rounded-lg">
-          <p className="text-sm text-[#9CA3AF] font-medium mb-1">👆 Select a semester first</p>
-          <p className="text-xs text-[#4B5563]">Materials will appear once you choose</p>
-        </div>
-      )}
+     {/* EMPTY STATE */}
+{!localFilters.semester && (
+  <div className="
+    text-center
+    py-6 px-4
+    bg-[#1F1F1F]/40
+    border border-[#1F1F1F]
+    rounded-xl
+    space-y-3
+  ">
+    <p className="text-sm font-semibold text-[#E5E7EB]">
+      Start your study flow
+    </p>
 
+    <p className="text-xs text-[#9CA3AF] leading-relaxed">
+      Select a semester to explore materials
+      <br />
+      or quickly apply a saved preset.
+    </p>
+
+    {/* Subtle shortcut */}
+    <button
+      onClick={() => {
+        setIsPresetsOpen(true)
+      }}
+      className="
+        text-xs
+        font-semibold
+        text-yellow-400
+        hover:text-yellow-300
+        transition
+        inline-flex
+        items-center
+        gap-1
+      "
+    >
+      ⭐ View saved presets
+    </button>
+  </div>
+)}
   
     </div>
   );

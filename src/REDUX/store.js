@@ -21,6 +21,7 @@ import academicProfileReducer from "./Slices/academicProfileSlice.js"
  import homepageReducer from './Slices/homepageSlice.js'
  import sessionReducer from './Slices/sessionSlice.js'
  import plannerReducer from './Slices/plannerSlice.js'
+ import savedFilterReducer from './Slices/savedFilterSlice.js'
  
 import adminAnalyticsReducer from './Slices/adminAnalyticsSlice.js'
 //  import videoReducer from './Slices/videoSlice.js'
@@ -51,6 +52,7 @@ const store = configureStore({
     home:homepageReducer,
     session: sessionReducer,
     planner: plannerReducer,
+    savedFilters: savedFilterReducer,
     
     adminAnalytics:adminAnalyticsReducer
     //  video: videoReducer,
