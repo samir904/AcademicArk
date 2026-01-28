@@ -30,7 +30,11 @@ export function PresetBottomSheet({
             onClose(); // swipe down detected
         }
     };
-    
+    const haptic = (ms = 10) => {
+        if (navigator.vibrate) {
+            navigator.vibrate(ms);
+        }
+    };
     return (
         <div className="fixed inset-0 z-50 sm:hidden">
             {/* Backdrop */}
@@ -89,6 +93,7 @@ export function PresetBottomSheet({
                         >
                             <button
                                 onClick={() => {
+                                    haptic(10);
                                     onApplyPreset(preset);
                                     onClose();
                                 }}
@@ -111,10 +116,35 @@ export function PresetBottomSheet({
                                     </button>
                                 )}
                                 <button
-                                    onClick={() => onDeletePreset(preset._id)}
+                                    onClick={() => {
+                                        haptic(20);
+                                        onDeletePreset(preset._id);
+                                    }}
                                     className="text-red-400"
                                 >
                                     Delete
+                                </button>
+                            </div>
+                            {/* FOOTER ACTION */}
+                            <div className="sticky bottom-0 pt-3 mt-4 bg-[#0F0F0F] border-t border-[#1F1F1F]">
+                                <button
+                                    onClick={() => {
+                                        haptic(10);
+                                        onOpenSaveModal();
+                                    }}
+                                    className="
+      w-full
+      py-3
+      rounded-xl
+      text-sm
+      font-semibold
+      bg-yellow-400/10
+      text-yellow-400
+      hover:bg-yellow-400/20
+      transition
+    "
+                                >
+                                    + Save current filters
                                 </button>
                             </div>
                         </div>
