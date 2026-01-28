@@ -209,6 +209,11 @@ const [showMoreFilters, setShowMoreFilters] = useState(false);
 const handlePresetsClick = () => {
   setIsPresetsOpen(true);
 };
+ const haptic = (ms = 10) => {
+  if (navigator.vibrate) {
+    navigator.vibrate(ms);
+  }
+};
   return (
     <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl p-6 mb-8 space-y-6">
    {/* ================= HEADER ================= */}
@@ -261,7 +266,10 @@ const handlePresetsClick = () => {
 {isMobile && (
   <PresetBottomSheet
     isOpen={isPresetsOpen}
-    onClose={() => setIsPresetsOpen(false)}
+    onClose={() => {
+  haptic(5);
+  setIsPresetsOpen(false);
+}}
     savedFilters={savedFilters}
     onApplyPreset={onApplySavedFilter}
     onSetDefaultPreset={handleSetDefaultPreset}
