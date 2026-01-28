@@ -30,11 +30,7 @@ export function PresetBottomSheet({
             onClose(); // swipe down detected
         }
     };
-    const haptic = (ms = 10) => {
-  if (navigator.vibrate) {
-    navigator.vibrate(ms);
-  }
-};
+    
     return (
         <div className="fixed inset-0 z-50 sm:hidden">
             {/* Backdrop */}
@@ -93,7 +89,6 @@ export function PresetBottomSheet({
                         >
                             <button
                                 onClick={() => {
-                                    haptic(10);
                                     onApplyPreset(preset);
                                     onClose();
                                 }}
@@ -116,9 +111,7 @@ export function PresetBottomSheet({
                                     </button>
                                 )}
                                 <button
-                                    onClick={() => {
-                                        haptic(20);
-                                        onDeletePreset(preset._id)}}
+                                    onClick={() => onDeletePreset(preset._id)}
                                     className="text-red-400"
                                 >
                                     Delete
