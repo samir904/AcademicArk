@@ -390,16 +390,16 @@ export const EditProfileSkeleton = () => (
 export const SearchSkeleton = () => (
   <div className="min-h-screen p-4 space-y-4 animate-pulse bg-[#0A0A0A]">
     {/* Search Bar */}
-    <div className="mb-8 sticky top-0 z-10">
+    {/* <div className="mb-8 sticky top-0 z-10">
       <div className="h-12 bg-[#0F0F0F] rounded-full border border-[#1F1F1F]" />
-    </div>
+    </div> */}
 
     {/* Filter Tags */}
-    <div className="flex flex-wrap gap-2 mb-8">
+    {/* <div className="flex flex-wrap gap-2 mb-8">
       {[...Array(6)].map((_, i) => (
         <div key={i} className="h-8 bg-[#2A2A2A] rounded-full w-20" />
       ))}
-    </div>
+    </div> */}
 
     {/* Results Header */}
     <div className="h-6 bg-[#2A2A2A] rounded-lg w-1/3 mb-4" />
