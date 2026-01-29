@@ -86,6 +86,7 @@ export default function AdvancedSearch() {
     });
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+    const [hasSubmitted, setHasSubmitted] = useState(false);
 
     // Auto-focus search on mount
     useEffect(() => {
@@ -185,6 +186,7 @@ const queryFromURL = searchParams.get("query") || "";
 useEffect(() => {
   if (!queryFromURL.trim()) {
     dispatch(clearSearch());
+    setHasSubmitted(false); // 🔥 reset
     return;
   }
 
@@ -196,6 +198,7 @@ useEffect(() => {
   dispatch(setSearchQuery(queryFromURL));
   dispatch(setFilters(filters));
   dispatch(searchNotes(filters));
+  setHasSubmitted(true); // 🔥 THIS IS THE KEY
 }, [queryFromURL, searchParams, dispatch]);
 const query = queryFromURL.toLowerCase();
 
@@ -321,6 +324,11 @@ const Icon = CATEGORY_ICON_MAP[category];
   );
 };
 
+const MIN_QUERY_LENGTH = 2;
+
+const isValidQuery =
+  searchQuery &&
+  searchQuery.trim().length >= MIN_QUERY_LENGTH;
 
     return (
         <PageTransition>
@@ -431,7 +439,7 @@ const Icon = CATEGORY_ICON_MAP[category];
 )}
 
                     {/* EMPTY RESULTS STATE */}
-{!loading && searchQuery && searchResults.length === 0 && (
+{!loading && hasSubmitted && searchResults.length === 0 && (
   <div className="text-center py-20 max-w-xl mx-auto">
     
     {/* Icon */}
@@ -495,6 +503,12 @@ const Icon = CATEGORY_ICON_MAP[category];
     </p>
   </div>
 )}
+{!loading && searchQuery.trim().length > 0 && searchQuery.trim().length < 2 && (
+  <p className="text-center text-xs text-gray-500 mt-12">
+    Keep typing… try subject + type (e.g. <span className="text-gray-300">DS notes</span>)
+  </p>
+)}
+
 
                 </div>
 
