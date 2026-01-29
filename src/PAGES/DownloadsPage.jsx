@@ -245,7 +245,7 @@ const DownloadsPage = () => {
                 placeholder="Search by title or subject..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-[#1F1F1F] border border-[#1F1F1F] hover:border-[#2F2F2F] focus:border-[#9CA3AF] rounded-lg text-white placeholder-[#9CA3AF]/50 focus:outline-none focus:ring-1 focus:ring-[#9CA3AF]/20 transition-all duration-300"
+                className="w-full pl-12 pr-4 py-3 bg-[#1F1F1F] border border-[#1F1F1F] hover:border-[#2F2F2F] focus:border-[#9CA3AF] rounded-full text-white placeholder-[#9CA3AF]/50 focus:outline-none focus:ring-1 focus:ring-[#9CA3AF]/20 transition-all duration-300"
               />
             </div>
             {searchTerm && filteredPDFs.length === 0 && (

@@ -17,10 +17,19 @@ import EnhancedFooter from "./EnhancedFooter";
 import FeedbackForm from "../COMPONENTS/FeedbackForm";
 import PWAInstallPrompt from "../COMPONENTS/PWAInstallPrompt";
 import OfflineModal from "../COMPONENTS/OfflineModal";
-import { Trophy, CalendarCog } from "lucide-react";
+import { Trophy, CalendarCog, CircleArrowDown } from "lucide-react";
 import MobileNavigation from "../COMPONENTS/Homepage/MobileNavigation";
 import { AnimatePresence } from "framer-motion";
 import ScrollRestoration from "../COMPONENTS/ScrollRestoration";
+import {
+  Home,
+  Search,
+  Library,
+  Calendar,
+  Download
+} from "lucide-react";
+import { setSearchQuery } from "../REDUX/Slices/searchSlice";
+
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -373,7 +382,7 @@ const HomeLayout = () => {
     const baseItems = [
       { name: "Home", path: "/", icon: "🏠" },
       { name: "Library", path: "/notes", icon: "📚" },
-      { name: "Search", path: "/search", icon: "📖" },
+      // { name: "Search", path: "/search", icon: "📖" },
       { name: "Planner", path: "/planner", icon: "📘" },
 
       // { name: "Leaderboard", path: "/leaderboard", icon: "🏆" },  // ✨ NEW
@@ -398,69 +407,69 @@ const HomeLayout = () => {
   };
 
   // Spotify-style mobile navigation
-  const getMobileNavItems = () => {
-    const baseItems = [
-      {
-        name: "Home",
-        path: "/",
-        icon: HomeIcon,
-        label: "Home",
-      },
-      {
-        name: "Search",
-        path: "/search",
-        icon: SearchIcon,
-        label: "Search",
-      },
-      {
-        name: "Library",
-        path: "/notes",
-        icon: LibraryIcon,
-        label: "Library",
-      },
-      { name: "Planner", label: "Planner", path: "/planner", icon: CalendarCog },
-      //     {
-      //   name: "Leaderboard",  // ✨ NEW
-      //   path: "/leaderboard",
-      //   icon: Trophy,  // or import LeaderboardIcon if you have one
-      //   label: "Board",
-      // },
-      {
-        name: "Attendance",
-        path: "/attendance",
-        icon: AttendanceIcon,
-        label: "Attend",
-      }, // ✨ MOVED: Always show
-      {
-        name: "Downloads",
-        path: "/downloads",
-        icon: DownloadIcon,
-        label: "Download",
-      }
+  // const getMobileNavItems = () => {
+  //   const baseItems = [
+  //     {
+  //       name: "Home",
+  //       path: "/",
+  //       icon: HomeIcon,
+  //       label: "Home",
+  //     },
+  //     {
+  //       name: "Search",
+  //       path: "/search",
+  //       icon: SearchIcon,
+  //       label: "Search",
+  //     },
+  //     {
+  //       name: "Library",
+  //       path: "/notes",
+  //       icon: LibraryIcon,
+  //       label: "Library",
+  //     },
+  //     { name: "Planner", label: "Planner", path: "/planner", icon: CalendarCog },
+  //     //     {
+  //     //   name: "Leaderboard",  // ✨ NEW
+  //     //   path: "/leaderboard",
+  //     //   icon: Trophy,  // or import LeaderboardIcon if you have one
+  //     //   label: "Board",
+  //     // },
+  //     {
+  //       name: "Attendance",
+  //       path: "/attendance",
+  //       icon: AttendanceIcon,
+  //       label: "Attend",
+  //     }, // ✨ MOVED: Always show
+  //     {
+  //       name: "Downloads",
+  //       path: "/downloads",
+  //       icon: DownloadIcon,
+  //       label: "Download",
+  //     }
 
-    ];
+  //   ];
 
-    // Add role-specific navigation
-    if (isLoggedIn) {
-      if (role === "ADMIN") {
-        baseItems.push({
-          name: "Dashboard",
-          path: "/admin",
-          icon: DashboardIcon,
-          label: "Dash",
-        });
-      } else if (role === "TEACHER") {
-        baseItems.push({
-          name: "Upload",
-          path: "/upload",
-          icon: UploadIcon,
-          label: "Upload",
-        });
-      }
-    }
+  //   // Add role-specific navigation
+  //   if (isLoggedIn) {
+  //     if (role === "ADMIN") {
+  //       baseItems.push({
+  //         name: "Dashboard",
+  //         path: "/admin",
+  //         icon: DashboardIcon,
+  //         label: "Dash",
+  //       });
+  //     } else if (role === "TEACHER") {
+  //       baseItems.push({
+  //         name: "Upload",
+  //         path: "/upload",
+  //         icon: UploadIcon,
+  //         label: "Upload",
+  //       });
+  //     }
+  //   }
 
-    return baseItems;
-  };
+  //   return baseItems;
+  // };
   // ✨ NEW: Check academic profile on mount
   useEffect(() => {
     if (isLoggedIn) {
@@ -477,6 +486,22 @@ const HomeLayout = () => {
 
     return () => clearTimeout(timer);
   }, []);
+  const query = useSelector(state => state.search.query);
+
+const handleSearchChange = (e) => {
+  const value = e.target.value;
+
+  dispatch(setSearchQuery(value));
+
+  // 🔥 auto-open search page
+  if (location.pathname !== "/search") {
+    navigate("/search");
+  }
+};
+const isActive = (path) => location.pathname === path;
+
+const isSearchPage = location.pathname === "/search";
+
   return (
     <>
       {/* <OfflineRedirect/> */}
@@ -525,26 +550,181 @@ const HomeLayout = () => {
                 </div>
               </Link>
 
-              {/* Enhanced Desktop Navigation */}
-              <div className="flex items-center space-x-2 bg-white/5 backdrop-blur-xl rounded-full p-2 border border-white/10">
-                {getNavigationItems()
-                  .slice(0, 10)
-                  .map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.path}
-                      className={`relative px-6 py-2.5 text-sm font-medium rounded-full transition-all duration-300 ${isActiveLink(item.path)
-                        ? "text-black bg-white shadow-lg"
-                        : "text-gray-400 hover:text-white hover:bg-white/10"
-                        }`}
-                    >
-                      {item.name}
-                      {isActiveLink(item.path) && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-lg"></div>
-                      )}
-                    </Link>
-                  ))}
-              </div>
+           <div className="flex items-center gap-2 bg-transparent backdrop-blur-xl rounded-full p-2 border border-transparent">
+
+  {/* HOME */}
+
+
+ <div className="flex flex-col items-center gap-1">
+  <Link
+    to="/"
+   className={`
+      flex items-center justify-center
+      w-11 h-11 rounded-full transition-all duration-300
+      ${isActive("/")
+        ? "bg-white text-black shadow-md"
+        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
+    `}
+  >
+    <Home size={22} />
+  </Link>
+
+  <span
+    className={`
+      text-[10px] leading-none
+      ${isActive("/") ? "text-white" : "text-gray-400"}
+    `}
+  >
+    Home
+  </span>
+</div>
+
+  {/* SEARCH INPUT */}
+ {/* SEARCH INPUT */}
+<form
+  onSubmit={(e) => {
+    e.preventDefault();
+    if (query?.trim()) {
+      navigate(`/search?query=${encodeURIComponent(query)}`);
+    }
+  }}
+  className="mx-1 focus:outline-none focus:ring-0"
+>
+  <div className="flex flex-col items-center gap-1">
+    <div className="relative">
+      {/* LEFT ICON */}
+      <Search
+        size={16}
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+      />
+
+      {/* INPUT */}
+      <input
+        type="text"
+        value={query || ""}
+        onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+        placeholder="Search DBMS, OS, PYQs…"
+        className="
+          w-100 h-11
+          pl-9 pr-10
+          bg-[#1F1F1F]
+          border border-white/10
+          rounded-full
+          text-sm text-white
+          placeholder-gray-500
+          outline-none ring-0
+          focus:border-white/20
+        "
+      />
+
+      {/* RIGHT SEARCH BUTTON */}
+      {query?.trim() && (
+        <button
+          type="submit"
+          className="
+            absolute right-2 top-1/2 -translate-y-1/2
+            w-7 h-7
+            flex items-center justify-center
+            rounded-full
+            bg-white/10
+            text-white
+            hover:bg-white/20
+            active:scale-95
+            transition
+          "
+          aria-label="Search"
+        >
+          <Search size={14} />
+        </button>
+      )}
+    </div>
+
+    {/* invisible spacer to align with icon+label nav items */}
+    <span className="text-[10px] leading-none opacity-0 select-none">
+      Search
+    </span>
+  </div>
+</form>
+
+
+ <div className="flex flex-col items-center gap-1">
+  <Link
+    to="/notes"
+    className={`
+      flex items-center justify-center
+      w-10 h-10 rounded-full transition
+      ${isActive("/notes")
+        ? "bg-white text-black shadow-md"
+        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
+    `}
+  >
+    <Library size={22} />
+  </Link>
+
+  <span
+    className={`
+      text-[10px] leading-none
+      ${isActive("/notes") ? "text-white" : "text-gray-400"}
+    `}
+  >
+    Library
+  </span>
+</div>
+
+{/* PLANNER */}
+ <div className="flex flex-col items-center gap-1">
+  <Link
+    to="/planner"
+    className={`
+      flex items-center justify-center
+      w-10 h-10 rounded-full transition
+       ${isActive("/planner")
+        ? "bg-white text-black shadow-md"
+        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
+    `}
+  >
+    <CalendarCog size={22} />
+  </Link>
+
+  <span
+    className={`
+      text-[10px] leading-none
+      ${isActive("/planner") ? "text-white" : "text-gray-400"}
+    `}
+  >
+    Planner
+  </span>
+</div>
+  
+ 
+  {/* DOWNLOADS */}
+
+ <div className="flex flex-col items-center gap-1">
+  <Link
+    to="/downloads"
+    className={`
+      flex items-center justify-center
+      w-10 h-10 rounded-full transition
+       ${isActive("/downloads")
+        ? "bg-white text-black shadow-md"
+        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
+    `}
+  >
+    <CircleArrowDown size={22} />
+  </Link>
+
+  <span
+    className={`
+      text-[10px] leading-none
+      ${isActive("/downloads") ? "text-white" : "text-gray-400"}
+    `}
+  >
+    Download
+  </span>
+</div>
+ 
+</div>
+
 
               {/* Desktop Auth Section */}
               <div className="flex items-center space-x-4">
@@ -715,28 +895,90 @@ const HomeLayout = () => {
         </header>
 
         {/* Spotify-Style Mobile Header */}
-        <header className="md:hidden fixed top-0 w-full z-50 bg-black/95 backdrop-blur-2xl border-b border-white/5">
-          <div className="flex items-center justify-between px-4 h-16">
-            {/* Profile/Menu Button */}
+<header className="md:hidden fixed top-0 w-full z-50 bg-black/95 backdrop-blur-2xl border-b border-white/5">
+  <div className="flex items-center justify-between px-4 h-16 gap-3">
 
-            {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-white to-gray-200 rounded-lg flex items-center justify-center">
-                <span className="text-black font-bold text-sm">A</span>
-              </div>
-              <span className="font-bold text-lg text-white">AcademicArk</span>
-            </Link>
+    {/* LEFT SIDE */}
+    {!isSearchPage ? (
+      /* LOGO (non-search pages) */
+      <Link to="/" className="flex items-center space-x-2">
+        <div className="w-8 h-8 bg-gradient-to-br from-white to-gray-200 rounded-lg flex items-center justify-center">
+          <span className="text-black font-bold text-sm">A</span>
+        </div>
+        <span className="font-bold text-lg text-white">AcademicArk</span>
+      </Link>
+    ) : (
+      /* SEARCH INPUT (search page only) */
+      <form
+  onSubmit={(e) => {
+    e.preventDefault();
+    if (query?.trim()) {
+      navigate(`/search?query=${encodeURIComponent(query)}`);
+    }
+  }}
+  className="flex-1"
+>
+  <div className="relative">
+    {/* LEFT ICON */}
+    <Search
+      size={16}
+      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+    />
 
-            {/* Notifications / Login Button */}
-            {isLoggedIn ? (
-              <button className="p-2">
-                {/* Placeholder for notifications */}
-              </button>
-            ) : (
-              <MovingBorderLoginButton />
-            )}
-          </div>
-        </header>
+    {/* INPUT */}
+    <input
+      type="text"
+      value={query || ""}
+      onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+      placeholder="Search DBMS, OS, PYQs…"
+      className="
+        w-full h-10
+        pl-9 pr-10
+        bg-[#1F1F1F]
+        border border-white/10
+        rounded-full
+        text-sm text-white
+        placeholder-gray-500
+        outline-none ring-0
+        focus:border-white/20
+      "
+    />
+
+    {/* RIGHT SEARCH BUTTON */}
+    {query?.trim() && (
+      <button
+        type="submit"
+        className="
+          absolute right-2 top-1/2 -translate-y-1/2
+          w-7 h-7
+          flex items-center justify-center
+          rounded-full
+          bg-white/10
+          text-white
+          active:scale-95
+          transition
+        "
+        aria-label="Search"
+      >
+        <Search size={14} />
+      </button>
+    )}
+  </div>
+</form>
+
+    )}
+
+    {/* RIGHT SIDE */}
+    {isLoggedIn ? (
+      <button className="p-2">
+        {/* notification / avatar later */}
+      </button>
+    ) : (
+      <MovingBorderLoginButton />
+    )}
+  </div>
+</header>
+
         {/* ✨ NEW: Floating Feedback Button */}
         {/* ✨ NEW: Floating Feedback Button with Text (Desktop Only) */}
         <div className="hidden md:flex flex-col items-end gap-3 fixed bottom-6 right-6 z-40">

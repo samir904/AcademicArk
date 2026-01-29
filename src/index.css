@@ -78,6 +78,10 @@
 .animate-pulse-subtle {
   animation: pulse-subtle 1.6s ease-in-out infinite;
 }
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 @keyframes slideUp {
   from {
     transform: translateY(100%);
@@ -360,14 +364,24 @@ html {
 }
 
 /* Custom focus styles */
+/* Custom focus styles – buttons & links only */
 button:focus,
-a:focus,
-input:focus,
-select:focus,
-textarea:focus {
+a:focus {
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
+
+/* 🔥 Explicitly disable input outlines */
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 
 /* Smooth transitions for all interactive elements */
 a, button, input, select, textarea {

@@ -41,6 +41,9 @@ export const getPopularNotes = createAsyncThunk('/search/getPopularNotes', async
 const initialState = {
     loading: false,
     error: null,
+    // 🔥 ADD THIS
+    query: "",
+
     searchResults: [],
     trendingNotes: [],
     popularNotes: [],
@@ -52,42 +55,28 @@ const initialState = {
 const searchSlice = createSlice({
     name: 'search',
     initialState,
-    reducers: {
-        clearSearch: (state) => {
-            state.searchResults = [];
-            state.pagination = null;
-            state.filters = {};
-            state.error = null;
-        },
-        setFilters: (state, action) => {
-            state.filters = { ...state.filters, ...action.payload };
-        },
-        clearError: (state) => {
-            state.error = null;
-        },
-        // ADD THIS - Update bookmark in search results
-        // updateBookmarkInSearchResults: (state, action) => {
-        //     const { noteId, bookmarkedBy } = action.payload;
-            
-        //     // Update in searchResults
-        //     const searchIndex = state.searchResults.findIndex(n => n._id === noteId);
-        //     if (searchIndex !== -1) {
-        //         state.searchResults[searchIndex].bookmarkedBy = bookmarkedBy;
-        //     }
-            
-        //     // Update in trendingNotes
-        //     const trendingIndex = state.trendingNotes.findIndex(n => n._id === noteId);
-        //     if (trendingIndex !== -1) {
-        //         state.trendingNotes[trendingIndex].bookmarkedBy = bookmarkedBy;
-        //     }
-            
-        //     // Update in popularNotes
-        //     const popularIndex = state.popularNotes.findIndex(n => n._id === noteId);
-        //     if (popularIndex !== -1) {
-        //         state.popularNotes[popularIndex].bookmarkedBy = bookmarkedBy;
-        //     }
-        // }
-    },
+   reducers: {
+  setSearchQuery: (state, action) => {
+    state.query = action.payload;
+  },
+
+  clearSearch: (state) => {
+    state.query = "";
+    state.searchResults = [];
+    state.pagination = null;
+    state.filters = {};
+    state.error = null;
+  },
+
+  setFilters: (state, action) => {
+    state.filters = { ...state.filters, ...action.payload };
+  },
+
+  clearError: (state) => {
+    state.error = null;
+  }
+},
+
     extraReducers: (builder) => {
         builder
             // Search Notes
@@ -135,5 +124,5 @@ const searchSlice = createSlice({
     }
 });
 
-export const { clearSearch, setFilters, clearError } = searchSlice.actions;
+export const { clearSearch,setSearchQuery, setFilters, clearError } = searchSlice.actions;
 export default searchSlice.reducer;
