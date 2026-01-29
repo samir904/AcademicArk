@@ -719,7 +719,7 @@ const isSearchPage = location.pathname === "/search";
       ${isActive("/downloads") ? "text-white" : "text-gray-400"}
     `}
   >
-    Download
+    Downloads
   </span>
 </div>
  
