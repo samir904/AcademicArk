@@ -28,7 +28,8 @@ import {
   Calendar,
   Download
 } from "lucide-react";
-import { setSearchQuery } from "../REDUX/Slices/searchSlice";
+import { clearSearch, resetResultsOnly, setSearchQuery } from "../REDUX/Slices/searchSlice";
+import { logFailedSearchAction } from "../REDUX/Slices/failedSearchSlice";
 
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
@@ -378,98 +379,6 @@ const HomeLayout = () => {
     }
   };
 
-  const getNavigationItems = () => {
-    const baseItems = [
-      { name: "Home", path: "/", icon: "🏠" },
-      { name: "Library", path: "/notes", icon: "📚" },
-      // { name: "Search", path: "/search", icon: "📖" },
-      { name: "Planner", path: "/planner", icon: "📘" },
-
-      // { name: "Leaderboard", path: "/leaderboard", icon: "🏆" },  // ✨ NEW
-      // { name: "Attendance", path: "/attendance", icon: "📊" }, // ✨ MOVED: Always show
-      { name: "Downloads", path: "/downloads", icon: "📥" }
-
-      // {name:'Study Buddy', path:'/study-buddy',icon:''},
-      // {name:'Study Planner',path:'/study-planner',icon:''}
-    ];
-    // ✨ ADD ATTENDANCE FOR LOGGED-IN USERS
-    if (isLoggedIn) {
-      if (role === "ADMIN") {
-        baseItems.push(
-          // { name: 'Upload', path: '/upload', icon: '📤' },
-          { name: "Dashboard", path: "/admin", icon: "⚡" }
-        );
-      } else if (role === "TEACHER") {
-        baseItems.push({ name: "Upload", path: "/upload", icon: "📤" });
-      }
-    }
-    return baseItems;
-  };
-
-  // Spotify-style mobile navigation
-  // const getMobileNavItems = () => {
-  //   const baseItems = [
-  //     {
-  //       name: "Home",
-  //       path: "/",
-  //       icon: HomeIcon,
-  //       label: "Home",
-  //     },
-  //     {
-  //       name: "Search",
-  //       path: "/search",
-  //       icon: SearchIcon,
-  //       label: "Search",
-  //     },
-  //     {
-  //       name: "Library",
-  //       path: "/notes",
-  //       icon: LibraryIcon,
-  //       label: "Library",
-  //     },
-  //     { name: "Planner", label: "Planner", path: "/planner", icon: CalendarCog },
-  //     //     {
-  //     //   name: "Leaderboard",  // ✨ NEW
-  //     //   path: "/leaderboard",
-  //     //   icon: Trophy,  // or import LeaderboardIcon if you have one
-  //     //   label: "Board",
-  //     // },
-  //     {
-  //       name: "Attendance",
-  //       path: "/attendance",
-  //       icon: AttendanceIcon,
-  //       label: "Attend",
-  //     }, // ✨ MOVED: Always show
-  //     {
-  //       name: "Downloads",
-  //       path: "/downloads",
-  //       icon: DownloadIcon,
-  //       label: "Download",
-  //     }
-
-  //   ];
-
-  //   // Add role-specific navigation
-  //   if (isLoggedIn) {
-  //     if (role === "ADMIN") {
-  //       baseItems.push({
-  //         name: "Dashboard",
-  //         path: "/admin",
-  //         icon: DashboardIcon,
-  //         label: "Dash",
-  //       });
-  //     } else if (role === "TEACHER") {
-  //       baseItems.push({
-  //         name: "Upload",
-  //         path: "/upload",
-  //         icon: UploadIcon,
-  //         label: "Upload",
-  //       });
-  //     }
-  //   }
-
-  //   return baseItems;
-  // };
   // ✨ NEW: Check academic profile on mount
   useEffect(() => {
     if (isLoggedIn) {
@@ -488,20 +397,28 @@ const HomeLayout = () => {
   }, []);
   const query = useSelector(state => state.search.query);
 
-const handleSearchChange = (e) => {
-  const value = e.target.value;
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
 
-  dispatch(setSearchQuery(value));
+    dispatch(setSearchQuery(value));
+    dispatch(resetResultsOnly())
+    // 🔥 auto-open search page
+    if (location.pathname !== "/search") {
+      navigate("/search");
+    }
+  };
+  const isActive = (path) => location.pathname === path;
 
-  // 🔥 auto-open search page
-  if (location.pathname !== "/search") {
-    navigate("/search");
-  }
-};
-const isActive = (path) => location.pathname === path;
+  const isSearchPage = location.pathname === "/search";
+  const { loading: isSearching } = useSelector(state => state.search);
+  const { hasSubmitted, searchResults, searchAnalyticsId } = useSelector(state => state.search);
+  const isFailedSearch =
+    hasSubmitted &&
+    Array.isArray(searchResults) &&
+    searchResults.length === 0 &&
+    typeof searchAnalyticsId === "string";
 
-const isSearchPage = location.pathname === "/search";
-const { loading: isSearching } = useSelector(state => state.search);
+
 
   return (
     <>
@@ -513,7 +430,7 @@ const { loading: isSearching } = useSelector(state => state.search);
 
       {/* 🎉 NEW: Milestone celebration */}
       {/* <MilestoneBanner /> */}
-    <ScrollRestoration/>
+      <ScrollRestoration />
       <div className="min-h-screen bg-black text-white relative overflow-hidden">
         {/* Dynamic Background */}
         <div
@@ -551,67 +468,77 @@ const { loading: isSearching } = useSelector(state => state.search);
                 </div>
               </Link>
 
-           <div className="flex items-center gap-2 bg-transparent backdrop-blur-xl rounded-full p-2 border border-transparent">
+              <div className="flex items-center gap-2 bg-transparent backdrop-blur-xl rounded-full p-2 border border-transparent">
 
-  {/* HOME */}
+                {/* HOME */}
 
 
- <div className="flex flex-col items-center gap-1">
-  <Link
-    to="/"
-   className={`
+                <div className="flex flex-col items-center gap-1">
+                  <Link
+                    to="/"
+                    className={`
       flex items-center justify-center
       w-11 h-11 rounded-full transition-all duration-300
       ${isActive("/")
-        ? "bg-white text-black shadow-md"
-        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
+                        ? "bg-white text-black shadow-md"
+                        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
     `}
-  >
-    <Home size={22} />
-  </Link>
+                  >
+                    <Home size={22} />
+                  </Link>
 
-  <span
-    className={`
+                  <span
+                    className={`
       text-[10px] leading-none
       ${isActive("/") ? "text-white" : "text-gray-400"}
     `}
-  >
-    Home
-  </span>
-</div>
+                  >
+                    Home
+                  </span>
+                </div>
 
-  {/* SEARCH INPUT */}
- {/* SEARCH INPUT */}
-<form
-  onSubmit={(e) => {
-    e.preventDefault();
-    if (!query?.trim() || isSearching) return;
-    navigate(`/search?query=${encodeURIComponent(query)}`);
-  }}
-  className="mx-1"
->
+                {/* SEARCH INPUT */}
+                {/* SEARCH INPUT */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!query?.trim() || isSearching) return;
+                    // 🔥 CASE 2: Retry search
+                    if (isFailedSearch) {
+                      dispatch(
+                        logFailedSearchAction({
+                          searchAnalyticsId,
+                          action: "retry_search",
+                          value: query
+                        })
+                      );
+                    }
+                    navigate(`/search?query=${encodeURIComponent(query)}`);
+                  }}
+                  className="mx-1"
+                >
 
-  <div className="flex flex-col items-center gap-1">
-    <div
-  className={`
+                  <div className="flex flex-col items-center gap-1">
+                    <div
+                      className={`
     relative transition-all duration-200
     ${isSearching ? "scale-[0.98] opacity-90" : "scale-100"}
   `}
->
+                    >
 
-      {/* LEFT ICON */}
-      <Search
-        size={16}
-        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-      />
+                      {/* LEFT ICON */}
+                      <Search
+                        size={16}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                      />
 
-      {/* INPUT */}
-      <input
-        type="text"
-        value={query || ""}
-        onChange={(e) => dispatch(setSearchQuery(e.target.value))}
-        placeholder="Search DBMS, OS, PYQs…"
-        className="
+                      {/* INPUT */}
+                      <input
+                        type="text"
+                        value={query || ""}
+                        onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+                        placeholder="Search DBMS, OS, PYQs…"
+                        className="
           w-100 h-11
           pl-9 pr-10
           bg-[#1F1F1F]
@@ -622,139 +549,152 @@ const { loading: isSearching } = useSelector(state => state.search);
           outline-none ring-0
           focus:border-white/20
         "
-      />
+                      />
 
-      {/* RIGHT SEARCH BUTTON */}
-      {query?.trim() && (
-  <button
-    type="submit"
-    disabled={isSearching}
-    className={`
+                      {/* RIGHT SEARCH BUTTON */}
+                      {query?.trim() && (
+                        <button
+                          type="submit"
+                          disabled={isSearching}
+                          className={`
       absolute right-2 top-1/2 -translate-y-1/2
       w-7 h-7 flex items-center justify-center
       rounded-full transition-all
-      ${
-        isSearching
-          ? "bg-white/20 scale-90 cursor-not-allowed"
-          : "bg-white/10 hover:bg-white/20 active:scale-95"
-      }
+      ${isSearching
+                              ? "bg-white/20 scale-90 cursor-not-allowed"
+                              : "bg-white/10 hover:bg-white/20 active:scale-95"
+                            }
     `}
-    aria-label="Search"
-  >
-    {isSearching ? (
-      <svg
-        className="w-3 h-3 animate-spin text-white"
-        viewBox="0 0 24 24"
-        fill="none"
-      >
-        <circle
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="3"
-          className="opacity-25"
-        />
-        <path
-          d="M22 12a10 10 0 00-10-10"
-          stroke="currentColor"
-          strokeWidth="3"
-          className="opacity-75"
-        />
-      </svg>
-    ) : (
-      <Search size={14} />
-    )}
-  </button>
-)}
+                          aria-label="Search"
+                        >
+                          {isSearching ? (
+                            <svg
+                              className="w-3 h-3 animate-spin text-white"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                            >
+                              <circle
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                className="opacity-25"
+                              />
+                              <path
+                                d="M22 12a10 10 0 00-10-10"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                className="opacity-75"
+                              />
+                            </svg>
+                          ) : (
+                            <Search size={14} />
+                          )}
+                        </button>
+                      )}
 
-    </div>
+                    </div>
 
-    {/* invisible spacer to align with icon+label nav items */}
-    <span className="text-[10px] leading-none opacity-0 select-none">
-      Search
-    </span>
-  </div>
-</form>
+                    {/* invisible spacer to align with icon+label nav items */}
+                    <span className="text-[10px] leading-none opacity-0 select-none">
+                      Search
+                    </span>
+                  </div>
+                </form>
 
 
- <div className="flex flex-col items-center gap-1">
-  <Link
-    to="/notes"
-    className={`
-      flex items-center justify-center
-      w-10 h-10 rounded-full transition
-      ${isActive("/notes")
-        ? "bg-white text-black shadow-md"
-        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
-    `}
-  >
-    <Library size={22} />
-  </Link>
+                <div className="flex flex-col items-center gap-1">
+           <Link
+  to="/notes"
+  onClick={() => {
+    if (isFailedSearch) {
+      dispatch(
+        logFailedSearchAction({
+          searchAnalyticsId,
+          action: "opened_library",
+          value: query || null
+        })
+      );
+    }
 
-  <span
-    className={`
+    dispatch(clearSearch());
+  }}
+  className={`
+    flex items-center justify-center
+    w-10 h-10 rounded-full transition
+    ${isActive("/notes")
+      ? "bg-white text-black shadow-md"
+      : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
+  `}
+>
+  <Library size={22} />
+</Link>
+
+
+                  <span
+                    className={`
       text-[10px] leading-none
       ${isActive("/notes") ? "text-white" : "text-gray-400"}
     `}
-  >
-    Library
-  </span>
-</div>
+                  >
+                    Library
+                  </span>
+                </div>
 
-{/* PLANNER */}
- <div className="flex flex-col items-center gap-1">
-  <Link
-    to="/planner"
-    className={`
+                {/* PLANNER */}
+                <div className="flex flex-col items-center gap-1">
+                  <Link
+                    to="/planner"
+                    className={`
       flex items-center justify-center
       w-10 h-10 rounded-full transition
        ${isActive("/planner")
-        ? "bg-white text-black shadow-md"
-        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
+                        ? "bg-white text-black shadow-md"
+                        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
     `}
-  >
-    <CalendarCog size={22} />
-  </Link>
+                  >
+                    <CalendarCog size={22} />
+                  </Link>
 
-  <span
-    className={`
+                  <span
+                    className={`
       text-[10px] leading-none
       ${isActive("/planner") ? "text-white" : "text-gray-400"}
     `}
-  >
-    Planner
-  </span>
-</div>
-  
- 
-  {/* DOWNLOADS */}
+                  >
+                    Planner
+                  </span>
+                </div>
 
- <div className="flex flex-col items-center gap-1">
-  <Link
-    to="/downloads"
-    className={`
+
+                {/* DOWNLOADS */}
+
+                <div className="flex flex-col items-center gap-1">
+                  <Link
+                    to="/downloads"
+                    className={`
       flex items-center justify-center
       w-10 h-10 rounded-full transition
        ${isActive("/downloads")
-        ? "bg-white text-black shadow-md"
-        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
+                        ? "bg-white text-black shadow-md"
+                        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
     `}
-  >
-    <CircleArrowDown size={22} />
-  </Link>
+                  >
+                    <CircleArrowDown size={22} />
+                  </Link>
 
-  <span
-    className={`
+                  <span
+                    className={`
       text-[10px] leading-none
       ${isActive("/downloads") ? "text-white" : "text-gray-400"}
     `}
-  >
-    Downloads
-  </span>
-</div>
- 
-</div>
+                  >
+                    Downloads
+                  </span>
+                </div>
+
+              </div>
 
 
               {/* Desktop Auth Section */}
@@ -925,42 +865,52 @@ const { loading: isSearching } = useSelector(state => state.search);
           </nav>
         </header>
 
-    {/* Spotify-Style Mobile Header */}
-<header className="md:hidden fixed top-0 w-full z-50 bg-black/95 backdrop-blur-2xl border-b border-white/5">
-  <div className="flex items-center justify-between px-4 h-16 gap-3">
+        {/* Spotify-Style Mobile Header */}
+        <header className="md:hidden fixed top-0 w-full z-50 bg-black/95 backdrop-blur-2xl border-b border-white/5">
+          <div className="flex items-center justify-between px-4 h-16 gap-3">
 
-    {/* LEFT SIDE */}
-    {!isSearchPage ? (
-      /* LOGO (non-search pages) */
-      <Link to="/" className="flex items-center space-x-2">
-        <div className="w-8 h-8 bg-gradient-to-br from-white to-gray-200 rounded-lg flex items-center justify-center">
-          <span className="text-black font-bold text-sm">A</span>
-        </div>
-        <span className="font-bold text-lg text-white">AcademicArk</span>
-      </Link>
-    ) : (
-      /* SEARCH INPUT (search page only) */
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (!query?.trim() || isSearching) return;
-          navigate(`/search?query=${encodeURIComponent(query)}`);
-        }}
-        className="flex items-center gap-2 flex-1"
-      >
-        {/* INPUT */}
-        <div className="relative flex-1">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
+            {/* LEFT SIDE */}
+            {!isSearchPage ? (
+              /* LOGO (non-search pages) */
+              <Link to="/" className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-white to-gray-200 rounded-lg flex items-center justify-center">
+                  <span className="text-black font-bold text-sm">A</span>
+                </div>
+                <span className="font-bold text-lg text-white">AcademicArk</span>
+              </Link>
+            ) : (
+              /* SEARCH INPUT (search page only) */
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  // 🔥 CASE 2: Retry search
+                  if (isFailedSearch) {
+                    dispatch(
+                      logFailedSearchAction({
+                        searchAnalyticsId,
+                        action: "retry_search",
+                        value: query
+                      })
+                    );
+                  }
+                  if (!query?.trim() || isSearching) return;
+                  navigate(`/search?query=${encodeURIComponent(query)}`);
+                }}
+                className="flex items-center gap-2 flex-1"
+              >
+                {/* INPUT */}
+                <div className="relative flex-1">
+                  <Search
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
 
-          <input
-            type="text"
-            value={query || ""}
-            onChange={(e) => dispatch(setSearchQuery(e.target.value))}
-            placeholder="Search DBMS, OS, PYQs…"
-            className="
+                  <input
+                    type="text"
+                    value={query || ""}
+                    onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+                    placeholder="Search DBMS, OS, PYQs…"
+                    className="
               w-full h-10
               pl-9 pr-3
               bg-[#1F1F1F]
@@ -971,66 +921,65 @@ const { loading: isSearching } = useSelector(state => state.search);
               outline-none ring-0
               focus:border-white/20
             "
-          />
-        </div>
+                  />
+                </div>
 
-        {/* SEARCH BUTTON (OUTSIDE INPUT) */}
-        {query?.trim() && (
-          <button
-            type="submit"
-            disabled={isSearching}
-            aria-label="Search"
-            className={`
+                {/* SEARCH BUTTON (OUTSIDE INPUT) */}
+                {query?.trim() && (
+                  <button
+                    type="submit"
+                    disabled={isSearching}
+                    aria-label="Search"
+                    className={`
               w-9 h-9
               flex items-center justify-center
               rounded-full
               transition-all
-              ${
-                isSearching
-                  ? "bg-white/20 cursor-not-allowed"
-                  : "bg-white/10 active:scale-95"
-              }
+              ${isSearching
+                        ? "bg-white/20 cursor-not-allowed"
+                        : "bg-white/10 active:scale-95"
+                      }
             `}
-          >
-            {isSearching ? (
-              <svg
-                className="w-4 h-4 animate-spin text-white"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  className="opacity-25"
-                />
-                <path
-                  d="M22 12a10 10 0 00-10-10"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  className="opacity-75"
-                />
-              </svg>
-            ) : (
-              <Search size={16} className="text-white" />
+                  >
+                    {isSearching ? (
+                      <svg
+                        className="w-4 h-4 animate-spin text-white"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          className="opacity-25"
+                        />
+                        <path
+                          d="M22 12a10 10 0 00-10-10"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          className="opacity-75"
+                        />
+                      </svg>
+                    ) : (
+                      <Search size={16} className="text-white" />
+                    )}
+                  </button>
+                )}
+              </form>
             )}
-          </button>
-        )}
-      </form>
-    )}
 
-    {/* RIGHT SIDE */}
-    {isLoggedIn ? (
-      <button className="p-2">
-        {/* notification / avatar later */}
-      </button>
-    ) : (
-      <MovingBorderLoginButton />
-    )}
-  </div>
-</header>
+            {/* RIGHT SIDE */}
+            {isLoggedIn ? (
+              <button className="p-2">
+                {/* notification / avatar later */}
+              </button>
+            ) : (
+              <MovingBorderLoginButton />
+            )}
+          </div>
+        </header>
 
 
         {/* ✨ NEW: Floating Feedback Button */}

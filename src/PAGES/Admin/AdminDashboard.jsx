@@ -36,6 +36,8 @@ import QueryMetricsDisplay from "../../COMPONENTS/Admin/QueryMetricsDisplay";
 import AnalyticsTab from "../../COMPONENTS/Admin/Analytics/AnalyticsTab";
 import { AdminDashboardSkeleton } from "../../COMPONENTS/Skeletons";
 import PageTransition from "../../COMPONENTS/PageTransition";
+import SearchMetricsDashboard from "../../COMPONENTS/Admin/SearchMetrics/SearchMetricsDashboard";
+import SearchManagerDashboard from "../../COMPONENTS/Admin/SearchMetrics/SearchManagerDashboard";
 // Icons
 const UsersIcon = ({ className }) => (
   <svg
@@ -291,7 +293,7 @@ export default function AdminDashboard() {
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard","session", "requestlogs", "querymetrics", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback", "Security", "retention"].map(
+              {["dashboard", "requestlogs","session", "querymetrics","searchmetrics","searchmanager", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback", "Security", "retention"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -327,6 +329,10 @@ export default function AdminDashboard() {
                                           ? "Query Metrics"
                                           : tab === "session"
                                           ? "Sesion Analytics"
+                                           : tab === "searchmetrics"
+                                          ? "Search Metrics"
+                                          : tab === "searchmanager"
+                                           ? "Search Manager"
                                           // : tab === "videos"
                                           // ? "videos"
                                           : tab}
@@ -1489,6 +1495,8 @@ export default function AdminDashboard() {
           {/* Query Metrics Tab - NEW */}
 {activeTab === "querymetrics" && <QueryMetricsDisplay />} 
 {activeTab === "session" && <AnalyticsTab />} 
+{activeTab === "searchmetrics" && <SearchMetricsDashboard />}
+{activeTab === "searchmanager" && <SearchManagerDashboard />}
 {/* {activeTab === "videos" && <AdminVideoManager />}  */}
 
         </div>

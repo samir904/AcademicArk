@@ -16,6 +16,9 @@ import {
     Upload,
     CheckCircle
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { logFailedSearchAction } from "../../REDUX/Slices/failedSearchSlice";
+import { clearSearch } from "../../REDUX/Slices/searchSlice";
 // Add this with other icon components
 const AttendanceIcon = ({ className, active }) => (
     <svg
@@ -163,23 +166,23 @@ const MobileNavigation = ({
         return roleMap[userRole] || userRole;
     };
     // ✅ UPDATED: Track active state for My Space & related pages
-const isActiveLink = (path) => {
-    const currentPath = window.location.pathname;
-    
-    // My Space stays active for all related pages
-    if (path === '/myspace') {
-        return currentPath === '/myspace' || 
-               currentPath === '/downloads' || 
-               currentPath === '/attendance' || 
-               currentPath=== '/admin'||
-               currentPath==='/upload'||
-               currentPath === '/profile' || 
-               currentPath === '/settings';
-    }
-    
-    // Other paths check exact match
-    return currentPath === path;
-};
+    const isActiveLink = (path) => {
+        const currentPath = window.location.pathname;
+
+        // My Space stays active for all related pages
+        if (path === '/myspace') {
+            return currentPath === '/myspace' ||
+                currentPath === '/downloads' ||
+                currentPath === '/attendance' ||
+                currentPath === '/admin' ||
+                currentPath === '/upload' ||
+                currentPath === '/profile' ||
+                currentPath === '/settings';
+        }
+
+        // Other paths check exact match
+        return currentPath === path;
+    };
 
 
     const handleLogout = () => {
@@ -187,34 +190,34 @@ const isActiveLink = (path) => {
         onLogout();
     };
     const useLocalStorage = (key, initialValue) => {
-  const [storedValue, setStoredValue] = React.useState(() => {
-    try {
-      const item = typeof window !== 'undefined' 
-        ? window.localStorage.getItem(key) 
-        : null;
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error("Error reading localStorage:", error);
-      return initialValue;
-    }
-  });
+        const [storedValue, setStoredValue] = React.useState(() => {
+            try {
+                const item = typeof window !== 'undefined'
+                    ? window.localStorage.getItem(key)
+                    : null;
+                return item ? JSON.parse(item) : initialValue;
+            } catch (error) {
+                console.error("Error reading localStorage:", error);
+                return initialValue;
+            }
+        });
 
-  const setValue = (value) => {
-    try {
-      const valueToStore = value instanceof Function 
-        ? value(storedValue) 
-        : value;
-      setStoredValue(valueToStore);
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      }
-    } catch (error) {
-      console.error("Error setting localStorage:", error);
-    }
-  };
+        const setValue = (value) => {
+            try {
+                const valueToStore = value instanceof Function
+                    ? value(storedValue)
+                    : value;
+                setStoredValue(valueToStore);
+                if (typeof window !== 'undefined') {
+                    window.localStorage.setItem(key, JSON.stringify(valueToStore));
+                }
+            } catch (error) {
+                console.error("Error setting localStorage:", error);
+            }
+        };
 
-  return [storedValue, setValue];
-};
+        return [storedValue, setValue];
+    };
 
     const dismissalKey = `user_${userData?.id}_navInfoDismissed`;
     const [hasSeenInfo, setHasSeenInfo] = useLocalStorage(dismissalKey, false);
@@ -223,6 +226,15 @@ const isActiveLink = (path) => {
         setShowInfoBanner(false);      // Hide immediately
         setHasSeenInfo(true);          // Save to localStorage
     };
+    const dispatch=useDispatch();
+    const { hasSubmitted, searchResults, searchAnalyticsId } = useSelector(state => state.search);
+    const isFailedSearch =
+        hasSubmitted &&
+        Array.isArray(searchResults) &&
+        searchResults.length === 0 &&
+        typeof searchAnalyticsId === "string";
+
+
 
     return (
         <>
@@ -243,7 +255,21 @@ const isActiveLink = (path) => {
                                 <Link
                                     key={item.name}
                                     to={item.path}
-                                    onClick={() => setShowMobileMenu(false)}
+                                    onClick={() => {
+                                        // 🔥 TRACK ONLY IF SEARCH FAILED AND USER GOES TO LIBRARY
+                                        if (item.path === "/notes" && isFailedSearch) {
+                                            dispatch(
+                                                logFailedSearchAction({
+                                                    searchAnalyticsId,
+                                                    action: "opened_library",
+                                                    value: "navbar_mobile"
+                                                })
+                                            );
+                                        }
+
+                                        setShowMobileMenu(false);
+                                        dispatch(clearSearch()); // reset search context
+                                    }}
                                     className="flex flex-col items-center gap-1.5"
                                 >
                                     {/* Icon Container */}
@@ -274,7 +300,7 @@ const isActiveLink = (path) => {
                     {/* Profile Icon - Bottom Right */}
                     {isLoggedIn && (
                         <Link
-                        to={'/myspace'}
+                            to={'/myspace'}
                             // onClick={() => setShowProfileDrawer(!showProfileDrawer)}
                             className="flex flex-col items-center gap-1.5 ml-2"
                         >
@@ -388,7 +414,7 @@ const isActiveLink = (path) => {
 
                             {/* Divider */}
                             <div className="h-px bg-white/10 mb-6" />
-{/* 🔗 PROFILE ACTIONS */}
+                            {/* 🔗 PROFILE ACTIONS */}
                             <div className="space-y-2 mb-6">
                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 mb-4">
                                     Account
@@ -414,12 +440,12 @@ const isActiveLink = (path) => {
                                     <span className="text-sm font-medium">Settings</span>
                                 </Link>
                             </div>
-                            
+
 
                             {/* Divider */}
                             <div className="h-px bg-white/10 mb-6" />
 
-                            
+
 
                             {/* 📋 PROFILE MENU ITEMS */}
                             <div className="space-y-2 mb-6">

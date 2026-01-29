@@ -22,8 +22,11 @@ import academicProfileReducer from "./Slices/academicProfileSlice.js"
  import sessionReducer from './Slices/sessionSlice.js'
  import plannerReducer from './Slices/plannerSlice.js'
  import savedFilterReducer from './Slices/savedFilterSlice.js'
- 
+ import failedSearchReducer from './Slices/failedSearchSlice.js'
 import adminAnalyticsReducer from './Slices/adminAnalyticsSlice.js'
+import searchSuggestionReducer from './Slices/searchSuggestionSlice.js'
+import searchAdminAnalyticsReducer from './Slices/searchAdminAnalyticsSlice.js'
+import searchAdminManageReducer from './Slices/searchAdminManageSlice.js'
 //  import videoReducer from './Slices/videoSlice.js'
 // import logsReducer  from './Slices/logsSlice.js'
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
@@ -53,8 +56,12 @@ const store = configureStore({
     session: sessionReducer,
     planner: plannerReducer,
     savedFilters: savedFilterReducer,
-    
-    adminAnalytics:adminAnalyticsReducer
+    // 🔥 ADD THIS
+    failedSearch: failedSearchReducer,
+    searchSuggestion:searchSuggestionReducer,
+    searchAdminAnalytics:searchAdminAnalyticsReducer,
+    adminAnalytics:adminAnalyticsReducer,
+    searchAdminManage:searchAdminManageReducer
     //  video: videoReducer,
     // studyBuddy: studyBuddySlice,  // ← ADD THIS
     // studyPlanner: studyPlannerSlice,  // ← ADD THIS
