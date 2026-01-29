@@ -6,7 +6,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { searchNotes, getTrendingNotes, getPopularNotes, clearSearch, setFilters, setSearchQuery } from '../../REDUX/Slices/searchSlice';
 import CardRenderer from '../Note/CardRenderer';
 import PageTransition from '../../COMPONENTS/PageTransition';
-import { Check } from 'lucide-react';
+import { Check, Library } from 'lucide-react';
 
 // Icons
 const SearchIcon = ({ className }) => (
@@ -438,22 +438,22 @@ const isValidQuery =
   </div>
 )}
 
-                    {/* EMPTY RESULTS STATE */}
+          {/* EMPTY RESULTS STATE */}
 {!loading && hasSubmitted && searchResults.length === 0 && (
   <div className="text-center py-20 max-w-xl mx-auto">
-    
+
     {/* Icon */}
     <SearchIcon className="w-14 h-14 text-gray-500 mx-auto mb-4 opacity-60" />
 
     {/* Title */}
     <h3 className="text-xl font-semibold text-white mb-2">
-      No results found for this query
+      No exact results found
     </h3>
 
     {/* Subtext */}
-    <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-      Don’t worry — sometimes small tweaks make all the difference.
-      Try searching the way exam questions are usually written.
+    <p className="text-gray-400 text-sm mb-8 leading-relaxed">
+      That doesn’t mean the notes don’t exist.
+      Try adjusting how the search is written.
     </p>
 
     {/* How to search */}
@@ -470,39 +470,73 @@ const isValidQuery =
     </div>
 
     {/* Quick retry chips */}
-    <div className="flex flex-wrap justify-center gap-2">
-      {[
-        "DS notes",
-        "DBMS PYQ",
-        "Handwritten notes",
-        "OS Unit 2",
-      ].map((suggestion) => (
+    <div className="flex flex-wrap justify-center gap-2 mb-10">
+      {["DS notes", "DBMS PYQ", "Handwritten notes", "OS Unit 2"].map(
+        (suggestion) => (
+          <button
+            key={suggestion}
+            onClick={() =>
+              navigate(`/search?query=${encodeURIComponent(suggestion)}`)
+            }
+            className="
+              px-3 py-1.5
+              rounded-full
+              text-xs
+              bg-[#1F1F1F]
+              border border-[#2F2F2F]
+              text-gray-300
+              hover:text-white
+              hover:border-[#9CA3AF]/40
+              transition
+            "
+          >
+            {suggestion}
+          </button>
+        )
+      )}
+    </div>
+
+    {/* Divider */}
+    <div className="border-t border-[#2A2A2A] my-8" />
+
+    {/* Library Fallback (Secondary Action) */}
+    <div className="bg-[#111111] border border-[#2A2A2A] rounded-xl p-4 text-left">
+      <div className="flex items-center gap-2 mb-2">
+        <Library className="w-4 h-4 text-gray-400" />
+        <h4 className="text-sm font-semibold text-white">
+          Browse via Library
+        </h4>
+      </div>
+
+      <p className="text-sm text-gray-400 leading-relaxed mb-4">
+        Some notes may exist but didn’t match this exact search.
+        Use filters like <span className="text-white">Subject, Unit, and Type</span>.
+      </p>
+
+      <div className="flex justify-center">
         <button
-          key={suggestion}
-          onClick={() => navigate(`/search?query=${encodeURIComponent(suggestion)}`)}
+          onClick={() => navigate("/notes")}
           className="
-            px-3 py-1.5
+            inline-flex items-center gap-2
+            px-5 py-2
+            text-sm font-medium
             rounded-full
-            text-xs
             bg-[#1F1F1F]
             border border-[#2F2F2F]
-            text-gray-300
+            text-gray-200
             hover:text-white
             hover:border-[#9CA3AF]/40
             transition
           "
         >
-          {suggestion}
+          Open Library
+          <span className="text-xs opacity-70">→</span>
         </button>
-      ))}
+      </div>
     </div>
-
-    {/* Soft reassurance */}
-    <p className="text-xs text-gray-500 mt-8">
-      More notes are added regularly 📚
-    </p>
   </div>
 )}
+
 {!loading && searchQuery.trim().length > 0 && searchQuery.trim().length < 2 && (
   <p className="text-center text-xs text-gray-500 mt-12">
     Keep typing… try subject + type (e.g. <span className="text-gray-300">DS notes</span>)
