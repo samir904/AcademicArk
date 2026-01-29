@@ -39,6 +39,7 @@ import {
   FileQuestion,
   PlayCircle
 } from "lucide-react";
+import { SearchSkeleton } from '../../COMPONENTS/Skeletons';
 
 
 // Search Intent Hints
@@ -385,11 +386,7 @@ const Icon = CATEGORY_ICON_MAP[category];
 
                     {/* LOADING STATE */}
                     {loading && searchQuery && (
-                        <div className="flex justify-center items-center py-20">
-                            <div className="relative">
-                                <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#2F2F2F] border-t-[#9CA3AF]"></div>
-                            </div>
-                        </div>
+                        <SearchSkeleton/>
                     )}
 
 
