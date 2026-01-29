@@ -501,6 +501,7 @@ const handleSearchChange = (e) => {
 const isActive = (path) => location.pathname === path;
 
 const isSearchPage = location.pathname === "/search";
+const { loading: isSearching } = useSelector(state => state.search);
 
   return (
     <>
@@ -584,14 +585,20 @@ const isSearchPage = location.pathname === "/search";
 <form
   onSubmit={(e) => {
     e.preventDefault();
-    if (query?.trim()) {
-      navigate(`/search?query=${encodeURIComponent(query)}`);
-    }
+    if (!query?.trim() || isSearching) return;
+    navigate(`/search?query=${encodeURIComponent(query)}`);
   }}
-  className="mx-1 focus:outline-none focus:ring-0"
+  className="mx-1"
 >
+
   <div className="flex flex-col items-center gap-1">
-    <div className="relative">
+    <div
+  className={`
+    relative transition-all duration-200
+    ${isSearching ? "scale-[0.98] opacity-90" : "scale-100"}
+  `}
+>
+
       {/* LEFT ICON */}
       <Search
         size={16}
@@ -619,24 +626,48 @@ const isSearchPage = location.pathname === "/search";
 
       {/* RIGHT SEARCH BUTTON */}
       {query?.trim() && (
-        <button
-          type="submit"
-          className="
-            absolute right-2 top-1/2 -translate-y-1/2
-            w-7 h-7
-            flex items-center justify-center
-            rounded-full
-            bg-white/10
-            text-white
-            hover:bg-white/20
-            active:scale-95
-            transition
-          "
-          aria-label="Search"
-        >
-          <Search size={14} />
-        </button>
-      )}
+  <button
+    type="submit"
+    disabled={isSearching}
+    className={`
+      absolute right-2 top-1/2 -translate-y-1/2
+      w-7 h-7 flex items-center justify-center
+      rounded-full transition-all
+      ${
+        isSearching
+          ? "bg-white/20 scale-90 cursor-not-allowed"
+          : "bg-white/10 hover:bg-white/20 active:scale-95"
+      }
+    `}
+    aria-label="Search"
+  >
+    {isSearching ? (
+      <svg
+        className="w-3 h-3 animate-spin text-white"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="3"
+          className="opacity-25"
+        />
+        <path
+          d="M22 12a10 10 0 00-10-10"
+          stroke="currentColor"
+          strokeWidth="3"
+          className="opacity-75"
+        />
+      </svg>
+    ) : (
+      <Search size={14} />
+    )}
+  </button>
+)}
+
     </div>
 
     {/* invisible spacer to align with icon+label nav items */}
@@ -894,7 +925,7 @@ const isSearchPage = location.pathname === "/search";
           </nav>
         </header>
 
-        {/* Spotify-Style Mobile Header */}
+    {/* Spotify-Style Mobile Header */}
 <header className="md:hidden fixed top-0 w-full z-50 bg-black/95 backdrop-blur-2xl border-b border-white/5">
   <div className="flex items-center justify-between px-4 h-16 gap-3">
 
@@ -910,62 +941,84 @@ const isSearchPage = location.pathname === "/search";
     ) : (
       /* SEARCH INPUT (search page only) */
       <form
-  onSubmit={(e) => {
-    e.preventDefault();
-    if (query?.trim()) {
-      navigate(`/search?query=${encodeURIComponent(query)}`);
-    }
-  }}
-  className="flex-1"
->
-  <div className="relative">
-    {/* LEFT ICON */}
-    <Search
-      size={16}
-      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-    />
-
-    {/* INPUT */}
-    <input
-      type="text"
-      value={query || ""}
-      onChange={(e) => dispatch(setSearchQuery(e.target.value))}
-      placeholder="Search DBMS, OS, PYQs…"
-      className="
-        w-full h-10
-        pl-9 pr-10
-        bg-[#1F1F1F]
-        border border-white/10
-        rounded-full
-        text-sm text-white
-        placeholder-gray-500
-        outline-none ring-0
-        focus:border-white/20
-      "
-    />
-
-    {/* RIGHT SEARCH BUTTON */}
-    {query?.trim() && (
-      <button
-        type="submit"
-        className="
-          absolute right-2 top-1/2 -translate-y-1/2
-          w-7 h-7
-          flex items-center justify-center
-          rounded-full
-          bg-white/10
-          text-white
-          active:scale-95
-          transition
-        "
-        aria-label="Search"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!query?.trim() || isSearching) return;
+          navigate(`/search?query=${encodeURIComponent(query)}`);
+        }}
+        className="flex items-center gap-2 flex-1"
       >
-        <Search size={14} />
-      </button>
-    )}
-  </div>
-</form>
+        {/* INPUT */}
+        <div className="relative flex-1">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
 
+          <input
+            type="text"
+            value={query || ""}
+            onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+            placeholder="Search DBMS, OS, PYQs…"
+            className="
+              w-full h-10
+              pl-9 pr-3
+              bg-[#1F1F1F]
+              border border-white/10
+              rounded-full
+              text-sm text-white
+              placeholder-gray-500
+              outline-none ring-0
+              focus:border-white/20
+            "
+          />
+        </div>
+
+        {/* SEARCH BUTTON (OUTSIDE INPUT) */}
+        {query?.trim() && (
+          <button
+            type="submit"
+            disabled={isSearching}
+            aria-label="Search"
+            className={`
+              w-9 h-9
+              flex items-center justify-center
+              rounded-full
+              transition-all
+              ${
+                isSearching
+                  ? "bg-white/20 cursor-not-allowed"
+                  : "bg-white/10 active:scale-95"
+              }
+            `}
+          >
+            {isSearching ? (
+              <svg
+                className="w-4 h-4 animate-spin text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  className="opacity-25"
+                />
+                <path
+                  d="M22 12a10 10 0 00-10-10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  className="opacity-75"
+                />
+              </svg>
+            ) : (
+              <Search size={16} className="text-white" />
+            )}
+          </button>
+        )}
+      </form>
     )}
 
     {/* RIGHT SIDE */}
@@ -978,6 +1031,7 @@ const isSearchPage = location.pathname === "/search";
     )}
   </div>
 </header>
+
 
         {/* ✨ NEW: Floating Feedback Button */}
         {/* ✨ NEW: Floating Feedback Button with Text (Desktop Only) */}
