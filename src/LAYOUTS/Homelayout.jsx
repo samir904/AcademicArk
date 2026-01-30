@@ -1,5 +1,5 @@
 // src/components/layouts/HomeLayout.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -17,7 +17,7 @@ import EnhancedFooter from "./EnhancedFooter";
 import FeedbackForm from "../COMPONENTS/FeedbackForm";
 import PWAInstallPrompt from "../COMPONENTS/PWAInstallPrompt";
 import OfflineModal from "../COMPONENTS/OfflineModal";
-import { Trophy, CalendarCog, CircleArrowDown } from "lucide-react";
+import { Trophy, CalendarCog, CircleArrowDown, Clock, LogOut, LayoutDashboard, Video, Bookmark, Upload, User } from "lucide-react";
 import MobileNavigation from "../COMPONENTS/Homepage/MobileNavigation";
 import { AnimatePresence } from "framer-motion";
 import ScrollRestoration from "../COMPONENTS/ScrollRestoration";
@@ -26,10 +26,14 @@ import {
   Search,
   Library,
   Calendar,
-  Download
+  Download,
+  CornerDownLeft
 } from "lucide-react";
 import { clearSearch, resetResultsOnly, setSearchQuery } from "../REDUX/Slices/searchSlice";
 import { logFailedSearchAction } from "../REDUX/Slices/failedSearchSlice";
+import { fetchSearchSuggestions, clearSuggestions }
+  from "../REDUX/Slices/searchSuggestionSlice";
+import { fetchRecentSearches } from "../REDUX/Slices/searchAnalyticsSlice";
 
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
@@ -208,6 +212,8 @@ const AttendanceIcon = ({ className, active }) => (
 );
 
 const HomeLayout = () => {
+
+
   // const TravelingDotButton = () => (
   //   <Link
   //     to="/login"
@@ -259,6 +265,11 @@ const HomeLayout = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchWrapperRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const mobileSearchRef = useRef(null);
+
   const location = useLocation();
 
   const dispatch = useDispatch();
@@ -401,12 +412,10 @@ const HomeLayout = () => {
     const value = e.target.value;
 
     dispatch(setSearchQuery(value));
-    dispatch(resetResultsOnly())
-    // 🔥 auto-open search page
-    if (location.pathname !== "/search") {
-      navigate("/search");
-    }
+    dispatch(resetResultsOnly());
+    setIsSearchOpen(true); // 👈 keep open while typing
   };
+
   const isActive = (path) => location.pathname === path;
 
   const isSearchPage = location.pathname === "/search";
@@ -418,6 +427,49 @@ const HomeLayout = () => {
     searchResults.length === 0 &&
     typeof searchAnalyticsId === "string";
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        searchWrapperRef.current &&
+        !searchWrapperRef.current.contains(e.target)
+      ) {
+        setIsSearchOpen(false);
+        dispatch(clearSuggestions());
+      }
+    };
+
+    const handleScroll = () => {
+      setIsSearchOpen(false);
+      dispatch(clearSuggestions());
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [dispatch]);
+
+  const { suggestions, loading } = useSelector(
+    state => state.searchSuggestion
+  );
+  const { recentSearches, loadingRecent } = useSelector((state) => state?.searchAnalytics)
+
+
+  useEffect(() => {
+    if (!query || query.trim().length < 2) {
+      dispatch(clearSuggestions());
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      dispatch(fetchSearchSuggestions(query));
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query, dispatch]);
 
 
   return (
@@ -499,46 +551,57 @@ const HomeLayout = () => {
 
                 {/* SEARCH INPUT */}
                 {/* SEARCH INPUT */}
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!query?.trim() || isSearching) return;
-                    // 🔥 CASE 2: Retry search
-                    if (isFailedSearch) {
-                      dispatch(
-                        logFailedSearchAction({
-                          searchAnalyticsId,
-                          action: "retry_search",
-                          value: query
-                        })
-                      );
-                    }
-                    navigate(`/search?query=${encodeURIComponent(query)}`);
-                  }}
-                  className="mx-1"
-                >
+                <div ref={searchWrapperRef} className="relative">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!query?.trim() || isSearching) return;
+                      dispatch(clearSuggestions()); // 👈 ADD THIS
+                      // 🔥 CASE 2: Retry search
+                      if (isFailedSearch) {
+                        dispatch(
+                          logFailedSearchAction({
+                            searchAnalyticsId,
+                            action: "retry_search",
+                            value: query
+                          })
+                        );
+                      }
+                      navigate(`/search?query=${encodeURIComponent(query)}`);
+                    }}
+                    className="mx-1"
+                  >
 
-                  <div className="flex flex-col items-center gap-1">
-                    <div
-                      className={`
+                    <div className="flex flex-col items-center gap-1">
+                      <div
+                        className={`
     relative transition-all duration-200
     ${isSearching ? "scale-[0.98] opacity-90" : "scale-100"}
   `}
-                    >
+                      >
 
-                      {/* LEFT ICON */}
-                      <Search
-                        size={16}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                      />
+                        {/* LEFT ICON */}
+                        <Search
+                          size={16}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                        />
 
-                      {/* INPUT */}
-                      <input
-                        type="text"
-                        value={query || ""}
-                        onChange={(e) => dispatch(setSearchQuery(e.target.value))}
-                        placeholder="Search DBMS, OS, PYQs…"
-                        className="
+                        {/* INPUT */}
+                        <input
+                          type="text"
+                          ref={searchInputRef}
+                          onFocus={() => {
+                            setIsSearchOpen(true);
+
+                            // recent searches only when query empty
+                            if (!query?.trim()) {
+                              dispatch(fetchRecentSearches());
+                            }
+                          }}
+                          value={query || ""}
+                          onChange={handleSearchChange}
+                          placeholder="Search DBMS, OS, PYQs…"
+                          className="
           w-100 h-11
           pl-9 pr-10
           bg-[#1F1F1F]
@@ -549,87 +612,166 @@ const HomeLayout = () => {
           outline-none ring-0
           focus:border-white/20
         "
-                      />
+                        />
 
-                      {/* RIGHT SEARCH BUTTON */}
-                      {query?.trim() && (
-                        <button
-                          type="submit"
-                          disabled={isSearching}
-                          className={`
+                        {/* RIGHT SEARCH BUTTON */}
+                        {query?.trim() && (
+                          <button
+                            type="submit"
+                            disabled={isSearching}
+                            className={`
       absolute right-2 top-1/2 -translate-y-1/2
       w-7 h-7 flex items-center justify-center
       rounded-full transition-all
       ${isSearching
-                              ? "bg-white/20 scale-90 cursor-not-allowed"
-                              : "bg-white/10 hover:bg-white/20 active:scale-95"
-                            }
+                                ? "bg-white/20 scale-90 cursor-not-allowed"
+                                : "bg-white/10 hover:bg-white/20 active:scale-95"
+                              }
     `}
-                          aria-label="Search"
-                        >
-                          {isSearching ? (
-                            <svg
-                              className="w-3 h-3 animate-spin text-white"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                            >
-                              <circle
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="3"
-                                className="opacity-25"
-                              />
-                              <path
-                                d="M22 12a10 10 0 00-10-10"
-                                stroke="currentColor"
-                                strokeWidth="3"
-                                className="opacity-75"
-                              />
-                            </svg>
-                          ) : (
-                            <Search size={14} />
-                          )}
-                        </button>
-                      )}
+                            aria-label="Search"
+                          >
+                            {isSearching ? (
+                              <svg
+                                className="w-3 h-3 animate-spin text-white"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                              >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="3"
+                                  className="opacity-25"
+                                />
+                                <path
+                                  d="M22 12a10 10 0 00-10-10"
+                                  stroke="currentColor"
+                                  strokeWidth="3"
+                                  className="opacity-75"
+                                />
+                              </svg>
+                            ) : (
+                              <Search size={14} />
+                            )}
+                          </button>
+                        )}
 
+                      </div>
+
+                      {/* invisible spacer to align with icon+label nav items */}
+                      <span className="text-[10px] leading-none opacity-0 select-none">
+                        Search
+                      </span>
                     </div>
+                  </form>
+                  {isSearchOpen &&
+                    query?.trim().length >= 2 &&
+                    suggestions.length > 0 && (
 
-                    {/* invisible spacer to align with icon+label nav items */}
-                    <span className="text-[10px] leading-none opacity-0 select-none">
-                      Search
-                    </span>
-                  </div>
-                </form>
+                      <div
+                        className="
+      absolute top-full left-0 right-0  -mt-[10px]
+      bg-[#111111]
+      border border-white/10
+      rounded-xl
+      shadow-2xl
+      overflow-hidden
+      z-50
+    "
+                      >
+                        {suggestions.map((s, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              dispatch(setSearchQuery(s));
+                              dispatch(clearSuggestions());
+                              navigate(`/search?query=${encodeURIComponent(s)}`);
+                            }}
+                            className="
+          group w-full flex items-center justify-between
+          px-4 py-3
+          text-sm text-gray-300
+          hover:bg-[#1F1F1F]
+          hover:text-white
+          transition
+          mt-0
+        "
+                          >
+                            {/* Left side: icon + text */}
+                            <div className="flex items-center gap-3">
+                              <Search
+                                size={14}
+                                className="text-gray-500 group-hover:text-gray-300 transition"
+                              />
+                              <span className="truncate">{s}</span>
+                            </div>
 
+                            {/* Right side: subtle hint */}
+                            <CornerDownLeft
+                              size={14}
+                              className="text-gray-600 opacity-0 group-hover:opacity-100 transition"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  {isSearchOpen &&
+                    !query?.trim() &&
+                    recentSearches.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 -mt-[10px] 
+   bg-[#111111]
+      border border-white/10
+      rounded-xl
+      shadow-2xl
+      overflow-hidden
+      z-50
+  ">
+                        {recentSearches.map((item, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              dispatch(setSearchQuery(item.query));
+                              setIsSearchOpen(false);
+                              navigate(`/search?query=${encodeURIComponent(item.query)}`);
+                            }}
+                            className="group w-full flex items-center gap-3 px-4 py-3 hover:bg-[#1F1F1F]"
+                          >
+                            <Clock size={14} className="text-gray-500" />
+                            <span className="truncate">{item.query}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                </div>
 
                 <div className="flex flex-col items-center gap-1">
-           <Link
-  to="/notes"
-  onClick={() => {
-    if (isFailedSearch) {
-      dispatch(
-        logFailedSearchAction({
-          searchAnalyticsId,
-          action: "opened_library",
-          value: query || null
-        })
-      );
-    }
+                  <Link
+                    to="/notes"
+                    onClick={() => {
+                      if (isFailedSearch) {
+                        dispatch(
+                          logFailedSearchAction({
+                            searchAnalyticsId,
+                            action: "opened_library",
+                            value: query || null
+                          })
+                        );
+                      }
 
-    dispatch(clearSearch());
-  }}
-  className={`
+                      dispatch(clearSearch());
+                    }}
+                    className={`
     flex items-center justify-center
     w-10 h-10 rounded-full transition
     ${isActive("/notes")
-      ? "bg-white text-black shadow-md"
-      : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
+                        ? "bg-white text-black shadow-md"
+                        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
   `}
->
-  <Library size={22} />
-</Link>
+                  >
+                    <Library size={22} />
+                  </Link>
 
 
                   <span
@@ -670,7 +812,7 @@ const HomeLayout = () => {
 
                 {/* DOWNLOADS */}
 
-                <div className="flex flex-col items-center gap-1">
+                {/* <div className="flex flex-col items-center gap-1">
                   <Link
                     to="/downloads"
                     className={`
@@ -692,156 +834,196 @@ const HomeLayout = () => {
                   >
                     Downloads
                   </span>
-                </div>
+                </div> */}
 
               </div>
 
 
               {/* Desktop Auth Section */}
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center gap-2 space-x-4">
                 {isLoggedIn ? (
-                  <div className="relative">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowProfileMenu(!showProfileMenu);
-                      }}
-                      className="flex items-center space-x-3 p-2 rounded-xl hover:bg-white/10 transition-all duration-300"
-                    >
-                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20 hover:border-white/40 transition-colors">
-                        {userData?.avatar?.secure_url?.startsWith("http") ? (
-                          <img
-                            src={userData.avatar.secure_url}
-                            alt="Profile"
-                            loading="lazy"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                            {userData?.fullName?.charAt(0)?.toUpperCase() ||
-                              "U"}
-                          </div>
-                        )}
-                      </div>
+                  <>
+                  {/* Desktop Auth Section */}
+<div className="flex items-center gap-2">
 
-                      <div className="text-left">
-                        <div className="text-sm  capitalize font-medium text-white">
-                          {userData?.fullName || "User"}
-                        </div>
-                        <div className="text-xs text-gray-400 capitalize">
-                          {role.toLowerCase()}
-                        </div>
-                      </div>
-                      <svg
-                        className="w-4 h-4 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </button>
+  {/* DOWNLOADS (moved near profile) */}
+  <Link
+    to="/downloads"
+    className={`
+      flex items-center justify-center
+      w-10 h-10 rounded-full transition
+      ${isActive("/downloads")
+        ? "bg-white text-black shadow-md"
+        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
+    `}
+    title="Downloads"
+  >
+    <CircleArrowDown size={20} />
+  </Link>
 
-                    {/* Profile Dropdown */}
-                    {showProfileMenu && (
-                      <div className="absolute right-0 mt-2 w-64 bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
-                        <div className="p-4 border-b border-white/10">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20 hover:border-white/40 transition-colors">
-                              {userData?.avatar?.secure_url?.startsWith(
-                                "http"
-                              ) ? (
-                                <img
-                                  src={userData.avatar.secure_url}
-                                  alt="Profile"
-                                  loading="lazy"
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                                  {userData?.fullName
-                                    ?.charAt(0)
-                                    ?.toUpperCase() || "U"}
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <div className="font-medium text-white">
-                                {userData?.fullName || "User"}
-                              </div>
-                              <div className="text-sm text-gray-400">
-                                {userData?.email}
-                              </div>
-                              <div className="text-xs text-blue-400 capitalize">
-                                {role.toLowerCase()} account
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+  {/* FUTURE: NOTIFICATIONS PLACEHOLDER */}
+  {/*
+  <button
+    className="
+      w-10 h-10 rounded-full
+      bg-[#1F1F1F]
+      border border-white/10
+      text-gray-400
+      hover:bg-[#2A2A2A] hover:text-white
+      transition
+    "
+    title="Notifications"
+  >
+    <Bell size={18} />
+  </button>
+  */}
 
-                        <div className="py-2">
-                          <Link
-                            to="/profile"
-                            className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
-                          >
-                            <UserIcon className="w-5 h-5" />
-                            <span>My Profile</span>
-                          </Link>
-                          <Link
-                            to="/bookmarks"
-                            className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
-                          >
-                            <LibraryIcon className="w-5 h-5" />
-                            <span>My Bookmarks</span>
-                          </Link>
-                          {(role === "TEACHER" || role === "ADMIN") && (
-                            <Link
-                              to="/upload"
-                              className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
-                            >
-                              <UploadIcon className="w-5 h-5" />
-                              <span>Upload Notes</span>
-                            </Link>
-                          )}
-                          {(role === "TEACHER" || role === "ADMIN") && (
-                            <Link
-                              to="/upload/video"
-                              className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
-                            >
-                              <UploadIcon className="w-5 h-5" />
-                              <span>Upload video</span>
-                            </Link>
-                          )}
-                          {role === "ADMIN" && (
-                            <Link
-                              to="/admin"
-                              className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
-                            >
-                              <DashboardIcon className="w-5 h-5" />
-                              <span>Admin Dashboard</span>
-                            </Link>
-                          )}
-                        </div>
+  {/* PROFILE AVATAR */}
+  <div className="relative">
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        setShowProfileMenu(!showProfileMenu);
+      }}
+      className="
+        w-10 h-10 rounded-full overflow-hidden
+        border-2 border-white/20
+        hover:border-white/40
+        transition
+      "
+      title="Profile"
+    >
+      {userData?.avatar?.secure_url?.startsWith("http") ? (
+        <img
+          src={userData.avatar.secure_url}
+          alt="Profile"
+          loading="lazy"
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+          {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
+        </div>
+      )}
+    </button>
 
-                        <div className="border-t border-white/10 py-2">
-                          <button
-                            onClick={handleLogout}
-                            className="flex items-center space-x-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-white/10 transition-colors w-full text-left"
-                          >
-                            <span>
-                              <LogoutIcon />
-                            </span>
-                            <span>Sign Out</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+    {/* Profile Dropdown (UNCHANGED) */}
+    {/* Profile Dropdown */}
+{showProfileMenu && (
+  <div
+    className="
+      absolute right-0 mt-3 w-64
+      bg-[#0F0F0F]/95 backdrop-blur-xl
+      border border-white/10
+      rounded-2xl
+      shadow-2xl
+      overflow-hidden
+    "
+  >
+    {/* ───── USER IDENTITY ───── */}
+    <div className="p-4 border-b border-white/10">
+      <div className="flex items-center gap-3">
+        {/* Avatar */}
+        <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20">
+          {userData?.avatar?.secure_url?.startsWith("http") ? (
+            <img
+              src={userData.avatar.secure_url}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-[#1F1F1F] flex items-center justify-center text-white font-semibold">
+              {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
+            </div>
+          )}
+        </div>
+
+        {/* Name + Email */}
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-white truncate">
+            {userData?.fullName || "User"}
+          </p>
+          <p className="text-xs text-gray-400 truncate">
+            {userData?.email}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* ───── MENU ACTIONS ───── */}
+    <div className="py-2">
+
+      <Link
+        to="/profile"
+        className="dropdown-item"
+      >
+        <User size={16} />
+        <span>My Profile</span>
+      </Link>
+
+      <Link
+        to="/bookmarks"
+        className="dropdown-item"
+      >
+        <Bookmark size={16} />
+        <span>Bookmarks</span>
+      </Link>
+
+      {(role === "TEACHER" || role === "ADMIN") && (
+        <Link
+          to="/upload"
+          className="dropdown-item"
+        >
+          <Upload size={16} />
+          <span>Upload Notes</span>
+        </Link>
+      )}
+
+      {(role === "TEACHER" || role === "ADMIN") && (
+        <Link
+          to="/upload/video"
+          className="dropdown-item"
+        >
+          <Video size={16} />
+          <span>Upload Video</span>
+        </Link>
+      )}
+
+      {role === "ADMIN" && (
+        <Link
+          to="/admin"
+          className="dropdown-item"
+        >
+          <LayoutDashboard size={16} />
+          <span>Admin Dashboard</span>
+        </Link>
+      )}
+    </div>
+
+    {/* ───── SIGN OUT ───── */}
+    <div className="border-t border-white/10 py-2">
+      <button
+        onClick={handleLogout}
+        className="
+          w-full flex items-center gap-3
+          px-4 py-2.5
+          text-sm text-red-400
+          hover:text-red-300
+          hover:bg-white/10
+          transition
+        "
+      >
+        <LogOut size={16} />
+        <span>Sign out</span>
+      </button>
+    </div>
+  </div>
+)}
+
+  </div>
+
+</div></>
+
                 ) : (
                   <>
                     <Link
@@ -883,7 +1065,8 @@ const HomeLayout = () => {
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  // 🔥 CASE 2: Retry search
+                  if (!query?.trim() || isSearching) return;
+
                   if (isFailedSearch) {
                     dispatch(
                       logFailedSearchAction({
@@ -893,53 +1076,148 @@ const HomeLayout = () => {
                       })
                     );
                   }
-                  if (!query?.trim() || isSearching) return;
+
+                  dispatch(clearSuggestions());
                   navigate(`/search?query=${encodeURIComponent(query)}`);
                 }}
                 className="flex items-center gap-2 flex-1"
               >
-                {/* INPUT */}
+                {/* INPUT + SUGGESTIONS WRAPPER */}
                 <div className="relative flex-1">
+                  {/* SEARCH ICON */}
                   <Search
                     size={16}
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   />
 
+                  {/* INPUT */}
                   <input
                     type="text"
                     value={query || ""}
-                    onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+                    ref={mobileSearchRef}
+                    onFocus={() => {
+                      setIsSearchOpen(true);
+
+                      if (!query?.trim()) {
+                        dispatch(fetchRecentSearches());
+                      }
+                    }}
+                    onChange={(e) => {
+                      dispatch(setSearchQuery(e.target.value));
+                      setIsSearchOpen(true);
+                    }}
                     placeholder="Search DBMS, OS, PYQs…"
-                    className="
-              w-full h-10
-              pl-9 pr-3
-              bg-[#1F1F1F]
-              border border-white/10
-              rounded-full
-              text-sm text-white
-              placeholder-gray-500
-              outline-none ring-0
-              focus:border-white/20
-            "
+                    className={`
+        w-full h-10
+        pl-9 pr-3
+        bg-[#1F1F1F]
+        border border-white/10
+        text-sm text-white
+        placeholder-gray-500
+        outline-none
+        transition
+        ${suggestions.length > 0
+                        ? "rounded-t-xl rounded-b-none"
+                        : "rounded-full"}
+      `}
                   />
+
+                  {/* 🔽 SEARCH SUGGESTIONS (MOBILE) */}
+                  {suggestions.length > 0 && (
+                    <div
+                      className="
+          absolute top-full left-0 right-0
+          -mt-[1px]
+          bg-[#111111]
+          border border-white/10
+          border-t-0
+          rounded-b-xl
+          shadow-2xl
+          overflow-hidden
+          z-50
+        "
+                    >
+                      {suggestions.map((s, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => {
+                            dispatch(setSearchQuery(s));
+                            dispatch(clearSuggestions());
+                            navigate(`/search?query=${encodeURIComponent(s)}`);
+                          }}
+                          className="
+              w-full flex items-center gap-3
+              px-4 py-3
+              text-sm text-gray-300
+              active:bg-[#1F1F1F]
+              hover:bg-[#1F1F1F]
+              transition
+            "
+                        >
+                          <Search size={14} className="text-gray-500" />
+                          <span className="truncate">{s}</span>
+
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {isSearchOpen &&
+ !query?.trim() &&
+ recentSearches.length > 0 && (
+  <div
+    className="
+      absolute top-full left-0 right-0
+      rounded-xl
+          bg-[#111111]
+          border border-white/10
+          border-t-0
+          rounded-b-xl
+          shadow-2xl
+          overflow-hidden
+          z-50
+    "
+  >
+    {recentSearches.map((item, index) => (
+      <button
+        key={index}
+        onClick={() => {
+          dispatch(setSearchQuery(item.query));
+          setIsSearchOpen(false);
+          navigate(`/search?query=${encodeURIComponent(item.query)}`);
+        }}
+        className="
+          w-full flex items-center gap-3
+              px-4 py-3
+              text-sm text-gray-300
+              active:bg-[#1F1F1F]
+              hover:bg-[#1F1F1F]
+              transition
+        "
+      >
+        <Clock size={14} className="text-gray-500" />
+        <span className="truncate">{item.query}</span>
+      </button>
+    ))}
+  </div>
+)}
+
                 </div>
 
-                {/* SEARCH BUTTON (OUTSIDE INPUT) */}
+                {/* SEARCH BUTTON */}
                 {query?.trim() && (
                   <button
                     type="submit"
                     disabled={isSearching}
-                    aria-label="Search"
                     className={`
-              w-9 h-9
-              flex items-center justify-center
-              rounded-full
-              transition-all
-              ${isSearching
-                        ? "bg-white/20 cursor-not-allowed"
-                        : "bg-white/10 active:scale-95"
-                      }
-            `}
+        w-9 h-9
+        flex items-center justify-center
+        rounded-full
+        transition
+        ${isSearching
+                        ? "bg-white/20"
+                        : "bg-white/10 active:scale-95"}
+      `}
                   >
                     {isSearching ? (
                       <svg
@@ -968,6 +1246,7 @@ const HomeLayout = () => {
                   </button>
                 )}
               </form>
+
             )}
 
             {/* RIGHT SIDE */}

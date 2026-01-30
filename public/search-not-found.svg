@@ -1,0 +1,54 @@
+<svg
+  width="420"
+  height="300"
+  viewBox="0 0 420 300"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+
+  <!-- Background blob -->
+  <path
+    d="M60 200C30 160 40 100 90 80C120 30 200 10 260 40C330 20 390 80 360 140C390 200 340 260 260 250C220 280 140 280 100 240C70 230 70 230 60 200Z"
+    fill="#1F1F1F"
+  />
+
+  <!-- Floating documents -->
+  <rect x="120" y="110" width="80" height="60" rx="6" fill="#2A2A2A"/>
+  <rect x="130" y="120" width="60" height="6" rx="3" fill="#3A3A3A"/>
+  <rect x="130" y="132" width="40" height="6" rx="3" fill="#3A3A3A"/>
+
+  <rect x="250" y="90" width="70" height="50" rx="6" fill="#2A2A2A"/>
+  <rect x="258" y="100" width="45" height="6" rx="3" fill="#3A3A3A"/>
+
+  <!-- Search glass -->
+  <circle
+    cx="210"
+    cy="155"
+    r="38"
+    stroke="#9CA3AF"
+    stroke-width="6"
+    fill="none"
+  />
+  <line
+    x1="240"
+    y1="185"
+    x2="270"
+    y2="215"
+    stroke="#9CA3AF"
+    stroke-width="6"
+    stroke-linecap="round"
+  />
+
+  <!-- Question mark -->
+  <text
+    x="202"
+    y="165"
+    fill="#6366F1"
+    font-size="32"
+    font-weight="700"
+    font-family="system-ui, -apple-system, BlinkMacSystemFont"
+  >
+    ?
+  </text>
+
+</svg>

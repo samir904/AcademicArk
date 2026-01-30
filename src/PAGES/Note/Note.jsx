@@ -605,72 +605,99 @@ useEffect(() => {
       <div className="min-h-screen bg-neutral-950 text-white">
         {/* Notes Library Hero – Calm & Academic */}
         {/* Notes Page Hero – Calm, Academic, Complete */}
-        <div className="bg-[#0F0F0F] border-b border-[#1F1F1F]">
-          <div className="max-w-5xl mx-auto px-6 py-8 text-center">
+        <div className="bg-[#0F0F0F] hidden  md:flex border-b border-[#1F1F1F] relative overflow-hidden">
+  <div className="max-w-6xl mx-auto px-6 py-2 grid md:grid-cols-2 gap-10 items-center">
 
-            {/* Logo + Context */}
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <img
-                src={aktulogo}
-                alt="AKTU Logo"
-                loading="lazy"
-                className="w-9 h-9 rounded-full"
-              />
-              <span className="text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider">
-                AKTU Study Library
-              </span>
-            </div>
 
-            {/* Title */}
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-              Notes, PYQs & Exam Resources
-            </h1>
+    {/* LEFT: CONTENT */}
+    <div className="space-y-4">
+      <span className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+        AKTU Study Library
+      </span>
 
-            {/* Subtitle */}
-            <p className="text-sm text-[#9CA3AF] max-w-xl mx-auto">
-              Semester-wise notes, video lectures, PYQs and important questions —
-              organized for focused AKTU preparation
-            </p>
+      <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight">
+        Study resources, organized
+      </h1>
 
-            {/* Resource Types */}
-            <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs">
-              <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
-                📘 Notes
-              </span>
-              <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
-                ✏️ Handwritten notes
-              </span>
-              <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
-                📄 PYQs
-              </span>
-              <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
-                ⭐ Important Questions
-              </span>
-              <span className="px-3 py-1 rounded-full bg-[#1F1F1F] text-[#9CA3AF]">
-                🎥 Video Lectures
-              </span>
-            </div>
-            <div className="pt-4">
-              <button
-                onClick={() => {
-                  const semesterSection = document.querySelector('[data-semester-section]');
-                  semesterSection?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="
-          inline-flex items-center gap-2
-          px-6 py-1
-          rounded-full
-          bg-[#9CA3AF] text-black
-          hover:bg-white
-          font-semibold text-sm
-          transition-all duration-200
-        "
-              >
-                Browse by Semester →
-              </button>
-            </div>
-          </div>
-        </div>
+      <p className="text-sm text-[#9CA3AF] max-w-md">
+        Semester-wise notes, PYQs, important questions and video lectures —
+        structured to help you study without confusion.
+      </p>
+
+      <div className="pt-2">
+        <button
+          onClick={() => {
+            const semesterSection = document.querySelector('[data-semester-section]');
+            semesterSection?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          className="
+            inline-flex items-center gap-2
+            px-5 py-2
+            rounded-full
+            bg-[#9CA3AF] text-black
+            hover:bg-white
+            font-semibold text-sm
+            transition-all
+          "
+        >
+          Browse by semester →
+        </button>
+      </div>
+    </div>
+
+    {/* RIGHT: CALM SVG */}
+    <div className="hidden  md:flex justify-center opacity-35 pointer-events-none">
+      <img
+        src="/Studying-bro (1).svg"
+        alt=""
+        className="w-[300px] "
+      />
+    </div>
+
+  </div>
+</div>
+{/* 📱 MOBILE LIBRARY HERO */}
+<div className="md:hidden bg-[#0F0F0F] border-b border-[#1F1F1F]">
+  <div className="px-5 py-6 space-y-4">
+
+    {/* Context */}
+    <span className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider">
+      AKTU Study Library
+    </span>
+
+    {/* Title */}
+    <h1 className="text-xl font-bold text-white leading-snug">
+      Study resources,<br />organized
+    </h1>
+
+    {/* Subtext */}
+    <p className="text-sm text-[#9CA3AF] leading-relaxed">
+      Notes, PYQs and videos — neatly arranged semester-wise for focused study.
+    </p>
+
+    {/* CTA */}
+    <button
+      onClick={() => {
+        const semesterSection = document.querySelector('[data-semester-section]');
+        semesterSection?.scrollIntoView({ behavior: 'smooth' });
+      }}
+      className="
+        inline-flex items-center gap-2
+        px-5 py-2.5
+        rounded-full
+        bg-[#9CA3AF] text-black
+        hover:bg-white
+        font-semibold text-sm
+        transition
+      "
+    >
+      Choose semester →
+    </button>
+
+  </div>
+</div>
+
+
 
         {/* Filters Section */}
         <div data-semester-section className="max-w-7xl mx-auto px-4 py-8">

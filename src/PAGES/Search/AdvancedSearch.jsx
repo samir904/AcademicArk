@@ -8,7 +8,7 @@ import CardRenderer from '../Note/CardRenderer';
 import PageTransition from '../../COMPONENTS/PageTransition';
 import { Check, Library } from 'lucide-react';
 import { logFailedSearchAction } from "../../REDUX/Slices/failedSearchSlice";
-
+import searchillustration from '../../../public/search-illustration.svg'
 // Icons
 const SearchIcon = ({ className }) => (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -312,6 +312,11 @@ useEffect(() => {
   }
 }, [isFailedSearch, query, dispatch]);
 
+const isInitialSearchState =
+  !loading &&
+  !hasSubmitted &&
+  (!searchQuery || searchQuery.trim() === "");
+
     return (
         <PageTransition>
             <div className="min-h-screen bg-neutral-950">
@@ -371,9 +376,20 @@ useEffect(() => {
                     {!loading && hasSubmitted && searchResults.length === 0 && (
                         <div className="text-center py-20 max-w-xl mx-auto">
 
-                            {/* Icon */}
-                            <SearchIcon className="w-14 h-14 text-gray-500 mx-auto mb-4 opacity-60" />
+                            {/* Not Found Illustration */}
+<img
+  src="../../../public/curiosity search-rafiki (1).svg"
+  alt="No results illustration"
+  className="
+    w-64
+    mx-auto
+    mb-6
+    opacity-90
+    animate-fade-in
+  "
+/>
 
+                          
                             {/* Title */}
                             <h3 className="text-xl font-semibold text-white mb-2">
                                 No exact results found
@@ -487,21 +503,75 @@ useEffect(() => {
                         </div>
                     )}
 
-                    {!loading && searchQuery.trim().length > 0 && searchQuery.trim().length < 2 && (
+                    {/* {!loading && searchQuery.trim().length > 0 && searchQuery.trim().length < 2 && (
                         <p className="text-center text-xs text-gray-500 mt-12">
                             Keep typing… try subject + type (e.g. <span className="text-gray-300">DS notes</span>)
                         </p>
-                    )}
+                    )} */}
+{/* 🔍 SEARCH ZERO STATE (User hasn't typed yet) */}
+{isInitialSearchState && (
+  <div className="text-center py-24 max-w-xl mx-auto">
+
+    {/* Illustration */}
+    <img
+      src="../../../public/File searching-rafiki (2).svg" // 👈 put your SVG / image here
+      alt="Search illustration"
+      className="w-64 mx-auto mb-6 opacity-90"
+    />
+
+    {/* Title */}
+    <h2 className="text-2xl font-semibold text-white mb-3">
+      Find exactly what you need
+    </h2>
+
+    {/* Subtitle */}
+    <p className="text-gray-400 text-sm leading-relaxed mb-8">
+      Search notes, handwritten material, PYQs, videos, and more.
+      Just start typing a subject, unit, or topic.
+    </p>
+
+    {/* Suggestions */}
+    <div className="flex flex-wrap justify-center gap-2">
+      {[
+        "DBMS Unit 3",
+        "OS deadlock",
+        "DSA PYQ",
+        "DAA greedy algorithm",
+        "CN handwritten notes"
+      ].map((example) => (
+        <button
+          key={example}
+          onClick={() => {
+            navigate(`/search?query=${encodeURIComponent(example)}`);
+          }}
+          className="
+            px-4 py-1.5
+            text-xs
+            rounded-full
+            bg-[#1F1F1F]
+            border border-[#2F2F2F]
+            text-gray-300
+            hover:text-white
+            hover:border-[#9CA3AF]/40
+            transition
+          "
+        >
+          {example}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
 
 
                 </div>
 
                 {/* SUCCESS TOAST */}
-                {showToast && (
+                {/* {showToast && (
                     <div className="fixed bottom-6 left-4 right-4 md:left-auto md:right-6 bg-[#22C55E] text-black px-4 py-3 rounded-lg font-medium text-sm animate-bounce">
                         {toastMessage}
                     </div>
-                )}
+                )} */}
             </div>
         </PageTransition>
     );

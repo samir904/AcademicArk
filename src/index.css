@@ -381,6 +381,26 @@ textarea:focus-visible {
   outline: none !important;
   box-shadow: none !important;
 }
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes floatSlow {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+.dropdown-item {
+  @apply flex items-center gap-3 px-4 py-2.5
+         text-sm text-gray-300
+         hover:text-white hover:bg-white/10
+         transition;
+}
 
 
 /* Smooth transitions for all interactive elements */

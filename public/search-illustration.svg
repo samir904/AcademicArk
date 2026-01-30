@@ -1,0 +1,85 @@
+<svg
+  width="420"
+  height="260"
+  viewBox="0 0 420 260"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+
+  <!-- Background glow -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <ellipse cx="210" cy="180" rx="140" ry="60" fill="url(#glow)" />
+
+  <!-- Books -->
+  <g>
+    <rect x="130" y="130" width="160" height="22" rx="6" fill="#1F2933"/>
+    <rect x="140" y="110" width="140" height="20" rx="6" fill="#111827"/>
+    <rect x="150" y="92" width="120" height="18" rx="6" fill="#0F172A"/>
+  </g>
+
+  <!-- Magnifying Glass Group -->
+  <g>
+    <!-- Float animation -->
+    <animateTransform
+      attributeName="transform"
+      type="translate"
+      from="0 0"
+      to="0 -8"
+      dur="2.5s"
+      repeatCount="indefinite"
+      direction="alternate"
+    />
+
+    <!-- Glass -->
+    <circle
+      cx="240"
+      cy="95"
+      r="26"
+      stroke="#9CA3AF"
+      stroke-width="4"
+      fill="none"
+    />
+
+    <!-- Handle -->
+    <rect
+      x="260"
+      y="115"
+      width="36"
+      height="6"
+      rx="3"
+      transform="rotate(35 260 115)"
+      fill="#9CA3AF"
+    />
+
+    <!-- Scan pulse -->
+    <circle
+      cx="240"
+      cy="95"
+      r="20"
+      stroke="#3B82F6"
+      stroke-width="2"
+      fill="none"
+      opacity="0"
+    >
+      <animate
+        attributeName="opacity"
+        values="0;0.6;0"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+      <animate
+        attributeName="r"
+        values="16;26"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </circle>
+  </g>
+
+</svg>

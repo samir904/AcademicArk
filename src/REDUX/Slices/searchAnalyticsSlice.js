@@ -11,7 +11,7 @@ export const logSearchAnalytics = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       await axiosInstance.post(
-        "/search-analytics/log",
+        "/search/analytics/log",
         payload,
         { withCredentials: true }
       );
@@ -23,11 +23,33 @@ export const logSearchAnalytics = createAsyncThunk(
   }
 );
 
+/**
+ * 🕘 FETCH RECENT SEARCHES (user specific)
+ * Called when search input is focused
+ */
+export const fetchRecentSearches = createAsyncThunk(
+  "searchAnalytics/fetchRecent",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get(
+        "/search/analytics/recent",
+        { withCredentials: true }
+      );
+
+      return res.data.searches || [];
+    } catch (error) {
+      return rejectWithValue([]);
+    }
+  }
+);
+
 const searchAnalyticsSlice = createSlice({
   name: "searchAnalytics",
 
   initialState: {
-    lastLoggedAt: null
+    lastLoggedAt: null,
+    recentSearches: [],
+    loadingRecent: false
   },
 
   reducers: {},
@@ -39,7 +61,19 @@ const searchAnalyticsSlice = createSlice({
       })
       .addCase(logSearchAnalytics.rejected, () => {
         // ❌ silent fail — analytics must NEVER affect UX
-      });
+      })
+      /* 🕘 Recent Searches */
+    .addCase(fetchRecentSearches.pending, (state) => {
+      state.loadingRecent = true;
+    })
+    .addCase(fetchRecentSearches.fulfilled, (state, action) => {
+      state.loadingRecent = false;
+      state.recentSearches = action.payload;
+    })
+    .addCase(fetchRecentSearches.rejected, (state) => {
+      state.loadingRecent = false;
+      state.recentSearches = [];
+    });
   }
 });
 
