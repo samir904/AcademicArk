@@ -81,11 +81,10 @@ const handleCreateSynonym = () => {
     })
   );
 
-   if (res.meta.requestStatus === "fulfilled") {
-    dispatch(fetchSearchCorrections());
-    dispatch(fetchCorrectionSuggestions());
+  if (res.meta.requestStatus === "fulfilled") {
+    dispatch(fetchSearchSynonyms()); // 🔥 THIS WAS MISSING
   }
-
+  
   setKeyword("");
   setExpandsTo("");
 };
@@ -261,11 +260,11 @@ const { synonyms } = useSelector(
       className="bg-[#1F1F1F] border border-white/10 rounded-lg px-4 py-2 text-sm text-white"
     />
 
-    <input
+    <textarea
       value={expandsTo}
       onChange={(e) => setExpandsTo(e.target.value)}
       placeholder="Expands to (comma separated)"
-      className="bg-[#1F1F1F] border border-white/10 rounded-lg px-4 py-2 text-sm text-white"
+      className="bg-[#1F1F1F] border resize border-white/10 rounded-lg px-4 py-2 text-sm text-white"
     />
 
     <button

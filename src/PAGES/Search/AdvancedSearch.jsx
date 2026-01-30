@@ -378,7 +378,7 @@ const isInitialSearchState =
 
                             {/* Not Found Illustration */}
 <img
-  src="../../../public/curiosity search-rafiki (1).svg"
+  src="/curiosity search-rafiki (1).svg"
   alt="No results illustration"
   className="
     w-64
@@ -515,7 +515,7 @@ const isInitialSearchState =
 
     {/* Illustration */}
     <img
-      src="../../../public/File searching-rafiki (2).svg" // 👈 put your SVG / image here
+      src="/File searching-rafiki (2).svg" // 👈 put your SVG / image here
       alt="Search illustration"
       className="w-64 mx-auto mb-6 pointer-events-none opacity-90"
     />
