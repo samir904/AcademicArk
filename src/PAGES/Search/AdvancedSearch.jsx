@@ -386,6 +386,7 @@ const isInitialSearchState =
     mb-6
     opacity-90
     animate-fade-in
+    pointer-events-none
   "
 />
 
@@ -407,10 +408,10 @@ const isInitialSearchState =
                                     Try formats like
                                 </p>
                                 <ul className="space-y-1">
-                                    <li>• <span className="text-white">DBMS Unit 3 PYQ</span></li>
+                                    <li>• <span className="text-white">DBMS PYQ</span></li>
                                     <li>• <span className="text-white">Data Structure notes</span></li>
-                                    <li>• <span className="text-white">OS deadlock handwritten</span></li>
-                                    <li>• <span className="text-white">DAA greedy algorithm</span></li>
+                                    <li>• <span className="text-white">OS notes</span></li>
+                                    {/* <li>• <span className="text-white">DAA greedy algorithm</span></li> */}
                                 </ul>
                             </div>
 
@@ -516,7 +517,7 @@ const isInitialSearchState =
     <img
       src="../../../public/File searching-rafiki (2).svg" // 👈 put your SVG / image here
       alt="Search illustration"
-      className="w-64 mx-auto mb-6 opacity-90"
+      className="w-64 mx-auto mb-6 pointer-events-none opacity-90"
     />
 
     {/* Title */}
@@ -531,7 +532,7 @@ const isInitialSearchState =
     </p>
 
     {/* Suggestions */}
-    <div className="flex flex-wrap justify-center gap-2">
+    {/* <div className="flex flex-wrap justify-center gap-2">
       {[
         "DBMS Unit 3",
         "OS deadlock",
@@ -559,7 +560,7 @@ const isInitialSearchState =
           {example}
         </button>
       ))}
-    </div>
+    </div> */}
   </div>
 )}
 
