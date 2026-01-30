@@ -443,11 +443,11 @@ const HomeLayout = () => {
       dispatch(clearSuggestions());
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     window.addEventListener("scroll", handleScroll);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.addEventListener("click", handleClickOutside);
       window.removeEventListener("scroll", handleScroll);
     };
   }, [dispatch]);
@@ -843,26 +843,26 @@ const HomeLayout = () => {
               <div className="flex items-center gap-2 space-x-4">
                 {isLoggedIn ? (
                   <>
-                  {/* Desktop Auth Section */}
-<div className="flex items-center gap-2">
+                    {/* Desktop Auth Section */}
+                    <div className="flex items-center gap-2">
 
-  {/* DOWNLOADS (moved near profile) */}
-  <Link
-    to="/downloads"
-    className={`
+                      {/* DOWNLOADS (moved near profile) */}
+                      <Link
+                        to="/downloads"
+                        className={`
       flex items-center justify-center
       w-10 h-10 rounded-full transition
       ${isActive("/downloads")
-        ? "bg-white text-black shadow-md"
-        : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
+                            ? "bg-white text-black shadow-md"
+                            : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
     `}
-    title="Downloads"
-  >
-    <CircleArrowDown size={20} />
-  </Link>
+                        title="Downloads"
+                      >
+                        <CircleArrowDown size={20} />
+                      </Link>
 
-  {/* FUTURE: NOTIFICATIONS PLACEHOLDER */}
-  {/*
+                      {/* FUTURE: NOTIFICATIONS PLACEHOLDER */}
+                      {/*
   <button
     className="
       w-10 h-10 rounded-full
@@ -878,40 +878,40 @@ const HomeLayout = () => {
   </button>
   */}
 
-  {/* PROFILE AVATAR */}
-  <div className="relative">
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        setShowProfileMenu(!showProfileMenu);
-      }}
-      className="
+                      {/* PROFILE AVATAR */}
+                      <div className="relative">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowProfileMenu(!showProfileMenu);
+                          }}
+                          className="
         w-10 h-10 rounded-full overflow-hidden
         border-2 border-white/20
         hover:border-white/40
         transition
       "
-      title="Profile"
-    >
-      {userData?.avatar?.secure_url?.startsWith("http") ? (
-        <img
-          src={userData.avatar.secure_url}
-          alt="Profile"
-          loading="lazy"
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-          {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
-        </div>
-      )}
-    </button>
+                          title="Profile"
+                        >
+                          {userData?.avatar?.secure_url?.startsWith("http") ? (
+                            <img
+                              src={userData.avatar.secure_url}
+                              alt="Profile"
+                              loading="lazy"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                              {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                            </div>
+                          )}
+                        </button>
 
-    {/* Profile Dropdown (UNCHANGED) */}
-    {/* Profile Dropdown */}
-{showProfileMenu && (
-  <div
-    className="
+                        {/* Profile Dropdown (UNCHANGED) */}
+                        {/* Profile Dropdown */}
+                        {showProfileMenu && (
+                          <div
+                            className="
       absolute right-0 mt-3 w-64
       bg-[#0F0F0F]/95 backdrop-blur-xl
       border border-white/10
@@ -919,92 +919,92 @@ const HomeLayout = () => {
       shadow-2xl
       overflow-hidden
     "
-  >
-    {/* ───── USER IDENTITY ───── */}
-    <div className="p-4 border-b border-white/10">
-      <div className="flex items-center gap-3">
-        {/* Avatar */}
-        <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20">
-          {userData?.avatar?.secure_url?.startsWith("http") ? (
-            <img
-              src={userData.avatar.secure_url}
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-[#1F1F1F] flex items-center justify-center text-white font-semibold">
-              {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
-            </div>
-          )}
-        </div>
+                          >
+                            {/* ───── USER IDENTITY ───── */}
+                            <div className="p-4 border-b border-white/10">
+                              <div className="flex items-center gap-3">
+                                {/* Avatar */}
+                                <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20">
+                                  {userData?.avatar?.secure_url?.startsWith("http") ? (
+                                    <img
+                                      src={userData.avatar.secure_url}
+                                      alt="Profile"
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-[#1F1F1F] flex items-center justify-center text-white font-semibold">
+                                      {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                                    </div>
+                                  )}
+                                </div>
 
-        {/* Name + Email */}
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-white truncate">
-            {userData?.fullName || "User"}
-          </p>
-          <p className="text-xs text-gray-400 truncate">
-            {userData?.email}
-          </p>
-        </div>
-      </div>
-    </div>
+                                {/* Name + Email */}
+                                <div className="min-w-0">
+                                  <p className="text-sm font-semibold text-white truncate">
+                                    {userData?.fullName || "User"}
+                                  </p>
+                                  <p className="text-xs text-gray-400 truncate">
+                                    {userData?.email}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
 
-    {/* ───── MENU ACTIONS ───── */}
-    <div className="py-2">
+                            {/* ───── MENU ACTIONS ───── */}
+                            <div className="py-2">
 
-      <Link
-        to="/profile"
-        className="dropdown-item"
-      >
-        <User size={16} />
-        <span>My Profile</span>
-      </Link>
+                              <Link
+                                to="/profile"
+                                className="dropdown-item"
+                              >
+                                <User size={16} />
+                                <span>My Profile</span>
+                              </Link>
 
-      <Link
-        to="/bookmarks"
-        className="dropdown-item"
-      >
-        <Bookmark size={16} />
-        <span>Bookmarks</span>
-      </Link>
+                              <Link
+                                to="/bookmarks"
+                                className="dropdown-item"
+                              >
+                                <Bookmark size={16} />
+                                <span>Bookmarks</span>
+                              </Link>
 
-      {(role === "TEACHER" || role === "ADMIN") && (
-        <Link
-          to="/upload"
-          className="dropdown-item"
-        >
-          <Upload size={16} />
-          <span>Upload Notes</span>
-        </Link>
-      )}
+                              {(role === "TEACHER" || role === "ADMIN") && (
+                                <Link
+                                  to="/upload"
+                                  className="dropdown-item"
+                                >
+                                  <Upload size={16} />
+                                  <span>Upload Notes</span>
+                                </Link>
+                              )}
 
-      {(role === "TEACHER" || role === "ADMIN") && (
-        <Link
-          to="/upload/video"
-          className="dropdown-item"
-        >
-          <Video size={16} />
-          <span>Upload Video</span>
-        </Link>
-      )}
+                              {(role === "TEACHER" || role === "ADMIN") && (
+                                <Link
+                                  to="/upload/video"
+                                  className="dropdown-item"
+                                >
+                                  <Video size={16} />
+                                  <span>Upload Video</span>
+                                </Link>
+                              )}
 
-      {role === "ADMIN" && (
-        <Link
-          to="/admin"
-          className="dropdown-item"
-        >
-          <LayoutDashboard size={16} />
-          <span>Admin Dashboard</span>
-        </Link>
-      )}
-    </div>
+                              {role === "ADMIN" && (
+                                <Link
+                                  to="/admin"
+                                  className="dropdown-item"
+                                >
+                                  <LayoutDashboard size={16} />
+                                  <span>Admin Dashboard</span>
+                                </Link>
+                              )}
+                            </div>
 
-    {/* ───── SIGN OUT ───── */}
-    <div className="border-t border-white/10 py-2">
-      <button
-        onClick={handleLogout}
-        className="
+                            {/* ───── SIGN OUT ───── */}
+                            <div className="border-t border-white/10 py-2">
+                              <button
+                                onClick={handleLogout}
+                                className="
           w-full flex items-center gap-3
           px-4 py-2.5
           text-sm text-red-400
@@ -1012,17 +1012,17 @@ const HomeLayout = () => {
           hover:bg-white/10
           transition
         "
-      >
-        <LogOut size={16} />
-        <span>Sign out</span>
-      </button>
-    </div>
-  </div>
-)}
+                              >
+                                <LogOut size={16} />
+                                <span>Sign out</span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
 
-  </div>
+                      </div>
 
-</div></>
+                    </div></>
 
                 ) : (
                   <>
@@ -1062,7 +1062,7 @@ const HomeLayout = () => {
               </Link>
             ) : (
               /* SEARCH INPUT (search page only) */
-              <form
+              <form 
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (!query?.trim() || isSearching) return;
@@ -1083,7 +1083,7 @@ const HomeLayout = () => {
                 className="flex items-center gap-2 flex-1"
               >
                 {/* INPUT + SUGGESTIONS WRAPPER */}
-                <div className="relative flex-1">
+                <div ref={searchWrapperRef} className="relative flex-1">
                   {/* SEARCH ICON */}
                   <Search
                     size={16}
@@ -1141,11 +1141,13 @@ const HomeLayout = () => {
                         <button
                           key={index}
                           type="button"
-                          onClick={() => {
+                          onMouseDown={(e) => {
+                            e.preventDefault(); // 👈 stop blur
                             dispatch(setSearchQuery(s));
                             dispatch(clearSuggestions());
                             navigate(`/search?query=${encodeURIComponent(s)}`);
                           }}
+
                           className="
               w-full flex items-center gap-3
               px-4 py-3
@@ -1163,10 +1165,10 @@ const HomeLayout = () => {
                     </div>
                   )}
                   {isSearchOpen &&
- !query?.trim() &&
- recentSearches.length > 0 && (
-  <div
-    className="
+                    !query?.trim() &&
+                    recentSearches.length > 0 && (
+                      <div
+                        className="
       absolute top-full left-0 right-0
       rounded-xl
           bg-[#111111]
@@ -1177,16 +1179,16 @@ const HomeLayout = () => {
           overflow-hidden
           z-50
     "
-  >
-    {recentSearches.map((item, index) => (
-      <button
-        key={index}
-        onClick={() => {
-          dispatch(setSearchQuery(item.query));
-          setIsSearchOpen(false);
-          navigate(`/search?query=${encodeURIComponent(item.query)}`);
-        }}
-        className="
+                      >
+                        {recentSearches.map((item, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              dispatch(setSearchQuery(item.query));
+                              setIsSearchOpen(false);
+                              navigate(`/search?query=${encodeURIComponent(item.query)}`);
+                            }}
+                            className="
           w-full flex items-center gap-3
               px-4 py-3
               text-sm text-gray-300
@@ -1194,13 +1196,13 @@ const HomeLayout = () => {
               hover:bg-[#1F1F1F]
               transition
         "
-      >
-        <Clock size={14} className="text-gray-500" />
-        <span className="truncate">{item.query}</span>
-      </button>
-    ))}
-  </div>
-)}
+                          >
+                            <Clock size={14} className="text-gray-500" />
+                            <span className="truncate">{item.query}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
 
                 </div>
 
