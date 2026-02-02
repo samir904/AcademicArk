@@ -1,0 +1,122 @@
+import React from "react";
+import { CheckCircle, ArrowRight, Check } from "lucide-react";
+
+export default function PlanCard({
+  plan,
+  onSelect,
+  highlight = false,
+  userAccess // 👈 pass this from parent
+}) {
+  const isActivePlan =
+    userAccess?.plan === plan._id &&
+    userAccess?.expiresAt &&
+    new Date(userAccess.expiresAt) > new Date();
+
+  const expiryText = userAccess?.expiresAt
+    ? new Date(userAccess.expiresAt).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short"
+      })
+    : null;
+
+  let ctaText = "Choose Plan";
+  if (isActivePlan) ctaText = "Active Plan";
+  else if (highlight) ctaText = `Get ${plan.name}`;
+
+  return (
+    <div
+      className={`
+        relative rounded-2xl border p-6 transition-all
+        ${isActivePlan
+          ? "border-emerald-500 bg-emerald-500/10"
+          : highlight
+          ? "border-indigo-500 bg-indigo-500/10 shadow-lg"
+          : "border-[#2F2F2F] bg-[#141414] hover:border-indigo-400/60"}
+      `}
+    >
+      {/* BADGES */}
+      {highlight && !isActivePlan && (
+        <div className="absolute -top-3 right-4 px-3 py-1 text-xs font-semibold rounded-full bg-indigo-500 text-white">
+          Recommended
+        </div>
+      )}
+
+      {isActivePlan && (
+        <div className="absolute -top-3 right-4 px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500 text-black">
+          Active
+        </div>
+      )}
+
+      {/* PLAN NAME */}
+      <h3 className="text-lg font-semibold text-white">
+        {plan.name}
+      </h3>
+
+      {/* PRICE */}
+      <div className="mt-2 flex items-end gap-1">
+        <span className="text-3xl font-bold text-white">
+          ₹{plan.price}
+        </span>
+        <span className="text-sm text-slate-400">
+          / {plan.validityDays} days
+        </span>
+      </div>
+
+      {/* DESCRIPTION */}
+      <p className="mt-3 text-sm text-slate-300">
+        {plan.description}
+      </p>
+
+      {/* FEATURES */}
+      <ul className="mt-4 space-y-2 text-sm text-slate-300">
+        <li className="flex items-center gap-2">
+          <CheckCircle className="w-4 h-4 text-emerald-400" />
+          Unlimited downloads
+        </li>
+        <li className="flex items-center gap-2">
+          <CheckCircle className="w-4 h-4 text-emerald-400" />
+          No ads, no distractions
+        </li>
+        <li className="flex items-center gap-2">
+          <CheckCircle className="w-4 h-4 text-emerald-400" />
+          Supports AcademicArk ❤️
+        </li>
+      </ul>
+
+      {/* VALIDITY INFO */}
+      {isActivePlan && expiryText && (
+        <p className="mt-4 text-xs text-emerald-400">
+          Valid till {expiryText}
+        </p>
+      )}
+
+      {/* CTA BUTTON */}
+      <button
+        disabled={isActivePlan}
+        onClick={() => onSelect(plan)}
+        className={`
+          mt-6 w-full flex items-center justify-center gap-2
+          px-5 py-3 rounded-full font-semibold text-sm
+          transition-all
+          ${isActivePlan
+            ? "bg-emerald-600/40 text-emerald-200 cursor-not-allowed"
+            : highlight
+            ? "bg-indigo-500 hover:bg-indigo-400 text-white"
+            : "bg-[#1F1F1F] hover:bg-[#2A2A2A] text-white border border-[#2F2F2F]"}
+        `}
+      >
+        {isActivePlan ? (
+          <>
+            <Check className="w-4 h-4" />
+            Active Plan
+          </>
+        ) : (
+          <>
+            {ctaText}
+            <ArrowRight className="w-4 h-4" />
+          </>
+        )}
+      </button>
+    </div>
+  );
+}

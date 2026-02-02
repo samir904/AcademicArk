@@ -7,7 +7,11 @@ import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 import { usePDFDownload } from '../../hooks/usePDFDownload.js';
 import ViewersModal from '../../COMPONENTS/Note/ViewersModal.jsx';
 import { useNoteTracking } from '../../COMPONENTS/Session/NoteInteractionTracker.jsx';  // ← ADD HERE
-import { Star } from 'lucide-react';
+import { Infinity, Star } from 'lucide-react';
+import { openPaywall } from "../../REDUX/Slices/paywallSlice";
+import { showToast } from "../../HELPERS/Toaster";
+import DownloadLimitBanner from "../../COMPONENTS/Paywall/DownloadLimitBanner.jsx";
+import axiosInstance from '../../HELPERS/axiosInstance.js';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -77,6 +81,11 @@ export default function HandwrittenCard({ note }) {
   const user = useSelector(state => state.auth.data);
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
   const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
+ const access = user?.access;
+  const hasActivePlan =
+    access?.plan &&
+    access?.expiresAt &&
+    new Date(access.expiresAt) > new Date();
 
   const isBookmarked = note.bookmarkedBy?.includes(user?._id);
 
@@ -98,6 +107,10 @@ export default function HandwrittenCard({ note }) {
   const { downloadPDF, downloading } = usePDFDownload();
   const downloadState = downloading[note._id];
   const role = useSelector((state) => state?.auth?.role || "");
+  
+  
+    const [quotaInfo, setQuotaInfo] = useState(null);
+    const [showQuotaBanner, setShowQuotaBanner] = useState(false);
   
   // Close menu on outside click
   useEffect(() => {
@@ -130,16 +143,27 @@ export default function HandwrittenCard({ note }) {
     }
     dispatch(toggleBookmark(note._id));
   };
+const fetchQuota = async () => {
+    // 🚫 Paid users don't need quota
+    if (hasActivePlan) return;
+    const res = await axiosInstance.get("/user/download-quota");
+    if (res.data?.success) {
+      setQuotaInfo(res.data);
+      setShowQuotaBanner(true);
+    }
+  };
 
   const handleDownload = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    trackDownload(note._id);
+
+   
+
     if (!isLoggedIn) {
       dispatch(setLoginModal({
         isOpen: true,
         context: {
-          action: 'want to Download this note',
+          action: "Download this note",
           noteTitle: note.title
         }
       }));
@@ -148,40 +172,104 @@ export default function HandwrittenCard({ note }) {
 
     setIsCurrentlyDownloading(true);
 
-    ReactGA.event({
-      category: 'engagement',
-      action: 'download_handwritten',
-      label: note.title,
-      value: note._id,
-    });
-
-    await dispatch(downloadnote({ noteId: note._id, title: note.title }));
-
-    const success = await downloadPDF({
+    const result = await downloadPDF({
       id: note._id,
-      url: note.fileDetails.secure_url,
       title: note.title,
-      subject: note.subject,
-      courseCode: note.course,
-      semester: note.semester,
-      university: note.university,
-      uploadedBy: note.uploadedBy,
+      meta: {
+        subject: note.subject,
+        semester: note.semester,
+        university: note.university
+      }
     });
 
-    if (success) {
-      // Smart delay: 500-800ms
-      const delay = 500 + Math.random() * 300;
+    setIsCurrentlyDownloading(false);
+
+    // 🟢 SUCCESS
+    if (result.success) {
+      if (!hasActivePlan) {
+        await fetchQuota();
+      }
       setTimeout(() => {
-        setIsCurrentlyDownloading(false);
-        // Only show rating modal if user hasn't rated this note yet
-        // if (!hasRated) {
         setShowReviewModal(true);
-        // }
-      }, delay);
-    } else {
-      setIsCurrentlyDownloading(false);
+      }, 600);
+      return;
     }
+
+    if (result.code === "DOWNLOAD_LIMIT_REACHED") {
+       trackDownload(note._id);
+      if (!hasActivePlan) {
+        await fetchQuota();
+      }
+      dispatch(openPaywall({
+        reason: "LIMIT_REACHED",
+        noteId: note._id
+      }));
+      return;
+    }
+
+
+    if (result.code === "PLAN_EXPIRED") {
+      dispatch(openPaywall({
+        reason: "PLAN_EXPIRED"
+      }));
+      return;
+    }
+
+    // ❌ FALLBACK
+    showToast.error(result.message || "Download failed");
   };
+
+  // const handleDownload = async (e) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   trackDownload(note._id);
+  //   if (!isLoggedIn) {
+  //     dispatch(setLoginModal({
+  //       isOpen: true,
+  //       context: {
+  //         action: 'want to Download this note',
+  //         noteTitle: note.title
+  //       }
+  //     }));
+  //     return;
+  //   }
+
+  //   setIsCurrentlyDownloading(true);
+
+  //   ReactGA.event({
+  //     category: 'engagement',
+  //     action: 'download_handwritten',
+  //     label: note.title,
+  //     value: note._id,
+  //   });
+
+  //   await dispatch(downloadnote({ noteId: note._id, title: note.title }));
+
+  //   const success = await downloadPDF({
+  //     id: note._id,
+  //     url: note.fileDetails.secure_url,
+  //     title: note.title,
+  //     subject: note.subject,
+  //     courseCode: note.course,
+  //     semester: note.semester,
+  //     university: note.university,
+  //     uploadedBy: note.uploadedBy,
+  //   });
+
+  //   if (success) {
+  //     // Smart delay: 500-800ms
+  //     const delay = 500 + Math.random() * 300;
+  //     setTimeout(() => {
+  //       setIsCurrentlyDownloading(false);
+  //       // Only show rating modal if user hasn't rated this note yet
+  //       // if (!hasRated) {
+  //       setShowReviewModal(true);
+  //       // }
+  //     }, delay);
+  //   } else {
+  //     setIsCurrentlyDownloading(false);
+  //   }
+  // };
 
   const submitRating = () => {
     if (userRating > 0) {
@@ -397,6 +485,22 @@ export default function HandwrittenCard({ note }) {
                 </div>
               )}
             </div>
+                  {/* RIGHT SIDE infinty badge */}
+            {hasActivePlan && (
+              <span
+                className="
+                  inline-flex items-center
+                  text-emerald-400/70
+                  text-[11px]
+                  font-medium
+                  whitespace-nowrap
+                "
+                title="Unlimited downloads"
+              >
+                <Infinity className='w-4 h-4'/>
+              </span>
+            )}
+            
 
             {/* Right: Uploader Profile */}
             <Link
@@ -419,7 +523,22 @@ export default function HandwrittenCard({ note }) {
               </span>
             </Link>
           </div>
-
+ {/* 🔔 Download limit micro banner */}
+          {!hasActivePlan && showQuotaBanner && (
+            <div
+              className=" animate-slide-up-fade
+      absolute left-4 right-4
+      bottom-[65px]   /* sits above action buttons */
+      z-30
+      pointer-events-auto
+    "
+            >
+              <DownloadLimitBanner
+                quota={quotaInfo}
+                onClose={() => setShowQuotaBanner(false)}
+              />
+            </div>
+          )}
           {/* Action Buttons - PRIMARY + DOWNLOAD ICON */}
           <div className="flex gap-2 pt-4">
             {/* Primary: View Button */}

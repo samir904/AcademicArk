@@ -7,6 +7,12 @@ import { useNoteDownload } from '../../hooks/useNoteDownload';
 import { useNoteTracking } from "../../COMPONENTS/Session/NoteInteractionTracker";
 import { clearActiveResource, setActiveResource } from '../../UTILS/activeResource';
 import { ReadNoteSkeleton } from '../../COMPONENTS/Skeletons';
+import { usePDFDownload } from '../../hooks/usePDFDownload';
+import { Infinity, Star } from 'lucide-react';
+import { openPaywall } from "../../REDUX/Slices/paywallSlice";
+import { showToast } from "../../HELPERS/Toaster";
+import DownloadLimitBanner from "../../COMPONENTS/Paywall/DownloadLimitBanner.jsx";
+import axiosInstance from '../../HELPERS/axiosInstance.js';
 
 const ReadNote = () => {
   const { id } = useParams();
@@ -16,10 +22,18 @@ const ReadNote = () => {
   const { currentNote, loading, bookmarking, error } = useSelector(state => state.note);
   const user = useSelector(state => state.auth.data);
   const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
-  
+   const access = user?.access;
+  const hasActivePlan =
+    access?.plan &&
+    access?.expiresAt &&
+    new Date(access.expiresAt) > new Date();
+
   // Download hook
   const { triggerDownload, downloadingState } = useNoteDownload();
   const thisDownload = downloadingState[currentNote?._id];
+   const { downloadPDF, downloading } = usePDFDownload();
+    const downloadState = downloading[currentNote?._id];
+  
   
   // Reading states
   const [readingTime, setReadingTime] = useState(0);
@@ -139,12 +153,78 @@ useEffect(() => {
     trackBookmark(currentNote._id);
     dispatch(toggleBookmark(currentNote._id));
   };
+ const [isCurrentlyDownloading, setIsCurrentlyDownloading] = useState(false);
 
-  // Handle download
-  const handleDownload = async () => {
-    trackDownload(currentNote._id);
-    await triggerDownload(currentNote);
+  const fetchQuota = async () => {
+    // 🚫 Paid users don't need quota
+    if (hasActivePlan) return;
+    const res = await axiosInstance.get("/user/download-quota");
+    if (res.data?.success) {
+      // setQuotaInfo(res.data);
+      // setShowQuotaBanner(true);
+    }
   };
+
+  const handleDownload = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isLoggedIn) {
+      dispatch(setLoginModal({
+        isOpen: true,
+        context: {
+          action: "Download this note",
+          noteTitle: currentNote.title
+        }
+      }));
+      return;
+    }
+
+    setIsCurrentlyDownloading(true);
+
+    const result = await downloadPDF({
+      id: currentNote._id,
+      title: currentNote.title,
+      meta: {
+        subject: currentNote.subject,
+        semester: currentNote.semester,
+        university: currentNote.university
+      }
+    });
+
+    setIsCurrentlyDownloading(false);
+
+    // 🟢 SUCCESS
+    if (result.success) {
+      trackDownload(currentNote._id);
+      if (!hasActivePlan) {
+        await fetchQuota();
+      }
+      return;
+    }
+
+    if (result.code === "DOWNLOAD_LIMIT_REACHED") {
+      if (!hasActivePlan) {
+        await fetchQuota();
+      }
+      dispatch(openPaywall({
+        reason: "LIMIT_REACHED",
+        noteId: currentNote._id
+      }));
+      return;
+    }
+
+
+    if (result.code === "PLAN_EXPIRED") {
+      dispatch(openPaywall({
+        reason: "PLAN_EXPIRED"
+      }));
+      return;
+    }
+
+    // ❌ FALLBACK
+    showToast.error(result.message || "Download failed");
+  };
+
 
   // useEffect(() => {
   //   // When note loads
@@ -286,36 +366,36 @@ useEffect(() => {
                 {/* Download Button */}
                 <button
                   onClick={handleDownload}
-                  disabled={thisDownload?.status === 'starting'}
+                  disabled={downloadState?.status === 'starting'}
                   className={`px-3 py-2 rounded-xl transition-all duration-300 border flex items-center space-x-2 ${
-                    thisDownload?.status === 'complete' || thisDownload?.status === 'exists'
+                    downloadState?.status === 'complete' || downloadState?.status === 'exists'
                       ? 'bg-green-600/80 border-green-500/60 text-white hover:bg-green-500'
-                      : thisDownload?.status === 'starting'
+                      : downloadState?.status === 'starting'
                       ? 'bg-blue-600/80 border-blue-500/60 text-white cursor-wait'
                       : 'bg-white/10 border-white/10 hover:bg-white/20 text-white'
                   }`}
-                  title={thisDownload?.status === 'complete' ? 'Downloaded successfully' : 'Download PDF'}
+                  title={downloadState?.status === 'complete' ? 'Downloaded successfully' : 'Download PDF'}
                 >
-                  {thisDownload?.status === 'starting' ? (
+                  {downloadState?.status === 'starting' ? (
                     <>
                       <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />
                       <span className="text-xs font-semibold hidden sm:inline">Downloading...</span>
                     </>
-                  ) : thisDownload?.status === 'complete' ? (
+                  ) : downloadState?.status === 'complete' ? (
                     <>
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-xs font-semibold hidden sm:inline">Downloaded</span>
                     </>
-                  ) : thisDownload?.status === 'exists' ? (
+                  ) : downloadState?.status === 'exists' ? (
                     <>
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-xs font-semibold hidden sm:inline">Already Downloaded</span>
                     </>
-                  ) : thisDownload?.status === 'error' ? (
+                  ) : downloadState?.status === 'error' ? (
                     <>
                       <svg className="w-4 h-4 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -511,26 +591,26 @@ useEffect(() => {
                 <div className="absolute bottom-4 right-4 z-10">
                   <button
                     onClick={handleDownload}
-                    disabled={thisDownload?.status === 'starting'}
+                    disabled={downloadState?.status === 'starting'}
                     className={`text-white px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center space-x-1 font-semibold border ${
-                      thisDownload?.status === 'complete' || thisDownload?.status === 'exists'
+                      downloadState?.status === 'complete' || downloadState?.status === 'exists'
                         ? 'bg-green-600/90 hover:bg-green-500/90 border-green-500/60'
-                        : thisDownload?.status === 'starting'
+                        : downloadState?.status === 'starting'
                         ? 'bg-blue-600/90 border-blue-500/60 cursor-wait'
                         : 'bg-black/80 hover:bg-black/90 border-white/30 hover:border-white/50'
                     }`}
                   >
-                    {thisDownload?.status === 'starting' ? (
+                    {downloadState?.status === 'starting' ? (
                       <>
                         <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />
                         <span>Downloading...</span>
                       </>
-                    ) : thisDownload?.status === 'complete' || thisDownload?.status === 'exists' ? (
+                    ) : downloadState?.status === 'complete' || downloadState?.status === 'exists' ? (
                       <>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span>{thisDownload?.status === 'complete' ? 'Downloaded' : 'Already Downloaded'}</span>
+                        <span>{downloadState?.status === 'complete' ? 'Downloaded' : 'Already Downloaded'}</span>
                       </>
                     ) : (
                       <>
@@ -608,28 +688,28 @@ useEffect(() => {
                 </p> */}
                 <button 
                   onClick={handleDownload}
-                  disabled={thisDownload?.status === 'starting'}
+                  disabled={downloadState?.status === 'starting'}
                   className={`w-full py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
-                    thisDownload?.status === 'complete' || thisDownload?.status === 'exists'
+                    downloadState?.status === 'complete' || downloadState?.status === 'exists'
                       ? 'bg-green-600/20 border border-green-500/30 text-green-300 hover:bg-green-600/30'
-                      : thisDownload?.status === 'starting'
+                      : downloadState?.status === 'starting'
                       ? 'bg-blue-600/20 border border-blue-500/30 text-blue-300 cursor-wait'
                       : 'bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/30'
                   }`}
                 >
-                  {thisDownload?.status === 'starting' ? (
+                  {downloadState?.status === 'starting' ? (
                     <>
                       <div className="w-4 h-4 animate-spin border-2 border-current border-t-transparent rounded-full" />
                       <span>Downloading...</span>
                     </>
-                  ) : thisDownload?.status === 'complete' ? (
+                  ) : downloadState?.status === 'complete' ? (
                     <>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span>Downloaded!</span>
                     </>
-                  ) : thisDownload?.status === 'exists' ? (
+                  ) : downloadState?.status === 'exists' ? (
                     <>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -696,7 +776,7 @@ useEffect(() => {
                       setShowMobileMenu(false);
                     }}
                     className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white transform transition-all duration-300 animate-fade-in-up ${
-                      thisDownload?.status === 'complete' || thisDownload?.status === 'exists'
+                      downloadState?.status === 'complete' || downloadState?.status === 'exists'
                         ? 'bg-green-600'
                         : 'bg-indigo-600'
                     }`}
@@ -809,28 +889,28 @@ useEffect(() => {
                   handleDownload();
                   setShowStudyTools(false);
                 }}
-                disabled={thisDownload?.status === 'starting'}
+                disabled={downloadState?.status === 'starting'}
                 className={`w-full py-3 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
-                  thisDownload?.status === 'complete' || thisDownload?.status === 'exists'
+                  downloadState?.status === 'complete' || downloadState?.status === 'exists'
                     ? 'bg-green-600 text-white hover:bg-green-500'
-                    : thisDownload?.status === 'starting'
+                    : downloadState?.status === 'starting'
                     ? 'bg-blue-600 text-white cursor-wait'
                     : 'bg-indigo-600 text-white hover:bg-indigo-500'
                 }`}
               >
-                {thisDownload?.status === 'starting' ? (
+                {downloadState?.status === 'starting' ? (
                   <>
                     <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />
                     <span>Downloading...</span>
                   </>
-                ) : thisDownload?.status === 'complete' ? (
+                ) : downloadState?.status === 'complete' ? (
                   <>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     <span>Downloaded!</span>
                   </>
-                ) : thisDownload?.status === 'exists' ? (
+                ) : downloadState?.status === 'exists' ? (
                   <>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

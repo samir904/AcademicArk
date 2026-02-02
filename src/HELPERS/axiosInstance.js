@@ -15,14 +15,14 @@ axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('authToken');
         
-        console.log('📤 Request:', config.method.toUpperCase(), config.url);
-        console.log('🔑 Token in storage:', token ? 'YES ✅' : 'NO ❌');
+        // console.log('📤 Request:', config.method.toUpperCase(), config.url);
+        // console.log('🔑 Token in storage:', token ? 'YES ✅' : 'NO ❌');
         
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            console.log('✅ Token added to headers');
+            // console.log('✅ Token added to headers');
         } else {
-            console.warn('⚠️ No token found!');
+            // console.warn('⚠️ No token found!');
         }
         
         return config;

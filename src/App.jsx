@@ -71,6 +71,9 @@ import {
   GenericSkeleton,
   MySpaceSkeleton
 } from "./COMPONENTS/Skeletons";  // This works too!
+import PaymentStatus from "./PAGES/PaymentStatus";
+import PaymentSuccess from "./PAGES/PaymentSuccess";
+import PaywallModal from "./COMPONENTS/Paywall/PaywallModal";
 // import { NotesSkeleton } from "";
 // //import VideoUploadForm from "./COMPONENTS/Admin/VideoUploadForm";
 // import UploadVideoLecture from "./PAGES/video/UploadVideoLecture";
@@ -113,6 +116,11 @@ const AboutDeveloper = React.lazy(() =>
 const DownloadsPage = React.lazy(() => import("./PAGES/DownloadsPage"));
 
 const ComingSoon = React.lazy(() => import("./PAGES/Static/ComingSoon"));
+
+const SupportPage = React.lazy(() =>
+  import("./PAGES/SupportPage")
+);
+
 const BookIcon = ({ className }) => (
   <svg
     className={className}
@@ -355,39 +363,39 @@ function App() {
         <Route path="/login/email" element={<LoginEmail />} />
 
         <Route
-            path="/notes/:id/read"
-            element={
-              <Suspense fallback={<ReadNoteSkeleton />}>
-                <ReadNote />
-              </Suspense>
-            }
-          />
+          path="/notes/:id/read"
+          element={
+            <Suspense fallback={<ReadNoteSkeleton />}>
+              <ReadNote />
+            </Suspense>
+          }
+        />
         {/* 🟡 ALL logged-in routes under HomeLayout */}
         <Route element={<HomeLayout />}>
           <Route path="/" element={isLoggedIn ? <DynamicHome /> : <Homepage />} />
           <Route path="/myspace"
-           element={
-            <Suspense fallback={<MySpaceSkeleton />}>
-           <MySpace />
-           </Suspense>
-           }
-           />
-          
+            element={
+              <Suspense fallback={<MySpaceSkeleton />}>
+                <MySpace />
+              </Suspense>
+            }
+          />
+
           <Route path="/admin/banners"
-           element={
-            <Suspense fallback={<AdminDashboardSkeleton />}>
-           <ManageBanners />
-           </Suspense>
-           } />
-          
+            element={
+              <Suspense fallback={<AdminDashboardSkeleton />}>
+                <ManageBanners />
+              </Suspense>
+            } />
+
           <Route path="/admin/analytics"
             element={
               <Suspense fallback={<AdminDashboardSkeleton />}>
-            <Analytics />
-            </Suspense>
+                <Analytics />
+              </Suspense>
             } />
           {/* <Route path="/admin/broadcast-email" element={<BroadcastEmail />} /> */}
-          
+
           <Route path="/admin/campaigns"
             element={
               <Suspense fallback={<GenericSkeleton />}>
@@ -402,6 +410,19 @@ function App() {
               </Suspense>
             }
           />
+          <Route
+            path="/support"
+            element={
+              <AuthGuard>
+                <Suspense fallback={<GenericSkeleton />}>
+                  <SupportPage />
+                </Suspense>
+              </AuthGuard>
+            }
+          />
+          <Route path="/payment/status" element={<PaymentStatus />} />
+
+
           <Route path="/planner"
             element={
               <Suspense fallback={<PlannerSkeleton />}>
@@ -409,6 +430,8 @@ function App() {
               </Suspense>
             }
           />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+
           <Route
             path="/attendance"
             element={
@@ -551,7 +574,7 @@ function App() {
             }
           />
           {/* // Add this route in your App.jsx */}
-          
+
           <Route
             path="/update-note/:id"
             element={
@@ -694,6 +717,7 @@ function App() {
         <Route path="*" element={<PageNotFound />} />
 
       </Routes>
+      <PaywallModal />
       <GlobalLoginModal />
     </div>
   );

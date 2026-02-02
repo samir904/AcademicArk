@@ -34,6 +34,7 @@ import { logFailedSearchAction } from "../REDUX/Slices/failedSearchSlice";
 import { fetchSearchSuggestions, clearSuggestions }
   from "../REDUX/Slices/searchSuggestionSlice";
 import { fetchRecentSearches } from "../REDUX/Slices/searchAnalyticsSlice";
+import SupportInfoBanner from "../COMPONENTS/Support/SupportInfoBanner";
 
 // SVG Icons Components
 const HomeIcon = ({ className, active }) => (
@@ -459,7 +460,7 @@ const HomeLayout = () => {
 
 
   useEffect(() => {
-    if (!query || query.trim().length < 2) {
+    if (!query || query.trim().length < 1) {
       dispatch(clearSuggestions());
       return;
     }
@@ -470,6 +471,65 @@ const HomeLayout = () => {
 
     return () => clearTimeout(timer);
   }, [query, dispatch]);
+const SUPPORT_BANNER_KEY = "aa_support_banner_dismissed_v1";
+
+const [showSupportBanner, setShowSupportBanner] = useState(false);
+
+const supportBannerTimerRef = useRef(null);
+
+const userAccess = useSelector(state => state.auth?.data?.access);
+
+const hasActivePlan =
+  userAccess?.plan &&
+  userAccess?.expiresAt &&
+  new Date(userAccess.expiresAt) > new Date();
+useEffect(() => {
+  console.group("🧪 Support Banner Debug");
+
+  console.log("isLoggedIn:", isLoggedIn);
+  console.log("hasActivePlan:", hasActivePlan);
+  console.log(
+    "dismissed:",
+    localStorage.getItem(SUPPORT_BANNER_KEY)
+  );
+
+  if (!isLoggedIn) {
+    console.log("❌ Blocked: not logged in");
+    console.groupEnd();
+    return;
+  }
+
+  if (localStorage.getItem(SUPPORT_BANNER_KEY) === "true") {
+    console.log("❌ Blocked: already dismissed");
+    console.groupEnd();
+    return;
+  }
+
+  if (hasActivePlan) {
+    console.log("❌ Blocked: active plan");
+    console.groupEnd();
+    return;
+  }
+
+  console.log("✅ Banner WILL be scheduled");
+  console.groupEnd();
+
+  supportBannerTimerRef.current = setTimeout(() => {
+    console.log("🚀 Showing support banner");
+    setShowSupportBanner(true);
+  }, 6000);
+
+  return () => clearTimeout(supportBannerTimerRef.current);
+}, [isLoggedIn, hasActivePlan]);
+
+const dismissSupportBanner = () => {
+  console.log("🟢 Dismissing support banner");
+  localStorage.setItem(SUPPORT_BANNER_KEY, "true");
+  setShowSupportBanner(false);
+};
+
+
+
 
 
   return (
@@ -906,7 +966,7 @@ const HomeLayout = () => {
                             </div>
                           )}
                         </button>
-
+                            
                         {/* Profile Dropdown (UNCHANGED) */}
                         {/* Profile Dropdown */}
                         {showProfileMenu && (
@@ -1472,6 +1532,10 @@ const HomeLayout = () => {
 
 
       </div>
+      {isLoggedIn&&showSupportBanner && (
+  <SupportInfoBanner onDismiss={dismissSupportBanner} />
+)}
+
     </>
   );
 };

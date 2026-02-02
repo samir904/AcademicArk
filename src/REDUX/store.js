@@ -28,6 +28,9 @@ import searchSuggestionReducer from './Slices/searchSuggestionSlice.js'
 import searchAdminAnalyticsReducer from './Slices/searchAdminAnalyticsSlice.js'
 import searchAdminManageReducer from './Slices/searchAdminManageSlice.js'
 import searchAnalyticsReducer from './Slices/searchAnalyticsSlice.js'
+import planReducer from './Slices/planSlice.js'
+import paymentReducer from './Slices/paymentSlice.js'
+import paywallReducer from './Slices/paywallSlice.js'
 //  import videoReducer from './Slices/videoSlice.js'
 // import logsReducer  from './Slices/logsSlice.js'
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
@@ -63,7 +66,12 @@ const store = configureStore({
     searchAdminAnalytics:searchAdminAnalyticsReducer,
     adminAnalytics:adminAnalyticsReducer,
     searchAdminManage:searchAdminManageReducer,
-    searchAnalytics:searchAnalyticsReducer
+    searchAnalytics:searchAnalyticsReducer,
+
+    plans: planReducer,
+    payment:paymentReducer,
+    paywall: paywallReducer
+
     //  video: videoReducer,
     // studyBuddy: studyBuddySlice,  // ← ADD THIS
     // studyPlanner: studyPlannerSlice,  // ← ADD THIS

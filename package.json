@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@cashfreepayments/cashfree-js": "^1.0.6",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@hello-pangea/dnd": "^18.0.1",
     "@heroicons/react": "^2.2.0",
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
@@ -21,6 +23,7 @@
     "@vitejs/plugin-react": "^4.7.0",
     "axios": "^1.11.0",
     "canvas-confetti": "^1.9.4",
+    "cashfree-dropjs": "^1.1.5",
     "chart.js": "^4.5.0",
     "clsx": "^2.1.1",
     "colorthief": "^2.6.0",

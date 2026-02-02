@@ -1,68 +1,103 @@
-import { useState, useCallback } from 'react';
-import { savePDF } from '../UTILS/pdfStorage';
+import { useState, useCallback } from "react";
+import axiosInstance from "../HELPERS/axiosInstance";
+import { savePDF } from "../UTILS/pdfStorage";
+
+// 🔐 FEATURE FLAG (disable next semester)
+const ALLOW_DEVICE_DOWNLOAD = true;
 
 export const usePDFDownload = () => {
   const [downloading, setDownloading] = useState({});
   const [error, setError] = useState(null);
 
-  const downloadPDF = useCallback(async (pdfData) => {
-    const { id, url, title } = pdfData;
-    
+  const downloadPDF = useCallback(async ({ id, title, meta }) => {
     try {
-      setDownloading(prev => ({ ...prev, [id]: { progress: 0, status: 'starting' } }));
+      setDownloading(prev => ({
+        ...prev,
+        [id]: { status: "starting" }
+      }));
       setError(null);
 
-      // Fetch PDF from server
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to download: ${response.statusText}`);
-      }
+      const response = await axiosInstance.get(
+        `/notes/${id}/download`,
+        { responseType: "blob" }
+      );
 
-      // Get total file size
-      const totalSize = parseInt(response.headers.get('content-length'), 10);
+      const blob = response.data;
 
-      // Read blob
-      const blob = await response.blob();
-
-      // Save to IndexedDB
+      // ✅ 1. Save for in-app reading
       await savePDF({
         id,
         title,
-        url,
         blob,
-        ...pdfData,
+        ...meta
       });
 
+      // ✅ 2. Optional device download
+      if (ALLOW_DEVICE_DOWNLOAD) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${title}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
       setDownloading(prev => ({
         ...prev,
-        [id]: { progress: 100, status: 'complete' },
+        [id]: { status: "complete" }
       }));
 
-      // Clear status after 2 seconds
-      setTimeout(() => {
-        setDownloading(prev => {
-          const newState = { ...prev };
-          delete newState[id];
-          return newState;
-        });
-      }, 2000);
+      return { success: true };
 
-      return true;
-    } catch (err) {
-      console.error('Download error:', err);
-      setError(err.message);
-      setDownloading(prev => ({
-        ...prev,
-        [id]: { progress: 0, status: 'error', error: err.message },
-      }));
-      return false;
+   } catch (err) {
+  // ❗ ALWAYS mark error state
+  setDownloading(prev => ({
+    ...prev,
+    [id]: { status: "error" }
+  }));
+
+  const response = err?.response;
+
+  // 🧠 CRITICAL FIX: handle blob error responses
+  if (response?.data instanceof Blob) {
+    try {
+      const text = await response.data.text(); // 👈 read blob
+      const parsed = JSON.parse(text);          // 👈 parse JSON
+
+      if (parsed?.code) {
+        return {
+          success: false,
+          code: parsed.code,
+          message: parsed.message
+        };
+      }
+    } catch (e) {
+      console.error("❌ Failed to parse blob error", e);
     }
+  }
+
+  // Normal JSON error (non-blob)
+  if (response?.data?.code) {
+    return {
+      success: false,
+      code: response.data.code,
+      message: response.data.message
+    };
+  }
+
+  return {
+    success: false,
+    code: "UNKNOWN_ERROR",
+    message: "Download failed"
+  };
+}
   }, []);
 
   return {
     downloadPDF,
     downloading,
-    error,
+    error
   };
 };
