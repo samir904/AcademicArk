@@ -7,7 +7,7 @@ const SUBJECT_ABBREVIATIONS = {
   "object oriented programming with java": "OOP JAVA",
   "operating system": "OS",
   "computer organization and architecture": "COA",
-  "theory of automata and formal languages": "TAFL",
+  "THEORY OF AUTОMАTА AND FORMAL LANGUAGES": "TAFL",
   "design and analysis of algorithm": "DAA",
   "artificial intelligence": "AI",
   "machine learning techniques": "MLT",
@@ -47,7 +47,7 @@ const SUBJECT_ABBREVIATIONS = {
       'digital electronics',
       "mathematics-iv",
       "operating system",
-      "Theory of Automata and Formal Languages ",
+      "Theory of Automata and Formal Languages",
       "Object Oriented Programming with Java",
       "CYBER SECURITY", "Universal Human Values and Professional Ethics"
     ],

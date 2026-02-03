@@ -192,7 +192,7 @@ export default function Note() {
       'digital electronics',
       "mathematics-iv",
       "operating system",
-      "Theory of Automata and Formal Languages ",
+      "THEORY OF AUTОMАTА AND FORMAL LANGUAGES",
       "Object Oriented Programming with Java",
       "CYBER SECURITY", "Universal Human Values and Professional Ethics"
     ],
