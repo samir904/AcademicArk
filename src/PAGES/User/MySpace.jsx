@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   User,
   Settings,
@@ -16,8 +16,9 @@ import {
   Bookmark,
   CircleArrowDown,
 } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PageTransition from '../../COMPONENTS/PageTransition';
+import { logout } from '../../REDUX/Slices/authslice';
 
 const MySpace = ({  role, onLogout }) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -107,6 +108,8 @@ const userData = useSelector((state) => state?.auth?.data);
       },
     ];
   };
+const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
      try {
