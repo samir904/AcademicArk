@@ -153,6 +153,7 @@ export default function HandwrittenCard({ note }) {
     }
   };
   const canDownload = !note.isLocked || hasActivePlan;
+const isPreviewOnly = note.isLocked && !hasActivePlan;
 
   const handleDownload = async (e) => {
     e.preventDefault();
@@ -605,7 +606,7 @@ export default function HandwrittenCard({ note }) {
               }}
             >
               <EyeIcon className="w-4 h-4" />
-              <span>View</span>
+              <span>{isPreviewOnly ? 'Preview' : 'View'}</span>
             </Link>
 
             {/* Download Button */}

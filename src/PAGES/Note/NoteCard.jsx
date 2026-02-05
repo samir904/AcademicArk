@@ -126,6 +126,7 @@ export default function NoteCard({ note }) {
 
    const pdfAccess = note?.pdfAccess;
  const canDownload = !note.isLocked || hasActivePlan;
+const isPreviewOnly = note.isLocked && !hasActivePlan;
 
   // Close menu on outside click
   useEffect(() => {
@@ -604,7 +605,7 @@ const [menuPosition, setMenuPosition] = useState(null);
               }}
             >
               <EyeIcon className="w-4 h-4" />
-              <span>View</span>
+              <span>{isPreviewOnly ? 'Preview' : 'View'}</span>
             </Link>
 
             {/* Download Button - ICON ONLY */}
