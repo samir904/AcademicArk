@@ -79,6 +79,14 @@ const useSessionTracker = () => {
     if (path === "/leaderboard") return "LEADERBOARD";
     if (path.startsWith("/video")) return "VIDEOS";
     if (path.startsWith("/profile")) return "PROFILE";
+    if(path==='/support') return "SUPPORT";
+    if(path==='/planner') return "PLANNER";
+    if(path.startsWith('/attendance')) return 'ATTENDANCE';
+    if(path==='/myspace')return 'MYSPACE';
+    if(path==='/downloads')return 'DOWNLOADS';
+    if(path.startsWith('/search'))return 'SEARCH'
+    if(path==='/admin') return 'ADMIN'
+    if(path.startsWith('/video')) return 'VIDEO'
     return "OTHER";
   };
 

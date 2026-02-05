@@ -38,6 +38,8 @@ const initialState = {
     recommendationsLoading: false,
     toggleRecommendLoading: false,
     recommendationsError: null,
+    lockToggleLoading: false,
+    lockToggleError: null,
     stats: {
         total: 0,
         categories: {},
@@ -89,7 +91,7 @@ export const getNextNotesPage = createAsyncThunk(
                 });
             }
 
-            const response = await axios.get(
+            const response = await axiosInstance.get(
                 `/api/v1/notes?${queryParams.toString()}`
             );
 
@@ -356,6 +358,32 @@ export const getNoteStats = createAsyncThunk(
     }
 );
 
+// 🔒 Toggle Lock / Unlock Note (Admin)
+export const toggleLockNote = createAsyncThunk(
+    "/note/toggleLock",
+    async ({ noteId, isLocked, previewPages }, { rejectWithValue }) => {
+        try {
+            const res = await axiosInstance.patch(
+                `/notes/admin/lock/${noteId}`,
+                {
+                    isLocked,
+                    previewPages
+                }
+            );
+
+            showToast.success(
+                res?.data?.message || `Note ${isLocked ? "locked" : "unlocked"} successfully`
+            );
+
+            return res.data;
+        } catch (e) {
+            const message =
+                e?.response?.data?.message || "Failed to update lock status";
+            showToast.error(message);
+            return rejectWithValue(message);
+        }
+    }
+);
 
 
 const noteSlice = createSlice({
@@ -389,14 +417,8 @@ const noteSlice = createSlice({
                 isLoadingMore: false
             };
         },
-        clearError: (state) => {
-            state.error = null;
-        },
-        clearNotes: (state) => {
-            state.notes = [];
-            state.currentNote = null;
-            state.totalNotes = 0;
-            state.error = null;
+        clearFilters: (state) => {
+            state.filters = initialState.filters;
         },
 
         // ✅ ADD THIS REDUCER
@@ -801,8 +823,40 @@ const noteSlice = createSlice({
                 state.error = action.error.message || "Failed to fetch notes";
                 state.adminNotes = [];
             })
+            // ============================================
+            // 🔒 TOGGLE NOTE LOCK / UNLOCK
+            // ============================================
+            .addCase(toggleLockNote.pending, (state) => {
+                state.lockToggleLoading = true;
+                state.lockToggleError = null;
+            })
 
+            .addCase(toggleLockNote.fulfilled, (state, action) => {
+                state.lockToggleLoading = false;
 
+                const { id, isLocked, previewPages } = action.payload.data;
+
+                const update = (note) => ({
+                    ...note,
+                    isLocked,
+                    previewPages
+                });
+
+                const i = state.notes.findIndex(n => n._id === id);
+                if (i !== -1) state.notes[i] = update(state.notes[i]);
+
+                if (state.currentNote?._id === id) {
+                    state.currentNote = update(state.currentNote);
+                }
+
+                const ai = state.adminNotes.findIndex(n => n._id === id);
+                if (ai !== -1) state.adminNotes[ai] = update(state.adminNotes[ai]);
+            })
+            
+            .addCase(toggleLockNote.rejected, (state, action) => {
+                state.lockToggleLoading = false;
+                state.lockToggleError = action.payload || "Failed to toggle lock";
+            })
     }
 
 });

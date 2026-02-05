@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleBookmark, downloadnote, addRating, toggleRecommendNote } from '../../REDUX/Slices/noteslice.js';
+import { toggleBookmark, downloadnote, addRating, toggleRecommendNote, toggleLockNote } from '../../REDUX/Slices/noteslice.js';
 import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 import { usePDFDownload } from '../../hooks/usePDFDownload.js';
@@ -81,7 +81,7 @@ export default function HandwrittenCard({ note }) {
   const user = useSelector(state => state.auth.data);
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
   const { bookmarkingNotes, downloadingNotes } = useSelector(state => state.note);
- const access = user?.access;
+  const access = user?.access;
   const hasActivePlan =
     access?.plan &&
     access?.expiresAt &&
@@ -107,11 +107,11 @@ export default function HandwrittenCard({ note }) {
   const { downloadPDF, downloading } = usePDFDownload();
   const downloadState = downloading[note._id];
   const role = useSelector((state) => state?.auth?.role || "");
-  
-  
-    const [quotaInfo, setQuotaInfo] = useState(null);
-    const [showQuotaBanner, setShowQuotaBanner] = useState(false);
-  
+
+
+  const [quotaInfo, setQuotaInfo] = useState(null);
+  const [showQuotaBanner, setShowQuotaBanner] = useState(false);
+
   // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -143,7 +143,7 @@ export default function HandwrittenCard({ note }) {
     }
     dispatch(toggleBookmark(note._id));
   };
-const fetchQuota = async () => {
+  const fetchQuota = async () => {
     // 🚫 Paid users don't need quota
     if (hasActivePlan) return;
     const res = await axiosInstance.get("/user/download-quota");
@@ -152,13 +152,11 @@ const fetchQuota = async () => {
       setShowQuotaBanner(true);
     }
   };
+  const canDownload = !note.isLocked || hasActivePlan;
 
   const handleDownload = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-
-   
-
     if (!isLoggedIn) {
       dispatch(setLoginModal({
         isOpen: true,
@@ -166,6 +164,14 @@ const fetchQuota = async () => {
           action: "Download this note",
           noteTitle: note.title
         }
+      }));
+      return;
+    }
+    // 🔒 LOCKED NOTE → OPEN PAYWALL
+    if (!canDownload) {
+      dispatch(openPaywall({
+        reason: "LOCKED_NOTE",
+        noteId: note._id
       }));
       return;
     }
@@ -196,7 +202,7 @@ const fetchQuota = async () => {
     }
 
     if (result.code === "DOWNLOAD_LIMIT_REACHED") {
-       trackDownload(note._id);
+      trackDownload(note._id);
       if (!hasActivePlan) {
         await fetchQuota();
       }
@@ -320,29 +326,51 @@ const fetchQuota = async () => {
     { label: '📄 Details', action: () => { window.location.href = `/notes/${note._id}`; } },
     { label: '🔗 Share', action: () => { setShowShareModal(true); closeMenuDropdown(); } },
     // ✅ NEW: Admin-only recommendation option
-        ...(role === 'ADMIN' ? [
-          {
-            label: note.recommended ? '✓ Remove Recommendation' : '⭐ Mark Recommended',
-            action: () => {
-              dispatch(toggleRecommendNote({
-                noteId: note._id,
-                recommended: !note.recommended,
-                rank: !note.recommended ? 1 : 0
-              }));
-              closeMenuDropdown();
-            },
-            admin: true,
-            separator: true
-          }
-        ] : []),
+    ...(role === 'ADMIN' ? [
+      {
+        label: note.isLocked ? '🔓 Unlock Note' : '🔒 Lock Note',
+        action: () => {
+          handleToggleLock();
+          closeMenuDropdown();
+        },
+        admin: true,
+        separator: true
+      },
+      {
+        label: note.recommended ? '✓ Remove Recommendation' : '⭐ Mark Recommended',
+        action: () => {
+          dispatch(toggleRecommendNote({
+            noteId: note._id,
+            recommended: !note.recommended,
+            rank: !note.recommended ? 1 : 0
+          }));
+          closeMenuDropdown();
+        },
+        admin: true
+      }
+    ] : []),
   ];
+  const handleToggleLock = () => {
+    dispatch(toggleLockNote({
+      noteId: note._id,
+      isLocked: !note.isLocked,
+      previewPages: !note.isLocked ? 8 : null // lock → preview, unlock → full
+    }));
+
+    showToast.success(
+      !note.isLocked
+        ? "Note locked (Preview mode enabled)"
+        : "Note unlocked (Full access restored)"
+    );
+  };
+  const [menuPosition, setMenuPosition] = useState(null);
 
   return (
     <>
       {/* ✨ HANDWRITTEN CARD - EMERALD THEME WITH LEFT BORDER */}
       <div className={`group bg-[#0F0F0F] relative border border-[#1f1f1f] border-l-3 border-l-emerald-500/80 rounded-xl overflow-hidden hover:border-neutral-700 transition-all duration-300`}>
-{/* ✅ NEW: Recommended Badge */}
-              {/* {note.recommended && (
+        {/* ✅ NEW: Recommended Badge */}
+        {/* {note.recommended && (
                 <div className="absolute -top-2 -left-2 flex cursor-default items-center gap-1 bg-emerald-600 px-2 py-1 rounded-full shadow-lg border border-emerald-500/50 z-10">
                   <Star className="w-3 h-3 text-yellow-300 fill-yellow-300" />
                   <span className="text-[10px] text-white font-semibold whitespace-nowrap">
@@ -354,13 +382,13 @@ const fetchQuota = async () => {
             </div>
                 </div>
               )} */}
-               {note.recommended && (
-  <div className="absolute -top-14 -right-10 -z-0 w-40 h-40 flex items-center justify-center overflow-visible">
-    <div className="bg-emerald-600 text-white text-[10px] font-bold px-8 py-1 rotate-35 shadow-md whitespace-nowrap">
-      ⭐ Recommended
-    </div>
-  </div>
-)}
+        {note.recommended && (
+          <div className="absolute -top-14 -right-10 -z-0 w-40 h-40 flex items-center justify-center overflow-visible">
+            <div className="bg-emerald-600 text-white text-[10px] font-bold px-8 py-1 rotate-35 shadow-md whitespace-nowrap">
+              ⭐ Recommended
+            </div>
+          </div>
+        )}
         {/* Content */}
         <div className="p-6 space-y-4">
 
@@ -411,7 +439,14 @@ const fetchQuota = async () => {
               {/* Three Dots Menu */}
               <div className="relative" ref={menuRef}>
                 <button
-                  onClick={() => setShowMenuDropdown(!showMenuDropdown)}
+                  onClick={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setMenuPosition({
+                      top: rect.bottom + 6,
+                      left: rect.right - 192 // 192px = w-48
+                    });
+                    setShowMenuDropdown(prev => !prev);
+                  }}
                   className="p-2 hover:bg-neutral-900 rounded-lg transition-all cursor-pointer"
                   title="More options"
                 >
@@ -419,8 +454,24 @@ const fetchQuota = async () => {
                 </button>
 
                 {/* Dropdown Menu */}
-                {showMenuDropdown && (
-                  <div className="absolute right-0 mt-1 w-48 bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg z-50 overflow-hidden">
+                {/* Dropdown Menu */}
+                {showMenuDropdown && menuPosition && (
+                  <div
+                    className="
+      fixed
+      w-48
+      bg-neutral-900
+      border border-neutral-800
+      rounded-lg
+      shadow-xl
+      z-[9999]
+      overflow-hidden
+    "
+                    style={{
+                      top: menuPosition.top,
+                      left: menuPosition.left
+                    }}
+                  >
                     {menuOptions.map((option, idx) => (
                       <div key={idx}>
                         {option.separator && (
@@ -428,7 +479,8 @@ const fetchQuota = async () => {
                         )}
                         <button
                           onClick={option.action}
-                          className={`w-full px-4 py-2.5 text-left text-sm transition-colors border-b border-neutral-800 last:border-b-0 ${option.admin
+                          className={`w-full px-4 py-2.5 text-left text-sm transition-colors
+            ${option.admin
                               ? 'bg-amber-900/20 text-amber-400 hover:bg-amber-900/40 font-semibold'
                               : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
                             }`}
@@ -485,7 +537,7 @@ const fetchQuota = async () => {
                 </div>
               )}
             </div>
-                  {/* RIGHT SIDE infinty badge */}
+            {/* RIGHT SIDE infinty badge */}
             {hasActivePlan && (
               <span
                 className="
@@ -497,10 +549,10 @@ const fetchQuota = async () => {
                 "
                 title="Unlimited downloads"
               >
-                <Infinity className='w-4 h-4'/>
+                <Infinity className='w-4 h-4' />
               </span>
             )}
-            
+
 
             {/* Right: Uploader Profile */}
             <Link
@@ -523,7 +575,7 @@ const fetchQuota = async () => {
               </span>
             </Link>
           </div>
- {/* 🔔 Download limit micro banner */}
+          {/* 🔔 Download limit micro banner */}
           {!hasActivePlan && showQuotaBanner && (
             <div
               className=" animate-slide-up-fade
@@ -561,12 +613,12 @@ const fetchQuota = async () => {
               onClick={handleDownload}
               disabled={downloadState?.status === 'starting' || isCurrentlyDownloading}
               className={`px-3 py-3 border rounded-full font-semibold text-sm transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-700 ${downloadState?.status === 'error'
-                  ? 'border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10'
-                  : downloadState?.status === 'complete' || downloadState?.status === 'exists'
-                    ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400'
-                    : downloadState?.status === 'starting' || isCurrentlyDownloading
-                      ? 'border-neutral-600 bg-neutral-800/50 text-neutral-300 cursor-wait'
-                      : 'border-neutral-700 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-900'
+                ? 'border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10'
+                : downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                  ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400'
+                  : downloadState?.status === 'starting' || isCurrentlyDownloading
+                    ? 'border-neutral-600 bg-neutral-800/50 text-neutral-300 cursor-wait'
+                    : 'border-neutral-700 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-900'
                 }`}
               aria-label="Download note"
               aria-busy={downloadState?.status === 'starting' || isCurrentlyDownloading}
@@ -664,8 +716,8 @@ const fetchQuota = async () => {
                 onClick={submitRating}
                 disabled={userRating === 0}
                 className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-all cursor-pointer ${userRating === 0
-                    ? 'bg-neutral-900 text-neutral-600 cursor-not-allowed'
-                    : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  ? 'bg-neutral-900 text-neutral-600 cursor-not-allowed'
+                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
                   }`}
               >
                 Submit

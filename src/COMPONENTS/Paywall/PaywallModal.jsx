@@ -14,6 +14,7 @@ export default function PaywallModal() {
 
   const isLimit = reason === "LIMIT_REACHED";
   const isExpired = reason === "PLAN_EXPIRED";
+  const isLocked = reason === "LOCKED_NOTE" || reason === "PREVIEW_ENDED";
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
@@ -34,18 +35,21 @@ export default function PaywallModal() {
 
         {/* Title */}
         <h2 className="text-xl font-bold text-white text-center">
-          {isLimit && "Daily limit reached"}
-          {isExpired && "Your plan has expired"}
+          {isLimit && "Daily free limit reached"}
+          {isExpired && "Your support period has ended"}
+           {isLocked && "Full note access is locked"}
         </h2>
 
         {/* Subtitle */}
         <p className="text-sm text-slate-400 text-center mt-2">
           {isLimit && "You’ve used today’s free downloads."}
           {isExpired && "Support again to continue extended access."}
+          {isLocked && "Preview is available. Full PDF unlocks with support."}
         </p>
 
         {/* Perks */}
         <div className="mt-5 bg-[#151515] border border-[#2A2A2A] rounded-xl p-4 space-y-2 text-sm text-slate-300">
+          <p>✓ Full PDF access (no page limits)</p>
           <p>✓ Unlimited downloads</p>
           <p>✓ No interruptions during exams</p>
           <p>✓ Priority access to new notes</p>

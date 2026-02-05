@@ -19,10 +19,9 @@ export default function PlanCard({
       })
     : null;
 
-  let ctaText = "Choose Plan";
-  if (isActivePlan) ctaText = "Active Plan";
-  else if (highlight) ctaText = `Get ${plan.name}`;
-
+  let ctaText = "Support this plan";
+if (isActivePlan) ctaText = "Currently active";
+else if (highlight) ctaText = `Get ${plan.name}`;
   return (
     <div
       className={`
@@ -68,20 +67,25 @@ export default function PlanCard({
       </p>
 
       {/* FEATURES */}
-      <ul className="mt-4 space-y-2 text-sm text-slate-300">
-        <li className="flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-emerald-400" />
-          Unlimited downloads
-        </li>
-        <li className="flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-emerald-400" />
-          No ads, no distractions
-        </li>
-        <li className="flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-emerald-400" />
-          Supports AcademicArk ❤️
-        </li>
-      </ul>
+   {/* FEATURES */}
+<ul className="mt-4 space-y-2 text-sm text-slate-300">
+  <li className="flex items-center gap-2">
+    <CheckCircle className="w-4 h-4 text-emerald-400" />
+    Full access to all notes & PDFs
+  </li>
+  <li className="flex items-center gap-2">
+    <CheckCircle className="w-4 h-4 text-emerald-400" />
+    Unlimited downloads
+  </li>
+  <li className="flex items-center gap-2">
+    <CheckCircle className="w-4 h-4 text-emerald-400" />
+    Early access to new notes & PYQs
+  </li>
+  <li className="flex items-center gap-2">
+    <CheckCircle className="w-4 h-4 text-emerald-400" />
+    Helps keep AcademicArk running for everyone
+  </li>
+</ul>
 
       {/* VALIDITY INFO */}
       {isActivePlan && expiryText && (

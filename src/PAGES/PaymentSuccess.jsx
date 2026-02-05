@@ -120,6 +120,7 @@ function PaymentThankYou({ onContinue }) {
 }
 function PerksList() {
     const perks = [
+        "Full access to all notes & PDFs",
         "Unlimited downloads (fair usage)",
         "No interruptions during exam preparation",
         "Priority access to new notes & PYQs",

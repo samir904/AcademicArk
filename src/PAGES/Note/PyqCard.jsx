@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleBookmark, downloadnote, addRating, toggleRecommendNote } from '../../REDUX/Slices/noteslice.js';
+import { toggleBookmark, downloadnote, addRating, toggleRecommendNote, toggleLockNote } from '../../REDUX/Slices/noteslice.js';
 import ReactGA from "react-ga4"
 import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 import { usePDFDownload } from '../../hooks/usePDFDownload.js';
@@ -114,6 +114,8 @@ export default function PyqCard({ note }) {
   const [quotaInfo, setQuotaInfo] = useState(null);
     const [showQuotaBanner, setShowQuotaBanner] = useState(false);
   
+  const canDownload = !note.isLocked || hasActivePlan;
+
   // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -170,6 +172,14 @@ export default function PyqCard({ note }) {
       }));
       return;
     }
+     // 🔒 LOCKED NOTE → OPEN PAYWALL
+          if (!canDownload) {
+            dispatch(openPaywall({
+              reason: "LOCKED_NOTE",
+              noteId: note._id
+            }));
+            return;
+          }
 
     setIsCurrentlyDownloading(true);
 
@@ -266,6 +276,15 @@ export default function PyqCard({ note }) {
     // ✅ NEW: Admin-only recommendation option
     ...(role === 'ADMIN' ? [
       {
+        label: note.isLocked ? '🔓 Unlock Note' : '🔒 Lock Note',
+        action: () => {
+          handleToggleLock();
+          closeMenuDropdown();
+        },
+        admin: true,
+        separator: true
+      },
+      {
         label: note.recommended ? '✓ Remove Recommendation' : '⭐ Mark Recommended',
         action: () => {
           dispatch(toggleRecommendNote({
@@ -275,11 +294,24 @@ export default function PyqCard({ note }) {
           }));
           closeMenuDropdown();
         },
-        admin: true,
-        separator: true
+        admin: true
       }
     ] : []),
   ];
+const handleToggleLock = () => {
+    dispatch(toggleLockNote({
+      noteId: note._id,
+      isLocked: !note.isLocked,
+      previewPages: !note.isLocked ? 8 : null // lock → preview, unlock → full
+    }));
+
+    showToast.success(
+      !note.isLocked
+        ? "Note locked (Preview mode enabled)"
+        : "Note unlocked (Full access restored)"
+    );
+  };
+  const [menuPosition, setMenuPosition] = useState(null);
 
   return (
     <>
@@ -354,7 +386,14 @@ export default function PyqCard({ note }) {
               {/* Three Dots Menu */}
               <div className="relative" ref={menuRef}>
                 <button
-                  onClick={() => setShowMenuDropdown(!showMenuDropdown)}
+                  onClick={(e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMenuPosition({
+      top: rect.bottom + 6,
+      left: rect.right - 192 // 192px = w-48
+    });
+    setShowMenuDropdown(prev => !prev);
+  }}
                   className="p-2 hover:bg-neutral-900 rounded-lg transition-all cursor-pointer"
                   title="More options"
                 >
@@ -362,26 +401,44 @@ export default function PyqCard({ note }) {
                 </button>
 
                 {/* Dropdown Menu */}
-                {showMenuDropdown && (
-                  <div className="absolute right-0 mt-1 w-48 bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg z-50 overflow-hidden">
-                    {menuOptions.map((option, idx) => (
-                      <div key={idx}>
-                        {option.separator && (
-                          <div className="h-px bg-neutral-700 my-1" />
-                        )}
-                        <button
-                          onClick={option.action}
-                          className={`w-full px-4 py-2.5 text-left text-sm transition-colors border-b border-neutral-800 last:border-b-0 ${option.admin
-                            ? 'bg-amber-900/20 text-amber-400 hover:bg-amber-900/40 font-semibold'
-                            : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
-                            }`}
-                        >
-                          {option.label}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                        {/* Dropdown Menu */}
+       {showMenuDropdown && menuPosition && (
+  <div
+    className="
+      fixed
+      w-48
+      bg-neutral-900
+      border border-neutral-800
+      rounded-lg
+      shadow-xl
+      z-[9999]
+      overflow-hidden
+    "
+    style={{
+      top: menuPosition.top,
+      left: menuPosition.left
+    }}
+  >
+    {menuOptions.map((option, idx) => (
+      <div key={idx}>
+        {option.separator && (
+          <div className="h-px bg-neutral-700 my-1" />
+        )}
+        <button
+          onClick={option.action}
+          className={`w-full px-4 py-2.5 text-left text-sm transition-colors
+            ${option.admin
+              ? 'bg-amber-900/20 text-amber-400 hover:bg-amber-900/40 font-semibold'
+              : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
+            }`}
+        >
+          {option.label}
+        </button>
+      </div>
+    ))}
+  </div>
+)}
+
               </div>
             </div>
           </div>

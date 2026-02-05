@@ -8,21 +8,22 @@ import { useNoteTracking } from "../../COMPONENTS/Session/NoteInteractionTracker
 import { clearActiveResource, setActiveResource } from '../../UTILS/activeResource';
 import { ReadNoteSkeleton } from '../../COMPONENTS/Skeletons';
 import { usePDFDownload } from '../../hooks/usePDFDownload';
-import { Infinity, Star } from 'lucide-react';
+import { ArrowRight, BookOpen, Infinity, Lock, Star } from 'lucide-react';
 import { openPaywall } from "../../REDUX/Slices/paywallSlice";
 import { showToast } from "../../HELPERS/Toaster";
 import DownloadLimitBanner from "../../COMPONENTS/Paywall/DownloadLimitBanner.jsx";
 import axiosInstance from '../../HELPERS/axiosInstance.js';
+import { useRef } from 'react';
 
 const ReadNote = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   const { currentNote, loading, bookmarking, error } = useSelector(state => state.note);
   const user = useSelector(state => state.auth.data);
   const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
-   const access = user?.access;
+  const access = user?.access;
   const hasActivePlan =
     access?.plan &&
     access?.expiresAt &&
@@ -31,10 +32,10 @@ const ReadNote = () => {
   // Download hook
   const { triggerDownload, downloadingState } = useNoteDownload();
   const thisDownload = downloadingState[currentNote?._id];
-   const { downloadPDF, downloading } = usePDFDownload();
-    const downloadState = downloading[currentNote?._id];
-  
-  
+  const { downloadPDF, downloading } = usePDFDownload();
+  const downloadState = downloading[currentNote?._id];
+
+
   // Reading states
   const [readingTime, setReadingTime] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -47,13 +48,23 @@ const ReadNote = () => {
   const [note, setNote] = useState(null);
 
   // Get PDF URL
-  const pdfUrl = currentNote?.fileDetails?.secure_url;
+  const pdfAccess = currentNote?.pdfAccess;
+  const pdfUrl = pdfAccess?.pdfUrl;
+
 
   // Build PDF viewer URL with hidden toolbar
-  const buildPdfViewerUrl = (url) => {
+  const buildPdfViewerUrl = (url, maxPages) => {
     if (!url) return '';
+
+    // 🔒 PREVIEW MODE
+    if (pdfAccess?.mode === "PREVIEW" && maxPages) {
+      return `${url}#page=1&toolbar=0&navpanes=0&scrollbar=1`;
+    }
+
+    // 🟢 FULL MODE
     return `${url}#toolbar=0&navpanes=0&scrollbar=1&zoom=page-fit`;
   };
+
 
   // Get theme colors based on category
   const getTheme = () => {
@@ -94,7 +105,7 @@ const ReadNote = () => {
   const theme = getTheme();
 
   // Check if bookmarked
-  const isBookmarked = currentNote?.bookmarkedBy?.some(bookmark => 
+  const isBookmarked = currentNote?.bookmarkedBy?.some(bookmark =>
     typeof bookmark === 'string' ? bookmark === user?._id : bookmark.user === user?._id
   );
 
@@ -107,7 +118,7 @@ const ReadNote = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  
+
   // Fetch note data
   useEffect(() => {
     if (id) {
@@ -127,16 +138,16 @@ const ReadNote = () => {
       return () => clearInterval(timer);
     }
   }, [currentNote, loading, pdfUrl]);
-// import { useEffect } from "react";
-// import { setActiveResource, clearActiveResource } from "../../UTILS/activeResource";
+  // import { useEffect } from "react";
+  // import { setActiveResource, clearActiveResource } from "../../UTILS/activeResource";
 
-useEffect(() => {
-  if (!id) return;
+  useEffect(() => {
+    if (!id) return;
     setActiveResource({
-    type: "NOTE",
-    id: id
-  });
-}, [id]);
+      type: "NOTE",
+      id: id
+    });
+  }, [id]);
   // Format reading time
   const formatReadingTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -153,7 +164,7 @@ useEffect(() => {
     trackBookmark(currentNote._id);
     dispatch(toggleBookmark(currentNote._id));
   };
- const [isCurrentlyDownloading, setIsCurrentlyDownloading] = useState(false);
+  const [isCurrentlyDownloading, setIsCurrentlyDownloading] = useState(false);
 
   const fetchQuota = async () => {
     // 🚫 Paid users don't need quota
@@ -178,6 +189,14 @@ useEffect(() => {
       }));
       return;
     }
+    // 🔒 LOCKED NOTE → OPEN PAYWALL
+  if (!canDownload) {
+    dispatch(openPaywall({
+      reason: "LOCKED_NOTE",
+      noteId: currentNote._id
+    }));
+    return;
+  }
 
     setIsCurrentlyDownloading(true);
 
@@ -235,50 +254,64 @@ useEffect(() => {
 
   // Loading state
   // ✅ Step 1: Initialize state FIRST (top of component)
-  
-const [showPlannerToast, setShowPlannerToast] = useState(false);
-const [hasShownToastToday, setHasShownToastToday] = useState(false);
-// ✅ ADD THIS FUNCTION
+const canDownload = pdfAccess?.allowDownload === true;
+// const pdfScrollRef = useRef(null);
+const [showSupportCTA, setShowSupportCTA] = useState(false);
+const [hasShownSupportCTA, setHasShownSupportCTA] = useState(false);
+useEffect(() => {
+  if (pdfAccess?.mode !== "PREVIEW") return;
+  if (hasShownSupportCTA) return;
+
+  const timer = setTimeout(() => {
+    setShowSupportCTA(true);
+    setHasShownSupportCTA(true);
+  }, 8000); // show after 8 seconds of reading
+
+  return () => clearTimeout(timer);
+}, [pdfAccess?.mode, hasShownSupportCTA]);
+
+  const [showPlannerToast, setShowPlannerToast] = useState(false);
+  const [hasShownToastToday, setHasShownToastToday] = useState(false);
+  // ✅ ADD THIS FUNCTION
   const markPlannerToastAsShown = () => {
     const today = new Date().toDateString();
     localStorage.setItem('plannerToastShownDate', today);
     setHasShownToastToday(true);
   };
-// ✅ Step 2: Reading time tracker
-useEffect(() => {
-  if (!currentNote || loading || !pdfUrl) return;
+  // ✅ Step 2: Reading time tracker
+  useEffect(() => {
+    if (!currentNote || loading || !pdfUrl) return;
 
-  const timer = setInterval(() => {
-    setReadingTime(prev => prev + 1);
-  }, 1000);
+    const timer = setInterval(() => {
+      setReadingTime(prev => prev + 1);
+    }, 1000);
 
-  return () => clearInterval(timer);
-}, [currentNote, loading, pdfUrl]);
+    return () => clearInterval(timer);
+  }, [currentNote, loading, pdfUrl]);
 
-// ✅ Step 3: Show toast after 30 seconds
-useEffect(() => {
-  if (readingTime === 30 && !hasShownToastToday) {
-    setShowPlannerToast(true);
-    setHasShownToastToday(true);
-  }
-}, [readingTime, hasShownToastToday]);
+  // ✅ Step 3: Show toast after 30 seconds
+  useEffect(() => {
+    if (readingTime === 60 && !hasShownToastToday) {
+      setShowPlannerToast(true);
+      setHasShownToastToday(true);
+    }
+  }, [readingTime, hasShownToastToday]);
 
-// ✅ Step 4: Auto-dismiss after 15 seconds
-useEffect(() => {
-  if (!showPlannerToast) return;
+  // ✅ Step 4: Auto-dismiss after 15 seconds
+  useEffect(() => {
+    if (!showPlannerToast) return;
 
-  const timer = setTimeout(() => {
-    setShowPlannerToast(false);
-  }, 15000);
+    const timer = setTimeout(() => {
+      setShowPlannerToast(false);
+    }, 15000);
 
-  return () => clearTimeout(timer);
-}, [showPlannerToast]);
+    return () => clearTimeout(timer);
+  }, [showPlannerToast]);
   if (loading) {
     return (
-      <ReadNoteSkeleton/>
+      <ReadNoteSkeleton />
     );
   }
-
   // Error state
   if (error || !currentNote || !pdfUrl) {
     return (
@@ -292,13 +325,13 @@ useEffect(() => {
             {error || (!currentNote ? 'The note you\'re looking for doesn\'t exist.' : 'The PDF file for this note is not available.')}
           </p>
           <div className="space-x-4">
-            <button 
+            <button
               onClick={() => navigate(-1)}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Go Back
             </button>
-            <button 
+            <button
               onClick={() => navigate('/notes')}
               className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
             >
@@ -337,7 +370,7 @@ useEffect(() => {
             <div className="flex items-center justify-between">
               {/* Left side - Navigation */}
               <div className="flex items-center space-x-4">
-                <button 
+                <button
                   onClick={() => navigate(-1)}
                   className="group p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 border border-white/10"
                 >
@@ -345,7 +378,7 @@ useEffect(() => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
-                
+
                 <div className="border-l border-white/20 pl-4">
                   <div className="flex items-center space-x-3">
                     <span className={`px-2 py-1 bg-gradient-to-r ${theme.gradient} text-white text-xs font-medium rounded-full`}>
@@ -367,13 +400,12 @@ useEffect(() => {
                 <button
                   onClick={handleDownload}
                   disabled={downloadState?.status === 'starting'}
-                  className={`px-3 py-2 rounded-xl transition-all duration-300 border flex items-center space-x-2 ${
-                    downloadState?.status === 'complete' || downloadState?.status === 'exists'
-                      ? 'bg-green-600/80 border-green-500/60 text-white hover:bg-green-500'
-                      : downloadState?.status === 'starting'
+                  className={`px-3 py-2 rounded-xl transition-all duration-300 border flex items-center space-x-2 ${downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                    ? 'bg-green-600/80 border-green-500/60 text-white hover:bg-green-500'
+                    : downloadState?.status === 'starting'
                       ? 'bg-blue-600/80 border-blue-500/60 text-white cursor-wait'
                       : 'bg-white/10 border-white/10 hover:bg-white/20 text-white'
-                  }`}
+                    }`}
                   title={downloadState?.status === 'complete' ? 'Downloaded successfully' : 'Download PDF'}
                 >
                   {downloadState?.status === 'starting' ? (
@@ -404,21 +436,25 @@ useEffect(() => {
                     </>
                   ) : (
                     <>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10" /><path d="M12 8v8" /><path d="m8 12 4 4 4-4" /></svg>
                       <span className="text-xs font-semibold hidden sm:inline">Download</span>
                     </>
                   )}
                 </button>
+  {!canDownload && (
+  <span className="text-xs  text-yellow-400">
+    <Lock className='w-4 h-4 inline'/> Preview only
+  </span>
+)}
 
                 {/* Bookmark */}
                 <button
                   onClick={handleBookmark}
                   disabled={bookmarking}
-                  className={`p-2 rounded-xl transition-all duration-300 border disabled:opacity-50 ${
-                    isBookmarked 
-                      ? 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400' 
-                      : 'bg-white/10 border-white/10 hover:bg-white/20'
-                  }`}
+                  className={`p-2 rounded-xl transition-all duration-300 border disabled:opacity-50 ${isBookmarked
+                    ? 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400'
+                    : 'bg-white/10 border-white/10 hover:bg-white/20'
+                    }`}
                 >
                   {bookmarking ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-blue-500"></div>
@@ -432,11 +468,10 @@ useEffect(() => {
                 {/* Study Tools Toggle */}
                 <button
                   onClick={() => setShowStudyTools(!showStudyTools)}
-                  className={`p-2 rounded-xl transition-all duration-300 border ${
-                    showStudyTools 
-                      ? 'bg-purple-500/20 border-purple-500/30 text-purple-400' 
-                      : 'bg-white/10 border-white/10 hover:bg-white/20'
-                  }`}
+                  className={`p-2 rounded-xl transition-all duration-300 border ${showStudyTools
+                    ? 'bg-purple-500/20 border-purple-500/30 text-purple-400'
+                    : 'bg-white/10 border-white/10 hover:bg-white/20'
+                    }`}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -458,10 +493,10 @@ useEffect(() => {
         </div>
       )}
 
-{showPlannerToast && (
-  <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
-    <div
-      className="
+      {showPlannerToast && (
+        <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div
+            className="
         relative
         bg-zinc-900
         border border-zinc-700/60
@@ -470,58 +505,58 @@ useEffect(() => {
         shadow-2xl
         space-y-4
       "
-    >
-      {/* Close */}
-      <button
-        onClick={() => setShowPlannerToast(false)}
-        className="
+          >
+            {/* Close */}
+            <button
+              onClick={() => setShowPlannerToast(false)}
+              className="
           absolute top-3 right-3
           p-1.5
           text-zinc-500 hover:text-zinc-300
           transition-colors
         "
-        aria-label="Close"
-      >
-        ✕
-      </button>
+              aria-label="Close"
+            >
+              ✕
+            </button>
 
-      {/* Content */}
-      <div className="pr-8 space-y-2">
-        <p className="text-[11px] font-medium uppercase tracking-widest text-zinc-400">
-          Study tip
-        </p>
+            {/* Content */}
+            <div className="pr-8 space-y-2">
+              <p className="text-[11px] font-medium uppercase tracking-widest text-zinc-400">
+                Study tip
+              </p>
 
-        <h3 className="text-base font-semibold text-zinc-100 leading-snug">
-          Studying {currentNote?.subject || "this subject"}?
-        </h3>
+              <h3 className="text-base font-semibold text-zinc-100 leading-snug">
+                Studying {currentNote?.subject || "this subject"}?
+              </h3>
 
-        <p className="text-sm text-zinc-400 leading-relaxed">
-          Planner organizes chapters, notes, PYQs and questions in the right order —
-          complete one unit, then move forward without confusion.
-        </p>
-      </div>
+              <p className="text-sm text-zinc-400 leading-relaxed">
+                Planner organizes chapters, notes, PYQs and questions in the right order —
+                complete one unit, then move forward without confusion.
+              </p>
+            </div>
 
-      {/* Actions */}
-      <div className="flex gap-3 pt-2">
-        <button
-          onClick={() => {
-            markPlannerToastAsShown();
-            navigate("/planner");
-          }}
-          className="
+            {/* Actions */}
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => {
+                  markPlannerToastAsShown();
+                  navigate("/planner");
+                }}
+                className="
             flex-1 px-4 py-2.5
             bg-[#9CA3AF] hover:bg-white text-black
             rounded-full
             font-semibold text-sm
             transition-all active:scale-95
           "
-        >
-          Organize this subject
-        </button>
+              >
+                Organize this subject
+              </button>
 
-        <button
-          onClick={() => setShowPlannerToast(false)}
-          className="
+              <button
+                onClick={() => setShowPlannerToast(false)}
+                className="
             flex-1 px-4 py-2.5
             bg-zinc-800 text-zinc-400
             hover:bg-zinc-700 hover:text-zinc-200
@@ -529,13 +564,14 @@ useEffect(() => {
             font-semibold text-sm
             transition-all active:scale-95
           "
-        >
-          Later
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              >
+                Later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
 
       {/* Mobile Header */}
@@ -544,7 +580,7 @@ useEffect(() => {
           <div className="px-3 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <button 
+                <button
                   onClick={() => navigate(-1)}
                   className="p-2 bg-white/10 rounded-lg border border-white/10"
                 >
@@ -561,7 +597,7 @@ useEffect(() => {
                   <h1 className="text-sm font-bold text-white truncate max-w-[180px]">{currentNote?.title}</h1>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <div className="text-xs text-gray-400">
                   ⏱ {formatReadingTime(readingTime)}
@@ -581,24 +617,22 @@ useEffect(() => {
             <div className="flex-1 flex items-center justify-center p-4 overflow-auto">
               <div className="w-full h-full bg-white rounded-lg shadow-2xl overflow-hidden relative">
                 <iframe
-                  src={buildPdfViewerUrl(pdfUrl)}
+                  src={buildPdfViewerUrl(pdfUrl, pdfAccess?.maxPages)}
                   className="w-full h-full border-0"
                   title={currentNote?.title}
-                  style={{ minHeight: '100%' }}
                 />
-                
+
                 {/* Custom Download Button (replaces "Open in New Tab") */}
                 <div className="absolute bottom-4 right-4 z-10">
                   <button
                     onClick={handleDownload}
                     disabled={downloadState?.status === 'starting'}
-                    className={`text-white px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center space-x-1 font-semibold border ${
-                      downloadState?.status === 'complete' || downloadState?.status === 'exists'
-                        ? 'bg-green-600/90 hover:bg-green-500/90 border-green-500/60'
-                        : downloadState?.status === 'starting'
+                    className={`text-white px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center space-x-1 font-semibold border ${downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                      ? 'bg-green-600/90 hover:bg-green-500/90 border-green-500/60'
+                      : downloadState?.status === 'starting'
                         ? 'bg-blue-600/90 border-blue-500/60 cursor-wait'
                         : 'bg-black/80 hover:bg-black/90 border-white/30 hover:border-white/50'
-                    }`}
+                      }`}
                   >
                     {downloadState?.status === 'starting' ? (
                       <>
@@ -614,11 +648,17 @@ useEffect(() => {
                       </>
                     ) : (
                       <>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10" /><path d="M12 8v8" /><path d="m8 12 4 4 4-4" /></svg>
                         <span>Download PDF</span>
                       </>
                     )}
                   </button>
+         {!canDownload && (
+  <span className="text-xs  text-yellow-400">
+    <Lock className='w-4 h-4 inline'/> Preview only
+  </span>
+)}
+
                 </div>
 
                 {/* Helper text */}
@@ -680,22 +720,21 @@ useEffect(() => {
               {/* Download Section */}
               <div className="bg-gradient-to-br from-indigo-900/30 to-blue-900/20 backdrop-blur-xl border border-indigo-500/20 rounded-xl p-4">
                 <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10" /><path d="M12 8v8" /><path d="m8 12 4 4 4-4" /></svg>
                   Download PDF
                 </h3>
                 {/* <p className="text-xs text-gray-300 mb-3">
                   Download this note to your device
                 </p> */}
-                <button 
+                <button
                   onClick={handleDownload}
                   disabled={downloadState?.status === 'starting'}
-                  className={`w-full py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
-                    downloadState?.status === 'complete' || downloadState?.status === 'exists'
-                      ? 'bg-green-600/20 border border-green-500/30 text-green-300 hover:bg-green-600/30'
-                      : downloadState?.status === 'starting'
+                  className={`w-full py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                    ? 'bg-green-600/20 border border-green-500/30 text-green-300 hover:bg-green-600/30'
+                    : downloadState?.status === 'starting'
                       ? 'bg-blue-600/20 border border-blue-500/30 text-blue-300 cursor-wait'
                       : 'bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/30'
-                  }`}
+                    }`}
                 >
                   {downloadState?.status === 'starting' ? (
                     <>
@@ -725,6 +764,12 @@ useEffect(() => {
                     </>
                   )}
                 </button>
+                {!canDownload && (
+  <span className="text-xs text-yellow-400">
+    <Lock className='w-4 h-4'/> Preview only
+  </span>
+)}
+
               </div>
 
               {/* Study Tools */}
@@ -737,7 +782,7 @@ useEffect(() => {
                     </svg>
                     <span className="text-gray-300">Highlight Text</span>
                   </button>
-                  <button 
+                  <button
                     onClick={handleBookmark}
                     className="w-full text-left p-3 rounded-lg hover:bg-white/5 transition-colors flex items-center"
                   >
@@ -752,6 +797,46 @@ useEffect(() => {
           </div>
         )}
       </div>
+{showSupportCTA && pdfAccess?.mode === "PREVIEW" && (
+  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-md w-[90%]">
+    <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-4 shadow-2xl">
+      <div className="flex items-start gap-3">
+        
+        {/* Icon */}
+        <div className="w-9 h-9 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+          <BookOpen className="w-5 h-5 text-indigo-400" />
+        </div>
+
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-white">
+            Unlock the complete note
+          </p>
+
+          <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+            You’re viewing a preview.  
+            Supporting AcademicArk unlocks the full PDF and helps us keep
+            quality notes available for all students.
+          </p>
+
+          <button
+            onClick={() => navigate("/support")}
+            className="
+              mt-3 w-full
+              flex items-center justify-center gap-2
+              bg-white text-black
+              rounded-full py-2
+              text-sm font-semibold
+              hover:bg-gray-200 transition
+            "
+          >
+            View support options
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Mobile Speed Dial Navigation */}
       {isMobile && !isFullscreen && (
@@ -775,11 +860,11 @@ useEffect(() => {
                       handleDownload();
                       setShowMobileMenu(false);
                     }}
-                    className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white transform transition-all duration-300 animate-fade-in-up ${
-                      downloadState?.status === 'complete' || downloadState?.status === 'exists'
-                        ? 'bg-green-600'
-                        : 'bg-indigo-600'
-                    }`}
+                    disabled={ downloadState?.status === 'starting'}
+                    className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white transform transition-all duration-300 animate-fade-in-up ${downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                      ? 'bg-green-600'
+                      : 'bg-indigo-600'
+                      }`}
                     style={{ animationDelay: '0.1s' }}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -807,9 +892,8 @@ useEffect(() => {
                       handleBookmark();
                       setShowMobileMenu(false);
                     }}
-                    className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white transform transition-all duration-300 animate-fade-in-up ${
-                      isBookmarked ? 'bg-yellow-600' : 'bg-blue-600'
-                    }`}
+                    className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white transform transition-all duration-300 animate-fade-in-up ${isBookmarked ? 'bg-yellow-600' : 'bg-blue-600'
+                      }`}
                     style={{ animationDelay: '0.3s' }}
                   >
                     <svg className="w-5 h-5" fill={isBookmarked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
@@ -844,7 +928,7 @@ useEffect(() => {
           <div className="relative w-full bg-gray-900 rounded-t-3xl p-6 animate-slide-up">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-white">Study Tools & Download</h2>
-              <button 
+              <button
                 onClick={() => setShowStudyTools(false)}
                 className="p-2 bg-white/10 rounded-lg"
               >
@@ -853,7 +937,7 @@ useEffect(() => {
                 </svg>
               </button>
             </div>
-            
+
             {/* Study Session Info */}
             <div className={`bg-gradient-to-br ${theme.bgGradient} backdrop-blur-xl border ${theme.borderColor} rounded-xl p-4 mb-6`}>
               <h3 className="text-lg font-semibold text-white mb-3">Study Session</h3>
@@ -880,7 +964,7 @@ useEffect(() => {
             {/* Download Section */}
             <div className="bg-gradient-to-br from-indigo-900/30 to-blue-900/20 border border-indigo-500/20 rounded-xl p-4 mb-6">
               <h3 className="text-lg font-semibold text-white mb-2 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10" /><path d="M12 8v8" /><path d="m8 12 4 4 4-4" /></svg>
                 Download This Note
               </h3>
               {/* <p className="text-xs text-gray-300 mb-3">Support this resource by downloading!</p> */}
@@ -890,13 +974,12 @@ useEffect(() => {
                   setShowStudyTools(false);
                 }}
                 disabled={downloadState?.status === 'starting'}
-                className={`w-full py-3 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
-                  downloadState?.status === 'complete' || downloadState?.status === 'exists'
-                    ? 'bg-green-600 text-white hover:bg-green-500'
-                    : downloadState?.status === 'starting'
+                className={`w-full py-3 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${downloadState?.status === 'complete' || downloadState?.status === 'exists'
+                  ? 'bg-green-600 text-white hover:bg-green-500'
+                  : downloadState?.status === 'starting'
                     ? 'bg-blue-600 text-white cursor-wait'
                     : 'bg-indigo-600 text-white hover:bg-indigo-500'
-                }`}
+                  }`}
               >
                 {downloadState?.status === 'starting' ? (
                   <>
@@ -919,11 +1002,17 @@ useEffect(() => {
                   </>
                 ) : (
                   <>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-arrow-down-icon lucide-circle-arrow-down"><circle cx="12" cy="12" r="10" /><path d="M12 8v8" /><path d="m8 12 4 4 4-4" /></svg>
                     <span>Download PDF</span>
                   </>
                 )}
               </button>
+              {!canDownload && (
+  <span className="text-xs text-yellow-400">
+    🔒 Preview only
+  </span>
+)}
+
             </div>
 
             {/* Quick Notes */}
@@ -942,13 +1031,12 @@ useEffect(() => {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
-              <button 
+              <button
                 onClick={handleBookmark}
-                className={`p-3 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
-                  isBookmarked 
-                    ? 'bg-yellow-500/20 border border-yellow-500/30 text-yellow-300' 
-                    : 'bg-white/10 border border-white/20 text-white'
-                }`}
+                className={`p-3 rounded-lg transition-colors flex items-center justify-center space-x-2 ${isBookmarked
+                  ? 'bg-yellow-500/20 border border-yellow-500/30 text-yellow-300'
+                  : 'bg-white/10 border border-white/20 text-white'
+                  }`}
               >
                 <svg className="w-5 h-5" fill={isBookmarked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
@@ -966,6 +1054,7 @@ useEffect(() => {
           Press <kbd className="bg-white/20 px-2 py-1 rounded text-xs">Esc</kbd> to exit fullscreen
         </div>
       )}
+      
     </div>
   );
 };
