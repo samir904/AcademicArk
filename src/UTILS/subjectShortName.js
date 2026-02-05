@@ -1,31 +1,39 @@
 // utils/subjectShortName.js
 
-const SUBJECT_ABBREVIATIONS = {
+const RAW_SUBJECT_ABBREVIATIONS = {
   "database management system": "DBMS",
   "data structures and algorithms": "DSA",
-  "object oriented system design with c++": "OOP with c++",
+  "object oriented system design with c++": "OOP with C++",
   "object oriented programming with java": "OOP JAVA",
   "operating system": "OS",
   "computer organization and architecture": "COA",
-  "THEORY OF AUTОMАTА AND FORMAL LANGUAGES": "TAFL",
+  "theory of automata and formal languages": "TAFL",
   "design and analysis of algorithm": "DAA",
   "artificial intelligence": "AI",
   "machine learning techniques": "MLT",
-  "engineering mathematics-i":"MATHS-1",
-  "engineering physics":"Physics",
-  "fundamentals of electrical engineering":"Electrical",
-  "environment and ecology":"EVS",
-  "engineering chemistry":"Chemistry",
-   "soft skills":"soft skills" ,
-   "programming for problem solving":"PPS",
-   "fundamentals of electronics engineering":"Electronics",
-   "fundamentals of mechanical engineering":"FME",
-   "engineering mathematics-II":"MATHS-II",
-    "discrete structures & theory of logic":"DSTL",
-    "mathematics-iv":"MATHS-iv",
-    "Universal Human Values and Professional Ethics":"UHVE",
-    "introduction to data analytics and visualization":"DAV"
+  "engineering mathematics-i": "MATHS-I",
+  "engineering mathematics-ii": "MATHS-II",
+  "engineering physics": "PHYSICS",
+  "fundamentals of electrical engineering": "ELECTRICAL",
+  "environment and ecology": "EVS",
+  "engineering chemistry": "CHEMISTRY",
+  "soft skills": "SOFT SKILLS",
+  "programming for problem solving": "PPS",
+  "fundamentals of electronics engineering": "ELECTRONICS",
+  "fundamentals of mechanical engineering": "FME",
+  "discrete structures & theory of logic": "DSTL",
+  "mathematics-iv": "MATHS-IV",
+  "universal human values and professional ethics": "UHVE",
+  "introduction to data analytics and visualization": "DAV",
+  "social media analytics and data analysis": "SMA"
 };
+const SUBJECT_ABBREVIATIONS = Object.fromEntries(
+  Object.entries(RAW_SUBJECT_ABBREVIATIONS).map(([key, value]) => [
+    key.trim().toLowerCase(),
+    value
+  ])
+);
+
  // Subject mapping by semester
   const subjectsBySemester = {
     1: [
@@ -84,7 +92,7 @@ export function getSubjectShortName(subject = "") {
 
   const normalized = subject.trim().toLowerCase();
 
-  // ✅ 1. Exact known abbreviation
+  // ✅ 1. Exact abbreviation match (now works)
   if (SUBJECT_ABBREVIATIONS[normalized]) {
     return SUBJECT_ABBREVIATIONS[normalized];
   }
@@ -96,12 +104,9 @@ export function getSubjectShortName(subject = "") {
     return words.map(w => w[0]).join("").toUpperCase();
   }
 
-  // ✅ 3. Single-word fallback
+  // ✅ 3. Single-word fallback (true last resort)
   const word = words[0];
-
-  if (word.length <= 6) {
-    return word.toUpperCase();
-  }
-
-  return word.slice(0, 4).toUpperCase();
+  return word.length <= 6
+    ? word.toUpperCase()
+    : word.slice(0, 4).toUpperCase();
 }

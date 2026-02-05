@@ -207,6 +207,7 @@ export default function Note() {
       'software project management',
       "software engineering",
       'Big data and analytics',
+      'Social Media Analytics and Data Analysis',
       'compiler design',
       "Machine Learning Techniques",
       "cloud computing",
