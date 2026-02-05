@@ -109,10 +109,34 @@ const userData = useSelector((state) => state?.auth?.data);
   };
 
   const handleLogout = async () => {
-    setIsLoggingOut(true);
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    onLogout();
-  };
+     try {
+       // 1. Call logout API
+       const result = await dispatch(logout());
+ 
+       // 2. ALWAYS clear storage, regardless of API response
+       localStorage.removeItem("isLoggedIn");
+       localStorage.removeItem("data");
+       localStorage.removeItem("role");
+       localStorage.removeItem("currentSemester");
+ 
+       sessionStorage.clear();
+ 
+       // 3. Clear all cookies
+       document.cookie = "token=; path=/; max-age=0";
+       document.cookie = "token=; path=/; max-age=0; SameSite=None; Secure";
+ 
+       // 4. Reset Redux state
+       dispatch(clearAuthState()); // ✅ Add this action
+ 
+       // 5. Navigate after clearing everything
+       navigate("/", { replace: true });
+     } catch (error) {
+       console.error("Logout error:", error);
+       // Still clear storage even if API fails
+       localStorage.clear();
+       navigate("/", { replace: true });
+     }
+   };
 // Get semester and branch from user data
   const semester = userData?.academicProfile?.semester || 'Semester 5';
   const branch = userData?.academicProfile?.branch || 'Computer Science';

@@ -62,7 +62,7 @@ export default function PaywallModal() {
             dispatch(closePaywall());
             navigate("/support");
           }}
-          className="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl py-3 font-semibold flex items-center justify-center gap-2"
+          className="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white rounded-full py-3 font-semibold flex items-center justify-center gap-2"
         >
           View support plans
           <ArrowRight className="w-4 h-4" />
