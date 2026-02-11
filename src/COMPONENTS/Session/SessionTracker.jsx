@@ -86,7 +86,6 @@ const useSessionTracker = () => {
     if(path==='/downloads')return 'DOWNLOADS';
     if(path.startsWith('/search'))return 'SEARCH'
     if(path==='/admin') return 'ADMIN'
-    if(path.startsWith('/video')) return 'VIDEO'
     return "OTHER";
   };
 

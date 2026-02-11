@@ -206,7 +206,7 @@ export default function Note() {
       'Computer network',
       'software project management',
       "software engineering",
-      'Big data and analytics',
+      'Big Data',
       'Social Media Analytics and Data Analysis',
       'compiler design',
       "Machine Learning Techniques",
@@ -776,14 +776,14 @@ useEffect(() => {
               {/* <div className="h-12 rounded-xl bg-[#1F1F1F] animate-pulse" /> */}
 
               {/* Filter Buttons Skeleton */}
-              <div className="flex gap-3 flex-wrap">
+              {/* <div className="flex gap-3 flex-wrap">
                 {[1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
                     className="h-10 w-24 rounded-full bg-[#1F1F1F] border border-[#2A2A2A]"
                   />
                 ))}
-              </div>
+              </div> */}
 
               {/* Cards Skeleton */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -25,7 +25,8 @@ const RAW_SUBJECT_ABBREVIATIONS = {
   "mathematics-iv": "MATHS-IV",
   "universal human values and professional ethics": "UHVE",
   "introduction to data analytics and visualization": "DAV",
-  "social media analytics and data analysis": "SMA"
+  "social media analytics and data analysis": "SMA",
+  "Big Data":"BD"
 };
 const SUBJECT_ABBREVIATIONS = Object.fromEntries(
   Object.entries(RAW_SUBJECT_ABBREVIATIONS).map(([key, value]) => [
