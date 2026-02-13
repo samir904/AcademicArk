@@ -40,6 +40,7 @@ export default function PlanList({ plans = [], onSelect, userAccess,creatingOrde
             plan={plan}
             highlight={index === 0}
             onSelect={onSelect}
+            creatingOrder={creatingOrder}
             userAccess={userAccess}
           />
         ))}
