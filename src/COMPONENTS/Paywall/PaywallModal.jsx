@@ -35,43 +35,43 @@ export default function PaywallModal() {
 
         {/* Title */}
         <h2 className="text-xl font-bold text-white text-center">
-          {isLimit && "Daily free limit reached"}
-          {isExpired && "Your support period has ended"}
-           {isLocked && "Full note access is locked"}
-        </h2>
-
+  {isLimit && "You've reached today’s free limit"}
+  {isExpired && "Your unlimited access has ended"}
+  {isLocked && "This is a premium note"}
+</h2>
         {/* Subtitle */}
         <p className="text-sm text-slate-400 text-center mt-2">
-          {isLimit && "You’ve used today’s free downloads."}
-          {isExpired && "Support again to continue extended access."}
-          {isLocked && "Preview is available. Full PDF unlocks with support."}
-        </p>
-
+  {isLimit && "Free access resets tomorrow."}
+  {isExpired && "Renew to continue full access."}
+  {isLocked && "Preview is available. Full access requires support."}
+</p>
         {/* Perks */}
         <div className="mt-5 bg-[#151515] border border-[#2A2A2A] rounded-xl p-4 space-y-2 text-sm text-slate-300">
-          <p>✓ Full PDF access (no page limits)</p>
-          <p>✓ Unlimited downloads</p>
-          <p>✓ No interruptions during exams</p>
-          <p>✓ Priority access to new notes</p>
-          <p>✓ Support AcademicArk ❤️</p>
-        </div>
+  <p>✓ Full PDF access</p>
+  <p>✓ Unlimited downloads</p>
+  <p>✓ No interruptions during exams</p>
+</div>
+<div className="mt-4 text-center text-sm text-indigo-400 font-medium space-y-1">
+  <p>₹29 • 14 Days Access</p>
+  <p>₹59 • Full Semester (120 Days)</p>
+</div>
 
         {/* CTA */}
         <button
-          onClick={() => {
-            dispatch(closePaywall());
-            navigate("/support");
-          }}
-          className="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white rounded-full py-3 font-semibold flex items-center justify-center gap-2"
-        >
-          View support plans
-          <ArrowRight className="w-4 h-4" />
-        </button>
+  onClick={() => {
+    dispatch(closePaywall());
+    navigate("/support");
+  }}
+  className="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white rounded-full py-3 font-semibold flex items-center justify-center gap-2"
+>
+  Unlock full access
+  <ArrowRight className="w-4 h-4" />
+</button>
 
         {/* Footer */}
-        <p className="text-xs text-slate-500 text-center mt-3">
+        {/* <p className="text-xs text-slate-500 text-center mt-3">
           Fair usage helps keep AcademicArk accessible for everyone.
-        </p>
+        </p> */}
       </div>
     </div>
   );

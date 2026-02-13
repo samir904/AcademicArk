@@ -265,7 +265,7 @@ useEffect(() => {
   const timer = setTimeout(() => {
     setShowSupportCTA(true);
     setHasShownSupportCTA(true);
-  }, 8000); // show after 8 seconds of reading
+  }, 1000); // show after 8 seconds of reading
 
   return () => clearTimeout(timer);
 }, [pdfAccess?.mode, hasShownSupportCTA]);
@@ -291,7 +291,7 @@ useEffect(() => {
 
   // ✅ Step 3: Show toast after 30 seconds
   useEffect(() => {
-    if (readingTime === 60 && !hasShownToastToday) {
+    if (readingTime === 180 && !hasShownToastToday) {
       setShowPlannerToast(true);
       setHasShownToastToday(true);
     }
@@ -809,15 +809,16 @@ useEffect(() => {
 
         <div className="flex-1">
           <p className="text-sm font-semibold text-white">
-            Unlock the complete note
-          </p>
+  You’re viewing a limited preview
+</p>
 
           <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-            You’re viewing a preview.  
-            Supporting AcademicArk unlocks the full PDF and helps us keep
-            quality notes available for all students.
-          </p>
-
+  Only part of this note is available for free.
+  Unlock full access to continue without limits.
+</p>
+<p className="text-center text-sm text-indigo-400 mt-4 font-semibold">
+  Starting at ₹29 • 14 Days Access
+</p>
           <button
             onClick={() => navigate("/support")}
             className="
@@ -829,7 +830,7 @@ useEffect(() => {
               hover:bg-gray-200 transition
             "
           >
-            View support options
+            Unlock full note
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

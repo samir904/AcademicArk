@@ -6,18 +6,18 @@ export default function DownloadLimitBanner({ quota, onClose }) {
   if (!quota) return null;
 
   const isLimitReached = quota.remaining <= 0;
-const getTimeUntilReset = () => {
-  const now = new Date();
-  const reset = new Date();
-  reset.setHours(24, 0, 0, 0); // next midnight
+  const getTimeUntilReset = () => {
+    const now = new Date();
+    const reset = new Date();
+    reset.setHours(24, 0, 0, 0); // next midnight
 
-  const diffMs = reset - now;
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
+    const diffMs = reset - now;
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
 
-  return `${hours}h ${minutes}m`;
-};
-const timeLeft = getTimeUntilReset();
+    return `${hours}h ${minutes}m`;
+  };
+  const timeLeft = getTimeUntilReset();
 
   return (
     <div
@@ -25,10 +25,9 @@ const timeLeft = getTimeUntilReset();
         flex items-start justify-between gap-3
         rounded-lg border px-3.5 py-2.5
         text-xs shadow-sm
-        ${
-          isLimitReached
-            ? "border-amber-500/20 bg-[#1A1408] text-amber-300"
-            : "border-indigo-500/20 bg-[#0E1224] text-indigo-300"
+        ${isLimitReached
+          ? "border-amber-500/20 bg-[#1A1408] text-amber-300"
+          : "border-indigo-500/20 bg-[#0E1224] text-indigo-300"
         }
       `}
     >
@@ -44,45 +43,48 @@ const timeLeft = getTimeUntilReset();
           {!isLimitReached ? (
             <>
               <div className="font-medium">
-                {quota.remaining} downloads left today
+                {quota.remaining} free downloads left today
               </div>
+
               <div className="text-[11px] text-indigo-400/60">
                 Resets in {timeLeft}
               </div>
 
-              {/* OPTIONAL soft upgrade hint */}
               <span
                 onClick={() => navigate("/support")}
                 className="
-                  mt-0.5 inline-flex items-center gap-1
-                  text-[11px]
-                  text-indigo-400/70 hover:text-indigo-300
-                  cursor-pointer
-                "
+    mt-0.5 inline-flex items-center gap-1
+    text-[11px] font-medium
+    text-indigo-300 hover:text-indigo-200
+    cursor-pointer
+  "
               >
-                Need more access?
+                Unlock unlimited access
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </span>
             </>
           ) : (
             <>
               <div className="font-medium">
-                Daily download limit reached 
-              </div>
+  Free limit reached for today
+</div>
 
-              {/* PRIMARY UPGRADE CTA */}
-              <span
-                onClick={() => navigate("/support")}
-                className="
-                  mt-0.5 inline-flex items-center gap-1
-                  text-[11px] font-medium
-                  text-amber-300 hover:text-amber-200
-                  cursor-pointer
-                "
-              >
-                Get unlimited access
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </span>
+<div className="text-[11px] text-amber-400/70">
+  Next reset in {timeLeft}
+</div>
+
+<span
+  onClick={() => navigate("/support")}
+  className="
+    mt-0.5 inline-flex items-center gap-1
+    text-[11px] font-semibold
+    text-amber-300 hover:text-amber-200
+    cursor-pointer
+  "
+>
+  Continue without limits • ₹29 
+  <ArrowUpRight className="w-3.5 h-3.5" />
+</span>
             </>
           )}
         </div>

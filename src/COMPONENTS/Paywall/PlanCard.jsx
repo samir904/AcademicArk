@@ -19,10 +19,17 @@ export default function PlanCard({
       })
     : null;
 
-  let ctaText = "Support this plan";
-if (isActivePlan) ctaText = "Currently active";
-else if (highlight) ctaText = `Get ${plan.name}`;
-  return (
+ let ctaText = "Unlock Access";
+
+if (isActivePlan) ctaText = "Currently Active";
+else if (highlight) ctaText = "Unlock Full Access";
+const rawPerDay = plan.price / plan.validityDays;
+const perDayPrice =
+  rawPerDay < 1
+    ? rawPerDay.toFixed(2)
+    : Math.round(rawPerDay);
+
+return (
     <div
       className={`
         relative rounded-2xl border p-6 transition-all
@@ -56,15 +63,22 @@ else if (highlight) ctaText = `Get ${plan.name}`;
         <span className="text-3xl font-bold text-white">
           ₹{plan.price}
         </span>
+        
         <span className="text-sm text-slate-400">
           / {plan.validityDays} days
         </span>
+        <br />
+       <p className="text-xs text-slate-500 mt-1">
+  ( Only ₹{perDayPrice} per day )
+</p>
+
       </div>
 
       {/* DESCRIPTION */}
-      <p className="mt-3 text-sm text-slate-300">
+      <p className="mt-3 text-sm text-indigo-300">
         {plan.description}
       </p>
+     
 
       {/* FEATURES */}
    {/* FEATURES */}
@@ -83,7 +97,7 @@ else if (highlight) ctaText = `Get ${plan.name}`;
   </li>
   <li className="flex items-center gap-2">
     <CheckCircle className="w-4 h-4 text-emerald-400" />
-    Helps keep AcademicArk running for everyone
+    Keep AcademicArk independent & ad-free
   </li>
 </ul>
 
