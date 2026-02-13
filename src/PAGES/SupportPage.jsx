@@ -17,6 +17,7 @@ export default function SupportPage() {
   const { activePlans, loading } = useSelector(state => state.plans);
   const userAccess = useSelector(state => state.auth?.data?.access);
   const { paymentSessionId } = useSelector(state => state.payment);
+const { creatingOrder } = useSelector(state => state.payment);
 
   // 🔹 Fetch plans once
   useEffect(() => {
@@ -56,6 +57,7 @@ export default function SupportPage() {
           <PlanList
             plans={activePlans}
             userAccess={userAccess}
+              creatingOrder={creatingOrder}
             onSelect={(plan) =>
               dispatch(createPaymentOrder({ planId: plan._id }))
             }
