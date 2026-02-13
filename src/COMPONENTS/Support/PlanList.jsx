@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PlanCard from "../Paywall/PlanCard";
 
-export default function PlanList({ plans = [], onSelect, userAccess,creatingOrder }) {
+export default function PlanList({ plans = [], onSelect, userAccess }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -40,7 +40,6 @@ export default function PlanList({ plans = [], onSelect, userAccess,creatingOrde
             plan={plan}
             highlight={index === 0}
             onSelect={onSelect}
-            creatingOrder={creatingOrder}
             userAccess={userAccess}
           />
         ))}
@@ -53,7 +52,6 @@ export default function PlanList({ plans = [], onSelect, userAccess,creatingOrde
             plan={plans[activeIndex]}
             highlight={activeIndex === 0}   // 🔥 FIX
             onSelect={onSelect}
-            creatingOrder={creatingOrder}
             userAccess={userAccess}
           />
         )}

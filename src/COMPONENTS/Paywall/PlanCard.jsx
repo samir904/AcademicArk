@@ -1,13 +1,11 @@
 import React from "react";
 import { CheckCircle, ArrowRight, Check } from "lucide-react";
-import { useState } from "react";
 
 export default function PlanCard({
   plan,
   onSelect,
   highlight = false,
-  userAccess ,// 👈 pass this from parent
-creatingOrder   // 👈 ADD THIS
+  userAccess // 👈 pass this from parent
 }) {
   const isActivePlan =
     userAccess?.plan === plan._id &&
@@ -30,7 +28,6 @@ const perDayPrice =
   rawPerDay < 1
     ? rawPerDay.toFixed(2)
     : Math.round(rawPerDay);
-    
 
 return (
     <div
@@ -113,39 +110,31 @@ return (
 
       {/* CTA BUTTON */}
       <button
-  disabled={isActivePlan || creatingOrder}
-  onClick={() => onSelect(plan)}
-  className={`
-    mt-6 w-full flex items-center justify-center gap-2
-    px-5 py-3 rounded-full font-semibold text-sm
-    transition-all
-    ${isActivePlan
-      ? "bg-emerald-600/40 text-emerald-200 cursor-not-allowed"
-      : creatingOrder
-      ? "bg-indigo-500/70 cursor-not-allowed"
-      : highlight
-      ? "bg-indigo-500 hover:bg-indigo-400 text-white"
-      : "bg-[#1F1F1F] hover:bg-[#2A2A2A] text-white border border-[#2F2F2F]"}
-  `}
->
-  {isActivePlan ? (
-    <>
-      <Check className="w-4 h-4" />
-      Active Plan
-    </>
-  ) : creatingOrder ? (
-    <>
-      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-      Processing...
-    </>
-  ) : (
-    <>
-      {ctaText}
-      <ArrowRight className="w-4 h-4" />
-    </>
-  )}
-</button>
-
+        disabled={isActivePlan}
+        onClick={() => onSelect(plan)}
+        className={`
+          mt-6 w-full flex items-center justify-center gap-2
+          px-5 py-3 rounded-full font-semibold text-sm
+          transition-all
+          ${isActivePlan
+            ? "bg-emerald-600/40 text-emerald-200 cursor-not-allowed"
+            : highlight
+            ? "bg-indigo-500 hover:bg-indigo-400 text-white"
+            : "bg-[#1F1F1F] hover:bg-[#2A2A2A] text-white border border-[#2F2F2F]"}
+        `}
+      >
+        {isActivePlan ? (
+          <>
+            <Check className="w-4 h-4" />
+            Active Plan
+          </>
+        ) : (
+          <>
+            {ctaText}
+            <ArrowRight className="w-4 h-4" />
+          </>
+        )}
+      </button>
     </div>
   );
 }

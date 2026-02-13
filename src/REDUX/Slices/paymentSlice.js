@@ -102,7 +102,7 @@ const initialState = {
   paymentStatus: null, // CREATED | SUCCESS | FAILED
   creatingOrder: false,
   checkingStatus: false,
-
+creatingPlanId: null,   // 👈 ADD THIS
   // Admin data
   payments: [],
   pagination: null,
@@ -121,6 +121,7 @@ const paymentSlice = createSlice({
     resetPaymentState: (state) => {
       state.paymentSessionId = null;
       state.paymentStatus = null;
+      state.creatingPlanId = null;   // 👈 ADD
       state.error = null;
     },
     clearPaymentError: (state) => {
@@ -133,14 +134,17 @@ const paymentSlice = createSlice({
     builder
       .addCase(createPaymentOrder.pending, (state) => {
         state.creatingOrder = true;
+        state.creatingPlanId = action.meta.arg.planId;  // 👈 STORE PLAN ID
         state.error = null;
       })
       .addCase(createPaymentOrder.fulfilled, (state, action) => {
         state.creatingOrder = false;
+        state.creatingPlanId = null;
         state.paymentSessionId = action.payload.paymentSessionId;
       })
       .addCase(createPaymentOrder.rejected, (state, action) => {
         state.creatingOrder = false;
+        state.creatingPlanId = null;
         state.error = action.payload;
       });
 
