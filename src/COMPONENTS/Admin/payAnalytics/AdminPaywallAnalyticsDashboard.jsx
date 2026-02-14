@@ -426,6 +426,8 @@ const PremiumKpiCard = ({ title, value, gradient, Icon, trend }) => {
             </div>
           )} */}
         </div>
+
+        
         
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
