@@ -4,12 +4,15 @@ import SupportHeader from "../COMPONENTS/Support/SupportHeader";
 import PlanList from "../COMPONENTS/Support/PlanList";
 import FAQSection from "../COMPONENTS/Support/FAQSection";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+
 import {
   createPaymentOrder,
   resetPaymentState
 } from "../REDUX/Slices/paymentSlice";
 import { fetchActivePlans } from "../REDUX/Slices/planSlice";
 import { getCashfree } from "../UTILS/cashfree";
+import { trackPaywallEvent } from "../REDUX/Slices/paywallTrackingSlice";
 
 export default function SupportPage() {
   const dispatch = useDispatch();
@@ -17,6 +20,10 @@ export default function SupportPage() {
   const { activePlans, loading } = useSelector(state => state.plans);
   const userAccess = useSelector(state => state.auth?.data?.access);
   const { paymentSessionId } = useSelector(state => state.payment);
+
+
+  const location = useLocation();
+  const sourceNoteId = location.state?.noteId || null;
 
   // 🔹 Fetch plans once
   useEffect(() => {
@@ -46,6 +53,23 @@ export default function SupportPage() {
 
     openCheckout();
   }, [paymentSessionId, dispatch]);
+  useEffect(() => {
+    dispatch(trackPaywallEvent({
+      eventType: "SUPPORT_VIEWED",
+      noteId: sourceNoteId
+    }));
+  }, [dispatch]);
+  useEffect(() => {
+    return () => {
+      // Only track dismissal if user did NOT start payment
+      if (!paymentSessionId) {
+        dispatch(trackPaywallEvent({
+          eventType: "SUPPORT_DISMISSED",
+          noteId: sourceNoteId
+        }));
+      }
+    };
+  }, [paymentSessionId, dispatch]);
 
   return (
     <PageTransition>
@@ -56,9 +80,17 @@ export default function SupportPage() {
           <PlanList
             plans={activePlans}
             userAccess={userAccess}
-            onSelect={(plan) =>
-              dispatch(createPaymentOrder({ planId: plan._id }))
-            }
+            onSelect={(plan) => {
+              if (sourceNoteId) {
+                sessionStorage.setItem("lastPaywallNoteId", sourceNoteId);
+              }
+              dispatch(trackPaywallEvent({
+                eventType: "PAYMENT_STARTED",
+                noteId: sourceNoteId
+              }));
+
+              dispatch(createPaymentOrder({ planId: plan._id }));
+            }}
           />
         )}
 

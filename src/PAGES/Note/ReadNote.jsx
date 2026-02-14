@@ -14,6 +14,7 @@ import { showToast } from "../../HELPERS/Toaster";
 import DownloadLimitBanner from "../../COMPONENTS/Paywall/DownloadLimitBanner.jsx";
 import axiosInstance from '../../HELPERS/axiosInstance.js';
 import { useRef } from 'react';
+import { trackPaywallEvent } from '../../REDUX/Slices/paywallTrackingSlice.js';
 
 const ReadNote = () => {
   const { id } = useParams();
@@ -190,13 +191,17 @@ const ReadNote = () => {
       return;
     }
     // 🔒 LOCKED NOTE → OPEN PAYWALL
-  if (!canDownload) {
-    dispatch(openPaywall({
-      reason: "LOCKED_NOTE",
-      noteId: currentNote._id
-    }));
-    return;
-  }
+    if (!canDownload) {
+      dispatch(trackPaywallEvent({
+        eventType: "LOCK_DOWNLOAD_ATTEMPT",
+        noteId: currentNote._id
+      }));
+      dispatch(openPaywall({
+        reason: "LOCKED_NOTE",
+        noteId: currentNote._id
+      }));
+      return;
+    }
 
     setIsCurrentlyDownloading(true);
 
@@ -254,24 +259,25 @@ const ReadNote = () => {
 
   // Loading state
   // ✅ Step 1: Initialize state FIRST (top of component)
-const canDownload = pdfAccess?.allowDownload === true;
-// const pdfScrollRef = useRef(null);
-const [showSupportCTA, setShowSupportCTA] = useState(false);
-const [hasShownSupportCTA, setHasShownSupportCTA] = useState(false);
-useEffect(() => {
-  if (pdfAccess?.mode !== "PREVIEW") return;
-  if (hasShownSupportCTA) return;
+  const canDownload = hasActivePlan || pdfAccess?.allowDownload === true;
+  // const pdfScrollRef = useRef(null);
+  const [showSupportCTA, setShowSupportCTA] = useState(false);
+  const [hasShownSupportCTA, setHasShownSupportCTA] = useState(false);
+  useEffect(() => {
+    if (pdfAccess?.mode !== "PREVIEW") return;
+    if (hasShownSupportCTA) return;
 
-  const timer = setTimeout(() => {
-    setShowSupportCTA(true);
-    setHasShownSupportCTA(true);
-  }, 1000); // show after 8 seconds of reading
+    const timer = setTimeout(() => {
+      setShowSupportCTA(true);
+      setHasShownSupportCTA(true);
+    }, 1000); // show after 8 seconds of reading
 
-  return () => clearTimeout(timer);
-}, [pdfAccess?.mode, hasShownSupportCTA]);
+    return () => clearTimeout(timer);
+  }, [pdfAccess?.mode, hasShownSupportCTA]);
 
   const [showPlannerToast, setShowPlannerToast] = useState(false);
   const [hasShownToastToday, setHasShownToastToday] = useState(false);
+ 
   // ✅ ADD THIS FUNCTION
   const markPlannerToastAsShown = () => {
     const today = new Date().toDateString();
@@ -307,6 +313,56 @@ useEffect(() => {
 
     return () => clearTimeout(timer);
   }, [showPlannerToast]);
+    const [maxScrollPercent, setMaxScrollPercent] = useState(0);
+  const scrollRef = useRef(null);
+const previewEndedRef = useRef(false);
+
+  const readingTimeRef = useRef(0);
+const scrollRefPercent = useRef(0);
+
+useEffect(() => {
+  readingTimeRef.current = readingTime;
+}, [readingTime]);
+
+useEffect(() => {
+  scrollRefPercent.current = maxScrollPercent;
+}, [maxScrollPercent]);
+
+  useEffect(() => {
+    if (pdfAccess?.mode === "PREVIEW" && currentNote?._id) {
+      dispatch(trackPaywallEvent({
+        eventType: "PREVIEW_STARTED",
+        noteId: currentNote._id
+      }));
+      previewEndedRef.current = false;
+    }
+  }, [pdfAccess?.mode, currentNote?._id]);
+  useEffect(() => {
+  if (pdfAccess?.mode !== "PREVIEW" || !currentNote?._id) return;
+
+  previewEndedRef.current = false;
+
+  return () => {
+    if (previewEndedRef.current) return;
+
+    previewEndedRef.current = true;
+
+    dispatch(trackPaywallEvent({
+      eventType: "PREVIEW_ENDED",
+      noteId: currentNote._id,
+      metadata: {
+        readingTime: readingTimeRef.current,
+        scrollCompletion: Math.round(scrollRefPercent.current),
+        device: isMobile ? "mobile" : "desktop",
+        noteCategory: currentNote?.category
+      }
+    }));
+  };
+
+}, [pdfAccess?.mode, currentNote?._id]); 
+
+
+ 
   if (loading) {
     return (
       <ReadNoteSkeleton />
@@ -441,11 +497,11 @@ useEffect(() => {
                     </>
                   )}
                 </button>
-  {!canDownload && (
-  <span className="text-xs  text-yellow-400">
-    <Lock className='w-4 h-4 inline'/> Preview only
-  </span>
-)}
+                {!canDownload && (
+                  <span className="text-xs  text-yellow-400">
+                    <Lock className='w-4 h-4 inline' /> Preview only
+                  </span>
+                )}
 
                 {/* Bookmark */}
                 <button
@@ -614,7 +670,25 @@ useEffect(() => {
         <div className={`flex-1 ${isFullscreen ? 'h-screen' : isMobile ? 'h-[calc(100vh-120px)]' : 'h-[calc(100vh-80px)]'}`}>
           <div className="h-full flex flex-col">
             {/* PDF Document */}
-            <div className="flex-1 flex items-center justify-center p-4 overflow-auto">
+            <div
+              ref={scrollRef}
+              className="flex-1 flex items-center justify-center p-4 overflow-auto"
+              onScroll={(e) => {
+                if (pdfAccess?.mode !== "PREVIEW") return;
+
+                const el = e.currentTarget;
+                const scrollHeight = el.scrollHeight - el.clientHeight;
+
+                if (scrollHeight <= 0) return;
+
+                const percent = (el.scrollTop / scrollHeight) * 100;
+
+                if (percent > maxScrollPercent + 2) {
+  setMaxScrollPercent(percent);
+}
+
+              }}
+            >
               <div className="w-full h-full bg-white rounded-lg shadow-2xl overflow-hidden relative">
                 <iframe
                   src={buildPdfViewerUrl(pdfUrl, pdfAccess?.maxPages)}
@@ -653,11 +727,11 @@ useEffect(() => {
                       </>
                     )}
                   </button>
-         {!canDownload && (
-  <span className="text-xs  text-yellow-400">
-    <Lock className='w-4 h-4 inline'/> Preview only
-  </span>
-)}
+                  {!canDownload && (
+                    <span className="text-xs  text-yellow-400">
+                      <Lock className='w-4 h-4 inline' /> Preview only
+                    </span>
+                  )}
 
                 </div>
 
@@ -765,10 +839,10 @@ useEffect(() => {
                   )}
                 </button>
                 {!canDownload && (
-  <span className="text-xs text-yellow-400">
-    <Lock className='w-4 h-4'/> Preview only
-  </span>
-)}
+                  <span className="text-xs text-yellow-400">
+                    <Lock className='w-4 h-4' /> Preview only
+                  </span>
+                )}
 
               </div>
 
@@ -797,31 +871,39 @@ useEffect(() => {
           </div>
         )}
       </div>
-{showSupportCTA && pdfAccess?.mode === "PREVIEW" && (
-  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-md w-[90%]">
-    <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-4 shadow-2xl">
-      <div className="flex items-start gap-3">
-        
-        {/* Icon */}
-        <div className="w-9 h-9 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-          <BookOpen className="w-5 h-5 text-indigo-400" />
-        </div>
+      {showSupportCTA && pdfAccess?.mode === "PREVIEW" && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-md w-[90%]">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-4 shadow-2xl">
+            <div className="flex items-start gap-3">
 
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-white">
-  You’re viewing a limited preview
-</p>
+              {/* Icon */}
+              <div className="w-9 h-9 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-indigo-400" />
+              </div>
 
-          <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-  Only part of this note is available for free.
-  Unlock full access to continue without limits.
-</p>
-<p className="text-center text-sm text-indigo-400 mt-4 font-semibold">
-  Starting at ₹29 • 14 Days Access
-</p>
-          <button
-            onClick={() => navigate("/support")}
-            className="
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-white">
+                  You’re viewing a limited preview
+                </p>
+
+                <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                  Only part of this note is available for free.
+                  Unlock full access to continue without limits.
+                </p>
+                <p className="text-center text-sm text-indigo-400 mt-4 font-semibold">
+                  Starting at ₹29 • 14 Days Access
+                </p>
+                <button
+                  onClick={() => {
+                    dispatch(trackPaywallEvent({
+                      eventType: "PREVIEW_SUPPORT_CLICKED",
+                      noteId: currentNote._id
+                    }));
+                    navigate("/support", {
+                      state: { noteId: currentNote._id }
+                    });
+                  }}
+                  className="
               mt-3 w-full
               flex items-center justify-center gap-2
               bg-white text-black
@@ -829,15 +911,15 @@ useEffect(() => {
               text-sm font-semibold
               hover:bg-gray-200 transition
             "
-          >
-            Unlock full note
-            <ArrowRight className="w-4 h-4" />
-          </button>
+                >
+                  Unlock full note
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
       {/* Mobile Speed Dial Navigation */}
       {isMobile && !isFullscreen && (
@@ -861,7 +943,7 @@ useEffect(() => {
                       handleDownload();
                       setShowMobileMenu(false);
                     }}
-                    disabled={ downloadState?.status === 'starting'}
+                    disabled={downloadState?.status === 'starting'}
                     className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white transform transition-all duration-300 animate-fade-in-up ${downloadState?.status === 'complete' || downloadState?.status === 'exists'
                       ? 'bg-green-600'
                       : 'bg-indigo-600'
@@ -1009,10 +1091,10 @@ useEffect(() => {
                 )}
               </button>
               {!canDownload && (
-  <span className="text-xs text-yellow-400">
-    🔒 Preview only
-  </span>
-)}
+                <span className="text-xs text-yellow-400">
+                  🔒 Preview only
+                </span>
+              )}
 
             </div>
 
@@ -1055,7 +1137,7 @@ useEffect(() => {
           Press <kbd className="bg-white/20 px-2 py-1 rounded text-xs">Esc</kbd> to exit fullscreen
         </div>
       )}
-      
+
     </div>
   );
 };

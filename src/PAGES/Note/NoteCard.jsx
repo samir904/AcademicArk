@@ -17,6 +17,7 @@ import { showToast } from "../../HELPERS/Toaster";
 import DownloadLimitBanner from "../../COMPONENTS/Paywall/DownloadLimitBanner.jsx";
 import axiosInstance from '../../HELPERS/axiosInstance.js';
 import { toggleLockNote } from '../../REDUX/Slices/noteslice.js';
+import { trackPaywallEvent } from '../../REDUX/Slices/paywallTrackingSlice.js';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -183,6 +184,10 @@ const isPreviewOnly = note.isLocked && !hasActivePlan;
     }
      // 🔒 LOCKED NOTE → OPEN PAYWALL
       if (!canDownload) {
+        dispatch(trackPaywallEvent({
+    noteId: note._id,
+    eventType: "LOCK_DOWNLOAD_ATTEMPT"
+  }));
         dispatch(openPaywall({
           reason: "LOCKED_NOTE",
           noteId: note._id
@@ -579,6 +584,7 @@ const [menuPosition, setMenuPosition] = useState(null);
             >
               <DownloadLimitBanner
                 quota={quotaInfo}
+                noteId={note._id}
                 onClose={() => setShowQuotaBanner(false)}
               />
             </div>

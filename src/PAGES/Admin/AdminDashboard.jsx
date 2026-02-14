@@ -39,6 +39,7 @@ import PageTransition from "../../COMPONENTS/PageTransition";
 import SearchMetricsDashboard from "../../COMPONENTS/Admin/SearchMetrics/SearchMetricsDashboard";
 import SearchManagerDashboard from "../../COMPONENTS/Admin/SearchMetrics/SearchManagerDashboard";
 import AdminPaymentsDashboard from "../../COMPONENTS/Admin/Payments/AdminPaymentsDashboard";
+import AdminPaywallAnalyticsDashboard from "../../COMPONENTS/Admin/payAnalytics/AdminPaywallAnalyticsDashboard";
 // Icons
 const UsersIcon = ({ className }) => (
   <svg
@@ -294,7 +295,7 @@ export default function AdminDashboard() {
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard", "requestlogs","session", "querymetrics","searchmetrics","searchmanager", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback","payments","Security", "retention"].map(
+              {["dashboard", "requestlogs","session", "querymetrics","searchmetrics","searchmanager", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback","payments","paywallanalytics","Security", "retention"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -336,6 +337,9 @@ export default function AdminDashboard() {
                                            ? "Search Manager"
                                            :tab === "payments"
                                             ? "Payments" 
+                                            : tab === "paywallanalytics"
+                                            ? "Paywall Analytics"
+
 
                                           // : tab === "videos"
                                           // ? "videos"
@@ -1504,6 +1508,7 @@ export default function AdminDashboard() {
 {/* {activeTab === "videos" && <AdminVideoManager />}  */}
 
 {activeTab === "payments" && <AdminPaymentsDashboard />}
+{activeTab === "paywallanalytics" && <AdminPaywallAnalyticsDashboard />}
 
         </div>
       </div>

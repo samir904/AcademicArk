@@ -5,12 +5,13 @@ import { showToast } from "../HELPERS/Toaster";
 import { CheckCircle, Sparkles, Download } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { getProfile } from "../REDUX/Slices/authslice";
+import { trackPaywallEvent } from "../REDUX/Slices/paywallTrackingSlice";
 
 export default function PaymentSuccess() {
     const [params] = useSearchParams();
     const navigate = useNavigate();
     const orderId = params.get("order_id");
-    const dispatch=useDispatch();
+    const dispatch = useDispatch();
     const [status, setStatus] = useState("VERIFYING");
     // VERIFYING | SUCCESS | FAILED
 
@@ -30,6 +31,14 @@ export default function PaymentSuccess() {
                 const paymentStatus = res.data.status;
 
                 if (paymentStatus === "SUCCESS") {
+                    const noteId = sessionStorage.getItem("lastPaywallNoteId");
+
+                    dispatch(trackPaywallEvent({
+                        eventType: "PAYMENT_SUCCESS",
+                        noteId: noteId || null
+                    }));
+
+                    sessionStorage.removeItem("lastPaywallNoteId");
                     setStatus("SUCCESS");
 
                     // 🔁 REFRESH USER PROFILE FROM SERVER

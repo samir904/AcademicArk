@@ -1,7 +1,8 @@
 import { Info, AlertTriangle, X, ArrowUpRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-export default function DownloadLimitBanner({ quota, onClose }) {
+import { useDispatch } from "react-redux";
+import { trackPaywallEvent } from "../../REDUX/Slices/paywallTrackingSlice";
+export default function DownloadLimitBanner({ quota, onClose,noteId }) {
   const navigate = useNavigate();
   if (!quota) return null;
 
@@ -18,6 +19,7 @@ export default function DownloadLimitBanner({ quota, onClose }) {
     return `${hours}h ${minutes}m`;
   };
   const timeLeft = getTimeUntilReset();
+const dispatch = useDispatch();
 
   return (
     <div
@@ -51,7 +53,20 @@ export default function DownloadLimitBanner({ quota, onClose }) {
               </div>
 
               <span
-                onClick={() => navigate("/support")}
+              onClick={() => {
+  dispatch(trackPaywallEvent({
+    eventType: "DOWNLOAD_LIMIT_SUPPORT_CLICKED",
+    noteId,
+    metadata: {
+      remaining: quota.remaining
+    }
+  }));
+
+  navigate("/support", {
+    state: { noteId }
+  });
+}}
+
                 className="
     mt-0.5 inline-flex items-center gap-1
     text-[11px] font-medium
@@ -74,7 +89,20 @@ export default function DownloadLimitBanner({ quota, onClose }) {
 </div>
 
 <span
-  onClick={() => navigate("/support")}
+  onClick={() => {
+  dispatch(trackPaywallEvent({
+    eventType: "DOWNLOAD_LIMIT_SUPPORT_CLICKED",
+    noteId,
+    metadata: {
+      remaining: quota.remaining
+    }
+  }));
+
+  navigate("/support", {
+    state: { noteId }
+  });
+}}
+
   className="
     mt-0.5 inline-flex items-center gap-1
     text-[11px] font-semibold
@@ -92,7 +120,17 @@ export default function DownloadLimitBanner({ quota, onClose }) {
 
       {/* CLOSE */}
       <button
-        onClick={onClose}
+        onClick={() => {
+  dispatch(trackPaywallEvent({
+    eventType: "DOWNLOAD_LIMIT_DISMISSED",
+    noteId,
+    metadata: {
+      remaining: quota.remaining
+    }
+  }));
+  onClose();
+}}
+
         className="
           p-1 rounded-md
           text-neutral-400 hover:text-white

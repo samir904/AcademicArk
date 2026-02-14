@@ -31,6 +31,8 @@ import searchAnalyticsReducer from './Slices/searchAnalyticsSlice.js'
 import planReducer from './Slices/planSlice.js'
 import paymentReducer from './Slices/paymentSlice.js'
 import paywallReducer from './Slices/paywallSlice.js'
+import paywallTrackingReducer from './Slices/paywallTrackingSlice.js'
+import adminPaywallReducer from './Slices/adminPaywallSlice.js'
 //  import videoReducer from './Slices/videoSlice.js'
 // import logsReducer  from './Slices/logsSlice.js'
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
@@ -70,8 +72,10 @@ const store = configureStore({
 
     plans: planReducer,
     payment:paymentReducer,
-    paywall: paywallReducer
+    paywall: paywallReducer,
 
+    paywallTracking: paywallTrackingReducer,
+    adminPaywall:adminPaywallReducer
     //  video: videoReducer,
     // studyBuddy: studyBuddySlice,  // ← ADD THIS
     // studyPlanner: studyPlannerSlice,  // ← ADD THIS

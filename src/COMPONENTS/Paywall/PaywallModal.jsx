@@ -1,20 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closePaywall } from "../../REDUX/Slices/paywallSlice";
 import { Sparkles, X, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import { trackPaywallEvent } from "../../REDUX/Slices/paywallTrackingSlice";
+import { useRef } from "react";
 export default function PaywallModal() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { isOpen, reason } = useSelector(state => state.paywall);
-
-  if (!isOpen) return null;
+  const { isOpen, reason,noteId  } = useSelector(state => state.paywall);
 
   const isLimit = reason === "LIMIT_REACHED";
   const isExpired = reason === "PLAN_EXPIRED";
   const isLocked = reason === "LOCKED_NOTE" || reason === "PREVIEW_ENDED";
+const hasTrackedRef = useRef(false);
+
+useEffect(() => {
+  if (isOpen && !hasTrackedRef.current) {
+    dispatch(trackPaywallEvent({
+      eventType: "PAYWALL_SHOWN",
+      noteId
+    }));
+    hasTrackedRef.current = true;
+  }
+
+  if (!isOpen) {
+    hasTrackedRef.current = false;
+  }
+}, [isOpen,noteId,dispatch]);
+
+if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
@@ -22,7 +38,14 @@ export default function PaywallModal() {
 
         {/* Close */}
         <button
-          onClick={() => dispatch(closePaywall())}
+          onClick={() => {
+  dispatch(trackPaywallEvent({
+    eventType: "PAYWALL_DISMISSED",
+    noteId
+  }));
+
+  dispatch(closePaywall());
+}}
           className="absolute top-4 right-4 p-2 hover:bg-neutral-900 rounded-lg"
         >
           <X className="w-5 h-5 text-neutral-400" />
@@ -60,7 +83,13 @@ export default function PaywallModal() {
         <button
   onClick={() => {
     dispatch(closePaywall());
-    navigate("/support");
+    dispatch(trackPaywallEvent({
+  eventType: "SUPPORT_CLICKED",
+  noteId
+}));
+    navigate("/support", {
+  state: { noteId }
+});
   }}
   className="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white rounded-full py-3 font-semibold flex items-center justify-center gap-2"
 >
