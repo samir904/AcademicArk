@@ -7,10 +7,9 @@ export default function PlanCard({
   highlight = false,
   userAccess // 👈 pass this from parent
 }) {
-  const isActivePlan =
-    userAccess?.plan === plan._id &&
-    userAccess?.expiresAt &&
-    new Date(userAccess.expiresAt) > new Date();
+ const isActivePlan =
+  String(userAccess?.plan) === String(plan._id) &&
+  new Date(userAccess?.expiresAt) > new Date();
 
   const expiryText = userAccess?.expiresAt
     ? new Date(userAccess.expiresAt).toLocaleDateString("en-IN", {

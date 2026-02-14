@@ -70,6 +70,8 @@ export default function SupportPage() {
       }
     };
   }, [paymentSessionId, dispatch]);
+const authState = useSelector(state => state.auth);
+console.log("AUTH STATE:", authState);
 
   return (
     <PageTransition>
