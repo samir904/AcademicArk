@@ -159,3 +159,7 @@ export const selectFunnelDayRows = createSelector(
       }));
   }
 );
+export const selectMostPaywalledNotes = createSelector(
+  [selectAdminPaywall],
+  (s) => s.mostPaywalledNotes || []
+);

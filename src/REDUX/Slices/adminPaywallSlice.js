@@ -51,23 +51,41 @@ export const fetchTopNotes = createAsyncThunk(
   }
 );
 
+export const fetchMostPaywalledNotes = createAsyncThunk(
+  "adminPaywall/fetchMostPaywalledNotes",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get("/admin/paywall/most-paywalled");
+      return res.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Error fetching most paywalled notes"
+      );
+    }
+  }
+);
+
+
 const initialState = {
   funnelOverview: [],
   eventBreakdown: [],
   userSegments: null,
   topNotes: [],
+  mostPaywalledNotes: [],   // ✅ NEW
 
   status: {
     funnelOverview: "idle", // idle | loading | succeeded | failed
     eventBreakdown: "idle",
     userSegments: "idle",
     topNotes: "idle",
+    mostPaywalledNotes: [],   // ✅ NEW
   },
   error: {
     funnelOverview: null,
     eventBreakdown: null,
     userSegments: null,
     topNotes: null,
+    mostPaywalledNotes: [],   // ✅ NEW
   },
 };
 
@@ -133,7 +151,20 @@ const adminPaywallSlice = createSlice({
       .addCase(fetchTopNotes.rejected, (state, action) => {
         state.status.topNotes = "failed";
         state.error.topNotes = action.payload;
-      });
+      })
+      .addCase(fetchMostPaywalledNotes.pending, (state) => {
+  state.status.mostPaywalledNotes = "loading";
+  state.error.mostPaywalledNotes = null;
+})
+.addCase(fetchMostPaywalledNotes.fulfilled, (state, action) => {
+  state.status.mostPaywalledNotes = "succeeded";
+  state.mostPaywalledNotes = action.payload || [];
+})
+.addCase(fetchMostPaywalledNotes.rejected, (state, action) => {
+  state.status.mostPaywalledNotes = "failed";
+  state.error.mostPaywalledNotes = action.payload;
+});
+
   },
 });
 
