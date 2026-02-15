@@ -1158,7 +1158,7 @@ const handleApplyQuickFilter = (filter) => {
 const attemptScroll = () => {
   scrollAttempts++;
   // ✅ Scroll to parent container instead
-  const resultsContainer = document.querySelector('[data-results-container]');
+  const resultsContainer = document.querySelector('results-section');
   
   if (resultsContainer) {
     console.log('✅ Scrolling to results container...');
@@ -1718,39 +1718,27 @@ useEffect(() => {
           {/* Notes/Videos Grid - FIXED */}
 
           {/* ✅ RESULTS SECTION WRAPPER */}
+{/* ✅ RESULTS SECTION - FIXED FOR MOBILE */}  
+{/* ✅ RESULTS SECTION - NO SIDE PADDING ON MOBILE */}  
 {displayResources && displayResources.length > 0 && (
-  <section 
-    data-results-section
-    className="max-w-7xl mx-auto px-4 py-8"
-  >
-    {/* Optional: Add a header */}
-    {/* <div className="mb-6">
-      <h2 className="text-xl font-semibold text-white mb-2">
-        {localFilters.category ? `${localFilters.category}` : 'All Resources'}
-        {localFilters.subject && ` - ${getSubjectShortName(localFilters.subject)}`}
-      </h2>
-      <p className="text-sm text-[#9CA3AF]">
-        Found {displayResources.length} resource{displayResources.length !== 1 ? 's' : ''}
-      </p>
-    </div> */}
+            <div id="results-section"
+    data-results-section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {displayResources.map((resource) => {
+                // ✅ FIXED: Better type detection
+                const isVideo = resource?.videoId || resource?.embedUrl || resource?.platform === 'YOUTUBE';
 
-    {/* Grid */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      {displayResources.map((resource) => {
-        const isVideo = resource?.videoId || resource?.embedUrl || resource?.platform === 'YOUTUBE';
+                return (
+                  <TrackedNoteCard
+                    key={resource._id}
+                    item={resource}
+                    type={isVideo ? 'video' : 'note'} // ✅ Detect from resource properties
+                    note={resource}
+                  />
+                );
+              })}
+            </div>
+          )}
 
-        return (
-          <TrackedNoteCard
-            key={resource._id}
-            item={resource}
-            type={isVideo ? 'video' : 'note'}
-            note={resource}
-          />
-        );
-      })}
-    </div>
-  </section>
-)}
 
           {/* 📘 Planner Guidance — After Notes Grid */}
           {displayResources && displayResources.length > 0 && showPlannerReminder && (
