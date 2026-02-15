@@ -1124,8 +1124,6 @@ useEffect(() => {
 // ✨ Handler to apply quick filter
 // ✨ Handler to apply quick filter
 const handleApplyQuickFilter = (filter) => {
-  // console.log('🎯 Applying quick filter:', filter);
-  
   const newFilters = {
     semester: localFilters.semester,
     subject: filter._id.subject || '',
@@ -1136,8 +1134,6 @@ const handleApplyQuickFilter = (filter) => {
     uploadedBy: '',
     videoChapter: ''
   };
-
-  // console.log('📝 Applying filters:', newFilters);
 
   // Update URL
   const params = Object.fromEntries(
@@ -1156,36 +1152,62 @@ const handleApplyQuickFilter = (filter) => {
     navigator.vibrate(10);
   }
   
-  // ✅ SCROLL WITH RETRY MECHANISM
-  let scrollAttempts = 0;
-  const maxAttempts = 5;
-  
-  const attemptScroll = () => {
-    scrollAttempts++;
-    const resultsSection = document.querySelector('[data-results-section]');
-    
-    if (resultsSection) {
-      // console.log('✅ Scrolling to results...');
-      
-      const headerOffset = 100; // Adjust based on your layout
-      const elementPosition = resultsSection.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    } else if (scrollAttempts < maxAttempts) {
-      console.log(`⏳ Retry scroll (${scrollAttempts}/${maxAttempts})...`);
-      setTimeout(attemptScroll, 100); // Retry after 100ms
-    } else {
-      console.warn('❌ Could not find results section after 5 attempts');
-    }
-  };
-  
-  // Start scroll attempts after a brief delay
-  setTimeout(attemptScroll, 200);
+  // ✅ Set a flag to trigger scroll after data loads
+  setShouldScrollToResults(true);
 };
+const attemptScroll = () => {
+  scrollAttempts++;
+  // ✅ Scroll to parent container instead
+  const resultsContainer = document.querySelector('[data-results-container]');
+  
+  if (resultsContainer) {
+    console.log('✅ Scrolling to results container...');
+    
+    const headerOffset = 100;
+    const elementPosition = resultsContainer.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+  } else if (scrollAttempts < maxAttempts) {
+    console.log(`⏳ Retry scroll (${scrollAttempts}/${maxAttempts})...`);
+    setTimeout(attemptScroll, 100);
+  } else {
+    console.warn('❌ Could not find results container after 5 attempts');
+  }
+};
+
+// ✅ ADD THIS: State to track if we should scroll
+const [shouldScrollToResults, setShouldScrollToResults] = React.useState(false);
+
+// ✅ ADD THIS: useEffect to scroll when data is ready
+React.useEffect(() => {
+  if (shouldScrollToResults && displayResources && displayResources.length > 0) {
+    console.log('✅ Data loaded, scrolling to results...');
+    
+    // Small delay to ensure DOM is fully rendered
+    setTimeout(() => {
+      const resultsSection = document.querySelector('[data-results-section]');
+      
+      if (resultsSection) {
+        const headerOffset = 100;
+        const elementPosition = resultsSection.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+        
+        console.log('✅ Scrolled successfully');
+        setShouldScrollToResults(false); // Reset flag
+      }
+    }, 100);
+  }
+}, [shouldScrollToResults, displayResources]);
+
 
 
 // ✅ ADD THIS: Sync state when URL changes (for browser back/forward, direct links, quick filters)
