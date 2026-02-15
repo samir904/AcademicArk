@@ -33,6 +33,7 @@ import paymentReducer from './Slices/paymentSlice.js'
 import paywallReducer from './Slices/paywallSlice.js'
 import paywallTrackingReducer from './Slices/paywallTrackingSlice.js'
 import adminPaywallReducer from './Slices/adminPaywallSlice.js'
+import filterAnalyticsReducer from './Slices/filterAnalyticsSlice.js'
 //  import videoReducer from './Slices/videoSlice.js'
 // import logsReducer  from './Slices/logsSlice.js'
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
@@ -62,6 +63,7 @@ const store = configureStore({
     session: sessionReducer,
     planner: plannerReducer,
     savedFilters: savedFilterReducer,
+    filterAnalytics: filterAnalyticsReducer,
     // 🔥 ADD THIS
     failedSearch: failedSearchReducer,
     searchSuggestion:searchSuggestionReducer,

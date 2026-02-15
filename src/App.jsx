@@ -75,6 +75,7 @@ import PaymentStatus from "./PAGES/PaymentStatus";
 import PaymentSuccess from "./PAGES/PaymentSuccess";
 import PaywallModal from "./COMPONENTS/Paywall/PaywallModal";
 import SessionInitializer from "./COMPONENTS/Session/SessionInitializer";
+import SessionInitializerId from "./COMPONENTS/Session/SessionInitializerId";
 // import { NotesSkeleton } from "";
 // //import VideoUploadForm from "./COMPONENTS/Admin/VideoUploadForm";
 // import UploadVideoLecture from "./PAGES/video/UploadVideoLecture";
@@ -356,6 +357,8 @@ function App() {
       <PageTracker /> {/* ← OUTSIDE Routes */}
       <SessionTracker /> {/* ← ADD THIS - Will auto-track everything */}
       {/* <SessionInitializer /> */}
+      <SessionInitializerId />
+
       <Routes>
         {/* 🟢 Core Routes */}
 

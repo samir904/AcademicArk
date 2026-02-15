@@ -43,6 +43,32 @@ export const usePDFDownload = () => {
         a.remove();
         URL.revokeObjectURL(url);
       }
+ // 🔥 MARK DOWNLOAD CONVERSION (fire-and-forget)
+      // console.log('🔥 [ANALYTICS] Starting download tracking...');
+      
+      try {
+        const sessionId = localStorage.getItem("sessionId");
+        
+        if (!sessionId) {
+          // console.warn('⚠️ [ANALYTICS] No session ID found');
+        } else {
+          // console.log('📤 [ANALYTICS] Session ID:', sessionId);
+          
+          const analyticsRes = await axiosInstance.post(
+            "/filter-analytics/mark-download",
+            {noteId: id},
+            {
+              headers: {
+                "x-session-id": sessionId
+              }
+            }
+          );
+          
+          // console.log('✅ [ANALYTICS] Download marked:', analyticsRes.data);
+        }
+      } catch (analyticsError) {
+        // console.error('❌ [ANALYTICS] Failed (non-critical):', analyticsError.message);
+      }
 
       setDownloading(prev => ({
         ...prev,

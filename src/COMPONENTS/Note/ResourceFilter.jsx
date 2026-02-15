@@ -3,6 +3,7 @@ import { Filter, X, Check, CalendarCog, Star } from 'lucide-react';
 import { getSubjectShortName } from '../../UTILS/subjectShortName';
 import SavedFilterPresetsDropdown from './SavedFilterPresetsDropdown';
 import { PresetBottomSheet } from './PresetBottomShee';
+import {  TrendingUp, Zap, Flame } from 'lucide-react';
 
 /**
  * FIXED: Stats Section with Subject-Based Video Filtering
@@ -31,6 +32,11 @@ export default function ResourceFilter({
   handleDeletePreset,
   handleSetDefaultPreset,
 
+  /* ✨ NEW: TRENDING & RECOMMENDED */
+  recommended = [],          // ← ADD
+  trending = [],             // ← ADD
+  onApplyQuickFilter,        // ← ADD
+  trendingTimeframe,
   isPreferencesSet,
   navigate,
   dispatch,
@@ -382,9 +388,177 @@ export default function ResourceFilter({
           ))}
         </div>
       </div>
+{localFilters.semester && <div className="h-px bg-[#1F1F1F]" />}
 
-      {localFilters.semester && <div className="h-px bg-[#1F1F1F]" />}
 
+{/* ✨ TRENDING & RECOMMENDED FILTERS - ENHANCED */}
+{localFilters.semester && (recommended.length > 0 || trending.length > 0) && (
+  <div className="space-y-4 animate-in fade-in duration-300">
+    
+    {/* 🌟 YOUR QUICK ACCESS (Recommended) */}
+    {recommended.length > 0 && (
+      <div className="bg-gradient-to-br from-yellow-400/5 to-transparent border border-yellow-400/20 rounded-xl p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-yellow-400/20 rounded-lg flex items-center justify-center">
+            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-semibold text-white flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-yellow-400" />
+              Quick Access
+            </h3>
+            <p className="text-xs text-[#9CA3AF]">
+              Your most-used filters • Save time
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          {recommended.map((filter, idx) => {
+            const subjectShort = getSubjectShortName(filter._id.subject);
+            const label = [
+              subjectShort,
+              filter._id.category,
+              filter._id.unit ? `U${filter._id.unit}` : null
+            ].filter(Boolean).join(' • ');
+
+            // ✅ Check if this filter is currently active
+            const isActive = 
+              localFilters.subject === filter._id.subject &&
+              localFilters.category === (filter._id.category || '') &&
+              String(localFilters.unit || '') === String(filter._id.unit || '');
+
+            return (
+              <button
+                key={idx}
+                onClick={() => {
+                  onApplyQuickFilter(filter);
+                  haptic(10);
+                }}
+                disabled={isActive}
+                className={`
+                  group relative
+                  px-3 py-2
+                  rounded-lg
+                  border
+                  transition-all duration-200
+                  flex items-center gap-2
+                  ${isActive 
+                    ? 'bg-yellow-400 text-black border-yellow-400 shadow-md cursor-default' 
+                    : 'bg-yellow-400/10 border-yellow-400/30 hover:bg-yellow-400/20 hover:border-yellow-400/50'
+                  }
+                `}
+              >
+                {/* Active indicator */}
+                {isActive && (
+                  <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center border-2 border-[#0F0F0F]">
+                    <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                  </div>
+                )}
+
+                <span className={`text-xs font-semibold ${isActive ? 'text-black' : 'text-yellow-400'}`}>
+                  {label}
+                </span>
+                
+                <span className={`text-[10px] font-medium ${isActive ? 'text-black/70' : 'text-yellow-400/70'}`}>
+                  {filter.count}x
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    {/* 🔥 TRENDING IN YOUR SEMESTER */}
+    {trending.length > 0 && (
+      <div className="bg-[#1F1F1F]/40 border border-[#1F1F1F] rounded-xl p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-[#1F1F1F] rounded-lg flex items-center justify-center">
+            <TrendingUp className="w-4 h-4 text-[#9CA3AF]" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-semibold text-white flex items-center gap-1.5">
+              <Flame className="w-3.5 h-3.5 text-orange-400" />
+              Trending Now
+            </h3>
+            <p className="text-xs text-[#4B5563]">
+          {/* ✨ Dynamic timeframe text */}
+          {trendingTimeframe === 'week' 
+            ? `Popular in Semester ${localFilters.semester} this week`
+            : `Most popular in Semester ${localFilters.semester}`
+          }
+        </p>
+          </div>
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          {trending.map((filter, idx) => {
+            const subjectShort = getSubjectShortName(filter._id.subject);
+            const label = [
+              subjectShort,
+              filter._id.category,
+              filter._id.unit ? `U${filter._id.unit}` : null
+            ].filter(Boolean).join(' • ');
+
+            // ✅ Check if this filter is currently active
+            const isActive = 
+              localFilters.subject === filter._id.subject &&
+              localFilters.category === (filter._id.category || '') &&
+              String(localFilters.unit || '') === String(filter._id.unit || '');
+
+            return (
+              <button
+                key={idx}
+                onClick={() => {
+                  onApplyQuickFilter(filter);
+                  haptic(10);
+                }}
+                disabled={isActive}
+                className={`
+                  group relative
+                  px-3 py-2
+                  rounded-lg
+                  border
+                  transition-all duration-200
+                  flex items-center gap-2
+                  ${isActive
+                    ? 'bg-[#9CA3AF] text-black border-[#9CA3AF] shadow-md cursor-default'
+                    : 'bg-[#1F1F1F] border-[#2F2F2F] hover:bg-[#2F2F2F] hover:border-[#9CA3AF]/40'
+                  }
+                `}
+              >
+                {/* Active indicator */}
+                {isActive && (
+                  <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center border-2 border-[#0F0F0F]">
+                    <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                  </div>
+                )}
+
+                <span className={`text-xs font-semibold transition-colors ${
+                  isActive ? 'text-black' : 'text-[#9CA3AF] group-hover:text-white'
+                }`}>
+                  {label}
+                </span>
+                
+                <span className={`text-[10px] font-medium ${isActive ? 'text-black/70' : 'text-[#6B7280]'}`}>
+                  {filter.count}x
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    )}
+    
+  </div>
+)}
+
+{localFilters.semester && (recommended.length > 0 || trending.length > 0) && (
+  <div className="h-px bg-[#1F1F1F]" />
+)}
+
+      
       {/* SUBJECT SELECTION - CHIPS (NEW) */}
       {localFilters.semester &&
         subjectsBySemester[localFilters.semester]?.length > 0 && (

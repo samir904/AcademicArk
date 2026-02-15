@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import axiosInstance from "../../HELPERS/axiosInstance"
 import { showToast } from "../../HELPERS/Toaster";
+import {  trackNoteView } from "./filterAnalyticsSlice";
 
 
 
@@ -143,9 +144,18 @@ export const getSemesterPreviewNotes = createAsyncThunk(
         }
     }
 );
-export const getNote = createAsyncThunk("/note/notedetails", async (noteId) => {
+export const getNote = createAsyncThunk("/note/notedetails", async (noteId, { dispatch, rejectWithValue }) => {
     try {
         const res = await axiosInstance.get(`/notes/${noteId}`);
+        
+    //   console.log('✅ [NOTE] Details received');
+
+      // 🔥 Track view (fire-and-forget, don't await)
+      dispatch(trackNoteView(noteId))
+        // .unwrap()
+        // .then(() => console.log('✅ [NOTE] View tracked'))
+        // .catch(() => console.warn('⚠️ [NOTE] View tracking failed (non-critical)'));
+
         return res.data;
     } catch (e) {
         showToast.error(e?.response?.data?.message || "Failed to fetch note!")
@@ -253,6 +263,36 @@ export const downloadnote = createAsyncThunk("/note/downloadNote", async ({ note
         // Clean up
         window.URL.revokeObjectURL(blobUrl);
 
+         // 🔥 IMPORTANT — mark conversion
+      // 🔥 Mark conversion (with error handling)
+     // 🔥 DIRECT NETWORK REQUEST (fire-and-forget)
+     
+      console.log('🔥 STARTING ANALYTICS BLOCK'); // ← Should see this!
+
+      try {
+        console.log('🎯 Marking download in analytics...');
+        
+        const sessionId = localStorage.getItem("sessionId");
+        
+        if (sessionId) {
+          const analyticsRes = await axiosInstance.post(
+            "/filter-analytics/mark-download",
+            {},
+            {
+              headers: {
+                "x-session-id": sessionId
+              }
+            }
+          );
+          
+          console.log('✅ Analytics: Download marked successfully', analyticsRes.data);
+        } else {
+          console.warn('⚠️ No session ID found, skipping analytics');
+        }
+      } catch (analyticsError) {
+        // Don't fail the download if analytics fails
+        console.warn('⚠️ Analytics failed (non-critical):', analyticsError.message);
+      }
         showToast.success(`Note downloaded successfully!`);
         return { noteId };
 

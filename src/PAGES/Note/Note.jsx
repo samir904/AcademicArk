@@ -39,6 +39,13 @@ import SaveFilterPresetModal from '../../COMPONENTS/Note/SaveFilterPresetModal';
 import toast from 'react-hot-toast';
 import EmotionalToast from '../../COMPONENTS/Common/EmotionalToast';
 import DefaultPresetToast from '../../COMPONENTS/Common/DefaultPresetToast';
+import { checkPresetSuggestion, trackFilterEvent } from '../../REDUX/Slices/filterAnalyticsSlice';
+import { calculateScrollDepth, getDeviceInfo, TimeTracker } from '../../HELPERS/analyticsHelper';
+import axiosInstance from '../../HELPERS/axiosInstance';
+import PresetSuggestionModal from '../../COMPONENTS/Note/PresetSuggestionModal';
+import { getSubjectShortName } from '../../UTILS/subjectShortName';
+import { fetchHybridFilters } from '../../REDUX/Slices/filterAnalyticsSlice';
+
 // Icon components
 const FilterIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,7 +104,7 @@ export default function Note() {
 
 
   const getFiltersFromURL = () => ({
-    semester: searchParams.get("semester") || "",
+    semester: searchParams.get("semester") ? Number(searchParams.get("semester")) : "",
     subject: searchParams.get("subject") || "",
     category: searchParams.get("category") || "",
     unit: searchParams.get("unit") || "",
@@ -396,14 +403,14 @@ export default function Note() {
     const category = localFilters.category?.trim();
     const categoryLower = category?.toLowerCase();
 
-    console.log('🎯 displayResources check:', {
-      category,
-      categoryLower,
-      isVideoCategory: categoryLower === 'video',
-      filteredVideos: filteredVideos?.length,
-      filteredNotes: filteredNotes?.length,
-      allVideos: videos?.length
-    });
+    // console.log('🎯 displayResources check:', {
+    //   category,
+    //   categoryLower,
+    //   isVideoCategory: categoryLower === 'video',
+    //   filteredVideos: filteredVideos?.length,
+    //   filteredNotes: filteredNotes?.length,
+    //   allVideos: videos?.length
+    // });
 
     // ✨ If Video category selected → show FILTERED videos
     if (categoryLower === 'video') {
@@ -421,7 +428,7 @@ export default function Note() {
     const result = filteredNotes.filter(note =>
       note.category?.toLowerCase() === categoryLower
     );
-    console.log('✅ Filtering by category:', category, 'found:', result.length);
+    // console.log('✅ Filtering by category:', category, 'found:', result.length);
     return result;
   }, [filteredNotes, filteredVideos, localFilters.category, localFilters]);
 
@@ -429,7 +436,7 @@ export default function Note() {
 
   // ✅ Ensure videos are being fetched when component mounts and category changes
   useEffect(() => {
-    console.log('📡 Fetching videos for semester:', localFilters.semester);
+    // console.log('📡 Fetching videos for semester:', localFilters.semester);
     if (localFilters.semester) {
       dispatch(getAllVideoLectures({
         semester: localFilters.semester
@@ -564,7 +571,7 @@ const [showSavePresetModal, setShowSavePresetModal] = useState(false);
 const [showPresetToast, setShowPresetToast] = useState(false);
 
 
-const handleSavePreset = ({ name, isDefault }) => {
+const handleSavePreset = async({ name, isDefault }) => {
   const filtersToSave = Object.fromEntries(
     Object.entries(localFilters).filter(([_, v]) => v)
   );
@@ -579,6 +586,25 @@ if (!filtersToSave.semester) {
       isDefault
     })
   );
+  // ✅ Mark in analytics
+  const sessionId = localStorage.getItem("sessionId");
+  if (sessionId) {
+    try {
+      await axiosInstance.post(
+        "/filter-analytics/mark-saved-preset",
+        {},
+        {
+          headers: {
+            "x-session-id": sessionId
+          }
+        }
+      );
+      // console.log('💾 Filter marked as saved preset');
+    } catch (error) {
+      console.warn('⚠️ Failed to mark preset (non-critical):', error.message);
+    }
+  }
+
     // ❤️ Emotional touch
   setShowPresetToast(true);
 
@@ -599,6 +625,587 @@ useEffect(() => {
     navigator.vibrate(20);
   }
 }, [showPresetToast]);
+// 🔹 Add this at the top of your component (after state declarations)
+const hasTrackedRef = useRef(false);
+// ✨ Initialize time tracker
+const timeTrackerRef = useRef(null);
+const scrollListenerRef = useRef(null);
+const engagementUpdateTimerRef = useRef(null);
+
+// ✨ Track device info on mount
+useEffect(() => {
+  const deviceInfo = getDeviceInfo();
+  // console.log('📱 Device detected:', deviceInfo);
+  
+  // Store in ref for later use
+  timeTrackerRef.current = { deviceInfo };
+}, []);
+// ✨ Initialize time tracker when filters are applied
+useEffect(() => {
+  if (!localFilters.semester) return;
+
+  // Don't track in preview mode
+  const isOnlySemester =
+    localFilters.semester &&
+    !localFilters.subject &&
+    !localFilters.category;
+
+  if (isOnlySemester) return;
+
+  // ✅ Initialize time tracker
+  if (!timeTrackerRef.current?.tracker) {
+    timeTrackerRef.current = {
+      ...timeTrackerRef.current,
+      tracker: new TimeTracker()
+    };
+    // console.log('⏱️ Time tracking started');
+  } else {
+    // Reset for new filter
+    timeTrackerRef.current.tracker.reset();
+    // console.log('⏱️ Time tracking reset');
+  }
+
+  // ✅ Setup scroll tracking
+  const handleScroll = () => {
+    const scrollDepth = calculateScrollDepth();
+    
+    if (timeTrackerRef.current) {
+      timeTrackerRef.current.maxScrollDepth = Math.max(
+        timeTrackerRef.current.maxScrollDepth || 0,
+        scrollDepth
+      );
+    }
+  };
+
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  scrollListenerRef.current = handleScroll;
+
+  // ✅ Periodic engagement updates (every 10 seconds)
+  const updateEngagement = async () => {
+    if (!timeTrackerRef.current?.tracker) return;
+
+    const sessionId = localStorage.getItem("sessionId");
+    if (!sessionId) return;
+
+    const timeSpent = timeTrackerRef.current.tracker.getTimeSpent();
+    const scrollDepth = timeTrackerRef.current.maxScrollDepth || 0;
+
+    try {
+      await axiosInstance.post(
+        "/filter-analytics/update-engagement",
+        {
+          scrollDepth,
+          timeOnResults: timeSpent
+        },
+        {
+          headers: {
+            "x-session-id": sessionId
+          }
+        }
+      );
+      // console.log('📊 Engagement updated:', { scrollDepth, timeSpent });
+    } catch (error) {
+      console.warn('⚠️ Engagement update failed:', error.message);
+    }
+  };
+
+  // Update every 10 seconds
+  engagementUpdateTimerRef.current = setInterval(updateEngagement, 10000);
+
+  // Cleanup
+  return () => {
+    window.removeEventListener('scroll', scrollListenerRef.current);
+    if (engagementUpdateTimerRef.current) {
+      clearInterval(engagementUpdateTimerRef.current);
+    }
+    
+    // Final update before cleanup
+    updateEngagement();
+  };
+}, [
+  localFilters.semester,
+  localFilters.subject,
+  localFilters.category,
+  localFilters.unit
+]);
+// 🔹 Replace your analytics useEffect with this:
+useEffect(() => {
+  // 🚫 Guard: Must have semester
+  if (!localFilters.semester) {
+    hasTrackedRef.current = false;
+    return;
+  }
+
+  // 🚫 Guard: Don't track semester-only (preview mode)
+  const isOnlySemester =
+    localFilters.semester &&
+    !localFilters.subject &&
+    !localFilters.category &&
+    !localFilters.unit &&
+    !localFilters.videoChapter &&
+    !localFilters.uploadedBy;
+
+  if (isOnlySemester) {
+    hasTrackedRef.current = false;
+    return;
+  }
+
+  // ✅ Wait for data to load before tracking
+  if (loading || videoLoading) {
+    // console.log('⏳ Waiting for data to load before tracking...');
+    return;
+  }
+
+  // ✅ Prevent duplicate tracking
+  if (hasTrackedRef.current) {
+    // console.log('✋ Already tracked this filter combination');
+    hasTrackedRef.current = false; // Reset for next change
+  }
+
+  hasTrackedRef.current = true;
+const deviceInfo = getDeviceInfo();  // ✅ Get device info
+  // 🎯 Track the filter event
+  const analyticsPayload = {
+    semester: Number(localFilters.semester),
+    subject: localFilters.subject || undefined,
+    category: localFilters.category || undefined,
+    unit: localFilters.unit ? Number(localFilters.unit) : undefined,
+    videoChapter: localFilters.videoChapter
+      ? Number(localFilters.videoChapter)
+      : undefined,
+    uploadedBy: localFilters.uploadedBy || undefined,
+    resultsCount: total || 0,
+    deviceInfo  // ✅ Include device info
+  };
+
+  // console.log('📊 Tracking filter analytics:', analyticsPayload);
+
+  dispatch(trackFilterEvent(analyticsPayload))
+    // .unwrap()
+    // .then(() => console.log('✅ Analytics tracked successfully'))
+    // .catch((err) => console.error('❌ Analytics tracking failed:', err));
+
+}, [
+  dispatch, // 👈 IMPORTANT: Add dispatch
+  localFilters.semester,
+  localFilters.subject,
+  localFilters.category,
+  localFilters.unit,
+  localFilters.videoChapter,
+  localFilters.uploadedBy,
+  total,
+  loading,
+  videoLoading
+]);
+// ✨ Track shown suggestions (session storage)
+// ✨ Track if ANY suggestion was shown this session (simple boolean)
+const SHOWN_SUGGESTION_KEY = 'preset_suggestion_shown';
+
+const hasShownAnySuggestionThisSession = () => {
+  try {
+    return sessionStorage.getItem(SHOWN_SUGGESTION_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+const markSuggestionAsShown = () => {
+  try {
+    sessionStorage.setItem(SHOWN_SUGGESTION_KEY, 'true');
+    console.log('✅ Marked suggestion as shown for this session');
+  } catch (error) {
+    console.warn('⚠️ Failed to save suggestion state:', error);
+  }
+};
+
+const generateFilterKey = (filters) => {
+  return `${filters.semester}-${filters.subject || ''}-${filters.category || ''}-${filters.unit || ''}`;
+};
+
+// ✨ NEW: Preset Suggestion State
+const [showPresetSuggestion, setShowPresetSuggestion] = useState(false);
+const [suggestedFilter, setSuggestedFilter] = useState(null);
+const hasCheckedSuggestionRef = useRef(false);
+const suggestionCheckTimerRef = useRef(null);
+// ✅ NEW: Check for preset suggestion after tracking filters
+// ✅ FIXED: Check for preset suggestion after tracking filters
+// ✅ FIXED: Check for preset suggestion (ONCE PER SESSION)
+// ✅ FIXED: Check for preset suggestion (MAX ONCE PER SESSION)
+useEffect(() => {
+  // Clear any pending timer
+  if (suggestionCheckTimerRef.current) {
+    clearTimeout(suggestionCheckTimerRef.current);
+    suggestionCheckTimerRef.current = null;
+  }
+
+  // 🚫 Guard: Must have semester
+  if (!localFilters.semester) {
+    hasCheckedSuggestionRef.current = false;
+    return;
+  }
+
+  // 🚫 Guard: Don't check semester-only (preview mode)
+  const isOnlySemester =
+    localFilters.semester &&
+    !localFilters.subject &&
+    !localFilters.category &&
+    !localFilters.unit;
+
+  if (isOnlySemester) {
+    hasCheckedSuggestionRef.current = false;
+    // console.log('⏭️ Skipping suggestion check (semester-only mode)');
+    return;
+  }
+
+  // 🚫 Guard: Don't check if data is loading
+  if (loading || videoLoading) {
+    return;
+  }
+
+  // ✅ NEW: Check if we already showed ANY suggestion this session
+  if (hasShownAnySuggestionThisSession()) {
+    // console.log('🚫 Already showed a suggestion this session - respecting user flow');
+    return;
+  }
+
+  // ✅ Prevent duplicate checks for same filter
+  if (hasCheckedSuggestionRef.current) {
+    // console.log('✋ Already checked suggestion for this filter combo');
+    return;
+  }
+
+  // Mark as checked
+  hasCheckedSuggestionRef.current = true;
+
+  // 🎯 BUILD FILTER PARAMS
+  const filterParams = {
+    semester: localFilters.semester
+  };
+
+  if (localFilters.subject?.trim()) {
+    filterParams.subject = localFilters.subject.trim();
+  }
+  
+  if (localFilters.category) {
+    filterParams.category = localFilters.category;
+  }
+  
+  if (localFilters.unit) {
+    filterParams.unit = localFilters.unit;
+  }
+
+  // console.log('🔍 Checking preset suggestion for:', filterParams);
+
+  // Wait 2 seconds before checking (let user see results first)
+  suggestionCheckTimerRef.current = setTimeout(() => {
+    dispatch(checkPresetSuggestion(filterParams))
+      .unwrap()
+      .then((response) => {
+        // console.log('💡 Preset suggestion response:', response);
+        
+        if (response.showSuggestion && response.suggestedFilter) {
+          // console.log('🎯 SHOWING SUGGESTION MODAL (ONCE PER SESSION)');
+          setSuggestedFilter(response.suggestedFilter);
+          setShowPresetSuggestion(true);
+          
+          // ✅ MARK AS SHOWN - Won't show again this session for ANY filter
+          markSuggestionAsShown();
+          
+          // Haptic feedback
+          if (navigator.vibrate) {
+            navigator.vibrate([10, 50, 10]);
+          }
+        } else {
+          console.log('⏭️ No suggestion needed:', response.reason);
+        }
+      })
+      .catch((err) => {
+        console.error('❌ Preset suggestion check failed:', err);
+      });
+  }, 2000);
+
+  // Cleanup
+  return () => {
+    if (suggestionCheckTimerRef.current) {
+      clearTimeout(suggestionCheckTimerRef.current);
+      suggestionCheckTimerRef.current = null;
+    }
+  };
+}, [
+  dispatch,
+  localFilters.semester,
+  localFilters.subject,
+  localFilters.category,
+  localFilters.unit,
+  loading,
+  videoLoading
+]);
+
+
+
+// ✅ Reset check ref when filter changes (allows re-checking new combos)
+useEffect(() => {
+  hasCheckedSuggestionRef.current = false;
+}, [
+  localFilters.semester,
+  localFilters.subject,
+  localFilters.category,
+  localFilters.unit
+]);
+
+// ✅ NEW: Handle preset suggestion save
+// ✅ NEW: Handle preset suggestion save - AUTO SAVE with generated name
+// ✅ Import the utility at the top
+// ... inside your component ...
+
+// ✅ UPDATED: Handle preset suggestion save with SHORT names
+const handleSaveFromSuggestion = async () => {
+  setShowPresetSuggestion(false);
+  
+  // 🎯 Generate smart SHORT preset name (max 60 chars)
+  const generatePresetName = () => {
+    const parts = [];
+    
+    // Subject - Use abbreviation/short name
+    if (suggestedFilter?.subject) {
+      const shortSubject = getSubjectShortName(suggestedFilter.subject);
+      parts.push(shortSubject);
+    }
+    
+    // Category - Use short form
+    if (suggestedFilter?.category) {
+      const categoryShort = {
+        'Notes': 'Notes',
+        'Handwritten Notes': 'HW Notes',
+        'PYQ': 'PYQ',
+        'Important Question': 'IQ'
+      }[suggestedFilter.category] || suggestedFilter.category;
+      
+      parts.push(categoryShort);
+    }
+    
+    // Unit
+    if (suggestedFilter?.unit) {
+      parts.push(`U${suggestedFilter.unit}`);  // "U3" instead of "Unit 3"
+    }
+    
+    // Fallback: if only semester
+    if (parts.length === 0) {
+      return `Sem ${suggestedFilter?.semester}`;
+    }
+    
+    // Join with separator
+    let name = parts.join(' • ');  // Using bullet for cleaner look
+    
+    // ✅ Safety: Truncate if still too long (shouldn't happen now)
+    if (name.length > 60) {
+      name = name.substring(0, 57) + '...';
+    }
+    
+    return name;
+  };
+
+  const presetName = generatePresetName();
+  
+  // console.log('💾 Auto-saving preset with name:', presetName, `(${presetName.length} chars)`);
+
+  // Prepare filters to save
+  const filtersToSave = {
+    semester: suggestedFilter.semester,
+    ...(suggestedFilter.subject && { subject: suggestedFilter.subject }),
+    ...(suggestedFilter.category && { category: suggestedFilter.category }),
+    ...(suggestedFilter.unit && { unit: suggestedFilter.unit })
+  };
+
+  // Save the preset
+  try {
+    await dispatch(
+      createSavedFilter({
+        name: presetName,
+        filters: filtersToSave,
+        isDefault: false
+      })
+    ).unwrap();
+
+    // ✅ Mark in analytics
+    const sessionId = localStorage.getItem("sessionId");
+    if (sessionId) {
+      try {
+        await axiosInstance.post(
+          "/filter-analytics/mark-saved-preset",
+          {},
+          {
+            headers: {
+              "x-session-id": sessionId
+            }
+          }
+        );
+        console.log('💾 Filter marked as saved preset in analytics');
+      } catch (error) {
+        console.warn('⚠️ Failed to mark preset (non-critical):', error.message);
+      }
+    }
+
+    // 🎉 Success feedback with short name
+    // toast.success(
+    //   <div className="flex items-center gap-2">
+    //     <span className="text-yellow-400">⭐</span>
+    //     <div>
+    //       <p className="font-semibold">Preset saved!</p>
+    //       <p className="text-xs text-gray-400 mt-0.5">{presetName}</p>
+    //     </div>
+    //   </div>,
+    //   {
+    //     duration: 3000,
+    //     position: 'bottom-center'
+    //   }
+    // );
+
+    // Haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate([10, 20, 10]);
+    }
+
+    // Show preset toast
+    setShowPresetToast(true);
+
+  } catch (error) {
+    console.error('❌ Failed to save preset:', error);
+    
+    // ✅ Better error message
+    const errorMsg = error?.message?.includes('longer than')
+      ? 'Preset name too long. Please try again.'
+      : 'Failed to save preset. Please try again.';
+    
+    toast.error(errorMsg);
+  }
+};
+
+
+// ✅ NEW: Handle preset suggestion dismiss
+// ✅ Handle preset suggestion dismiss
+const handleDismissSuggestion = () => {
+  setShowPresetSuggestion(false);
+  setSuggestedFilter(null);
+  
+  // ✅ Mark as shown so we don't suggest again this session
+  markSuggestionAsShown();
+  
+  // console.log('🚫 User dismissed suggestion - won\'t show again this session');
+  
+  // Haptic feedback
+  if (navigator.vibrate) {
+    navigator.vibrate(5);
+  }
+};
+
+
+// ✨ Get recommended & trending from Redux
+const { recommended, trending, trendingTimeframe } = useSelector((state) => state.filterAnalytics);
+
+// ✨ Fetch hybrid filters when semester changes
+useEffect(() => {
+  if (localFilters.semester) {
+    dispatch(fetchHybridFilters(localFilters.semester))
+      // .unwrap()
+      // .then((data) => {
+      //   console.log('✨ Hybrid filters loaded:', {
+      //     recommended: data.recommended?.length || 0,
+      //     trending: data.trending?.length || 0
+      //   });
+      // })
+      .catch((err) => {
+        console.warn('⚠️ Failed to load hybrid filters:', err);
+      });
+  }
+}, [dispatch, localFilters.semester]);
+
+// ✨ Handler to apply quick filter
+// ✨ Handler to apply quick filter
+// ✨ Handler to apply quick filter
+const handleApplyQuickFilter = (filter) => {
+  // console.log('🎯 Applying quick filter:', filter);
+  
+  const newFilters = {
+    semester: localFilters.semester,
+    subject: filter._id.subject || '',
+    category: filter._id.category || '',
+    unit: filter._id.unit ? String(filter._id.unit) : '',
+    university: 'AKTU',
+    course: 'BTECH',
+    uploadedBy: '',
+    videoChapter: ''
+  };
+
+  // console.log('📝 Applying filters:', newFilters);
+
+  // Update URL
+  const params = Object.fromEntries(
+    Object.entries(newFilters).filter(([_, v]) => v)
+  );
+  setSearchParams(params, { replace: true });
+
+  // Update state
+  setLocalFilters(newFilters);
+
+  // Reset pagination
+  dispatch(resetPagination());
+
+  // Haptic feedback
+  if (navigator.vibrate) {
+    navigator.vibrate(10);
+  }
+  
+  // ✅ SCROLL WITH RETRY MECHANISM
+  let scrollAttempts = 0;
+  const maxAttempts = 5;
+  
+  const attemptScroll = () => {
+    scrollAttempts++;
+    const resultsSection = document.querySelector('[data-results-section]');
+    
+    if (resultsSection) {
+      // console.log('✅ Scrolling to results...');
+      
+      const headerOffset = 100; // Adjust based on your layout
+      const elementPosition = resultsSection.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    } else if (scrollAttempts < maxAttempts) {
+      console.log(`⏳ Retry scroll (${scrollAttempts}/${maxAttempts})...`);
+      setTimeout(attemptScroll, 100); // Retry after 100ms
+    } else {
+      console.warn('❌ Could not find results section after 5 attempts');
+    }
+  };
+  
+  // Start scroll attempts after a brief delay
+  setTimeout(attemptScroll, 200);
+};
+
+
+// ✅ ADD THIS: Sync state when URL changes (for browser back/forward, direct links, quick filters)
+useEffect(() => {
+  const urlFilters = getFiltersFromURL();
+  
+  // Check if URL is different from current state
+  const isDifferent = 
+    urlFilters.semester !== localFilters.semester ||
+    urlFilters.subject !== localFilters.subject ||
+    urlFilters.category !== localFilters.category ||
+    urlFilters.unit !== localFilters.unit ||
+    urlFilters.uploadedBy !== localFilters.uploadedBy ||
+    urlFilters.videoChapter !== localFilters.videoChapter;
+
+  if (isDifferent) {
+    // console.log('🔄 URL changed, syncing state:', urlFilters);
+    setLocalFilters(urlFilters);
+  }
+}, [searchParams]); // Trigger when URL params change
 
 
   return (
@@ -710,6 +1317,7 @@ useEffect(() => {
             subjectsBySemester={subjectsBySemester}
             uniqueChapters={uniqueChapters}
             uniqueUploaders={uniqueUploaders}
+            trendingTimeframe={trendingTimeframe}  // ✨ NEW: Pass timeframe
             // ✅ NEW: presets data
             savedFilters={savedFilters}
             defaultSavedFilter={defaultSavedFilter}
@@ -729,6 +1337,11 @@ useEffect(() => {
 
               dispatch(trackPresetUsage(preset._id));
             }}
+            // ✨ NEW: Trending & Recommended
+          recommended={recommended}
+          trending={trending}
+          onApplyQuickFilter={handleApplyQuickFilter}
+          
             //  onSaveCurrentFilters={onSaveCurrentFilters}   // ✅ ADD THIS
             onOpenSavePresetModal={()=>setShowSavePresetModal(true)}
             isPreferencesSet={isPreferencesSet}
@@ -749,7 +1362,13 @@ useEffect(() => {
   onClose={() => setShowSavePresetModal(false)}
   onSave={handleSavePreset}
 />
-
+{/* ✨ NEW: Preset Suggestion Modal */}
+      <PresetSuggestionModal
+        isOpen={showPresetSuggestion}
+        onClose={handleDismissSuggestion}
+        onSave={handleSaveFromSuggestion}
+        suggestedFilter={suggestedFilter}
+      />
 
           {/* ✨ UPDATED: Stats Section - Include Video Count */}
 
@@ -1076,23 +1695,41 @@ useEffect(() => {
           {/* Notes Grid */}
           {/* Notes/Videos Grid - FIXED */}
 
-          {displayResources && displayResources.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {displayResources.map((resource) => {
-                // ✅ FIXED: Better type detection
-                const isVideo = resource?.videoId || resource?.embedUrl || resource?.platform === 'YOUTUBE';
+          {/* ✅ RESULTS SECTION WRAPPER */}
+{displayResources && displayResources.length > 0 && (
+  <section 
+    data-results-section
+    className="max-w-7xl mx-auto px-4 py-8"
+  >
+    {/* Optional: Add a header */}
+    {/* <div className="mb-6">
+      <h2 className="text-xl font-semibold text-white mb-2">
+        {localFilters.category ? `${localFilters.category}` : 'All Resources'}
+        {localFilters.subject && ` - ${getSubjectShortName(localFilters.subject)}`}
+      </h2>
+      <p className="text-sm text-[#9CA3AF]">
+        Found {displayResources.length} resource{displayResources.length !== 1 ? 's' : ''}
+      </p>
+    </div> */}
 
-                return (
-                  <TrackedNoteCard
-                    key={resource._id}
-                    item={resource}
-                    type={isVideo ? 'video' : 'note'} // ✅ Detect from resource properties
-                    note={resource}
-                  />
-                );
-              })}
-            </div>
-          )}
+    {/* Grid */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      {displayResources.map((resource) => {
+        const isVideo = resource?.videoId || resource?.embedUrl || resource?.platform === 'YOUTUBE';
+
+        return (
+          <TrackedNoteCard
+            key={resource._id}
+            item={resource}
+            type={isVideo ? 'video' : 'note'}
+            note={resource}
+          />
+        );
+      })}
+    </div>
+  </section>
+)}
+
           {/* 📘 Planner Guidance — After Notes Grid */}
           {displayResources && displayResources.length > 0 && showPlannerReminder && (
             <div className="mb-10 px-3 sm:px-0">

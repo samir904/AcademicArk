@@ -119,6 +119,18 @@ button:focus-visible {
   outline: none !important;   /* Prevent ugly default outlines */
   box-shadow: none !important;
 }
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
 
 /* 🟢 Your button components must provide their own active state */
 .btn-white, .bg-white {
