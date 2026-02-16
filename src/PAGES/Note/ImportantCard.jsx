@@ -13,6 +13,7 @@ import { showToast } from "../../HELPERS/Toaster";
 import DownloadLimitBanner from "../../COMPONENTS/Paywall/DownloadLimitBanner.jsx";
 import axiosInstance from '../../HELPERS/axiosInstance.js';
 import { trackPaywallEvent } from '../../REDUX/Slices/paywallTrackingSlice.js';
+import { getSubjectShortName } from '../../UTILS/subjectShortName.js';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -318,6 +319,115 @@ const isPreviewOnly = note.isLocked && !hasActivePlan;
     );
   };
   const [menuPosition, setMenuPosition] = useState(null);
+const formatNoteTitle = (title, description, category) => {
+  if (!title) return { main: "Untitled Note", subtitle: null };
+
+  // 1) Normalize and remove obvious noise from TITLE
+  let cleanTitle = title
+    .replace(/\b(handwritten|notes?|pyqs?|previous year questions?)\b/gi, '')
+    .replace(/\b(imp[\s-]*ques(tions?)?|imp[\s-]*topics?|important[\s-]*questions?)\b/gi, '')
+    .replace(/\b(with\s*sol(ns)?|with\s*solutions?)\b/gi, '')
+    .replace(/\b(new)\b/gi, '')
+    .replace(/\(\s*\)/g, '')
+    .trim();
+
+  // Unit normalization: "dbms unit-2" → "dbms unit 2"
+  cleanTitle = cleanTitle
+    .replace(/\bunit[\s-]*(\d+)/gi, 'Unit $1')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // 2) Title-case with some controlled exceptions
+  cleanTitle = cleanTitle
+    .split(' ')
+    .map(word => {
+      if (/^dbms$/i.test(word)) return 'DBMS';
+      if (/^dav$/i.test(word)) return 'DAV';
+      if (/^daa$/i.test(word)) return 'DAA';
+      if (/^wt$/i.test(word)) return 'WT';
+      if (/^ds$/i.test(word)) return 'DS';
+      if (/^os$/i.test(word)) return 'OS';
+      if (/^ai$/i.test(word)) return 'AI';
+      if (/^pyq$/i.test(word)) return 'PYQ';
+      if (/^bcs\d+/i.test(word)) return word.toUpperCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+
+  // 3) SPECIAL HANDLING FOR IMPORTANT_Q
+  if (category === 'IMPORTANT_Q') {
+    // If title contains "All Units", normalize it
+    if (/all\s+units/i.test(cleanTitle)) {
+      // e.g. "DBMS All Units" or "DBMS all units"
+      cleanTitle = cleanTitle
+        .replace(/all\s+units/i, 'All Units')
+        .trim();
+    }
+
+    // If title still has "Important" or "Imp", clean it
+    cleanTitle = cleanTitle
+      .replace(/\b(Imp|Important)\b/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // If nothing useful left, fall back to subject short name from description
+    if (!cleanTitle || cleanTitle.length < 3) {
+      // Try to infer subject from description
+      if (/database management system/i.test(description || '')) {
+        cleanTitle = 'DBMS';
+      } else if (/data analytics/i.test(description || '')) {
+        cleanTitle = 'DAV';
+      } else if (/design and analysis of algorithm/i.test(description || '')) {
+        cleanTitle = 'DAA';
+      } else if (/artificial intelligence/i.test(description || '')) {
+        cleanTitle = 'AI';
+      } else if (/web technology/i.test(description || '')) {
+        cleanTitle = 'WT';
+      } else {
+        cleanTitle = 'Important Questions';
+      }
+    }
+  }
+
+  // 4) SUBTITLE from DESCRIPTION
+  let subtitle = null;
+  if (description && description.length > 3) {
+    let cleanDesc = description
+      // strip course codes and full subject name (too noisy)
+      .replace(/BCS\d+/gi, '')
+      .replace(/BCDS\d+/gi, '')
+      .replace(/BCAI\d+/gi, '')
+      .replace(/DATABASE MANAGEMENT SYSTEM/gi, '')
+      .replace(/INTRODUCTION TO DATA ANALYTICS AND VISUALIZATION/gi, '')
+      .replace(/DESIGN AND ANALYSIS OF ALGORITHM/gi, '')
+      .replace(/WEB TECHNOLOGY/gi, '')
+      .replace(/ARTIFICIAL INTELLIGENCE/gi, '')
+      // normalize "imp" phrases
+      .replace(/\b(imp[\s-]*ques(tions?)?|imp[\s-]*topics?|important[\s-]*questions?)\b/gi, 'Important Questions')
+      // normalize "with solutions"
+      .replace(/\b(with\s*sol(ns)?|with\s*solutions?)\b/gi, 'with Solutions')
+      // change "||" to bullets
+      .replace(/\s*\|\|\s*/g, ' • ')
+      .trim();
+
+    // If description is basically just subject name, drop it
+    if (/^important questions$/i.test(cleanDesc)) {
+      // fine, keep as generic
+    }
+
+    // Hard-limit subtitles
+    if (cleanDesc.length > 90) {
+      cleanDesc = cleanDesc.slice(0, 87) + '...';
+    }
+
+    if (cleanDesc.length > 3) {
+      subtitle = cleanDesc;
+    }
+  }
+
+  return { main: cleanTitle, subtitle };
+};
+
 
   return (
     <>
@@ -347,110 +457,157 @@ const isPreviewOnly = note.isLocked && !hasActivePlan;
         <div className="p-6 space-y-4">
 
           {/* Header - Title + Bookmark + Menu */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              {/* Category Badge */}
-              <div className="mb-2">
-                <span style={{
-                  backgroundColor: `rgba(217, 119, 6, 0.1)`,
-                  color: `rgb(217, 119, 6)`
-                }} className="px-2.5 py-1 text-xs font-semibold rounded-full border border-amber-600/30">
-                  ⭐ Important
-                </span>
-              </div>
+          {/* Header - Title + Bookmark + Menu */}
+<div className="flex items-start justify-between gap-3">
+  <div className="flex-1 min-w-0">
+    {/* Category + Unit badges */}
+    <div className="mb-2 flex items-center gap-2">
+      {/* Category Badge */}
+      <span
+        style={{
+          backgroundColor: `rgba(217, 119, 6, 0.1)`,
+          color: `rgb(217, 119, 6)`
+        }}
+        className="px-2.5 py-1 text-xs font-semibold rounded-full border border-amber-600/30"
+      >
+        ⭐ Important
+      </span>
 
-              {/* Title - ONLY Underline on Hover, Clickable */}
-              <Link
-                to={`/notes/${note._id}/read`}
-                className="block text-white capitalize font-semibold text-base line-clamp-2 hover:underline transition-all cursor-pointer"
-                onClick={() => {
-                  // ✅ ADD TRACKING - TWO LINES!
-                  trackView(note._id, note.title);
-                  trackClick(note._id);
-                }}
-              >
-                {note.title}
-              </Link>
-            </div>
+      {/* Optional Unit / All Units badge (derived from title) */}
+      {(() => {
+        const rawTitle = (note.title || '').toLowerCase();
+        const unitMatch = rawTitle.match(/unit[\s-]*(\d+)/i);
+        const isAllUnits = /all\s+units?/i.test(rawTitle);
 
-            {/* Top Right: Bookmark + Menu Dots */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {/* Bookmark Button */}
-              <button
-                onClick={handleBookmark}
-                className="p-2 hover:bg-neutral-900 rounded-lg transition-all"
-                title={isBookmarked ? "Remove bookmark" : "Add bookmark"}
-              >
-                <BookmarkIcon
-                  className={`w-5 h-5 transition-all ${isBookmarked
-                    ? 'text-amber-400 fill-current scale-110'
-                    : 'text-neutral-500 hover:text-neutral-300'
-                    }`}
-                  filled={isBookmarked}
-                />
-              </button>
+        if (unitMatch) {
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full bg-neutral-800 text-neutral-200 border border-neutral-700">
+              Unit {unitMatch[1]}
+            </span>
+          );
+        }
+        if (isAllUnits) {
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full bg-neutral-800 text-neutral-200 border border-neutral-700">
+              All Units
+            </span>
+          );
+        }
+        return null;
+      })()}
+    </div>
 
-              {/* Three Dots Menu */}
-              <div className="relative" ref={menuRef}>
-                <button
-                  onClick={(e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMenuPosition({
-      top: rect.bottom + 6,
-      left: rect.right - 192 // 192px = w-48
-    });
-    setShowMenuDropdown(prev => !prev);
-  }}
-                  className="p-2 hover:bg-neutral-900 rounded-lg transition-all cursor-pointer"
-                  title="More options"
-                >
-                  <DotsIcon className="w-5 h-5 text-neutral-500 hover:text-neutral-300" />
-                </button>
+    {/* Title + subtitle (formatted) */}
+    <Link
+      to={`/notes/${note._id}/read`}
+      className="block space-y-1 group/title"
+      onClick={() => {
+        trackView(note._id, note.title);
+        trackClick(note._id);
+      }}
+    >
+      {(() => {
+        const formatted = formatNoteTitle(note.title, note.description, note.category);
 
-            {showMenuDropdown && menuPosition && (
-  <div
-    className="
-      fixed
-      w-48
-      bg-neutral-900
-      border border-neutral-800
-      rounded-lg
-      shadow-xl
-      z-[9999]
-      overflow-hidden
-    "
-    style={{
-      top: menuPosition.top,
-      left: menuPosition.left
-    }}
-  >
-    {menuOptions.map((option, idx) => (
-      <div key={idx}>
-        {option.separator && (
-          <div className="h-px bg-neutral-700 my-1" />
-        )}
-        <button
-          onClick={option.action}
-          className={`w-full px-4 py-2.5 text-left text-sm transition-colors
-            ${option.admin
-              ? 'bg-amber-900/20 text-amber-400 hover:bg-amber-900/40 font-semibold'
-              : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
-            }`}
-        >
-          {option.label}
-        </button>
-      </div>
-    ))}
-  </div>
-)}
-              </div>
-            </div>
+        return (
+          <div className="space-y-1">
+            <h3 className="text-white font-semibold text-base line-clamp-1 group-hover/title:underline transition-all">
+              {formatted.main || 'Important Questions'}
+            </h3>
+
+            {formatted.subtitle && (
+              <p className="text-neutral-400 text-sm line-clamp-1">
+                {formatted.subtitle}
+              </p>
+            )}
           </div>
+        );
+      })()}
+    </Link>
+  </div>
+
+  {/* Top Right: Bookmark + Menu Dots */}
+  <div className="flex items-center gap-2 flex-shrink-0">
+    {/* Bookmark Button */}
+    <button
+      onClick={handleBookmark}
+      className="p-2 hover:bg-neutral-900 rounded-lg transition-all"
+      title={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+    >
+      <BookmarkIcon
+        className={`w-5 h-5 transition-all ${
+          isBookmarked
+            ? 'text-amber-400 fill-current scale-110'
+            : 'text-neutral-500 hover:text-neutral-300'
+        }`}
+        filled={isBookmarked}
+      />
+    </button>
+
+    {/* Three Dots Menu */}
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          setMenuPosition({
+            top: rect.bottom + 6,
+            left: rect.right - 192 // 192px = w-48
+          });
+          setShowMenuDropdown(prev => !prev);
+        }}
+        className="p-2 hover:bg-neutral-900 rounded-lg transition-all cursor-pointer"
+        title="More options"
+      >
+        <DotsIcon className="w-5 h-5 text-neutral-500 hover:text-neutral-300" />
+      </button>
+
+      {showMenuDropdown && menuPosition && (
+        <div
+          className="
+            fixed
+            w-48
+            bg-neutral-900
+            border border-neutral-800
+            rounded-lg
+            shadow-xl
+            z-[9999]
+            overflow-hidden
+          "
+          style={{
+            top: menuPosition.top,
+            left: menuPosition.left
+          }}
+        >
+          {menuOptions.map((option, idx) => (
+            <div key={idx}>
+              {option.separator && (
+                <div className="h-px bg-neutral-700 my-1" />
+              )}
+              <button
+                onClick={option.action}
+                className={`w-full px-4 py-2.5 text-left text-sm transition-colors
+                  ${
+                    option.admin
+                      ? 'bg-amber-900/20 text-amber-400 hover:bg-amber-900/40 font-semibold'
+                      : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
+                  }`}
+              >
+                {option.label}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
 
           {/* Metadata Line */}
           <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
-            <span className="truncate">{note.subject}</span>
-            <span>•</span>
+             <span className="truncate" title={note.subject}>
+                {getSubjectShortName(note.subject)}
+              </span>            <span>•</span>
             <span className="whitespace-nowrap">
               Sem {Array.isArray(note.semester) ? note.semester.join(" / ") : note.semester}
             </span>
@@ -459,11 +616,11 @@ const isPreviewOnly = note.isLocked && !hasActivePlan;
           </div>
 
           {/* Description - Optional */}
-          {note.description && (
+          {/* {note.description && (
             <p className="text-sm capitalize text-neutral-400 line-clamp-1">
               {note.description}
             </p>
-          )}
+          )} */}
 
           {/* Stats Row */}
           <div className="flex items-center justify-between pt-3 border-t border-neutral-800 gap-3">

@@ -18,6 +18,7 @@ import DownloadLimitBanner from "../../COMPONENTS/Paywall/DownloadLimitBanner.js
 import axiosInstance from '../../HELPERS/axiosInstance.js';
 import { toggleLockNote } from '../../REDUX/Slices/noteslice.js';
 import { trackPaywallEvent } from '../../REDUX/Slices/paywallTrackingSlice.js';
+import { getSubjectShortName } from '../../UTILS/subjectShortName.js';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -335,6 +336,37 @@ const isPreviewOnly = note.isLocked && !hasActivePlan;
 };
 const [menuPosition, setMenuPosition] = useState(null);
 
+// ✨ Smart title formatter
+const formatNoteTitle = (title, description, category) => {
+  if (!title) return "Untitled Note";
+  
+  // Remove redundant category words (already shown in badge)
+  let cleanTitle = title
+    .replace(/\b(handwritten|notes?|pyqs?|previous year questions?)\b/gi, '')
+    .trim();
+  
+  // Fix common patterns
+  cleanTitle = cleanTitle
+    // "java unit-1" → "Java Unit 1"
+    .replace(/\b([a-z]+)\s+unit[\s-]*(\d+)/gi, '$1 Unit $2')
+    // "pyq(2023-24)" → "PYQ 2023-24"
+    .replace(/pyq\s*\(([^)]+)\)/gi, 'PYQ $1')
+    // "quantum (2023-24)" → "Quantum 2023-24"
+    .replace(/quantum\s*\(([^)]+)\)/gi, 'Quantum $1');
+  
+  // Proper title case
+  cleanTitle = cleanTitle
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+  
+  // If description exists and is meaningful, use it as subtitle
+  if (description && description.length > 3 && description.toLowerCase() !== cleanTitle.toLowerCase()) {
+    return { main: cleanTitle, subtitle: description };
+  }
+  
+  return { main: cleanTitle, subtitle: null };
+};
 
   return (
     <>
@@ -399,17 +431,35 @@ const [menuPosition, setMenuPosition] = useState(null);
               </div>
 
               {/* Title - ONLY Underline on Hover, Clickable */}
-              <Link
-                to={`/notes/${note._id}/read`}
-                className="block text-white capitalize font-semibold text-base line-clamp-2 hover:underline transition-all cursor-pointer"
-                onClick={() => {
-                  // ✅ ADD TRACKING - TWO LINES!
-                  trackView(note._id, note.title);
-                  trackClick(note._id);
-                }}
-              >
-                {note.title}
-              </Link>
+              {/* Title Section - Enhanced Two-Line Format */}
+<Link
+  to={`/notes/${note._id}/read`}
+  className="block space-y-1 group/title"
+  onClick={() => {
+    trackView(note._id, note.title);
+    trackClick(note._id);
+  }}
+>
+  {(() => {
+    const formatted = formatNoteTitle(note.title, note.description, note.category);
+    return (
+      <>
+        {/* Main Title */}
+        <h3 className="text-white font-semibold text-base line-clamp-1 group-hover/title:underline transition-all">
+          {formatted.main}
+        </h3>
+        
+        {/* Subtitle (if exists) */}
+        {formatted.subtitle && (
+          <p className="text-neutral-400 text-sm line-clamp-1 capitalize">
+            {formatted.subtitle}
+          </p>
+        )}
+      </>
+    );
+  })()}
+</Link>
+
             </div>
 
             {/* Top Right: Bookmark + Menu Dots */}
@@ -493,7 +543,9 @@ const [menuPosition, setMenuPosition] = useState(null);
 
           {/* Metadata Line */}
           <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
-            <span className="truncate">{note.subject}</span>
+            <span className="truncate" title={note.subject}>
+    {getSubjectShortName(note.subject)}
+  </span>
             <span>•</span>
             <span className="whitespace-nowrap">
               Sem {Array.isArray(note.semester) ? note.semester.join(" / ") : note.semester}
@@ -503,11 +555,11 @@ const [menuPosition, setMenuPosition] = useState(null);
           </div>
 
           {/* Description - Optional */}
-          {note.description && (
+          {/* {note.description && (
             <p className="text-sm capitalize text-neutral-400 line-clamp-1">
               {note.description}
             </p>
-          )}
+          )} */}
 
           {/* Stats Row */}
           <div className="flex items-center justify-between pt-3 border-t border-neutral-800 gap-3">

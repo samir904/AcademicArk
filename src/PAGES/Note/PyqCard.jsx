@@ -15,6 +15,7 @@ import { showToast } from "../../HELPERS/Toaster";
 import DownloadLimitBanner from "../../COMPONENTS/Paywall/DownloadLimitBanner.jsx";
 import axiosInstance from '../../HELPERS/axiosInstance.js';
 import { trackPaywallEvent } from '../../REDUX/Slices/paywallTrackingSlice.js';
+import { getSubjectShortName } from '../../UTILS/subjectShortName.js';
 
 // Icons
 const BookmarkIcon = ({ className, filled }) => (
@@ -318,6 +319,58 @@ const handleToggleLock = () => {
     );
   };
   const [menuPosition, setMenuPosition] = useState(null);
+// ✨ Enhanced Smart title formatter with better PYQ handling
+const formatNoteTitle = (title, description, category) => {
+  if (!title) return { main: "Untitled Note", subtitle: null };
+  
+  // Remove redundant category words (already shown in badge)
+  let cleanTitle = title
+    .replace(/\b(handwritten|notes?|pyqs?|previous year questions?)\b/gi, '')
+    .trim();
+  
+  // ✅ NEW: Better PYQ year formatting
+  cleanTitle = cleanTitle
+    // "os pyq(2022-23)" → "OS PYQ 2022-23"
+    .replace(/\b([a-z]+)\s+pyq[\s-]*\(([^)]+)\)/gi, '$1 PYQ $2')
+    // "os pyq-(2021-22)" → "OS PYQ 2021-22"
+    .replace(/\b([a-z]+)\s+pyq[\s-]*-?\s*\(([^)]+)\)/gi, '$1 PYQ $2')
+    // Clean up extra spaces
+    .replace(/\s+/g, ' ');
+  
+  // Fix common patterns
+  cleanTitle = cleanTitle
+    // "java unit-1" → "Java Unit 1"
+    .replace(/\b([a-z]+)\s+unit[\s-]*(\d+)/gi, '$1 Unit $2')
+    // "quantum (2023-24)" → "Quantum 2023-24"
+    .replace(/quantum\s*\(([^)]+)\)/gi, 'Quantum $1');
+  
+  // Proper title case
+  cleanTitle = cleanTitle
+    .split(' ')
+    .map(word => {
+      // Keep PYQ and year ranges uppercase/as-is
+      if (/^pyq$/i.test(word)) return 'PYQ';
+      if (/^\d{4}-\d{2,4}$/.test(word)) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+  
+  // If description exists and is meaningful, use it as subtitle
+  if (description && description.length > 3 && description.toLowerCase() !== cleanTitle.toLowerCase()) {
+    // Clean up description too
+    let cleanDesc = description
+      .replace(/\b(previous year questions?|pyqs?)\b/gi, '')
+      .replace(/\(SEM\s+[IVX]+\)/gi, '')
+      .replace(/THEORY EXAMINATION/gi, '')
+      .trim();
+    
+    if (cleanDesc.length > 3) {
+      return { main: cleanTitle, subtitle: cleanDesc };
+    }
+  }
+  
+  return { main: cleanTitle, subtitle: null };
+};
 
   return (
     <>
@@ -346,113 +399,146 @@ const handleToggleLock = () => {
         <div className="p-6 space-y-4">
 
           {/* Header - Title + Bookmark + Menu */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              {/* Category Badge */}
-              <div className="mb-2">
-                <span style={{
-                  backgroundColor: `rgba(34, 211, 238, 0.1)`,
-                  color: `rgb(34, 211, 238)`
-                }} className="px-2.5 py-1 text-xs font-semibold rounded-full border border-cyan-500/30">
-                  PYQ
-                </span>
-              </div>
+         {/* Header - Title + Bookmark + Menu */}
+<div className="flex items-start justify-between gap-3">
+  <div className="flex-1 min-w-0">
+    {/* Category + Year Badges */}
+    <div className="mb-2 flex items-center gap-2">
+      {/* Category Badge */}
+      <span
+        style={{
+          backgroundColor: `rgba(34, 211, 238, 0.1)`,
+          color: `rgb(34, 211, 238)`
+        }}
+        className="px-2.5 py-1 text-xs font-semibold rounded-full border border-cyan-500/30"
+      >
+        PYQ
+      </span>
 
-              {/* Title - ONLY Underline on Hover, Clickable */}
-              <Link
-                to={`/notes/${note._id}/read`}
-                className="block text-white capitalize font-semibold text-base line-clamp-2 hover:underline transition-all cursor-pointer"
-                onClick={() => {
-                  // ✅ ADD TRACKING - TWO LINES!
-                  trackView(note._id, note.title);
-                  trackClick(note._id);
-                }}
-              >
-                {note.title}
-              </Link>
-            </div>
+      {/* Year Badge (next to category) */}
+      {(() => {
+        const formatted = formatNoteTitle(note.title, note.description, note.category);
+        const yearMatch = formatted.main.match(/(\d{4}-\d{2,4})/);
+        if (!yearMatch || note.category !== 'PYQ') return null;
 
-            {/* Top Right: Bookmark + Menu Dots */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {/* Bookmark Button */}
-              <button
-                onClick={handleBookmark}
-                className="p-2 hover:bg-neutral-900 rounded-lg transition-all"
-                title={isBookmarked ? "Remove bookmark" : "Add bookmark"}
-              >
-                <BookmarkIcon
-                  className={`w-5 h-5 transition-all ${isBookmarked
-                    ? 'text-cyan-400 fill-current scale-110'
-                    : 'text-neutral-500 hover:text-neutral-300'
-                    }`}
-                  filled={isBookmarked}
-                />
-              </button>
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+            {yearMatch[1]}
+          </span>
+        );
+      })()}
+    </div>
 
-              {/* Three Dots Menu */}
-              <div className="relative" ref={menuRef}>
-                <button
-                  onClick={(e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMenuPosition({
-      top: rect.bottom + 6,
-      left: rect.right - 192 // 192px = w-48
-    });
-    setShowMenuDropdown(prev => !prev);
-  }}
-                  className="p-2 hover:bg-neutral-900 rounded-lg transition-all cursor-pointer"
-                  title="More options"
-                >
-                  <DotsIcon className="w-5 h-5 text-neutral-500 hover:text-neutral-300" />
-                </button>
+    {/* Title - formatted, with optional subtitle */}
+    <Link
+      to={`/notes/${note._id}/read`}
+      className="block space-y-1 group/title"
+      onClick={() => {
+        trackView(note._id, note.title);
+        trackClick(note._id);
+      }}
+    >
+      {(() => {
+        const formatted = formatNoteTitle(note.title, note.description, note.category);
 
-                {/* Dropdown Menu */}
-                        {/* Dropdown Menu */}
-       {showMenuDropdown && menuPosition && (
-  <div
-    className="
-      fixed
-      w-48
-      bg-neutral-900
-      border border-neutral-800
-      rounded-lg
-      shadow-xl
-      z-[9999]
-      overflow-hidden
-    "
-    style={{
-      top: menuPosition.top,
-      left: menuPosition.left
-    }}
-  >
-    {menuOptions.map((option, idx) => (
-      <div key={idx}>
-        {option.separator && (
-          <div className="h-px bg-neutral-700 my-1" />
-        )}
-        <button
-          onClick={option.action}
-          className={`w-full px-4 py-2.5 text-left text-sm transition-colors
-            ${option.admin
-              ? 'bg-amber-900/20 text-amber-400 hover:bg-amber-900/40 font-semibold'
-              : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
-            }`}
-        >
-          {option.label}
-        </button>
-      </div>
-    ))}
-  </div>
-)}
+        return (
+          <div className="space-y-1">
+            <h3 className="text-white font-semibold text-base line-clamp-1 group-hover/title:underline transition-all">
+              {formatted.main}
+            </h3>
 
-              </div>
-            </div>
+            {formatted.subtitle && (
+              <p className="text-neutral-400 text-sm line-clamp-1 capitalize">
+                {formatted.subtitle}
+              </p>
+            )}
           </div>
+        );
+      })()}
+    </Link>
+  </div>
+
+  {/* Top Right: Bookmark + Menu Dots (unchanged) */}
+  <div className="flex items-center gap-2 flex-shrink-0">
+    <button
+      onClick={handleBookmark}
+      className="p-2 hover:bg-neutral-900 rounded-lg transition-all"
+      title={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+    >
+      <BookmarkIcon
+        className={`w-5 h-5 transition-all ${
+          isBookmarked
+            ? 'text-cyan-400 fill-current scale-110'
+            : 'text-neutral-500 hover:text-neutral-300'
+        }`}
+        filled={isBookmarked}
+      />
+    </button>
+
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          setMenuPosition({
+            top: rect.bottom + 6,
+            left: rect.right - 192 // 192px = w-48
+          });
+          setShowMenuDropdown(prev => !prev);
+        }}
+        className="p-2 hover:bg-neutral-900 rounded-lg transition-all cursor-pointer"
+        title="More options"
+      >
+        <DotsIcon className="w-5 h-5 text-neutral-500 hover:text-neutral-300" />
+      </button>
+
+      {showMenuDropdown && menuPosition && (
+        <div
+          className="
+            fixed
+            w-48
+            bg-neutral-900
+            border border-neutral-800
+            rounded-lg
+            shadow-xl
+            z-[9999]
+            overflow-hidden
+          "
+          style={{
+            top: menuPosition.top,
+            left: menuPosition.left
+          }}
+        >
+          {menuOptions.map((option, idx) => (
+            <div key={idx}>
+              {option.separator && (
+                <div className="h-px bg-neutral-700 my-1" />
+              )}
+              <button
+                onClick={option.action}
+                className={`w-full px-4 py-2.5 text-left text-sm transition-colors
+                  ${
+                    option.admin
+                      ? 'bg-amber-900/20 text-amber-400 hover:bg-amber-900/40 font-semibold'
+                      : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
+                  }`}
+              >
+                {option.label}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
 
           {/* Metadata Line */}
           <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
-            <span className="truncate">{note.subject}</span>
-            <span>•</span>
+            <span className="truncate" title={note.subject}>
+               {getSubjectShortName(note.subject)}
+             </span>            
+             <span>•</span>
             <span className="whitespace-nowrap">
               Sem {Array.isArray(note.semester) ? note.semester.join(" / ") : note.semester}
             </span>            <span>•</span>
@@ -460,11 +546,11 @@ const handleToggleLock = () => {
           </div>
 
           {/* Description - Optional */}
-          {note.description && (
+          {/* {note.description && (
             <p className="text-sm capitalize text-neutral-400 line-clamp-1">
               {note.description}
             </p>
-          )}
+          )} */}
 
           {/* Stats Row */}
           <div className="flex items-center justify-between pt-3 border-t border-neutral-800 gap-3">
