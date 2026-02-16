@@ -42,7 +42,7 @@ export default function SeoDynamicPage() {
 
   // 📊 Loading State
   if (loading) {
-    return <NotesSkeleton />;
+    return null;
   }
 
   // ❌ Error State
