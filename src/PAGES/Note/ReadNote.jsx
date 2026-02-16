@@ -15,6 +15,7 @@ import DownloadLimitBanner from "../../COMPONENTS/Paywall/DownloadLimitBanner.js
 import axiosInstance from '../../HELPERS/axiosInstance.js';
 import { useRef } from 'react';
 import { trackPaywallEvent } from '../../REDUX/Slices/paywallTrackingSlice.js';
+import { setLoginModal } from '../../REDUX/Slices/authslice.js';
 
 const ReadNote = () => {
   const { id } = useParams();
