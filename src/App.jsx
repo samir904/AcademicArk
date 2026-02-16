@@ -76,6 +76,7 @@ import PaymentSuccess from "./PAGES/PaymentSuccess";
 import PaywallModal from "./COMPONENTS/Paywall/PaywallModal";
 import SessionInitializer from "./COMPONENTS/Session/SessionInitializer";
 import SessionInitializerId from "./COMPONENTS/Session/SessionInitializerId";
+import SeoDynamicPage from "./PAGES/SEO/SeoDynamicPage";
 // import { NotesSkeleton } from "";
 // //import VideoUploadForm from "./COMPONENTS/Admin/VideoUploadForm";
 // import UploadVideoLecture from "./PAGES/video/UploadVideoLecture";
@@ -717,6 +718,15 @@ function App() {
               </Suspense>
             }
           />
+          <Route
+  path="/:slug"
+  element={
+    <Suspense fallback={<NotesSkeleton />}>
+      <SeoDynamicPage />
+    </Suspense>
+  }
+/>
+
         </Route>
         {/* ❌ Catch-all */}
         <Route path="*" element={<PageNotFound />} />
