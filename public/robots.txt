@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /profile
+Disallow: /api/
+
+Sitemap: https://academicark.onrender.com/sitemap.xml
