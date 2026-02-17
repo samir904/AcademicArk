@@ -14,7 +14,7 @@
     "source": "dist",
     "minifyHtml": true,
     "crawl": false,
-     "inlineCss": true,
+    "inlineCss": true,
     "include": [
       "/",
       "/aktu-dbms-notes",
@@ -67,6 +67,7 @@
     "react-markdown": "^10.1.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.8.0",
+    "react-snap": "^1.23.0",
     "recharts": "^3.6.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11",
@@ -80,7 +81,6 @@
     "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.3.0",
-    "react-snap": "^1.23.0"
+    "globals": "^16.3.0"
   }
 }
