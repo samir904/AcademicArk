@@ -369,6 +369,11 @@ const isLoggedIn=useSelector(state=>state?.auth?.isLoggedIn)
   }
 }, [dispatch]);
 
+const [routerReady, setRouterReady] = useState(false);
+
+useEffect(() => {
+  setRouterReady(true);
+}, []);
 
   // console.log("isloggedin",isLoggedIn)
   return (
@@ -379,7 +384,7 @@ const isLoggedIn=useSelector(state=>state?.auth?.isLoggedIn)
       <SessionTracker /> {/* ← ADD THIS - Will auto-track everything */}
       {/* <SessionInitializer /> */}
       <SessionInitializerId />
-
+{routerReady && (
       <Routes>
         {/* 🟢 Core Routes */}
 
@@ -752,6 +757,7 @@ const isLoggedIn=useSelector(state=>state?.auth?.isLoggedIn)
         <Route path="*" element={<PageNotFound />} />
 
       </Routes>
+)}
       <PaywallModal />
       <GlobalLoginModal />
     </div>
