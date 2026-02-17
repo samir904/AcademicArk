@@ -11,27 +11,31 @@
     "postbuild": "react-snap"
   },
   "reactSnap": {
-  "source": "dist",
-  "minifyHtml": true,
-  "crawl": false,
-  "include": [
-    "/",
-    "/aktu-dbms-notes",
-    "/aktu-daa-notes",
-    "/aktu-pyq",
-    "/aktu-semester-3-notes",
-    "/aktu-semester-4-notes",
-    "/aktu-semester-5-notes",
-    "/aktu-semester-6-notes",
-    "/aktu-data-structure-notes",
-    "/aktu-operating-system-notes",
-    "/aktu-computer-networks-notes",
-    "/aktu-tafl-notes",
-    "/aktu-python-notes"
-  ],
-  "puppeteerArgs": ["--no-sandbox", "--disable-setuid-sandbox"],
-  "waitFor": 2000
-},
+    "source": "dist",
+    "minifyHtml": true,
+    "crawl": false,
+     "inlineCss": true,
+    "include": [
+      "/",
+      "/aktu-dbms-notes",
+      "/aktu-daa-notes",
+      "/aktu-pyq",
+      "/aktu-semester-3-notes",
+      "/aktu-semester-4-notes",
+      "/aktu-semester-5-notes",
+      "/aktu-semester-6-notes",
+      "/aktu-data-structure-notes",
+      "/aktu-operating-system-notes",
+      "/aktu-computer-networks-notes",
+      "/aktu-tafl-notes",
+      "/aktu-python-notes"
+    ],
+    "puppeteerArgs": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
+    ],
+    "waitFor": 2000
+  },
   "dependencies": {
     "@cashfreepayments/cashfree-js": "^1.0.6",
     "@emotion/react": "^11.14.0",
