@@ -349,22 +349,32 @@ function App() {
   //   script.crossOrigin = 'anonymous';
   //   document.head.appendChild(script);
   // }, []);
-  const isLoggedIn = useSelector(state => state?.auth?.isLoggedIn);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const AppLoader = () => (
+  <div className="min-h-screen bg-black flex items-center justify-center">
+    <div className="h-1 w-32 bg-gray-700 rounded overflow-hidden">
+      <div className="h-full bg-white animate-pulse w-1/2"></div>
+    </div>
+  </div>
+);
+const isLoggedIn=useSelector(state=>state?.auth?.isLoggedIn)
+//  const { authInitializing } = useSelector(state => state.auth);
+ useEffect(() => {
+  const token = localStorage.getItem("authToken");
 
-useEffect(() => {
-  setIsHydrated(true);
-}, []);
+  if (token) {
+    dispatch(checkAuth());
+  } else {
+    // If no token, stop initializing immediately
+    dispatch({ type: "auth/stopInitializing" });
+  }
+}, [dispatch]);
 
-if (!isHydrated) {
-  return <div style={{ visibility: "hidden" }} />;
-}
 
   // console.log("isloggedin",isLoggedIn)
   return (
     <div className="App">
       {/* <CookieWarning /> */}
-      <AuthChecker /> {/* ✅ Add this at the top */}
+      {/* <AuthChecker /> ✅ Add this at the top */}
       <PageTracker /> {/* ← OUTSIDE Routes */}
       <SessionTracker /> {/* ← ADD THIS - Will auto-track everything */}
       {/* <SessionInitializer /> */}

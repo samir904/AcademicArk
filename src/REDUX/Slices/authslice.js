@@ -29,6 +29,7 @@ const initialState = {
         }
     })(),
     loading: false,
+    authInitializing: true,
     error: null,
     analytics: null,
     myNotes: [],
@@ -512,6 +513,13 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         clearAuth: clearAuthState,
+        reducers: {
+  clearAuth: clearAuthState,
+  stopInitializing: (state) => {
+    state.authInitializing = false;
+  }
+},
+
     },
     extraReducers: (builder) => {
         builder.addCase(createAccount.pending, (state, action) => {
@@ -554,6 +562,7 @@ const authSlice = createSlice({
             .addCase(checkAuth.pending, (state, action) => {
                 state.loading = true;
                 state.error = null;
+                state.authInitializing= true
             })
             .addCase(checkAuth.fulfilled, (state, action) => {
                 const user = action?.payload?.data || action?.payload;
@@ -571,12 +580,14 @@ const authSlice = createSlice({
                 state.role = user?.role || "";
                 state.data = user;
                 state.loading = false;
+                state.authInitializing=false
                 console.log('✅ Redux auth state updated');
                 // state.authChecked = true; // ✅ ADD THIS
             })
 
             .addCase(checkAuth.rejected, (state) => {
                 state.loading = false;
+                state.authInitializing=false
                 // state.authChecked = true; // ✅ ADD THIS
             })
 
@@ -688,5 +699,6 @@ const authSlice = createSlice({
 
 })
 export const setLoginModal = createAction('auth/setLoginModal');
+export const { stopInitializing } = authSlice.actions;
 
 export default authSlice.reducer;
