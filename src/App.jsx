@@ -350,6 +350,16 @@ function App() {
   //   document.head.appendChild(script);
   // }, []);
   const isLoggedIn = useSelector(state => state?.auth?.isLoggedIn);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+useEffect(() => {
+  setIsHydrated(true);
+}, []);
+
+if (!isHydrated) {
+  return <div style={{ visibility: "hidden" }} />;
+}
+
   // console.log("isloggedin",isLoggedIn)
   return (
     <div className="App">

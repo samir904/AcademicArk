@@ -14,7 +14,7 @@
     "source": "dist",
     "minifyHtml": true,
     "crawl": false,
-    "inlineCss": true,
+    "inlineCss": false,
     "include": [
       "/",
       "/aktu-dbms-notes",
