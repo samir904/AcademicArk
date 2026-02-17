@@ -25,15 +25,23 @@
 
 <meta name="google-site-verification" content="Vlgj2_2zV1h6tpxq4Z-TJLGhCONOwDCotYQCBS5_YUU" />
 <!-- ✨ ADD THIS: Google AdSense Code Snippet -->
-   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9047304299228199"
-     crossorigin="anonymous"></script>
-    
+ <script>
+if (navigator.userAgent !== "ReactSnap") {
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9047304299228199";
+  s.crossOrigin = "anonymous";
+  document.head.appendChild(s);
+}
+</script>
+    <meta name="prerender-status-code" content="200">
+
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <!-- ✨ SERVICE WORKER REGISTRATION - ADD THIS BEFORE CLOSING BODY -->
-    <script>
+    <!-- <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
@@ -47,6 +55,16 @@
       } else {
         console.log('⚠️ Service Workers not supported');
       }
-    </script>
+    </script> -->
+  <script>
+if ('serviceWorker' in navigator && navigator.userAgent !== "ReactSnap") {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log('SW registered'))
+      .catch(() => {});
+  });
+}
+</script>
+
   </body>
 </html>

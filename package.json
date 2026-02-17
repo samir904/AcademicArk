@@ -7,8 +7,31 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postbuild": "react-snap"
   },
+  "reactSnap": {
+  "source": "dist",
+  "minifyHtml": true,
+  "crawl": false,
+  "include": [
+    "/",
+    "/aktu-dbms-notes",
+    "/aktu-daa-notes",
+    "/aktu-pyq",
+    "/aktu-semester-3-notes",
+    "/aktu-semester-4-notes",
+    "/aktu-semester-5-notes",
+    "/aktu-semester-6-notes",
+    "/aktu-data-structure-notes",
+    "/aktu-operating-system-notes",
+    "/aktu-computer-networks-notes",
+    "/aktu-tafl-notes",
+    "/aktu-python-notes"
+  ],
+  "puppeteerArgs": ["--no-sandbox", "--disable-setuid-sandbox"],
+  "waitFor": 2000
+},
   "dependencies": {
     "@cashfreepayments/cashfree-js": "^1.0.6",
     "@emotion/react": "^11.14.0",
@@ -53,6 +76,7 @@
     "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.3.0"
+    "globals": "^16.3.0",
+    "react-snap": "^1.23.0"
   }
 }

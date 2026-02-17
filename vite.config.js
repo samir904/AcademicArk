@@ -7,6 +7,7 @@ export default defineConfig({
     tailwindcss(),
   ],base: '/', // ✅ Important for routing
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    target: 'es2018' // 🔥 ADD THIS
   }
 })

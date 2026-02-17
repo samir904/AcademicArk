@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import useSeo from "../../hooks/useSeo";
@@ -15,34 +15,44 @@ export default function SeoDynamicPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+const isPrerender =
+  typeof navigator !== "undefined" &&
+  navigator.userAgent === "ReactSnap";
 
-  useEffect(() => {
-    const fetchPage = async () => {
-      try {
-        setLoading(true);
-        const res = await axiosInstance.get(`/seo/${slug}`);
-        if (res.data.success) {
-          setData(res.data.data);
-        } else {
-          setError("Page not found");
-        }
-      } catch (err) {
-        console.error("❌ SEO Page Load Error:", err);
-        setError(err.response?.data?.message || "Failed to load page");
-      } finally {
-        setLoading(false);
+  useLayoutEffect(() => {
+  const fetchPage = async () => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get(`/seo/${slug}`);
+
+      if (res.data.success) {
+        setData(res.data.data);
+      } else {
+        setError("Page not found");
       }
-    };
+    } catch (err) {
+      setError("Failed to load page");
+    } finally {
+      setLoading(false);
 
-    fetchPage();
-  }, [slug]);
+      if (typeof window !== "undefined" &&
+          navigator.userAgent === "ReactSnap") {
+        setTimeout(() => {
+          window.snapSaveState = () => true;
+        }, 200);
+      }
+    }
+  };
+
+  fetchPage();
+}, [slug]);
 
   // 🔥 Apply SEO meta tags
   useSeo(data?.seo);
 
   // 📊 Loading State
   if (loading) {
-    return null;
+    return <NotesSkeleton />;
   }
 
   // ❌ Error State
