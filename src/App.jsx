@@ -356,6 +356,20 @@ function App() {
     </div>
   </div>
 );
+useEffect(() => {
+  const root = document.getElementById("root");
+  if (root) {
+    root.style.visibility = "visible";
+  }
+}, []);
+function RootRedirect() {
+  const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
+
+  return isLoggedIn
+    ? <Navigate to="/home" replace />
+    : <Homepage />;
+}
+
 const isLoggedIn=useSelector(state=>state?.auth?.isLoggedIn)
 //  const { authInitializing } = useSelector(state => state.auth);
  useEffect(() => {
@@ -403,7 +417,8 @@ useEffect(() => {
         />
         {/* 🟡 ALL logged-in routes under HomeLayout */}
         <Route element={<HomeLayout />}>
-          <Route path="/" element={isLoggedIn ? <DynamicHome /> : <Homepage />} />
+         <Route path="/" element={<RootRedirect />} />
+<Route path="/home" element={<DynamicHome />} />
           <Route path="/myspace"
             element={
               <Suspense fallback={<MySpaceSkeleton />}>
