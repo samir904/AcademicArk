@@ -530,6 +530,10 @@ const dismissSupportBanner = () => {
 
 
 
+const isHomeActive = () => {
+  const path = window.location.pathname;
+  return path === "/" || path === "/home";
+};
 
 
   return (
@@ -587,11 +591,11 @@ const dismissSupportBanner = () => {
 
                 <div className="flex flex-col items-center gap-1">
                   <Link
-                    to="/"
+                    to={isLoggedIn ? "/home" : "/"}
                     className={`
       flex items-center justify-center
       w-11 h-11 rounded-full transition-all duration-300
-      ${isActive("/")
+      ${isHomeActive()
                         ? "bg-white text-black shadow-md"
                         : "bg-[#1F1F1F] text-gray-400 border border-white/10 hover:bg-[#2A2A2A] hover:text-white"}
     `}
@@ -602,7 +606,7 @@ const dismissSupportBanner = () => {
                   <span
                     className={`
       text-[10px] leading-none
-      ${isActive("/") ? "text-white" : "text-gray-400"}
+      ${isHomeActive() ? "text-white" : "text-gray-400"}
     `}
                   >
                     Home

@@ -67,7 +67,7 @@ const MobileNavigation = ({
         const baseItems = [
             {
                 name: "Home",
-                path: "/",
+                path:isLoggedIn ? "/home" : "/",
                 icon: HomeIcon,
                 label: "Home",
             },
@@ -168,7 +168,9 @@ const MobileNavigation = ({
     // ✅ UPDATED: Track active state for My Space & related pages
     const isActiveLink = (path) => {
         const currentPath = window.location.pathname;
-
+if (path === "/") {
+    return currentPath === "/" || currentPath === "/home";
+  }
         // My Space stays active for all related pages
         if (path === '/myspace') {
             return currentPath === '/myspace' ||
