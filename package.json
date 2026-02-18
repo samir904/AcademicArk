@@ -16,7 +16,6 @@
     "crawl": false,
     "inlineCss": false,
     "include": [
-      "/",
       "/aktu-dbms-notes",
       "/aktu-daa-notes",
       "/aktu-pyq",
