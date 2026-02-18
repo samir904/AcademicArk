@@ -30,6 +30,18 @@
       "/aktu-tafl-notes",
       "/aktu-python-notes"
     ],
+  "exclude": [
+    "/",
+    "/home",
+    "/notes",
+    "/planner",
+    "/search",
+    "/admin",
+    "/downloads",
+    "/support",
+    "/leaderboard",
+    "/profile"
+  ],
     "puppeteerArgs": [
       "--no-sandbox",
       "--disable-setuid-sandbox"
