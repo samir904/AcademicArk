@@ -97,6 +97,10 @@ const useSessionTracker = () => {
     if (isLoggedIn && !sessionActive && !sessionStartedRef.current) {
       sessionStartedRef.current = true;
       console.log("🚀 Starting new session...");
+      console.log("Referer header:", req.get("referer"));
+console.log("Origin header:", req.get("origin"));
+console.log('-----------referer info------------')
+console.log('referer info',...referrerInfo);
       dispatch(startSession({
         ...referrerInfo,
         entryPage: mapPathToPageName(location.pathname)

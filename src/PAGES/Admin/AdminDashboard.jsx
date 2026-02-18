@@ -41,6 +41,7 @@ import SearchManagerDashboard from "../../COMPONENTS/Admin/SearchMetrics/SearchM
 import AdminPaymentsDashboard from "../../COMPONENTS/Admin/Payments/AdminPaymentsDashboard";
 import AdminPaywallAnalyticsDashboard from "../../COMPONENTS/Admin/payAnalytics/AdminPaywallAnalyticsDashboard";
 import FilterAnalyticsDashboard from "../../COMPONENTS/Admin/FilterAnalyticsDashboard";
+import SeoAdminTab from "../../COMPONENTS/Admin/SeoAdminTab";
 // Icons
 const UsersIcon = ({ className }) => (
   <svg
@@ -296,7 +297,7 @@ export default function AdminDashboard() {
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard", "filteranalytics", "requestlogs","session", "querymetrics","searchmetrics","searchmanager", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback","payments","paywallanalytics","Security", "retention"].map(
+              {["dashboard","requestlogs","filteranalytics","seo","session", "querymetrics","searchmetrics","searchmanager", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback","payments","paywallanalytics","Security", "retention"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -342,6 +343,8 @@ export default function AdminDashboard() {
                                             ? "Paywall Analytics"
                                             :tab === "filteranalytics" 
                                             ? "Filter Analytics" 
+                                              : tab === "seo"
+                                                ? "SEO Manager"
                                           // : tab === "videos"
                                           // ? "videos"
                                           : tab}
@@ -1511,6 +1514,9 @@ export default function AdminDashboard() {
 {activeTab === "payments" && <AdminPaymentsDashboard />}
 {activeTab === "paywallanalytics" && <AdminPaywallAnalyticsDashboard />}
 {activeTab === "filteranalytics" && <FilterAnalyticsDashboard />}
+{/* SEO Manager Tab */}
+{activeTab === "seo" && <SeoAdminTab />}
+
         </div>
       </div>
     </PageTransition>
