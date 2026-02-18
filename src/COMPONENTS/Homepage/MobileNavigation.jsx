@@ -206,105 +206,99 @@ const MobileNavigation = ({
   return (
     <>
       {/* ============================================
-          🎨 BOTTOM NAV BAR
-      ============================================ */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40">
-        
-        {/* Glass bar */}
-        <div
-          className="relative mx-3 mb-3 rounded-2xl overflow-hidden"
-          style={{
-            background: "rgba(12, 12, 12, 0.85)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            boxShadow: "0 -1px 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.5)"
-          }}
-        >
-          <div className="flex items-center px-1 py-1">
-            {/* Main Nav Items */}
-            {navItems.map((item) => (
-              <NavItem
-                key={item.name}
-                item={item}
-                isActive={isActiveLink(item.path)}
-                onClick={() => {
-                 if (item.path === "/notes" && isFailedSearch) {
-                                            dispatch(
-                                                logFailedSearchAction({
-                                                    searchAnalyticsId,
-                                                    action: "opened_library",
-                                                    value: "navbar_mobile"
-                                                })
-                                            );
-                                        }
-                  setShowMobileMenu(false);
-                  dispatch(clearSearch());
-                }}
-              />
-            ))}
+    🎨 BOTTOM NAV BAR
+============================================ */}
+<div className="md:hidden fixed bottom-0 left-0 right-0 z-40">
 
+  {/* Subtle top fade */}
+  <div
+    className="absolute top-0 left-0 right-0 h-6 pointer-events-none"
+    style={{
+      background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.3))"
+    }}
+  />
 
-            {/* Divider */}
-            {isLoggedIn && (
-              <div className="w-px h-8 bg-white/[0.06] mx-1 flex-shrink-0" />
-            )}
+  {/* Glass bar - full width, flush to bottom */}
+  <div
+    style={{
+      background: "rgba(12, 12, 12, 0.92)",
+      backdropFilter: "blur(24px)",
+      WebkitBackdropFilter: "blur(24px)",
+      borderTop: "1px solid rgba(255,255,255,0.07)",
+      boxShadow: "0 -1px 0 rgba(255,255,255,0.04)"
+    }}
+  >
+    {/* Nav row */}
+    <div className="flex items-center px-2 pt-2 pb-1">
 
+      {/* Nav Items */}
+      {navItems.map((item) => (
+        <NavItem
+          key={item.name}
+          item={item}
+          isActive={isActiveLink(item.path)}
+          onClick={() => {
+            if (item.path === "/notes" && isFailedSearch) {
+              dispatch(logFailedSearchAction({
+                searchAnalyticsId,
+                action: "opened_library",
+                value: "navbar_mobile"
+              }));
+            }
+            setShowMobileMenu(false);
+            dispatch(clearSearch());
+          }}
+        />
+      ))}
 
-            {/* Profile Button */}
-            {isLoggedIn && (
-              <Link
-                to="/myspace"
-                className="flex flex-col items-center justify-center gap-1 px-2 flex-shrink-0 group"
-              >
-                <div
-                  className={`
-                    relative rounded-full transition-all duration-300 p-0.5
-                    ${isActiveLink("/myspace")
-                      ? "ring-1 ring-white/30"
-                      : "ring-1 ring-white/0 group-hover:ring-white/10"
-                    }
-                  `}
-                >
-                  {/* Avatar */}
-                  <div className="w-8 h-8 rounded-full overflow-hidden">
-                    {userData?.avatar?.secure_url?.startsWith("http") ? (
-                      <img
-                        src={userData.avatar.secure_url}
-                        alt="Profile"
-                        loading="lazy"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full rounded-full h-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white font-semibold text-sm">
-                        {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
-                      </div>
-                    )}
-                  </div>
+      {/* Profile Button */}
+      {isLoggedIn && (
+        <Link
+          to="/myspace"
+          className="flex flex-col items-center justify-center gap-1 px-3 flex-shrink-0 group pb-1"
+        >
+          <div
+            className={`
+              relative rounded-full transition-all duration-300 p-0.5
+              ${isActiveLink("/myspace")
+                ? "ring-2 ring-white/30 ring-offset-1 ring-offset-black"
+                : "ring-1 ring-white/0 group-hover:ring-white/10"
+              }
+            `}
+          >
+            <div className="w-7 h-7 rounded-full overflow-hidden">
+              {userData?.avatar?.secure_url?.startsWith("http") ? (
+                <img
+                  src={userData.avatar.secure_url}
+                  alt="Profile"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white font-semibold text-xs">
+                  {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+              )}
+            </div>
+          </div>
+          <span className={`
+            text-[10px] font-medium tracking-wide transition-colors duration-300
+            ${isActiveLink("/myspace") ? "text-white" : "text-zinc-600 group-hover:text-zinc-400"}
+          `}>
+            My Space
+          </span>
+        </Link>
+      )}
+    </div>
 
+    {/* ✅ iOS safe area fill — covers the home indicator bar */}
+    <div
+      className="w-full"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 12px)" }}
+    />
+  </div>
+</div>
 
-                  {/* Active indicator */}
-                  {/* {isActiveLink("/myspace") && (
-                    <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full" />
-                  )} */}
-                </div>
-
-
-                <span className={`
-                  text-[10px] font-medium tracking-wide transition-colors duration-300
-                  ${isActiveLink("/myspace") ? "text-white" : "text-zinc-600 group-hover:text-zinc-400"}
-                `}>
-                  My Space
-                </span>
-              </Link>
-            )}
-          </div>
-        </div>
-
-
-        {/* Safe area */}
-        <div className="h-1" />
-      </div>
 
 
       {/* ============================================
