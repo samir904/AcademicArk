@@ -398,7 +398,7 @@ useEffect(() => {
       <SessionTracker /> {/* ← ADD THIS - Will auto-track everything */}
       {/* <SessionInitializer /> */}
       <SessionInitializerId />
-{routerReady && (
+{/* {routerReady && ( */}{/** this is used for hyadration ok  */}
       <Routes>
         {/* 🟢 Core Routes */}
 
@@ -772,7 +772,7 @@ useEffect(() => {
         <Route path="*" element={<PageNotFound />} />
 
       </Routes>
-)}
+{/* )} */}
       <PaywallModal />
       <GlobalLoginModal />
     </div>
