@@ -362,7 +362,19 @@ useEffect(() => {
 
 }, [pdfAccess?.mode, currentNote?._id]); 
 
+useEffect(() => {
+  if (!currentNote?._id) return;
 
+  return () => {
+    if (readingTimeRef.current < 5) return; 
+    // ignore accidental opens
+
+    trackView(currentNote._id, {
+      duration: readingTimeRef.current,
+      scrollPercent: Math.round(scrollRefPercent.current)
+    });
+  };
+}, [currentNote?._id]);
  
   if (loading) {
     return (

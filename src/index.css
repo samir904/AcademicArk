@@ -132,6 +132,11 @@ button:focus-visible {
   animation: slide-up 0.3s ease-out;
 }
 
+/* Hide scrollbar but keep scroll functional */
+.overflow-x-auto::-webkit-scrollbar {
+  display: none;
+}
+
 /* 🟢 Your button components must provide their own active state */
 .btn-white, .bg-white {
   @apply text-black hover:bg-gray-100 active:bg-gray-200 transition duration-200;

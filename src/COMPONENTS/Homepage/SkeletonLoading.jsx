@@ -181,3 +181,83 @@ export function DownloadsSkeleton() {
     </div>
   );
 }
+
+
+// ── Reusable pulse block
+const Shimmer = ({ className }) => (
+  <div className={`bg-[#1A1A1A] rounded-lg animate-pulse ${className}`} />
+);
+
+// ============================================
+// 📚 STUDY MATERIAL TODAY SKELETON
+// ============================================
+export function StudyMaterialTodaySkeleton() {
+  return (
+    <div className="mb-16">
+
+      {/* ── Header */}
+      <div className="flex items-start justify-between mb-6">
+        <div className="space-y-2">
+          <Shimmer className="h-3 w-40 rounded-full" />       {/* eyebrow label */}
+          <Shimmer className="h-7 w-56" />                    {/* title */}
+          <Shimmer className="h-3 w-36 rounded-full" />       {/* focusLabel */}
+        </div>
+        <Shimmer className="h-4 w-14 rounded-full mt-1" />    {/* View all */}
+      </div>
+
+      {/* ── Progress bar */}
+      <div className="flex items-center gap-4 mb-6">
+        <div className="flex-1 h-1 bg-[#1A1A1A] rounded-full animate-pulse" />
+        <Shimmer className="h-3 w-20 rounded-full" />
+      </div>
+
+      {/* ── Card rows — show 3 category rows */}
+      <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl">
+        {[1, 2, 3].map((row, i) => (
+          <div
+            key={row}
+            className={`py-5 ${i < 2 ? "border-b border-[#1F1F1F]" : ""}`}
+          >
+            {/* Row label */}
+            <div className="flex items-center gap-2.5 px-6 md:px-8 mb-3">
+              <Shimmer className="w-6 h-6 rounded-lg" />
+              <Shimmer className="h-4 w-28" />
+              <Shimmer className="h-3 w-4 rounded-full" />
+            </div>
+
+            {/* Horizontal cards */}
+            <div
+              className="flex gap-3 overflow-hidden"
+              style={{ paddingLeft: "24px", paddingRight: "24px" }}
+            >
+              {[1, 2, 3].map((card) => (
+                <div
+                  key={card}
+                  className="flex-shrink-0 w-64 bg-[#111111] border
+                    border-[#1F1F1F] rounded-xl p-4 space-y-3"
+                >
+                  {/* Top row: badge + check */}
+                  <div className="flex items-center justify-between">
+                    <Shimmer className="h-3 w-20 rounded-full" />
+                    <Shimmer className="w-4 h-4 rounded-full" />
+                  </div>
+                  {/* Title lines */}
+                  <div className="space-y-1.5">
+                    <Shimmer className="h-3.5 w-full" />
+                    <Shimmer className="h-3.5 w-3/4" />
+                  </div>
+                  {/* Stats */}
+                  <div className="flex items-center gap-4">
+                    <Shimmer className="h-3 w-10 rounded-full" />
+                    <Shimmer className="h-3 w-10 rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+    </div>
+  );
+}

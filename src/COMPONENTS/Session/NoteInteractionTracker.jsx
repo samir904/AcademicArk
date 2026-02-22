@@ -7,13 +7,23 @@ export const useNoteTracking = () => {
     (state) => state.session.currentSession?.sessionId
   );
 
-  const safeDispatch = (payload) => {
+  const safeDispatch = async(payload) => {
     if (!sessionId) return;
     dispatch(trackNoteInteraction({ sessionId, ...payload }));
+    // 2️⃣ Persistent activity log (for resume logic)
+      await logUserActivity({
+        activityType: "NOTE_VIEWED",
+        resourceId: noteId,
+        resourceType: "NOTE",
+        metadata: {
+          viewDuration: metadata.duration || 0,
+          scrollPercent: metadata.scrollPercent || 0
+        }
+      });
   };
 
   return {
-    trackView: (noteId, title) =>
+    trackView: (noteId,metadata={}) =>
       safeDispatch({ noteId, interactionType: "viewed" }),
 
     trackClick: (noteId) =>
