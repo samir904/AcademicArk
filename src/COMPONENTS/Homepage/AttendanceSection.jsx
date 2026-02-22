@@ -1,10 +1,16 @@
 import { Calendar, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useSectionTracker } from '../../hooks/useSectionTracker';
+import { useTracker }        from '../../CONTEXT/HomepageTrackerContext';
 
 export default function AttendanceSection({ attendance }) {
+  // ✅ ALL hooks BEFORE conditional return
+  const sectionRef     = useSectionTracker("attendance");
+  const { trackClick } = useTracker();
+
   if (!attendance || !attendance.hasData) {
     return (
-      <div className="mb-16">
+      <div ref={sectionRef} className="mb-16">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <Calendar className="w-6 h-6 text-blue-400" />
@@ -20,7 +26,10 @@ export default function AttendanceSection({ attendance }) {
           <p className="text-[#9CA3AF] mb-6">
             Attendance information will be available once your attendance is tracked.
           </p>
-          <Link to="/attendance">
+          <Link to="/attendance" onClick={() => trackClick("attendance", {
+              ctaLabel:     "Start Managing Attendance",
+              resourceType: "LINK",
+            })}>
             <button className="w-full md:w-auto bg-[#9CA3AF] hover:bg-white text-black px-8 py-3 rounded-full font-semibold transition-all duration-300 inline-flex items-center justify-center gap-2">
               Start Managing Attendance
               <ArrowRight className="w-4 h-4" />
@@ -52,7 +61,7 @@ export default function AttendanceSection({ attendance }) {
   };
 
   return (
-    <div className="mb-16">
+    <div ref={sectionRef} className="mb-16">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <Calendar className="w-6 h-6 text-blue-400" />
@@ -62,6 +71,10 @@ export default function AttendanceSection({ attendance }) {
         </div>
         <Link 
           to="/attendance" 
+          onClick={() => trackClick("attendance", {
+            ctaLabel:     "Details header link",
+            resourceType: "LINK",
+          })}
           className="text-[#9CA3AF] hover:text-white text-sm font-medium transition"
         >
           Details →
@@ -135,7 +148,10 @@ export default function AttendanceSection({ attendance }) {
                 </p>
               </div>
             </div>
-            <Link to="/attendance">
+            <Link to="/attendance" onClick={() => trackClick("attendance", {
+                ctaLabel:     "View Details",
+                resourceType: "LINK",
+              })}>
               <button className="w-full bg-[#9CA3AF] hover:bg-white text-black px-4 py-2 rounded-full font-semibold transition-all duration-300 text-sm">
                 View Details →
               </button>

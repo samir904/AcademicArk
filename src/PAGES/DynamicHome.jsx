@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';   // ✅ add useRef
 import { useDispatch, useSelector } from 'react-redux';
+import { HomepageTrackerProvider } from '../CONTEXT/HomepageTrackerContext';
 import { fetchPersonalizedHome, invalidateHomepageCache } from '../REDUX/Slices/homepageSlice';
 import GreetingSection           from '../COMPONENTS/Homepage/GreetingSection';
 import ContinueWhereSection      from '../COMPONENTS/Homepage/ContinueWhereSection';
@@ -76,6 +77,7 @@ export default function DynamicHome() {
   }
 
   return (
+    <HomepageTrackerProvider> 
     <PageTransition>
       <div className="min-h-screen bg-[#0B0B0B] text-white">
         <BackgroundLines svgOptions={{ duration: 10 }}>
@@ -156,5 +158,6 @@ export default function DynamicHome() {
         </BackgroundLines>
       </div>
     </PageTransition>
+    </HomepageTrackerProvider>
   );
 }

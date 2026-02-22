@@ -42,6 +42,7 @@ import AdminPaymentsDashboard from "../../COMPONENTS/Admin/Payments/AdminPayment
 import AdminPaywallAnalyticsDashboard from "../../COMPONENTS/Admin/payAnalytics/AdminPaywallAnalyticsDashboard";
 import FilterAnalyticsDashboard from "../../COMPONENTS/Admin/FilterAnalyticsDashboard";
 import SeoAdminTab from "../../COMPONENTS/Admin/SeoAdminTab";
+import HomepageAnalyticsDashboard from "../../COMPONENTS/Admin/HomepageAnalyticsDashboard";
 // Icons
 const UsersIcon = ({ className }) => (
   <svg
@@ -297,7 +298,7 @@ export default function AdminDashboard() {
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard","requestlogs","filteranalytics","seo","session", "querymetrics","searchmetrics","searchmanager", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback","payments","paywallanalytics","Security", "retention"].map(
+              {["dashboard","requestlogs","homepageanalytics","filteranalytics","seo","session", "querymetrics","searchmetrics","searchmanager", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback","payments","paywallanalytics","Security", "retention"].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -345,6 +346,8 @@ export default function AdminDashboard() {
                                             ? "Filter Analytics" 
                                               : tab === "seo"
                                                 ? "SEO Manager"
+                                                 :tab === "homepageanalytics" 
+                                                 ? "Homepage Analytics" 
                                           // : tab === "videos"
                                           // ? "videos"
                                           : tab}
@@ -1516,7 +1519,8 @@ export default function AdminDashboard() {
 {activeTab === "filteranalytics" && <FilterAnalyticsDashboard />}
 {/* SEO Manager Tab */}
 {activeTab === "seo" && <SeoAdminTab />}
-
+{/* // In your tab renders — add: */}
+{activeTab === "homepageanalytics" && <HomepageAnalyticsDashboard />}
         </div>
       </div>
     </PageTransition>

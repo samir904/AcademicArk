@@ -5,34 +5,47 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useSessionTracker } from "../Session/SessionTracker"; // adjust path
 import { useRef } from 'react';
+import { useSectionTracker } from '../../hooks/useSectionTracker';
+import { useTracker } from '../../CONTEXT/HomepageTrackerContext';
 
 export default function RecommendedNotesSection({ recommended }) {
+       const sectionRef = useSectionTracker("recommended");  // ✅ auto impression
+    const { trackClick } = useTracker();
+
     if (!recommended.hasData) {
         return null;
     }
-  const { trackClickEvent } = useSessionTracker();
+    const { trackClickEvent } = useSessionTracker();
     const sessionId = useSelector(
-  (state) => state.session.currentSession?.sessionId
-);
-
+        (state) => state.session.currentSession?.sessionId
+    );
+ 
     return (
-        <div className="mb-16">
+        <div ref={sectionRef} className="mb-16">
             {/* Header with view all */}
             <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-semibold text-white">
                     Recommended for you
                 </h2>
-                <Link to="/notes" className="text-[#9CA3AF] hover:text-white text-sm font-medium transition">
+                <Link to="/notes" 
+                onClick={() => trackClick("recommended", {
+            ctaLabel:     "View all header link",
+            resourceType: "LINK",
+          })} className="text-[#9CA3AF] hover:text-white text-sm font-medium transition">
                     View all →
                 </Link>
             </div>
 
             {/* Horizontal scroll cards */}
             <div className="flex overflow-x-auto gap-4 pb-2 -mx-4 px-4 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4">
-                {recommended.notes.map((note) => (
-                    <Link key={note.id} to={`/notes/${note.id}/read`}>
+                {recommended.notes.map((note,index) => (
+                    <Link key={note.id} to={`/notes/${note.id}/read`} onClick={() => trackClick("recommended", {
+                        resourceId: note.id,
+                        resourceType: "NOTE",
+                        position: index,
+                    })}>
                         <div className="flex-shrink-0 w-80 md:w-full bg-[#0F0F0F] border border-[#1F1F1F] rounded-xl p-6 hover:border-[#9CA3AF] transition-all duration-300 cursor-pointer group">
-                            
+
                             {/* Subject */}
                             <p className="text-[#9CA3AF] text-xs font-semibold uppercase tracking-wider mb-3">
                                 {note.subject}
@@ -52,7 +65,7 @@ export default function RecommendedNotesSection({ recommended }) {
 
                             {/* Stats */}
                             <div className="flex gap-2 text-xs text-[#9CA3AF] mb-4 pb-4 border-b border-[#1F1F1F]">
-                                 <span className="text-[#4B5563]"><CircleArrowDown className='w-4 h-4' /></span>
+                                <span className="text-[#4B5563]"><CircleArrowDown className='w-4 h-4' /></span>
                                 <span>{note.downloads} downloads</span>
                                 <span>•</span>
                                 <span className="text-[#4B5563]"><Eye className='w-4 h-4' /></span>

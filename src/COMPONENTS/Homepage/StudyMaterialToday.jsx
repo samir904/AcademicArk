@@ -12,6 +12,8 @@ import {
   FileX,
 } from "lucide-react";
 import { useRef, useState, useEffect } from "react";   // ✅ ADD
+import { useSectionTracker } from '../../hooks/useSectionTracker';
+import { useTracker } from '../../CONTEXT/HomepageTrackerContext';
 
 // ============================================
 // 🎯 CATEGORY CONFIG
@@ -42,9 +44,10 @@ const CATEGORY_CONFIG = {
 // ============================================
 // 🎯 SINGLE NOTE CARD
 // ============================================
-const NoteCard = ({ item, isLastViewed }) => (
+const NoteCard = ({ item, isLastViewed,onCardClick  }) => (
   <Link
     to={`/notes/${item.id}/read`}
+    onClick={() => onCardClick?.(item)}          // ✅ called from parent
     className={`
       flex-shrink-0 w-64 bg-[#111111] border rounded-xl p-4
       transition-all duration-300 cursor-pointer group relative block
@@ -111,7 +114,7 @@ const EmptyRow = ({ text }) => (
 // ============================================
 // 🎯 CATEGORY ROW
 // ============================================
-const CategoryRow = ({ section, lastViewedId }) => {
+const CategoryRow = ({ section, lastViewedId, trackClick }) => {
   const cfg = CATEGORY_CONFIG[section.category];
   if (!cfg) return null;
   const Icon = cfg.icon;
@@ -176,11 +179,17 @@ const CategoryRow = ({ section, lastViewedId }) => {
               msOverflowStyle: "none",
             }}
           >
-            {section.items.map((item) => (
+            {section.items.map((item,index) => (
               <NoteCard
                 key={item.id}
                 item={item}
                 isLastViewed={item.id === lastViewedId}
+                onCardClick={(note) => trackClick("study_material_today", {
+          resourceId:   note.id,
+          resourceType: "NOTE",
+          position:     index,
+          cardSection:  section.category,    // "notes" | "pyq" | "imp" etc.
+        })}
               />
             ))}
           </div>
@@ -265,6 +274,10 @@ const ProgressBar = ({ completed, total, percentage }) => (
 // 🎯 MAIN COMPONENT
 // ============================================
 export default function StudyMaterialToday({ data }) {
+    // ✅ Hooks at top of main component
+  const sectionRef     = useSectionTracker("study_material_today");
+  const { trackClick } = useTracker();
+
   if (!data?.hasData || !data?.sections?.length) return null;
 
   const {
@@ -280,7 +293,7 @@ export default function StudyMaterialToday({ data }) {
   const isUnitComplete = progress?.percentage === 100;
 
   return (
-    <div className="mb-16">
+    <div ref={sectionRef} className="mb-16"> {/* ✅ ref ATTACHED HERE */}
 
       {/* ── Section header */}
       <div className="flex items-start justify-between mb-6">
@@ -298,6 +311,10 @@ export default function StudyMaterialToday({ data }) {
 
         <Link
           to={`/notes?subject=${encodeURIComponent(subject)}&unit=${unit}`}
+          onClick={() => trackClick("study_material_today", {
+            ctaLabel:     "View all header link",
+            resourceType: "LINK",
+          })}
           className="flex items-center gap-1 text-[#9CA3AF] hover:text-white
             text-sm font-medium transition-colors flex-shrink-0 mt-1"
         >
@@ -348,6 +365,7 @@ export default function StudyMaterialToday({ data }) {
             <CategoryRow
               section={section}
               lastViewedId={lastViewedId}
+              trackClick={trackClick}           // ✅ passed down as prop
             />
           </div>
         ))}

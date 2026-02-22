@@ -1,13 +1,19 @@
 import { Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useSectionTracker }   from '../../hooks/useSectionTracker';
+import { useTracker }          from '../../CONTEXT/HomepageTrackerContext';
 
 export default function LeaderboardSection({ leaderboard }) {
+  // ✅ ALL hooks BEFORE conditional return
+  const sectionRef     = useSectionTracker("leaderboard");
+  const { trackClick } = useTracker();
+
   if (!leaderboard || !leaderboard.hasData || !leaderboard.topEntries || leaderboard.topEntries.length === 0) {
     return null;
   }
 
   return (
-    <div className="mb-12">
+    <div ref={sectionRef}  className="mb-12">
       <div className="flex items-center gap-2 mb-6">
         <Trophy className="w-5 h-5 text-yellow-400" />
         <h2 className="text-lg font-semibold text-white">Top Performers</h2>
@@ -28,7 +34,10 @@ export default function LeaderboardSection({ leaderboard }) {
         ))}
       </div>
 
-      <Link to="/leaderboard" className="inline-block mt-4 text-[#9CA3AF] hover:text-white text-sm font-medium transition">
+      <Link to="/leaderboard" onClick={() => trackClick("leaderboard", {
+          ctaLabel:    "View full leaderboard",
+          resourceType: "LINK",
+        })} className="inline-block mt-4 text-[#9CA3AF] hover:text-white text-sm font-medium transition">
         View full →
       </Link>
     </div>

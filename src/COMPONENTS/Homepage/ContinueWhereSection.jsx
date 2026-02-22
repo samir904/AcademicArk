@@ -2,8 +2,13 @@ import { Link } from 'react-router-dom';
 import { Eye, CircleArrowDown, BookOpen, ArrowRight } from 'lucide-react';
 import { useSelector } from "react-redux";
 import { useSessionTracker } from "../Session/SessionTracker";
+import { useSectionTracker } from '../../hooks/useSectionTracker';
+import { useTracker } from '../../CONTEXT/HomepageTrackerContext';
 
 export default function ContinueWhereSection({ continue: continueData }) {
+ // ✅ ALL hooks BEFORE any conditional return
+  const sectionRef     = useSectionTracker("continue_where");
+  const { trackClick } = useTracker();
 
   // ✅ ALL hooks at top — before any conditional return
   const { trackClickEvent } = useSessionTracker();
@@ -17,7 +22,7 @@ export default function ContinueWhereSection({ continue: continueData }) {
   // ── Suggestion type
   if (continueData.type === 'SUGGESTION') {
     return (
-      <div className="mb-16">
+      <div ref={sectionRef} className="mb-16">
         <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl p-10 md:p-12">
           <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-widest mb-3">
             Start learning
@@ -28,6 +33,9 @@ export default function ContinueWhereSection({ continue: continueData }) {
           {/* ✅ Link styled as button — no nested <button> */}
           <Link
             to={continueData.link || '/notes'}
+            onClick={() => trackClick("continue_where", {
+                ctaLabel:continueData.action,
+              })}
             className="inline-flex items-center gap-2 bg-[#9CA3AF] hover:bg-white
               text-black px-8 py-3 rounded-full font-semibold
               transition-all duration-300"
@@ -45,7 +53,7 @@ export default function ContinueWhereSection({ continue: continueData }) {
   if (!note) return null;
 
   return (
-    <div className="mb-16">
+    <div ref={sectionRef} className="mb-16">
       <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-2xl overflow-hidden">
 
         {/* ── Label bar */}
@@ -95,13 +103,11 @@ export default function ContinueWhereSection({ continue: continueData }) {
           <div className="pt-2">
             <Link
               to={`/notes/${note.id}/read`}
-              onClick={() =>
-                trackClickEvent?.({
-                  resourceId: note.id,
-                  resourceType: "NOTE",
-                  sessionId,
-                })
-              }
+              onClick={() => trackClick("continue_where", {
+                resourceId:   note.id,
+                resourceType: "NOTE",
+                ctaLabel:     continueData.action,
+              })}
               className="inline-flex items-center gap-2
                 w-full md:w-auto justify-center md:justify-start
                 bg-[#9CA3AF] hover:bg-white text-black

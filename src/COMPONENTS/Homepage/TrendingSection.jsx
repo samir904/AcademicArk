@@ -4,8 +4,14 @@ import { Link } from 'react-router-dom';
 import { useSessionTracker } from '../Session/SessionTracker';
 import { useEffect } from 'react';
 import { useRef } from 'react';
+import { useSectionTracker } from '../../hooks/useSectionTracker';
+import { useTracker } from '../../CONTEXT/HomepageTrackerContext';
 
 export default function TrendingSection({ trending }) {
+     // ✅ ALL hooks BEFORE any conditional return
+  const sectionRef     = useSectionTracker("trending");
+  const { trackClick } = useTracker();
+
     if (!trending.hasData) {
         return null;
     }
@@ -16,7 +22,7 @@ export default function TrendingSection({ trending }) {
 
 
     return (
-        <div className="mb-12">
+        <div ref={sectionRef} className="mb-12">
             {/* Header */}
             <div className="flex items-center gap-2 mb-6">
                 {/* <span className="text-2xl">🔥</span> */}
@@ -28,7 +34,11 @@ export default function TrendingSection({ trending }) {
             {/* Trending list - minimal */}
             <div className="space-y-2">
                 {trending.notes.map((note, index) => (
-                    <Link key={note.id} to={`/notes/${note.id}/read`}>
+                    <Link key={note.id} to={`/notes/${note.id}/read`} onClick={() => trackClick("trending", {
+              resourceId:   note.id,
+              resourceType: "NOTE",
+              position:     index,
+            })}>
                         <div className="group bg-[#0F0F0F] border border-[#1F1F1F] rounded-lg p-4 hover:border-[#9CA3AF] hover:bg-[#111111] transition-all duration-300 cursor-pointer">
                             
                             <div className="flex items-start gap-4">
