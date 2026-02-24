@@ -489,7 +489,7 @@ const logsSlice = createSlice({
       .addCase(fetchTrafficHeatmap.fulfilled, (state, { payload }) => {
         state.trafficHeatmap.loading = false;
         state.trafficHeatmap.data    = payload.data;
-        state.errorBreakdown.hours   = payload.hours; // ✅
+        state.trafficHeatmap.hours   = payload.hours; // ✅
       })
       .addCase(fetchTrafficHeatmap.rejected,  (state, { payload }) => { state.trafficHeatmap.loading = false; state.trafficHeatmap.error = payload; })
 
@@ -499,7 +499,7 @@ const logsSlice = createSlice({
       .addCase(fetchTopEndpoints.fulfilled, (state, { payload }) => {
         state.topEndpoints.loading = false;
         state.topEndpoints.data    = payload.data;
-        state.errorBreakdown.hours   = payload.hours; // ✅
+        state.topEndpoints.hours   = payload.hours; // ✅
       })
       .addCase(fetchTopEndpoints.rejected,  (state, { payload }) => { state.topEndpoints.loading = false; state.topEndpoints.error = payload; })
 
@@ -509,7 +509,7 @@ const logsSlice = createSlice({
       .addCase(fetchTopUsers.fulfilled, (state, { payload }) => {
         state.topUsers.loading = false;
         state.topUsers.data    = payload.data;
-        state.errorBreakdown.hours   = payload.hours; // ✅
+        state.topUsers.hours   = payload.hours; // ✅
       })
       .addCase(fetchTopUsers.rejected,  (state, { payload }) => { state.topUsers.loading = false; state.topUsers.error = payload; })
 
@@ -544,7 +544,7 @@ const logsSlice = createSlice({
       .addCase(fetchUserBehaviorSignals.fulfilled, (state, { payload }) => {
         state.userBehavior.loading = false;
         state.userBehavior.data    = payload.data;
-        state.deviceIntelligence.hours   = payload.hours; // ✅
+        state.userBehavior.hours   = payload.hours; // ✅
       })
       .addCase(fetchUserBehaviorSignals.rejected,  (state, { payload }) => { state.userBehavior.loading = false; state.userBehavior.error = payload; });
   },

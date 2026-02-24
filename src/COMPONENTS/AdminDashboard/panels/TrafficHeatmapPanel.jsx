@@ -43,6 +43,12 @@ const buildGrid = (data) => {
   });
   return grid;
 };
+// ✅ FIX 1 — Better hour formatter (readable labels)
+const fmtHour = (h) => {
+  if (h === 0)  return '12 AM';
+  if (h === 12) return '12 PM';
+  return h < 12 ? `${h} AM` : `${h - 12} PM`;
+};
 
 const getCellValue = (cell, mode) => {
   if (!cell) return 0;
@@ -68,8 +74,8 @@ const Tooltip = ({ cell, day, hour, visible }) => {
       bg-[#1A1A1A] border border-[#3F3F3F] rounded-xl p-3 w-44
       shadow-xl pointer-events-none">
       <p className="text-xs font-semibold text-white mb-2">
-        {WEEKDAY_LABELS[day]} {HOUR_LABELS[hour]}:00
-      </p>
+  {WEEKDAY_LABELS[day]}, {fmtHour(hour)}
+</p>
       <div className="space-y-1">
         {[
           { label: 'Requests', val: cell.requests,        color: 'text-blue-400'  },
@@ -199,9 +205,12 @@ export default function TrafficHeatmapPanel() {
   const peakEntry = raw.reduce((best, d) =>
     d.requests > (best?.requests || 0) ? d : best, null
   );
-  const peakLabel = peakEntry
-    ? `${WEEKDAY_LABELS[peakEntry.weekday]} ${HOUR_LABELS[peakEntry.hour]}:00`
-    : '—';
+  
+// ✅ FIX 2 — peakLabel without :00
+const peakLabel = peakEntry
+  ? `${WEEKDAY_LABELS[peakEntry.weekday]}, ${fmtHour(peakEntry.hour)}`
+  : '—';
+
 
   // ── Per-day summary
   const daySummary = DAYS.map(day => ({
@@ -321,7 +330,7 @@ export default function TrafficHeatmapPanel() {
               {HOURS.map(h => (
                 <div key={h} className="flex-1 text-center">
                   <span className="text-[9px] text-[#3F3F3F]">
-                    {h % 3 === 0 ? HOUR_LABELS[h] : ''}
+                    {h % 3 === 0 ? fmtHour(h) : ''}
                   </span>
                 </div>
               ))}
