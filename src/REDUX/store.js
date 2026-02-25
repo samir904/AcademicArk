@@ -36,6 +36,7 @@ import adminPaywallReducer from './Slices/adminPaywallSlice.js'
 import filterAnalyticsReducer from './Slices/filterAnalyticsSlice.js'
 import seoAdminReducer from './Slices/seoAdminSlice.js'
 import homepageAnalyticsReducer from './Slices/homepageAnalyticsSlice.js'
+import cloudinaryReducer from './Slices/cloudinarySlice.js';
 //  import videoReducer from './Slices/videoSlice.js'
 // import logsReducer  from './Slices/logsSlice.js'
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
@@ -74,6 +75,7 @@ const store = configureStore({
     searchAdminManage:searchAdminManageReducer,
     searchAnalytics:searchAnalyticsReducer,
     homepageAnalytics: homepageAnalyticsReducer,   // ✅ ADD
+    cloudinary: cloudinaryReducer,  // ✅ ADD
 
     plans: planReducer,
     payment:paymentReducer,

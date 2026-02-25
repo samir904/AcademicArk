@@ -2,6 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  Server   as ServerIcon,
+  Monitor  as MonitorIcon,
+  Code     as CodeIcon,
+  RefreshCw,
+} from 'lucide-react';
+
+import {
   getDashboardStats,
   getAllUsers,
   getAllNotesAdmin,
@@ -43,6 +50,7 @@ import AdminPaywallAnalyticsDashboard from "../../COMPONENTS/Admin/payAnalytics/
 import FilterAnalyticsDashboard from "../../COMPONENTS/Admin/FilterAnalyticsDashboard";
 import SeoAdminTab from "../../COMPONENTS/Admin/SeoAdminTab";
 import HomepageAnalyticsDashboard from "../../COMPONENTS/Admin/HomepageAnalyticsDashboard";
+import CloudinaryDashboard from "../../COMPONENTS/Admin/CloudinaryDashboard";
 // Icons
 const UsersIcon = ({ className }) => (
   <svg
@@ -266,6 +274,23 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
+// ─────────────────────────────────────────────
+// 🧩 HELPERS
+// ─────────────────────────────────────────────
+const cpuColor  = (v) => v > 80 ? 'text-red-400'    : v > 50 ? 'text-yellow-400' : 'text-green-400';
+const cpuBg     = (v) => v > 80 ? 'bg-red-500'      : v > 50 ? 'bg-yellow-500'   : 'bg-green-500';
+const cpuCard   = (v) => v > 80 ? 'bg-red-500/5 border-red-500/15'
+                        : v > 50 ? 'bg-yellow-500/5 border-yellow-500/15'
+                        :          'bg-green-500/5 border-green-500/15';
+
+const memColor  = (v) => v > 80 ? 'text-red-400'    : v > 60 ? 'text-orange-400' : 'text-purple-400';
+const memBg     = (v) => v > 80 ? 'bg-red-500'      : v > 60 ? 'bg-orange-500'   : 'bg-purple-500';
+
+const rtColor   = (ms) => ms > 2000 ? 'text-red-400' : ms > 1000 ? 'text-orange-400' : ms > 500 ? 'text-yellow-400' : 'text-green-400';
+
+const cpuVal  = parseFloat(serverMetrics?.cpu?.usage     ?? 0);
+const memVal  = parseFloat(serverMetrics?.memory?.percentage ?? 0);
+const rtVal   = parseFloat(serverMetrics?.requests?.avgResponseTime ?? 0);
 
   if (loading && !dashboardStats) {
     return (
@@ -298,7 +323,7 @@ export default function AdminDashboard() {
         <div className="bg-gray-900/50 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex space-x-8 overflow-x-auto">
-              {["dashboard","requestlogs","homepageanalytics","filteranalytics","seo","session", "querymetrics","searchmetrics","searchmanager", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback","payments","paywallanalytics","Security", "retention"].map(
+              {["dashboard","requestlogs","homepageanalytics","filteranalytics","seo","session", "querymetrics","searchmetrics","searchmanager", "users", "loginLogs", "loginanalytics", "notes", "academic", "colleges", "logs", "requests", "feedback","payments","paywallanalytics","Security", "retention", "cloudinary",].map(
                 (tab) => (
                   <button
                     key={tab}
@@ -348,6 +373,8 @@ export default function AdminDashboard() {
                                                 ? "SEO Manager"
                                                  :tab === "homepageanalytics" 
                                                  ? "Homepage Analytics" 
+                                                  : tab === "cloudinary"   
+                                                   ? "Cloudinary"    // ✅ ADD
                                           // : tab === "videos"
                                           // ? "videos"
                                           : tab}
@@ -404,140 +431,226 @@ export default function AdminDashboard() {
               </div>
 
               {/* Server Health Section */}
-              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-white">
-                    Server Health
-                  </h3>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => setAutoRefresh(!autoRefresh)}
-                      className={`px-3 py-1 rounded-lg text-sm ${autoRefresh
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-gray-700 text-gray-400"
-                        }`}
-                    >
-                      {autoRefresh ? "● Live" : "○ Paused"}
-                    </button>
-                    <button
-                      onClick={() => dispatch(getServerMetrics())}
-                      className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg text-sm hover:bg-blue-500/30"
-                    >
-                      Refresh
-                    </button>
-                  </div>
-                </div>
+              <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-xl overflow-hidden">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {/* CPU Usage */}
-                  <div className="bg-gray-800/50 rounded-xl p-4">
-                    <div className="text-gray-400 text-sm mb-2">CPU Usage</div>
-                    <div className="flex items-end space-x-2">
-                      <span className="text-3xl font-bold text-blue-400">
-                        {serverMetrics.cpu.usage ?? "--"}%
-                      </span>
-                      <span className="text-gray-500 text-sm mb-1">
-                        {serverMetrics.cpu.cores ?? "--"} cores
-                      </span>
-                    </div>
-                    <div className="mt-3 h-2 bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all duration-500 ${parseFloat(serverMetrics.cpu.usage ?? "--") > 80
-                          ? "bg-red-500"
-                          : parseFloat(serverMetrics.cpu.usage ?? "--") > 50
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
-                          }`}
-                        style={{ width: `${serverMetrics.cpu.usage ?? "--"}%` }}
-                      />
-                    </div>
-                  </div>
+  {/* ── Header */}
+  <div className="flex items-center justify-between px-5 py-4
+    border-b border-[#1A1A1A]">
+    <div className="flex items-center gap-3">
+      <div className="w-8 h-8 bg-[#141414] border border-[#2F2F2F]
+        rounded-lg flex items-center justify-center">
+        <ServerIcon className="w-4 h-4 text-blue-400" />
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold text-white">Server Health</h3>
+        <p className="text-[11px] text-[#4B5563] mt-0.5">
+          Real-time system metrics
+        </p>
+      </div>
+    </div>
 
-                  {/* Memory Usage */}
-                  <div className="bg-gray-800/50 rounded-xl p-4">
-                    <div className="text-gray-400 text-sm mb-2">
-                      Memory Usage
-                    </div>
-                    <div className="flex items-end space-x-2">
-                      <span className="text-3xl font-bold text-purple-400">
-                        {serverMetrics.memory.percentage ?? "--"}%
-                      </span>
-                      <span className="text-gray-500 text-sm mb-1">
-                        {serverMetrics.memory.used}/
-                        {serverMetrics.memory.total ?? "--"} GB
-                      </span>
-                    </div>
-                    <div className="mt-3 h-2 bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all duration-500 ${parseFloat(serverMetrics.memory.percentage ?? "--") >
-                          80
-                          ? "bg-red-500"
-                          : parseFloat(
-                            serverMetrics.memory.percentage ?? "--"
-                          ) > 50
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
-                          }`}
-                        style={{
-                          width: `${serverMetrics.memory.percentage ?? "--"}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
+    <div className="flex items-center gap-2">
+      {/* Live / Paused toggle */}
+      <button
+        onClick={() => setAutoRefresh(!autoRefresh)}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+          border text-xs font-semibold transition-all ${
+          autoRefresh
+            ? 'bg-green-500/10 border-green-500/20 text-green-400'
+            : 'bg-[#141414] border-[#2F2F2F] text-[#4B5563]'
+        }`}
+      >
+        <span className={`w-1.5 h-1.5 rounded-full ${
+          autoRefresh ? 'bg-green-400 animate-pulse' : 'bg-[#4B5563]'
+        }`} />
+        {autoRefresh ? 'Live' : 'Paused'}
+      </button>
 
-                  {/* Avg Response Time */}
-                  <div className="bg-gray-800/50 rounded-xl p-4">
-                    <div className="text-gray-400 text-sm mb-2">
-                      Avg Response Time
-                    </div>
-                    <div className="flex items-end space-x-2">
-                      <span className="text-3xl font-bold text-green-400">
-                        {serverMetrics.requests.avgResponseTime ?? "--"}
-                      </span>
-                      <span className="text-gray-500 text-sm mb-1">ms</span>
-                    </div>
-                    <div className="text-gray-500 text-xs mt-2">
-                      {serverMetrics.requests.total ?? "--"} total requests
-                    </div>
-                  </div>
+      {/* Refresh */}
+      <button
+        onClick={() => dispatch(getServerMetrics())}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+          bg-[#141414] border border-[#2F2F2F] text-xs text-[#6B7280]
+          hover:text-white hover:border-[#4B5563] transition-all"
+      >
+        <RefreshCw className="w-3.5 h-3.5" />
+        Refresh
+      </button>
+    </div>
+  </div>
 
-                  {/* Uptime */}
-                  <div className="bg-gray-800/50 rounded-xl p-4">
-                    <div className="text-gray-400 text-sm mb-2">
-                      Server Uptime
-                    </div>
-                    <div className="text-2xl font-bold text-yellow-400">
-                      {serverMetrics.uptime.hours ?? "--"}h{" "}
-                      {serverMetrics.uptime.minutes ?? "--"}m
-                    </div>
-                    <div className="text-gray-500 text-xs mt-2">
-                      {serverMetrics.errors.total ?? "--"} errors logged
-                    </div>
-                  </div>
-                </div>
+  {/* ── 4 Metric Cards */}
+  <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#1A1A1A]">
 
-                {/* System Info */}
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 border-t border-white/10">
-                  <div>
-                    <span className="text-gray-400 text-sm">Platform:</span>
-                    <span className="text-white ml-2 font-medium">
-                      {serverMetrics.system.platform ?? "--"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-400 text-sm">Node Version:</span>
-                    <span className="text-white ml-2 font-medium">
-                      {serverMetrics.system.nodeVersion ?? "--"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-400 text-sm">Hostname:</span>
-                    <span className="text-white ml-2 font-medium">
-                      {serverMetrics.system.hostname ?? "--"}
-                    </span>
-                  </div>
-                </div>
-              </div>
+    {/* CPU */}
+    <div className={`bg-[#0F0F0F] p-5 space-y-3`}>
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] text-[#4B5563] uppercase tracking-wider font-semibold">
+          CPU Usage
+        </p>
+        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md
+          border ${cpuCard(cpuVal)}`}
+          style={{ color: cpuVal > 80 ? '#f87171' : cpuVal > 50 ? '#facc15' : '#4ade80' }}>
+          {cpuVal > 80 ? 'HIGH' : cpuVal > 50 ? 'MED' : 'OK'}
+        </span>
+      </div>
+
+      <div className="flex items-end gap-2">
+        <span className={`text-3xl font-bold ${cpuColor(cpuVal)}`}>
+          {serverMetrics?.cpu?.usage ?? '—'}
+        </span>
+        <span className="text-[#4B5563] text-sm mb-1">%</span>
+        <span className="text-[#4B5563] text-xs mb-1 ml-auto">
+          {serverMetrics?.cpu?.cores ?? '—'} cores
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-700 ${cpuBg(cpuVal)}`}
+          style={{ width: `${Math.min(cpuVal, 100)}%`, opacity: 0.75 }}
+        />
+      </div>
+      <p className="text-[10px] text-[#4B5563]">
+        {100 - cpuVal > 0 ? `${(100 - cpuVal).toFixed(1)}% idle` : 'Maxed out'}
+      </p>
+    </div>
+
+    {/* Memory */}
+    <div className="bg-[#0F0F0F] p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] text-[#4B5563] uppercase tracking-wider font-semibold">
+          Memory
+        </p>
+        <span className="text-[10px] text-[#4B5563]">
+          {serverMetrics?.memory?.used ?? '—'} /
+          {serverMetrics?.memory?.total ?? '—'} GB
+        </span>
+      </div>
+
+      <div className="flex items-end gap-2">
+        <span className={`text-3xl font-bold ${memColor(memVal)}`}>
+          {serverMetrics?.memory?.percentage ?? '—'}
+        </span>
+        <span className="text-[#4B5563] text-sm mb-1">%</span>
+        <span className="text-[#4B5563] text-xs mb-1 ml-auto">
+          {serverMetrics?.memory?.free ?? '—'} GB free
+        </span>
+      </div>
+
+      <div className="h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-700 ${memBg(memVal)}`}
+          style={{ width: `${Math.min(memVal, 100)}%`, opacity: 0.75 }}
+        />
+      </div>
+      <p className="text-[10px] text-[#4B5563]">
+        Used: {serverMetrics?.memory?.used ?? '—'} GB
+      </p>
+    </div>
+
+    {/* Avg Response Time */}
+    <div className="bg-[#0F0F0F] p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] text-[#4B5563] uppercase tracking-wider font-semibold">
+          Avg Response
+        </p>
+        <span className={`text-[10px] font-bold ${rtColor(rtVal)}`}>
+          {rtVal > 2000 ? 'SLOW' : rtVal > 1000 ? 'WARN' : rtVal > 500 ? 'OK' : 'FAST'}
+        </span>
+      </div>
+
+      <div className="flex items-end gap-2">
+        <span className={`text-3xl font-bold ${rtColor(rtVal)}`}>
+          {serverMetrics?.requests?.avgResponseTime ?? '—'}
+        </span>
+        <span className="text-[#4B5563] text-sm mb-1">ms</span>
+      </div>
+
+      {/* RT visual indicator */}
+      <div className="h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-700 ${
+            rtVal > 2000 ? 'bg-red-500' : rtVal > 1000 ? 'bg-orange-500'
+            : rtVal > 500 ? 'bg-yellow-500' : 'bg-green-500'
+          }`}
+          style={{ width: `${Math.min((rtVal / 3000) * 100, 100)}%`, opacity: 0.75 }}
+        />
+      </div>
+      <p className="text-[10px] text-[#4B5563]">
+        {serverMetrics?.requests?.total?.toLocaleString() ?? '—'} total requests
+      </p>
+    </div>
+
+    {/* Uptime */}
+    <div className="bg-[#0F0F0F] p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] text-[#4B5563] uppercase tracking-wider font-semibold">
+          Uptime
+        </p>
+        <span className="text-[10px] px-1.5 py-0.5 rounded-md
+          bg-green-500/10 border border-green-500/20 text-green-400 font-semibold">
+          ONLINE
+        </span>
+      </div>
+
+      <div className="flex items-end gap-1">
+        <span className="text-3xl font-bold text-yellow-400">
+          {serverMetrics?.uptime?.hours ?? '—'}
+        </span>
+        <span className="text-[#4B5563] text-sm mb-1">h</span>
+        <span className="text-2xl font-bold text-yellow-400 ml-1">
+          {serverMetrics?.uptime?.minutes ?? '—'}
+        </span>
+        <span className="text-[#4B5563] text-sm mb-1">m</span>
+      </div>
+
+      <div className="h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
+        <div className="h-full w-full bg-yellow-500/40 rounded-full" />
+      </div>
+      <p className="text-[10px] text-[#4B5563]">
+        {serverMetrics?.errors?.total > 0
+          ? <span className="text-red-400/70">
+              {serverMetrics.errors.total} error{serverMetrics.errors.total > 1 ? 's' : ''} logged
+            </span>
+          : 'No errors logged'
+        }
+      </p>
+    </div>
+  </div>
+
+  {/* ── System Info Footer */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1A1A1A]
+    border-t border-[#1A1A1A]">
+    {[
+      {
+        label: 'Platform',
+        value: serverMetrics?.system?.platform ?? '—',
+        icon:  MonitorIcon,
+      },
+      {
+        label: 'Node Version',
+        value: serverMetrics?.system?.nodeVersion ?? '—',
+        icon:  CodeIcon,
+      },
+      {
+        label: 'Hostname',
+        value: serverMetrics?.system?.hostname ?? '—',
+        icon:  ServerIcon,
+      },
+    ].map(item => (
+      <div key={item.label}
+        className="bg-[#0F0F0F] px-5 py-3 flex items-center gap-3">
+        <item.icon className="w-3.5 h-3.5 text-[#3F3F3F] flex-shrink-0" />
+        <span className="text-[11px] text-[#4B5563]">{item.label}</span>
+        <span className="text-xs font-mono text-[#9CA3AF] ml-auto">
+          {item.value}
+        </span>
+      </div>
+    ))}
+  </div>
+</div>
               {/* MongoDB Database Health Section */}
               <MongoDBHealth autoRefresh={autoRefresh} />
               {/* Redis Cache Health Section */}
@@ -1521,6 +1634,8 @@ export default function AdminDashboard() {
 {activeTab === "seo" && <SeoAdminTab />}
 {/* // In your tab renders — add: */}
 {activeTab === "homepageanalytics" && <HomepageAnalyticsDashboard />}
+{/* // 2️⃣ Add tab render — alongside other tab renders */}
+{activeTab === "cloudinary" && <CloudinaryDashboard />}  {/* ✅ ADD */}
         </div>
       </div>
     </PageTransition>
