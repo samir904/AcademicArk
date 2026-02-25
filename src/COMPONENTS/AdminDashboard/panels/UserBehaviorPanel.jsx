@@ -170,7 +170,10 @@ const UserCard = ({ user, rank, maxRequests }) => {
               {user.userEmail}
             </p>
             <p className="text-[10px] text-[#3F3F3F] font-mono mt-0.5">
-              {user.userId.slice(-10)}
+              {user.userId
+                ? user.userId.toString().slice(-10)   // ✅ ObjectId last 10 chars
+                : user.userEmail?.split('@')[0]        // ✅ fallback: email prefix
+              }
             </p>
           </div>
         </div>

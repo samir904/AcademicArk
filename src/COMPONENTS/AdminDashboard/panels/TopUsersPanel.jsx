@@ -445,7 +445,10 @@ export default function TopUsersPanel() {
                                 {user.userEmail}
                               </p>
                               <p className="text-[10px] text-[#3F3F3F] font-mono">
-                                {user.userId.slice(-8)}
+                                {user.userId
+                ? user.userId.toString().slice(-10)   // ✅ ObjectId last 10 chars
+                : user.userEmail?.split('@')[0]        // ✅ fallback: email prefix
+              }
                               </p>
                             </div>
                           </div>
