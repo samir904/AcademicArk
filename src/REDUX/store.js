@@ -37,6 +37,7 @@ import filterAnalyticsReducer from './Slices/filterAnalyticsSlice.js'
 import seoAdminReducer from './Slices/seoAdminSlice.js'
 import homepageAnalyticsReducer from './Slices/homepageAnalyticsSlice.js'
 import cloudinaryReducer from './Slices/cloudinarySlice.js';
+import emailCampaignReducer from './Slices/emailCampaignSlice.js'
 //  import videoReducer from './Slices/videoSlice.js'
 // import logsReducer  from './Slices/logsSlice.js'
 // import studyBuddySlice from "./Slices/studyBuddy.slice.js"
@@ -76,6 +77,7 @@ const store = configureStore({
     searchAnalytics:searchAnalyticsReducer,
     homepageAnalytics: homepageAnalyticsReducer,   // ✅ ADD
     cloudinary: cloudinaryReducer,  // ✅ ADD
+    emailCampaign: emailCampaignReducer,   // ✅ ADD THIS LINE
 
     plans: planReducer,
     payment:paymentReducer,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../HELPERS/axiosInstance";
 import { showToast } from "../../HELPERS/Toaster";
+import SendPersonalEmail from "../../COMPONENTS/Admin/SendPersonalEmail";
 
 const EmailCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -566,6 +567,7 @@ const EmailCampaigns = () => {
             ))
           )}
         </div>
+        <SendPersonalEmail />
       </div>
     </div>
   );
